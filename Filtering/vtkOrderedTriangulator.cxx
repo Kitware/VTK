@@ -27,10 +27,10 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-#include <vtkstd/list>
-#include <vtkstd/vector>
-#include <vtkstd/stack>
-#include <vtkstd/map>
+#include <list>
+#include <vector>
+#include <stack>
+#include <map>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkOrderedTriangulator);
@@ -105,9 +105,9 @@ struct OTPoint
   //Id after sorting the points (i.e. order inserted into mesh)
   vtkIdType InsertionId;
 };
-struct PointListType : public vtkstd::vector<OTPoint>
+struct PointListType : public std::vector<OTPoint>
 {
-  PointListType() : vtkstd::vector<OTPoint>() {}
+  PointListType() : std::vector<OTPoint>() {}
   OTPoint* GetPointer(int ptId)
     {return &( *(this->begin()+ptId) ); }
 };
@@ -149,19 +149,19 @@ struct OTFace //used during tetra construction
       return ( (d > 0.0L && (d*d) > (tol2*this->N2)) ? 1 : 0 );
     }
 };
-typedef vtkstd::vector<OTFace*>            FaceListType;
-typedef vtkstd::vector<OTFace*>::iterator  FaceListIterator;
+typedef std::vector<OTFace*>            FaceListType;
+typedef std::vector<OTFace*>::iterator  FaceListIterator;
 
 //---Class represents a tetrahedron (and related typedefs)--------------------
-typedef vtkstd::list<OTTetra*>             TetraListType;
-typedef vtkstd::list<OTTetra*>::iterator   TetraListIterator;
-struct TetraStackType : public vtkstd::stack<OTTetra*>
+typedef std::list<OTTetra*>             TetraListType;
+typedef std::list<OTTetra*>::iterator   TetraListIterator;
+struct TetraStackType : public std::stack<OTTetra*>
 {
-  TetraStackType() : vtkstd::stack<OTTetra*>() {}
+  TetraStackType() : std::stack<OTTetra*>() {}
   void clear() {while (!this->empty()) this->pop();}
 };
-typedef vtkstd::vector<OTTetra*>           TetraQueueType;
-typedef vtkstd::vector<OTTetra*>::iterator TetraQueueIterator;
+typedef std::vector<OTTetra*>           TetraQueueType;
+typedef std::vector<OTTetra*>::iterator TetraQueueIterator;
 
 struct OTTetra
 {
@@ -280,13 +280,13 @@ struct OTTemplate
 
 // Typedefs for a list of templates for a particular cell. Key is the
 // template index.
-typedef vtkstd::map<TemplateIDType,OTTemplate*>           TemplateList;
-typedef vtkstd::map<TemplateIDType,OTTemplate*>::iterator TemplateListIterator;
+typedef std::map<TemplateIDType,OTTemplate*>           TemplateList;
+typedef std::map<TemplateIDType,OTTemplate*>::iterator TemplateListIterator;
 
 //
 // Typedefs for a list of lists of templates keyed on cell type
-struct vtkOTTemplates : public vtkstd::map<int,TemplateList*> {};
-typedef vtkstd::map<int,TemplateList*>::iterator TemplatesIterator;
+struct vtkOTTemplates : public std::map<int,TemplateList*> {};
+typedef std::map<int,TemplateList*>::iterator TemplatesIterator;
 
 
 //------------------------------------------------------------------------

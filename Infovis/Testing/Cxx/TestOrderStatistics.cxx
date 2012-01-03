@@ -483,7 +483,7 @@ int TestOrderStatistics( int, char *[] )
     }
 
   // Calculate quantile-based histogram
-  vtkstd::map<int,int> histo12Text;
+  std::map<int,int> histo12Text;
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
     ++ histo12Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
@@ -495,8 +495,8 @@ int TestOrderStatistics( int, char *[] )
        << "-quantiles:\n";
 
   // Calculate representatives
-  vtkstd::map<int,char> histo12Repr;
-  for ( vtkstd::map<int,int>::iterator it = histo12Text.begin(); it != histo12Text.end(); ++ it )
+  std::map<int,char> histo12Repr;
+  for ( std::map<int,int>::iterator it = histo12Text.begin(); it != histo12Text.end(); ++ it )
     {
     int quantIdx = it->first;
     int prevqIdx = ( it->first ? it->first - 1 : 0 );
@@ -559,7 +559,7 @@ int TestOrderStatistics( int, char *[] )
        << "\n";
 
   // Calculate quantile-based histogram
-  vtkstd::map<int,int> histo100Text;
+  std::map<int,int> histo100Text;
   for ( vtkIdType r = 0; r < outputData2->GetNumberOfRows(); ++ r )
     {
     ++ histo100Text[outputData2->GetValueByName( r, "Quantile(Text)" ).ToInt()];
@@ -571,8 +571,8 @@ int TestOrderStatistics( int, char *[] )
        << "-quantiles:\n";
 
   // Calculate representatives
-  vtkstd::map<int,char> histo100Repr;
-  for ( vtkstd::map<int,int>::iterator it = histo100Text.begin(); it != histo100Text.end(); ++ it )
+  std::map<int,char> histo100Repr;
+  for ( std::map<int,int>::iterator it = histo100Text.begin(); it != histo100Text.end(); ++ it )
     {
     int quantIdx = it->first;
     int prevqIdx = ( it->first ? it->first - 1 : 0 );

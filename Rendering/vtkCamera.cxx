@@ -23,7 +23,6 @@
 
 #include <math.h>
 
-
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCamera);
@@ -80,17 +79,17 @@ vtkCamera::vtkCamera()
 
   this->UseOffAxisProjection  = 0;
 
-  this->ScreenBottomLeft[0] = -1.0;
-  this->ScreenBottomLeft[1] = -1.0;
-  this->ScreenBottomLeft[2] = -1.0;
+  this->ScreenBottomLeft[0] = -0.5;
+  this->ScreenBottomLeft[1] = -0.5;
+  this->ScreenBottomLeft[2] = -0.5;
 
-  this->ScreenBottomRight[0] =  1.0;
-  this->ScreenBottomRight[1] = -1.0;
-  this->ScreenBottomRight[2] = -1.0;
+  this->ScreenBottomRight[0] =  0.5;
+  this->ScreenBottomRight[1] = -0.5;
+  this->ScreenBottomRight[2] = -0.5;
 
-  this->ScreenTopRight[0] =  1.0;
-  this->ScreenTopRight[1] =  1.0;
-  this->ScreenTopRight[2] = -1.0;
+  this->ScreenTopRight[0] =  0.5;
+  this->ScreenTopRight[1] =  0.5;
+  this->ScreenTopRight[2] = -0.5;
 
   this->EyeSeparation = 0.06;
 
@@ -462,9 +461,9 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
 
   // Back and front are not traditional near and far.
   // Front (aka near)
-  double F = E[2] - this->ClippingRange[1];
+  double F = E[2] - 10000.0;//this->ClippingRange[1];
   // Back (aka far)
-  double B = E[2] - this->ClippingRange[0];
+  double B = E[2] - .1;//this->ClippingRange[0];
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
@@ -1712,7 +1711,6 @@ void vtkCamera::SetEyeTransformMatrix(const double elements[16])
   this->EyeTransformMatrix->Element[3][1] = elements[13];
   this->EyeTransformMatrix->Element[3][2] = elements[14];
   this->EyeTransformMatrix->Element[3][3] = elements[15];
-
   this->Modified();
 }
 
@@ -1738,6 +1736,5 @@ void vtkCamera::SetModelTransformMatrix(const double elements[16])
   this->ModelTransformMatrix->Element[3][1] = elements[13];
   this->ModelTransformMatrix->Element[3][2] = elements[14];
   this->ModelTransformMatrix->Element[3][3] = elements[15];
-
   this->Modified();
 }

@@ -130,7 +130,7 @@ inline vtkIdType vtkQuadricLODActor::GetDisplayListSize(vtkPolyData *pd)
 //----------------------------------------------------------------------------
 void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 {
-  float allowedTime, bestTime;
+  float allowedTime;
   vtkMatrix4x4 *matrix;
   vtkMapper *bestMapper;
 
@@ -290,12 +290,15 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // Timings might become out of date, but we rely on them to be consistent
   // across renders.
   bestMapper = this->Mapper;
-  bestTime = bestMapper->GetTimeToDraw();
-
+#ifndef NDEBUG
+  float bestTime = bestMapper->GetTimeToDraw();
+#endif
   if ( interactiveRender )
     {//use lod
     bestMapper = this->LODMapper;
+#ifndef NDEBUG
     bestTime = bestMapper->GetTimeToDraw();
+#endif
     vtkDebugMacro("LOD render (best,allowed): " << bestTime << "," << allowedTime);
     }
   else

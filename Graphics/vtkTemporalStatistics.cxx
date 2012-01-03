@@ -41,7 +41,7 @@
 
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 //=============================================================================
 vtkStandardNewMacro(vtkTemporalStatistics);

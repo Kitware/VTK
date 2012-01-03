@@ -42,7 +42,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include <vtksys/CommandLineArguments.hxx>
-#include <vtkstd/string>
+#include <string>
 
 enum { STRUCTURED_GRID_LIC2D_SLICE_DEMO = 0, STRUCTURED_GRID_LIC2D_SLICE_TEST = 1 };
 static int    RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_TEST;
@@ -58,11 +58,11 @@ inline  int CLAMP(int a, int min, int max)
 
 static int StructuredGridLIC2DSlice(int argc, char* argv[])
 {
-  vtkstd::string filename;
-  vtkstd::string noise_filename;
+  std::string filename;
+  std::string noise_filename;
   int resolution = 10;
   int magnification = 1;
-  vtkstd::string outputpath;
+  std::string outputpath;
   int num_partitions = 1;
   int num_steps = 40;
   int slice_dir = 2; // 0 == X, 1 == Y, 2 == Z

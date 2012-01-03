@@ -90,6 +90,20 @@ void vtkImageSliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageSliceMapper::Update()
+{
+  // Always update if something else caused the input to update
+  vtkImageData *input = this->GetInput();
+  if (input && input->GetUpdateTime() > this->UpdateTime.GetMTime())
+    {
+    this->Modified();
+    }
+
+  this->Superclass::Update();
+  this->UpdateTime.Modified();
+}
+
+//----------------------------------------------------------------------------
 int vtkImageSliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

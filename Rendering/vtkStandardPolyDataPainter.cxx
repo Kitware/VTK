@@ -45,7 +45,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkStandardPolyDataPainter::vtkInternal
 {
@@ -55,8 +55,8 @@ public:
     unsigned int MappingsIndex;
     vtkDataArray* Array;
     };
-  typedef vtkstd::vector<vtkInfo> InfoVector;
-  typedef vtkstd::vector<vtkDataArray *> DataArrayVector;
+  typedef std::vector<vtkInfo> InfoVector;
+  typedef std::vector<vtkDataArray *> DataArrayVector;
   InfoVector CellAttributesCache;
   InfoVector PointAttributesCache;
   DataArrayVector MultiTextureCoords;

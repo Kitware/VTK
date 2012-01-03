@@ -155,7 +155,7 @@ public:
 protected:
   int             freeEntryindex;
   vtkTableBasedClipperEdgeHashEntry * freeEntrylist[ FREE_ENTRY_LIST_SIZE ];
-  vtkstd::vector< vtkTableBasedClipperEdgeHashEntry * > edgeHashEntrypool;
+  std::vector< vtkTableBasedClipperEdgeHashEntry * > edgeHashEntrypool;
 
   void  AllocateEdgeHashEntryPool();
 };

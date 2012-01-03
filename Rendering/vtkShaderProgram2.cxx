@@ -23,7 +23,7 @@
 
 #include "vtkgl.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <vtksys/ios/sstream>
 #include <assert.h>
 #include "vtkStdString.h"

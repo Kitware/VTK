@@ -29,13 +29,19 @@
 // - Right mouse button dollys the camera.
 // - SHIFT Right Mouse triggers pick events
 //
+// If SetInteractionModeToImageSlicing() is called, then some of the mouse
+// events are changed as follows:
+// - CTRL Left Mouse slices through the image
+// - SHIFT Middle Mouse slices through the image
+// - CTRL Right Mouse spins the camera
+//
 // If SetInteractionModeToImage3D() is called, then some of the mouse
 // events are changed as follows:
 // - SHIFT Left Mouse rotates the camera for oblique slicing
 // - SHIFT Middle Mouse slices through the image
 // - CTRL Right Mouse also slices through the image
 //
-// In both modes, the following key bindings are in effect:
+// In all modes, the following key bindings are in effect:
 // - R Reset the Window/Level
 // - X Reset to a sagittal view
 // - Y Reset to a coronal view
@@ -62,6 +68,7 @@
 
 #define VTKIS_IMAGE2D 2
 #define VTKIS_IMAGE3D 3
+#define VTKIS_IMAGE_SLICING 4
 
 class vtkImageProperty;
 
@@ -110,13 +117,17 @@ public:
 
   // Description:
   // Set/Get current mode to 2D or 3D.  The default is 2D.  In 3D mode,
-  // it is possible to rotate the camera to view oblique slices.
-  vtkSetClampMacro(InteractionMode, int, VTKIS_IMAGE2D, VTKIS_IMAGE3D);
+  // it is possible to rotate the camera to view oblique slices.  In Slicing
+  // mode, it is possible to slice through the data, but not to generate oblique
+  // views by rotating the camera.
+  vtkSetClampMacro(InteractionMode, int, VTKIS_IMAGE2D, VTKIS_IMAGE_SLICING);
   vtkGetMacro(InteractionMode, int);
   void SetInteractionModeToImage2D() {
     this->SetInteractionMode(VTKIS_IMAGE2D); }
   void SetInteractionModeToImage3D() {
     this->SetInteractionMode(VTKIS_IMAGE3D); }
+  void SetInteractionModeToImageSlicing() {
+    this->SetInteractionMode(VTKIS_IMAGE_SLICING); }
 
   // Description:
   // Set the orientations that will be used when the X, Y, or Z

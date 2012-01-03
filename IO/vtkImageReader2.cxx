@@ -808,7 +808,6 @@ void vtkImageReader2::ExecuteData(vtkDataObject *output,
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   
   void *ptr;
-  int *ext;
   
   if (!this->FileName && !this->FilePattern)
     {
@@ -816,9 +815,11 @@ void vtkImageReader2::ExecuteData(vtkDataObject *output,
     return;
     }
 
-  ext = data->GetExtent();
-
   data->GetPointData()->GetScalars()->SetName("ImageFile");
+
+#ifndef NDEBUG
+  int *ext = data->GetExtent();
+#endif
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
         << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);

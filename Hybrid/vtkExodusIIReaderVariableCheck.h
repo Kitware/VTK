@@ -5,8 +5,8 @@
 
 #include <vtksys/RegularExpression.hxx> // for integration point names
 #include <vtksys/String.hxx> // STL Header for Start/StartInternal/Add
-#include <vtkstd/vector> // STL Header for glommed array names
-#include <vtkstd/set> // STL Header for integration point names
+#include <vector> // STL Header for glommed array names
+#include <set> // STL Header for integration point names
 
 /**\brief Abstract base class for glomming arrays of variable names.
   *
@@ -24,10 +24,10 @@ public:
   /// Add a name to the sequence. Returns true if any more names may be added.
   virtual bool Add( vtksys_stl::string name, const int* truth ) = 0;
   /// Returns the length of the sequence (or 0 if the match is incorrect or incomplete).
-  virtual vtkstd::vector<vtksys_stl::string>::size_type Length();
+  virtual std::vector<vtksys_stl::string>::size_type Length();
   /// Accept this sequence. (Add an entry to the end of \a arr.) Must return Length().
   virtual int Accept(
-    vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
+    std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
     int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp );
 
 protected:
@@ -39,12 +39,12 @@ protected:
   bool CheckTruth( const int* truth );
   bool UniquifyName(
     vtkExodusIIReaderPrivate::ArrayInfoType& ainfo,
-    vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arrays );
+    std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arrays );
 
   int GlomType;
-  vtkstd::vector<int> SeqTruth;
+  std::vector<int> SeqTruth;
   vtksys_stl::string Prefix;
-  vtkstd::vector<vtksys_stl::string> OriginalNames;
+  std::vector<vtksys_stl::string> OriginalNames;
 };
 
 /// This always accepts a single array name as a scalar. It is the fallback for all other checkers.
@@ -63,7 +63,7 @@ public:
   vtkExodusIIReaderVectorCheck( const char* seq, int n );
   virtual bool StartInternal( vtksys_stl::string name, const int*, int );
   virtual bool Add( vtksys_stl::string name, const int* truth );
-  virtual vtkstd::vector<vtksys_stl::string>::size_type Length();
+  virtual std::vector<vtksys_stl::string>::size_type Length();
 protected:
   vtksys_stl::string Endings;
   bool StillAdding;
@@ -81,7 +81,7 @@ public:
   vtkExodusIIReaderTensorCheck( const char* seq, int n, int rank, int dim );
   virtual bool StartInternal( vtksys_stl::string name, const int*, int );
   virtual bool Add( vtksys_stl::string name, const int* truth );
-  virtual vtkstd::vector<vtksys_stl::string>::size_type Length();
+  virtual std::vector<vtksys_stl::string>::size_type Length();
 protected:
   vtksys_stl::string Endings;
   vtkTypeUInt64 NumEndings;
@@ -97,10 +97,10 @@ public:
   vtkExodusIIReaderIntPointCheck();
   virtual bool StartInternal( vtksys_stl::string name, const int*, int );
   virtual bool Add( vtksys_stl::string name, const int* );
-  virtual vtkstd::vector<vtksys_stl::string>::size_type Length();
+  virtual std::vector<vtksys_stl::string>::size_type Length();
   /*
   virtual int Accept(
-    vtkstd::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
+    std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
     {
     }
     */
@@ -111,9 +111,9 @@ protected:
   vtksys::RegularExpression RegExp;
   vtksys_stl::string VarName;
   vtksys_stl::string CellType;
-  vtkstd::vector<int> IntPtMin;
-  vtkstd::vector<int> IntPtMax;
-  vtkstd::set<vtksys_stl::string> IntPtNames;
+  std::vector<int> IntPtMin;
+  std::vector<int> IntPtMax;
+  std::set<vtksys_stl::string> IntPtNames;
   vtkTypeUInt64 Rank;
   bool StillAdding;
 };

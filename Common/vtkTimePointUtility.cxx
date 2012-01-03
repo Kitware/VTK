@@ -363,7 +363,7 @@ const char* vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int form
   GetDateTime(time, year, month, day, hour, minute, second, msec);
 
   vtksys_ios::ostringstream oss;
-  oss.imbue(vtkstd::locale::classic());
+  oss.imbue(std::locale::classic());
   oss.fill('0');
   if (format == ISO8601_DATETIME)
     {

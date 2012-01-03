@@ -33,9 +33,9 @@
 #include "vtkClosedSurfacePointPlacer.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPlane.h"
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <set>
+#include <algorithm>
 
 #define min(x,y) ((x<y) ? (x) : (y))
 #define max(x,y) ((x>y) ? (x) : (y))
@@ -51,8 +51,8 @@ class vtkParallelopipedTopology
 public:
   typedef struct Line { vtkIdType Id[2]; 
           Line(vtkIdType a, vtkIdType b) { Id[0]=a; Id[1]=b; } }  LineType; 
-  typedef vtkstd::vector< vtkIdType >                             CellType;
-  typedef vtkstd::vector< CellType  >                             CliqueType;
+  typedef std::vector< vtkIdType >                             CellType;
+  typedef std::vector< CellType  >                             CliqueType;
   
   // Diametric opposite of Corner 0 = 6, 1 = 7, 2 = 4, 3 = 5.
   // Mathematically, if a diametric corner is represented by a 3 bit value: 
@@ -65,12 +65,12 @@ public:
   // Get the corners connected to corner 'i'. There will be three such corners 
   void GetNeighbors( int c, vtkIdType neighborPtIds[3], int configuration = 0 ) const
     {
-    vtkstd::set< vtkIdType > neighbors;
+    std::set< vtkIdType > neighbors;
     const CliqueType & clique = m_Topology[configuration];
     for (CliqueType::const_iterator clit = clique.begin(); 
          clit != clique.end(); ++clit)
       {
-      if (vtkstd::find(clit->begin(), clit->end(), c) != clit->end())
+      if (std::find(clit->begin(), clit->end(), c) != clit->end())
         {
         const CellType cell = RotateCell( *clit, c );
         neighbors.insert(cell[0]);
@@ -78,7 +78,7 @@ public:
         }
       }
     int i = 0;
-    for (vtkstd::set< vtkIdType >::const_iterator it = neighbors.begin(); 
+    for (std::set< vtkIdType >::const_iterator it = neighbors.begin();
          it != neighbors.end(); neighborPtIds[i++] = *it, ++it)
       {
       ;
@@ -86,14 +86,14 @@ public:
     }
 
   void GetNeighbors( vtkIdType node, vtkIdType neighborPtIds[3], 
-      vtkCellArray *neighborCells, vtkstd::vector< LineType > & lines )
+      vtkCellArray *neighborCells, std::vector< LineType > & lines )
     {
     GetNeighbors( 8 + GetDiametricOppositeOfCorner(node), neighborPtIds, node+1 );
     vtkIdType opposingNeighborPtIds[3], 
               opposite = GetDiametricOppositeOfCorner(node);
     GetNeighbors( opposite, opposingNeighborPtIds );
     
-    vtkstd::vector< vtkIdType > nodes(2);
+    std::vector< vtkIdType > nodes(2);
     for (int i = 0; i < 3; i++)
       {
       nodes[0] = neighborPtIds[i];
@@ -112,14 +112,14 @@ public:
     }
 
   void FindCellsContainingNodes( int configuration, vtkCellArray *cellArray, 
-                        const vtkstd::vector< vtkIdType > & nodes ) const
+                        const std::vector< vtkIdType > & nodes ) const
     { 
     vtkParallelopipedTopology::PopulateTopology( 
       FindCellsContainingNodes( m_Topology[configuration], nodes), cellArray );
     }
 
-  vtkstd::vector< CellType > FindCellsContainingNodes( 
-       int configuration, const vtkstd::vector< vtkIdType > & nodes )
+  std::vector< CellType > FindCellsContainingNodes(
+       int configuration, const std::vector< vtkIdType > & nodes )
     { return FindCellsContainingNodes( m_Topology[configuration], nodes); }
   
   vtkParallelopipedTopology()
@@ -224,7 +224,7 @@ private:
     for (CliqueType::const_iterator clit = clique.begin(); 
          clit != clique.end(); ++clit)
       {
-      if (vtkstd::find(clit->begin(), clit->end(), c) == clit->end())
+      if (std::find(clit->begin(), clit->end(), c) == clit->end())
         {
         outputClique.insert( outputClique.begin(), *clit );
         outputClique.push_back( ChairCell(*clit) );
@@ -257,17 +257,17 @@ private:
   // Find all the cells in a given a configuration (specified by the clique)
   // that contain the nodes. (specified by nodes). Each cell returned must 
   // contain all the nodes specified.
-  static vtkstd::vector< CellType > FindCellsContainingNodes( 
-       const CliqueType & clique, const vtkstd::vector< vtkIdType > & nodes )
+  static std::vector< CellType > FindCellsContainingNodes(
+       const CliqueType & clique, const std::vector< vtkIdType > & nodes )
     {
-    vtkstd::vector< CellType > cells;
+    std::vector< CellType > cells;
     for (CliqueType::const_iterator clit = clique.begin(); 
          clit != clique.end(); ++clit)
       {
       bool found = true;
-      for (vtkstd::vector< vtkIdType >::const_iterator nit = nodes.begin();
+      for (std::vector< vtkIdType >::const_iterator nit = nodes.begin();
             nit != nodes.end(); ++nit)
-        found &= (vtkstd::find(clit->begin(), clit->end(), *nit) != clit->end());
+        found &= (std::find(clit->begin(), clit->end(), *nit) != clit->end());
       if (found) cells.push_back(*clit);
       }
     return cells;
@@ -294,7 +294,7 @@ private:
       }
     }
 
-  vtkstd::vector< CliqueType > m_Topology;
+  std::vector< CliqueType > m_Topology;
 };
 
 //----------------------------------------------------------------------------
@@ -630,7 +630,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     double chairPoint[3];
     this->Points->GetPoint( chairHandleId, chairPoint );
     
-    vtkstd::vector< vtkParallelopipedTopology::LineType > lines;
+    std::vector< vtkParallelopipedTopology::LineType > lines;
     this->Topology->GetNeighbors( node, neighborPtIds, neighborCells, lines );
 
     neighborCells->InitTraversal();    
@@ -689,7 +689,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     
     for (int i = 0; i < 3; i++)
       {
-      vtkstd::vector< vtkIdType > nodes(3);
+      std::vector< vtkIdType > nodes(3);
       vtkSmartPointer< vtkCellArray > cells 
           = vtkSmartPointer<vtkCellArray>::New();
       nodes[0] = 8 + vtkParallelopipedTopology::
@@ -1001,7 +1001,7 @@ int vtkParallelopipedRepresentation
       // the face and translate the face.
 
       // "nodes" contains the 3 pointIds that we know are present on the face.
-      vtkstd::vector< vtkIdType > nodes(3); 
+      std::vector< vtkIdType > nodes(3);
       nodes[0] = this->CurrentHandleIdx;
 
       for (int i = 0, j = 1; i < 3; i++)
@@ -1080,7 +1080,7 @@ int vtkParallelopipedRepresentation
       // "neighborWorldPos", if we have a chair.
       if (this->ChairHandleIdx != -1)
         {
-        vtkstd::vector< vtkIdType > nodes2(1);
+        std::vector< vtkIdType > nodes2(1);
         nodes2[0] = vtkParallelopipedTopology::GetDiametricOppositeOfCorner(this->ChairHandleIdx)+8;
         const vtkParallelopipedTopology::CliqueType cells2 = this->
           Topology->FindCellsContainingNodes( this->ChairHandleIdx+1, nodes2 );
@@ -1096,7 +1096,7 @@ int vtkParallelopipedRepresentation
           // and that it is at least 'MinimumThickness' away from any of the
           // planes of the chair.
           if (fabs(distance) < this->MinimumThickness || 
-               (distance * (vtkstd::find(clit->begin(), clit->end(), 
+               (distance * (std::find(clit->begin(), clit->end(),
                   this->CurrentHandleIdx+8) != clit->end() ? -1 : 1) > 0))
             {
             this->LastEventPosition[0] = X;

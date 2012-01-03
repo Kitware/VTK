@@ -28,7 +28,6 @@
 #include <assert.h>
 #include <cmath>
 
-#include "vtkMathConfigure.h"
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
 
@@ -63,7 +62,7 @@ vtkMathInternal vtkMath::Internal;
 
 #ifdef VTK_HAS_STD_NUMERIC_LIMITS
 
-#include <vtkstd/limits>
+#include <limits>
 
 #else // VTK_HAS_STD_NUMERIC_LIMITS
 
@@ -100,36 +99,6 @@ const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000LL;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFLL;
 #endif
 
-// If we cannot do comparisons to non-finite numbers without causing floating
-// point exceptions, we better fall back to IEEE-754 bit comparisons.
-
-#if !defined(VTK_HAS_ISINF) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-inline bool vtkMathIsInf(double x)
-{
-  // IEEE-754 infinites have all of their exponent set and none of their
-  // mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsInf of " << xbits << endl;
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) == 0) );
-}
-#define isinf(x) vtkMathIsInf(x)
-#define VTK_HAS_ISINF
-#endif // !VTK_HAS_ISINF && VTK_NON_FINITE_CAUSES_EXCEPTIONS
-
-#if !defined(VTK_HAS_ISNAN) && defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-inline bool vtkMathIsNan(double x)
-{
-  // IEEE-754 NaNs have all of their exponent set and at least one bit in
-  // their mantissa set.
-  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsNan of " << xbits << endl;
-  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
-          && ((xbits & vtkMathDoubleMantissa) != 0) );
-}
-#define isnan(x) vtkMathIsNan(x)
-#define VTK_HAS_ISNAN
-#endif // !VTK_HAS_ISNAN && VTK_NON_FINITE_CAUSES_EXCEPTIONS
 
 //
 // Some useful macros and functions
@@ -1857,6 +1826,51 @@ void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 }
 
 //----------------------------------------------------------------------------
+// Multiplying two quaternions
+template <class T>
+inline void vtkQuaternionMultiplication( const T q1[4],
+                                         const T q2[4],
+                                         T q[4] )
+{
+  T ww = q1[0]*q2[0];
+  T wx = q1[0]*q2[1];
+  T wy = q1[0]*q2[2];
+  T wz = q1[0]*q2[3];
+
+  T xw = q1[1]*q2[0];
+  T xx = q1[1]*q2[1];
+  T xy = q1[1]*q2[2];
+  T xz = q1[1]*q2[3];
+
+  T yw = q1[2]*q2[0];
+  T yx = q1[2]*q2[1];
+  T yy = q1[2]*q2[2];
+  T yz = q1[2]*q2[3];
+
+  T zw = q1[3]*q2[0];
+  T zx = q1[3]*q2[1];
+  T zy = q1[3]*q2[2];
+  T zz = q1[3]*q2[3];
+
+  q[0] = ww-xx-yy-zz;
+  q[1] = wx+xw+yz-zy;
+  q[2] = wy-xz+yw+zx;
+  q[3] = wz+xy-yx+zw;
+}
+
+//----------------------------------------------------------------------------
+void vtkMath::MultiplyQuaternion( const float q1[4], const float q2[4], float q[4] )
+{
+  vtkQuaternionMultiplication( q1, q2, q );
+}
+
+//----------------------------------------------------------------------------
+void vtkMath::MultiplyQuaternion( const double q1[4], const double q2[4], double q[4] )
+{
+  vtkQuaternionMultiplication( q1, q2, q );
+}
+
+//----------------------------------------------------------------------------
 //  The orthogonalization is done via quaternions in order to avoid
 //  having to use a singular value decomposition algorithm.
 template <class T1, class T2>
@@ -3035,7 +3049,7 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 double vtkMath::Inf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return vtkstd::numeric_limits<double>::infinity();
+  return std::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathInfBits);
 #else
@@ -3047,7 +3061,7 @@ double vtkMath::Inf()
 double vtkMath::NegInf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return -vtkstd::numeric_limits<double>::infinity();
+  return -std::numeric_limits<double>::infinity();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathNegInfBits);
 #else
@@ -3059,7 +3073,7 @@ double vtkMath::NegInf()
 double vtkMath::Nan()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
-  return vtkstd::numeric_limits<double>::quiet_NaN();
+  return std::numeric_limits<double>::quiet_NaN();
 #elif defined(__BORLANDC__)
   return *reinterpret_cast<double*>(&vtkMathNanBits);
 #else
@@ -3068,22 +3082,40 @@ double vtkMath::Nan()
 }
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISINF)
 int vtkMath::IsInf(double x)
 {
-#ifdef VTK_HAS_ISINF
-  return (isinf(x) ? 1 : 0);
+#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+  // If we cannot do comparisons to non-finite numbers without causing floating
+  // point exceptions, we better fall back to IEEE-754 bit comparisons.
+  // IEEE-754 infinites have all of their exponent set and none of their
+  // mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsInf of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) == 0) ) ? 1 : 0;
 #else
   return (   !vtkMath::IsNan(x)
           && !((x < vtkMath::Inf()) && (x > vtkMath::NegInf())) );
 #endif
 }
+#endif
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_HAS_ISNAN)
 int vtkMath::IsNan(double x)
 {
-#ifdef VTK_HAS_ISNAN
-  return (isnan(x) ? 1 : 0);
+#if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
+  // If we cannot do comparisons to non-finite numbers without causing floating
+  // point exceptions, we better fall back to IEEE-754 bit comparisons.
+  // IEEE-754 NaNs have all of their exponent set and at least one bit in
+  // their mantissa set.
+  vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
+  cout << "IsNan of " << xbits << endl;
+  return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
+          && ((xbits & vtkMathDoubleMantissa) != 0) ) ? 1 : 0;
 #else
   return !((x <= 0.0) || (x >= 0.0));
 #endif
 }
+#endif

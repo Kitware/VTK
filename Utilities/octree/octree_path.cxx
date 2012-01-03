@@ -46,12 +46,12 @@
   */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
-  *     vtkstd::vector<octree_node_pointer> octree_path<T_,R_,P_,O_,OP_,d_>::_M_parents
+  *     std::vector<octree_node_pointer> octree_path<T_,R_,P_,O_,OP_,d_>::_M_parents
   *\brief List of parent nodes
   */
 
 /**\var template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
-  *     vtkstd::vector<int> octree_path<T_,R_,P_,O_,OP_,d_>::_M_indices
+  *     std::vector<int> octree_path<T_,R_,P_,O_,OP_,d_>::_M_indices
   *\brief List of parent child indices
   */
 
@@ -97,11 +97,11 @@ octree_path<T_,R_,P_,O_,OP_,d_>::octree_path( octree_node_pointer root )
   * given a \a path of nodes to descend from the root of the \a tree.
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-octree_path<T_,R_,P_,O_,OP_,d_>::octree_path( octree_node_pointer root, vtkstd::vector<int>& children )
+octree_path<T_,R_,P_,O_,OP_,d_>::octree_path( octree_node_pointer root, std::vector<int>& children )
 {
   this->_M_root = root;
   this->_M_current_node = root;
-  for ( vtkstd::vector<int>::iterator cit = children.begin(); cit != children.end(); ++cit )
+  for ( std::vector<int>::iterator cit = children.begin(); cit != children.end(); ++cit )
     {
     this->_M_parents.push_back( this->_M_current_node );
     this->_M_indices.push_back( *cit );

@@ -19,8 +19,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
-#include <vtkstd/queue>
-using vtkstd::queue;
+#include <queue>
+using std::queue;
 
 class vtkTreeBFSIteratorInternals
 {

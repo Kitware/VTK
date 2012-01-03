@@ -42,7 +42,7 @@ class vtkFloatArray;
 
 //BTX
 #include "vtkSmartPointer.h" // for memory safety
-#include <vtkstd/set>        // Because we want to use it
+#include <set>        // Because we want to use it
 class ParticleTrail;
 class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
@@ -165,7 +165,7 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     vtkSmartPointer<vtkPoints>                          VertexCoordinates;
     vtkSmartPointer<vtkFloatArray>                      TrailId;
     vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
-    vtkstd::set<vtkIdType>                              SelectionIds;
+    std::set<vtkIdType>                              SelectionIds;
 //ETX
     //
   private:

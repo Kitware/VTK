@@ -634,4 +634,21 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
+
+  os << indent << "RegionSizes: ";
+  if (this->GetNumberOfExtractedRegions() > 10)
+    {
+    os << "Only first ten of "
+       << this->GetNumberOfExtractedRegions() << " listed";
+    }
+  os << std::endl;
+
+  for (vtkIdType id = 0;
+       id < (this->GetNumberOfExtractedRegions() > 10
+             ? 10 : this->GetNumberOfExtractedRegions());
+       id++)
+    {
+    os << indent << indent
+       << id << ": " << this->RegionSizes->GetValue(id) << std::endl;
+    }
 }

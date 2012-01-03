@@ -28,7 +28,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 static inline void  vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
@@ -1176,7 +1176,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
       {
       switch(type)
         {
-        vtkTemplateMacro(vtkstd::copy(
+        vtkTemplateMacro(std::copy(
                        reinterpret_cast<const VTK_TT*>(sendBuffer),
                        reinterpret_cast<const VTK_TT*>(sendBuffer) + sendLength,
                        reinterpret_cast<VTK_TT*>(recvBuffer) + offsets[0]));
@@ -1184,7 +1184,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
       return 1;
       }
 #endif //OPEN_MPI
-    vtkstd::vector<int> mpiRecvLengths, mpiOffsets;
+    std::vector<int> mpiRecvLengths, mpiOffsets;
     mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
       {
@@ -1252,7 +1252,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
       {
       switch(type)
         {
-        vtkTemplateMacro(vtkstd::copy(
+        vtkTemplateMacro(std::copy(
                    reinterpret_cast<const VTK_TT*>(sendBuffer) + offsets[0],
                    reinterpret_cast<const VTK_TT*>(sendBuffer) + offsets[0]
                                                                + sendLengths[0],
@@ -1261,7 +1261,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
       return 1;
       }
 #endif //OPEN_MPI
-    vtkstd::vector<int> mpiSendLengths, mpiOffsets;
+    std::vector<int> mpiSendLengths, mpiOffsets;
     mpiSendLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
       {
@@ -1324,7 +1324,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
     {
     switch(type)
       {
-      vtkTemplateMacro(vtkstd::copy(
+      vtkTemplateMacro(std::copy(
                        reinterpret_cast<const VTK_TT*>(sendBuffer),
                        reinterpret_cast<const VTK_TT*>(sendBuffer) + sendLength,
                        reinterpret_cast<VTK_TT*>(recvBuffer) + offsets[0]));
@@ -1347,7 +1347,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
       }
     }
 #endif //OPEN_MPI
-  vtkstd::vector<int> mpiRecvLengths, mpiOffsets;
+  std::vector<int> mpiRecvLengths, mpiOffsets;
   mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
   for (int i = 0; i < numProc; i++)
     {

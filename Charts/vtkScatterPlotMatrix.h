@@ -25,12 +25,15 @@
 
 #include "vtkChartMatrix.h"
 #include "vtkSmartPointer.h" // For ivars
-#include "vtkNew.h" // For ivars
+#include "vtkNew.h"          // For ivars
+#include "vtkColor.h"        // For member function return
+#include "vtkStdString.h"    // For ivars
 
 class vtkStringArray;
 class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
+class vtkTextProperty;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -105,32 +108,16 @@ public:
   virtual int GetNumberOfBins() const { return this->NumberOfBins; }
 
   // Description:
-  // Set the color for the scatter plots.
-  void SetColor(double r, double g, double b);
+  // Set the color for the specified plotType.
+  void SetPlotColor(int plotType, const vtkColor4ub& color);
 
   // Description:
-  // Set the color for the active plot.
-  void SetActivePlotColor(double r, double g, double b);
+  // Sets the marker style for the specified plotType.
+  void SetPlotMarkerStyle(int plotType, int style);
 
   // Description:
-  // Set the color for the histogram.
-  void SetHistogramColor(double r, double g, double b);
-
-  // Description:
-  // Sets the marker style for the scatter plots.
-  void SetMarkerStyle(int style);
-
-  // Description:
-  // Sets the marker style for the active plots.
-  void SetActivePlotMarkerStyle(int style);
-
-  // Description:
-  // Sets the marker size for the scatter plots.
-  void SetMarkerSize(double size);
-
-  // Description:
-  // Sets the marker size for the active plot.
-  void SetActivePlotMarkerSize(double size);
+  // Sets the marker size for the specified plotType.
+  void SetPlotMarkerSize(int plotType, float size);
 
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
@@ -153,6 +140,92 @@ public:
   // value is one of: SCATTERPLOT, HISTOGRAM, ACTIVEPLOT, or NOPLOT.
   int GetPlotType(const vtkVector2i &pos);
   int GetPlotType(int row, int column);
+
+  // Description:
+  // Set/get the scatter plot title.
+  void SetTitle(const vtkStdString& title);
+  vtkStdString GetTitle();
+
+  // Description:
+  // Set/get the text properties for the chart title, i.e. color, font, size.
+  void SetTitleProperties(vtkTextProperty *prop);
+  vtkTextProperty* GetTitleProperties();
+
+  // Description:
+  // Sets whether or not the grid for the given axis is visible given a plot
+  // type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetGridVisibility(int plotType, bool visible);
+  bool GetGridVisibility(int plotType);
+
+  // Description:
+  // Sets the background color for the chart given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetBackgroundColor(int plotType, const vtkColor4ub& color);
+  vtkColor4ub GetBackgroundColor(int plotType);
+
+  // Description:
+  // Sets the color for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisColor(int plotType, const vtkColor4ub& color);
+  vtkColor4ub GetAxisColor(int plotType);
+
+  // Description:
+  // Sets the color for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetGridColor(int plotType, const vtkColor4ub& color);
+  vtkColor4ub GetGridColor(int plotType);
+
+  // Description:
+  // Sets whether or not the labels for the axes are visible, given a plot type,
+  // which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelVisibility(int plotType, bool visible);
+  bool GetAxisLabelVisibility(int plotType);
+
+  // Description:
+  // Set/get the text property for the axis labels of the given plot type,
+  // possible types are vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelProperties(int plotType, vtkTextProperty *prop);
+  vtkTextProperty* GetAxisLabelProperties(int plotType);
+
+  // Description:
+  // Sets the axis label notation for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelNotation(int plotType, int notation);
+  int GetAxisLabelNotation(int plotType);
+
+  // Description:
+  // Sets the axis label precision for the axes given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetAxisLabelPrecision(int plotType, int precision);
+  int GetAxisLabelPrecision(int plotType);
+
+  // Description:
+  // Set chart's tooltip notation and precision, given a plot type, which refers to
+  // vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
+  void SetTooltipNotation(int plotType, int notation);
+  void SetTooltipPrecision(int plotType, int precision);
+  int GetTooltipNotation(int plotType);
+  int GetTooltipPrecision(int plotType);
+
+  // Description:
+  // Set the scatter plot selected row/column charts' background color.
+  void SetScatterPlotSelectedRowColumnColor(const vtkColor4ub& color);
+  vtkColor4ub GetScatterPlotSelectedRowColumnColor();
+
+  // Description:
+  // Set the scatter plot selected active chart background color.
+  void SetScatterPlotSelectedActiveColor(const vtkColor4ub& color);
+  vtkColor4ub GetScatterPlotSelectedActiveColor();
+
+  // Description:
+  // Convenient method to update all the chart settings
+  void UpdateSettings();
+
+  // Description:
+  // Update charts based on settings given the plot type
+  void UpdateChartSettings(int plotType);
 
 protected:
   vtkScatterPlotMatrix();
@@ -186,6 +259,10 @@ protected:
 
   // The number of bins in the histograms.
   int NumberOfBins;
+
+  // The title of the scatter plot matrix.
+  vtkStdString Title;
+  vtkSmartPointer<vtkTextProperty> TitleProperties;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

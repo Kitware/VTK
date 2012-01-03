@@ -3,7 +3,7 @@
 
 #include <cfloat>
 #include <stdexcept>
-#include <vtkstd/vector>
+#include <vector>
 
 //#ifdef __APPLE__
 /* What software-bundling DRMoron at Apple thought this was OK?!?!! */

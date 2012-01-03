@@ -36,9 +36,9 @@
 #include <QXmlQuery>
 #include <QXmlSerializer>
 
-#include <vtkstd/memory>
-#include <vtkstd/stdexcept>
-#include <vtkstd/algorithm>
+#include <memory>
+#include <stdexcept>
+#include <algorithm>
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // vtkQtXMLProcessor::XMLAdapter
@@ -48,11 +48,11 @@ class vtkQtXMLProcessor::XMLAdapter :
   public QSimpleXmlNodeModel
 {
 public:
-  XMLAdapter(const QXmlNamePool& name_pool, vtkFieldData* const field_data, vtkstd::map<vtkStdString, vtkStdString> array_name_map, const vtkIdType row_begin = 0, const vtkIdType row_end = 0) :
+  XMLAdapter(const QXmlNamePool& name_pool, vtkFieldData* const field_data, std::map<vtkStdString, vtkStdString> array_name_map, const vtkIdType row_begin = 0, const vtkIdType row_end = 0) :
     QSimpleXmlNodeModel(name_pool),
     FieldData(field_data),
     RowBegin(row_begin),
-    RowEnd(vtkstd::max(row_begin, row_end))
+    RowEnd(std::max(row_begin, row_end))
   {
     for(vtkIdType i = 0; i != field_data->GetNumberOfArrays(); ++i)
       {
@@ -61,9 +61,9 @@ public:
       if(array_name_map.count(array_name))
         array_name = array_name_map[array_name];
 
-      vtkstd::replace(array_name.begin(), array_name.end(), ' ', '_');
-      vtkstd::replace(array_name.begin(), array_name.end(), '(', '_');
-      vtkstd::replace(array_name.begin(), array_name.end(), ')', '_');
+      std::replace(array_name.begin(), array_name.end(), ' ', '_');
+      std::replace(array_name.begin(), array_name.end(), '(', '_');
+      std::replace(array_name.begin(), array_name.end(), ')', '_');
 
       Arrays.push_back(field_data->GetAbstractArray(i));
       ArrayNames.push_back(array_name);
@@ -73,7 +73,7 @@ public:
   void SetRange(const vtkIdType row_begin, const vtkIdType row_end)
   {
     this->RowBegin = row_begin;
-    this->RowEnd = vtkstd::max(row_begin, row_end);
+    this->RowEnd = std::max(row_begin, row_end);
   }
 
   QVector<QXmlNodeModelIndex> attributes(const QXmlNodeModelIndex&) const
@@ -242,8 +242,8 @@ private:
   vtkIdType RowBegin;
   vtkIdType RowEnd;
 
-  vtkstd::vector<vtkAbstractArray*> Arrays;
-  vtkstd::vector<vtkStdString> ArrayNames;
+  std::vector<vtkAbstractArray*> Arrays;
+  std::vector<vtkStdString> ArrayNames;
 
   enum NodeType
   {
@@ -296,7 +296,7 @@ private:
 class vtkQtXMLProcessor::Internals
 {
 public:
-  vtkstd::map<vtkStdString, vtkStdString> ArrayNameMap;
+  std::map<vtkStdString, vtkStdString> ArrayNameMap;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +338,7 @@ void vtkQtXMLProcessor::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkQtXMLProcessor::MapArrayName(const vtkStdString& from, const vtkStdString& to)
 {
-  this->Implementation->ArrayNameMap.insert(vtkstd::make_pair(from, to));
+  this->Implementation->ArrayNameMap.insert(std::make_pair(from, to));
   this->Modified();
 }
 
@@ -369,25 +369,25 @@ int vtkQtXMLProcessor::RequestData(
     {
     vtkDataObject* const input = inputVector[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
     if(!input)
-      throw vtkstd::runtime_error("Missing input data object.");
+      throw std::runtime_error("Missing input data object.");
 
     vtkDataObject* const output = outputVector->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
     if(!output)
-      throw vtkstd::runtime_error("Missing output data object.");
+      throw std::runtime_error("Missing output data object.");
 
     vtkTable* const output_table = vtkTable::GetData(outputVector, 1);
     if(!output_table)
-      throw vtkstd::runtime_error("Missing output table.");
+      throw std::runtime_error("Missing output table.");
 
     if(!this->Query)
-      throw vtkstd::runtime_error("Query not set.");
+      throw std::runtime_error("Query not set.");
 
     if(!this->OutputArray)
-      throw vtkstd::runtime_error("OutputArray not set.");
+      throw std::runtime_error("OutputArray not set.");
 
     output->ShallowCopy(input);
 
-    vtkstd::auto_ptr<QXmlQuery> xml_query;
+    std::auto_ptr<QXmlQuery> xml_query;
     switch(this->QueryType)
       {
       case vtkQtXMLProcessor::XQUERY:
@@ -397,7 +397,7 @@ int vtkQtXMLProcessor::RequestData(
         xml_query.reset(new QXmlQuery(QXmlQuery::XSLT20));
         break;
       default:
-        throw vtkstd::runtime_error("Unknown QueryType.");
+        throw std::runtime_error("Unknown QueryType.");
       }
 
     vtkUnicodeStringArray* const output_array = vtkUnicodeStringArray::New();
@@ -406,7 +406,7 @@ int vtkQtXMLProcessor::RequestData(
 
     vtkFieldData* const field_data = output->GetAttributesAsFieldData(this->FieldType);
     if(!field_data)
-      throw vtkstd::runtime_error("Missing field data.");
+      throw std::runtime_error("Missing field data.");
 
     switch(this->InputDomain)
       {
@@ -469,7 +469,7 @@ int vtkQtXMLProcessor::RequestData(
         {
         vtkUnicodeStringArray* const xml = vtkUnicodeStringArray::SafeDownCast(this->GetInputAbstractArrayToProcess(0, inputVector));
         if(!xml)
-          throw vtkstd::runtime_error("Missing input xml array.");
+          throw std::runtime_error("Missing input xml array.");
 
         output_array->SetNumberOfTuples(xml->GetNumberOfTuples());
 
@@ -502,13 +502,13 @@ int vtkQtXMLProcessor::RequestData(
 
       default:
         {
-        throw vtkstd::runtime_error("Unknown InputDomain.");
+        throw std::runtime_error("Unknown InputDomain.");
         }
       }
      
     return 1;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

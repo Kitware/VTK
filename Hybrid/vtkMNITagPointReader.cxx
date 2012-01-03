@@ -66,9 +66,9 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "vtkstd/string"
-#include "vtkstd/vector"
-#include "vtksys/SystemTools.hxx"
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITagPointReader);
@@ -147,11 +147,11 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
 // Internal function to read in a line up to 256 characters and then
 // skip to the next line in the file.
 int vtkMNITagPointReader::ReadLine(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos)
+  istream &infile, std::string &linetext, std::string::iterator &pos)
 {
   this->LineNumber++;
 
-  vtkstd::getline(infile, linetext);
+  std::getline(infile, linetext);
   pos = linetext.begin();
 
   if (infile.fail())
@@ -168,11 +168,11 @@ int vtkMNITagPointReader::ReadLine(
 //-------------------------------------------------------------------------
 // Skip all blank lines or comment lines and return the first useful line
 int vtkMNITagPointReader::ReadLineAfterComments(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos)
+  istream &infile, std::string &linetext, std::string::iterator &pos)
 {
   // Skip over any comment lines or blank lines.
   // Comment lines start with '%'
-  vtkstd::string comments;
+  std::string comments;
   do
     {
     this->ReadLine(infile, linetext, pos);
@@ -211,7 +211,7 @@ int vtkMNITagPointReader::ReadLineAfterComments(
 //-------------------------------------------------------------------------
 // Skip all whitespace, reading additional lines if necessary if nl != 0
 int vtkMNITagPointReader::SkipWhitespace(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos,
+  istream &infile, std::string &linetext, std::string::iterator &pos,
   int nl)
 {
   while (infile.good())
@@ -242,8 +242,8 @@ int vtkMNITagPointReader::SkipWhitespace(
 // Read the left hand side of a statement, including the equals sign
 // and any whitespace following the equals.
 int vtkMNITagPointReader::ParseLeftHandSide(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos,
-  vtkstd::string &identifier)
+  istream &infile, std::string &linetext, std::string::iterator &pos,
+  std::string &identifier)
 {
   identifier.clear();
 
@@ -279,8 +279,8 @@ int vtkMNITagPointReader::ParseLeftHandSide(
 // whitespace occurring before the semicolon. The string may not be
 // split across multiple lines.
 int vtkMNITagPointReader::ParseStringValue(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos,
-  vtkstd::string &data)
+  istream &infile, std::string &linetext, std::string::iterator &pos,
+  std::string &data)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
 
@@ -368,7 +368,7 @@ int vtkMNITagPointReader::ParseStringValue(
 //-------------------------------------------------------------------------
 // Read an int value
 int vtkMNITagPointReader::ParseIntValues(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos,
+  istream &infile, std::string &linetext, std::string::iterator &pos,
   int *values, int n)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
@@ -404,7 +404,7 @@ int vtkMNITagPointReader::ParseIntValues(
 //-------------------------------------------------------------------------
 // Read floating-point values into a point triplet.
 int vtkMNITagPointReader::ParseFloatValues(
-  istream &infile, vtkstd::string &linetext, vtkstd::string::iterator &pos,
+  istream &infile, std::string &linetext, std::string::iterator &pos,
   double *values, int n)
 {
   this->SkipWhitespace(infile, linetext, pos, 0);
@@ -457,8 +457,8 @@ int vtkMNITagPointReader::ReadFile(
 
   // Make sure that the file is readable.
   ifstream infile(this->FileName);
-  vtkstd::string linetext;
-  vtkstd::string::iterator pos = linetext.begin();
+  std::string linetext;
+  std::string::iterator pos = linetext.begin();
 
   if (infile.fail())
     {
@@ -480,7 +480,7 @@ int vtkMNITagPointReader::ReadFile(
   this->ReadLine(infile, linetext, pos);
   this->SkipWhitespace(infile, linetext, pos, 1);
   int numVolumes = 1;
-  vtkstd::string identifier;
+  std::string identifier;
   if (!this->ParseLeftHandSide(infile, linetext, pos, identifier) ||
       strcmp(identifier.c_str(), "Volumes") != 0 ||
       !this->ParseIntValues(infile, linetext, pos, &numVolumes, 1) ||

@@ -29,12 +29,12 @@
 #include "vtkCallbackCommand.h"
 #include "vtkQtConnection.h"
 
-#include "vtkstd/vector"
+#include <vector>
 
 #include <qobject.h>
 
 // hold all the connections
-class vtkQtConnections : public vtkstd::vector< vtkQtConnection* > {};
+class vtkQtConnections : public std::vector< vtkQtConnection* > {};
 
 vtkStandardNewMacro(vtkEventQtSlotConnect)
 
@@ -140,5 +140,10 @@ void vtkEventQtSlotConnect::RemoveConnection(vtkQtConnection* conn)
       return;
       }
     }
+}
+
+int vtkEventQtSlotConnect::GetNumberOfConnections() const
+{
+  return static_cast<int>(this->Connections->size());
 }
 

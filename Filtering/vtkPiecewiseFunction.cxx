@@ -18,10 +18,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
+#include <vector>
+#include <set>
+#include <algorithm>
+#include <iterator>
 
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
@@ -87,7 +87,7 @@ public:
 class vtkPiecewiseFunctionInternals
 {
 public:
-  vtkstd::vector<vtkPiecewiseFunctionNode*> Nodes;
+  std::vector<vtkPiecewiseFunctionNode*> Nodes;
   vtkPiecewiseFunctionCompareNodes        CompareNodes;
   vtkPiecewiseFunctionFindNodeEqual       FindNodeEqual;
   vtkPiecewiseFunctionFindNodeInRange     FindNodeInRange;
@@ -469,7 +469,7 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
 // the Range
 void vtkPiecewiseFunction::SortAndUpdateRange()
 {
-  vtkstd::sort( this->Internal->Nodes.begin(),
+  std::sort( this->Internal->Nodes.begin(),
                 this->Internal->Nodes.end(),
                 this->Internal->CompareNodes );
   bool modifiedInvoked = this->UpdateRange();
@@ -538,8 +538,8 @@ int vtkPiecewiseFunction::RemovePoint( double x )
   // Now use STL to find it, so that we can remove it
   this->Internal->FindNodeEqual.X = x;
   
-  vtkstd::vector<vtkPiecewiseFunctionNode*>::iterator iter = 
-    vtkstd::find_if(this->Internal->Nodes.begin(),
+  std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
+    std::find_if(this->Internal->Nodes.begin(),
                     this->Internal->Nodes.end(),
                     this->Internal->FindNodeEqual );
   
@@ -599,8 +599,8 @@ void vtkPiecewiseFunction::AddSegment( double x1, double y1,
     this->Internal->FindNodeInRange.X1 = x1;
     this->Internal->FindNodeInRange.X2 = x2;
   
-    vtkstd::vector<vtkPiecewiseFunctionNode*>::iterator iter = 
-      vtkstd::find_if(this->Internal->Nodes.begin(),
+    std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
+      std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeInRange );
   
@@ -669,8 +669,8 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
     this->Internal->FindNodeOutOfRange.X1 = range[0];
     this->Internal->FindNodeOutOfRange.X2 = range[1];
   
-    vtkstd::vector<vtkPiecewiseFunctionNode*>::iterator iter = 
-      vtkstd::find_if(this->Internal->Nodes.begin(),
+    std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
+      std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeOutOfRange );
   

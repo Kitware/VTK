@@ -62,7 +62,7 @@ int TestPriorityStreaming(int argc, char *argv[])
   vtkSmartPointer<vtkXMLImageDataWriter> iw =
     vtkSmartPointer<vtkXMLImageDataWriter>::New();
   iw->SetInputConnection(Mandelbrot->GetOutputPort());
-  vtkstd::string fname = test->GetTempDirectory();
+  std::string fname = test->GetTempDirectory();
   fname += "/StreamTestFile.vti";
   iw->SetFileName(fname.c_str());
   iw->SetNumberOfPieces(64);

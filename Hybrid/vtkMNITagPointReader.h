@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define __vtkMNITagPointReader_h
 
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkStdString.h" // needed for vtkstd::string
+#include "vtkStdString.h" // needed for std::string
 
 class vtkPolyData;
 class vtkPoints;
@@ -150,23 +150,23 @@ protected:
   int LineNumber;
   char *Comments;
 
-  int ReadLine(istream &infile, vtkstd::string &linetext,
-               vtkstd::string::iterator &pos);
-  int ReadLineAfterComments(istream &infile, vtkstd::string &linetext,
-                            vtkstd::string::iterator &pos);
-  int SkipWhitespace(istream &infile,  vtkstd::string &linetext,
-                     vtkstd::string::iterator &pos, int nl);
-  int ParseLeftHandSide(istream &infile, vtkstd::string &linetext,
-                        vtkstd::string::iterator &pos,
-                        vtkstd::string &identifier);
-  int ParseStringValue(istream &infile, vtkstd::string &linetext,
-                       vtkstd::string::iterator &pos,
-                       vtkstd::string &data);
-  int ParseIntValues(istream &infile, vtkstd::string &linetext,
-                     vtkstd::string::iterator &pos,
+  int ReadLine(istream &infile, std::string &linetext,
+               std::string::iterator &pos);
+  int ReadLineAfterComments(istream &infile, std::string &linetext,
+                            std::string::iterator &pos);
+  int SkipWhitespace(istream &infile,  std::string &linetext,
+                     std::string::iterator &pos, int nl);
+  int ParseLeftHandSide(istream &infile, std::string &linetext,
+                        std::string::iterator &pos,
+                        std::string &identifier);
+  int ParseStringValue(istream &infile, std::string &linetext,
+                       std::string::iterator &pos,
+                       std::string &data);
+  int ParseIntValues(istream &infile, std::string &linetext,
+                     std::string::iterator &pos,
                      int *values, int count);
-  int ParseFloatValues(istream &infile, vtkstd::string &linetext,
-                       vtkstd::string::iterator &pos,
+  int ParseFloatValues(istream &infile, std::string &linetext,
+                       std::string::iterator &pos,
                        double *values, int count);
 
   virtual int ReadFile(vtkPolyData *output1, vtkPolyData *output2);

@@ -32,10 +32,10 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
-#include<vtksys/CommandLineArguments.hxx>
-#include<vtksys/SystemTools.hxx>
-#include<vtkstd/vector>
-#include<vtkstd/string>
+#include <vtksys/CommandLineArguments.hxx>
+#include <vtksys/SystemTools.hxx>
+#include <vector>
+#include <string>
 
 #define VTK_CREATE_NEW(var, class) vtkSmartPointer<class> var = vtkSmartPointer<class>::New();
 
@@ -48,12 +48,12 @@ int RenderingMode = SURFACE_LIC_TEST;
 
 int SurfaceLIC( int argc, char * argv[] )
 {
-  vtkstd::string filename;
+  std::string filename;
   int num_steps = 40;
   double step_size = 0.4;
   double lic_intensity = 0.8;
-  //vtkstd::string color_by;
-  vtkstd::string vectors;
+  //std::string color_by;
+  std::string vectors;
 
   vtksys::CommandLineArguments arg;
   arg.StoreUnusedArguments(1);
@@ -83,7 +83,7 @@ int SurfaceLIC( int argc, char * argv[] )
     }
 
   vtkSmartPointer<vtkPolyData> polydata;
-  vtkstd::string ext = vtksys::SystemTools::GetFilenameExtension(filename);
+  std::string ext = vtksys::SystemTools::GetFilenameExtension(filename);
   if (ext == ".vtk")
     {
     vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();

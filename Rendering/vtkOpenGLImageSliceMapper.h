@@ -62,11 +62,6 @@ protected:
     double alpha, double ambient, double diffuse);
 
   // Description:
-  // Render an opaque polygon behind the image.  This is also used
-  // in multi-pass rendering to render into the depth buffer.
-  void RenderBackingPolygon();
-
-  // Description:
   // Recursive internal method, will call the non-recursive method
   // as many times as necessary if the texture must be broken up into
   // pieces that are small enough for the GPU to render
@@ -80,6 +75,21 @@ protected:
   void RenderTexturedPolygon(
     vtkRenderer *ren, vtkImageProperty *property,
     vtkImageData *image, int extent[6], bool recursive);
+
+  // Description:
+  // Basic polygon rendering, if the textured parameter is set the tcoords
+  // are included, otherwise they aren't.
+  void RenderPolygon(vtkPoints *points, const int extent[6], bool textured);
+
+  // Description:
+  // Render the background, which means rendering everything within the
+  // plane of the image except for the polygon that displays the image data.
+  void RenderBackground(
+    vtkPoints *points, const int extent[6], bool textured);
+
+  // Description:
+  // Bind the fragment program, and generate it first if necessary.
+  void BindFragmentProgram(vtkRenderer *ren, vtkImageProperty *property);
 
   // Description:
   // Build the fragment program to use with the texture.
@@ -104,7 +114,8 @@ protected:
   // Check various OpenGL capabilities
   void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
 
-  long Index; // OpenGL ID for texture or display list
+  long TextureIndex; // OpenGL ID for texture or display list
+  long BackgroundTextureIndex; // OpenGL ID for texture or display list
   long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
   int TextureSize[2];

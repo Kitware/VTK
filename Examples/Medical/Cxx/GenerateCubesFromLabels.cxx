@@ -58,7 +58,7 @@ int main (int argc, char *argv[])
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
   unsigned int endLabel = atoi(argv[3]);
-  vtkstd::string filePrefix = "Cubes";
+  std::string filePrefix = "Cubes";
  
   // Generate cubes from labels
   // 1) Read the meta file

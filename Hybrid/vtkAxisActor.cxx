@@ -65,10 +65,6 @@ vtkAxisActor::vtkAxisActor()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat, "%s", "%-#6.3g");
 
-  this->Use2DMode = 0;
-  this->SaveTitlePosition = 0;
-  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.0;
-  
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->SetColor(0.,0.,0.);
   this->TitleTextProperty->SetFontFamilyToArial();
@@ -181,6 +177,19 @@ vtkAxisActor::vtkAxisActor()
     {
     vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
     }
+
+  // Instance variables specific to 2D mode
+  this->Use2DMode = 0;
+  this->SaveTitlePosition = 0;
+  this->TitleConstantPosition[0] = this->TitleConstantPosition[1] = 0.;
+  this->VerticalOffsetXTitle2D = -40.;
+  this->HorizontalOffsetYTitle2D = -50.;
+  this->LastMinDisplayCoordinate[0] = 0;
+  this->LastMinDisplayCoordinate[1] = 0;
+  this->LastMinDisplayCoordinate[2] = 0;
+  this->LastMaxDisplayCoordinate[0] = 0;
+  this->LastMaxDisplayCoordinate[1] = 0;
+  this->LastMaxDisplayCoordinate[2] = 0;
 }
 
 // ****************************************************************
@@ -581,6 +590,10 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
   if (this->Title != NULL && this->Title[0] != 0)
     {
     this->BuildTitle(force);
+    if( this->Use2DMode == 1 )
+      {
+      this->BuildTitle2D(viewport, force);   
+      }
     }
 
   this->LastAxisPosition = this->AxisPosition;
@@ -601,18 +614,18 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     return;
     }
-
+  
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
-
+    
     if(!this->GetCalculateLabelOffset())
       {
       this->LabelActors[i]->SetAutoCenter(1);
       }
     }
-
+  
   if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||
       this->AxisPosition != this->LastAxisPosition ||
       this->LastRange[0] != this->Range[0] ||
@@ -808,6 +821,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 // **********************************************************************
 void vtkAxisActor::BuildTitle(bool force)
 {
+  this->NeedBuild2D = false;
   if (!force && !this->TitleVisibility)
     {
     return;
@@ -829,6 +843,7 @@ void vtkAxisActor::BuildTitle(bool force)
     return;
     }
 
+  this->NeedBuild2D = true;
   switch (this->AxisType)
     {
     case VTK_AXIS_TYPE_X :
@@ -932,11 +947,11 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
   viewport->GetDisplayPoint(transpos);
   if (this->AxisType == VTK_AXIS_TYPE_X)
     {
-    transpos[1] -= 12;
+    transpos[1] += this->VerticalOffsetXTitle2D;
     }
   else if (this->AxisType == VTK_AXIS_TYPE_Y)
     {
-    transpos[0] -= 20;
+    transpos[0] += this->HorizontalOffsetYTitle2D;
     }
   if (transpos[1] < 10.) transpos[1] = 10.;
   if (transpos[0] < 10.) transpos[0] = 10.;
@@ -1009,8 +1024,9 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels Built: "
      << this->NumberOfLabelsBuilt << "\n";
-  os << indent << "Range: (" << this->Range[0]
-     << ", " << this->Range[1] << ")\n";
+  os << indent << "Range: (" 
+     << this->Range[0] << ", " 
+     << this->Range[1] << ")\n";
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 
@@ -1103,10 +1119,19 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
 
+  os << indent << "Usé2DMode: " << this->Use2DMode << endl;
   os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
-
-  os << indent << "Use2DMode: " << this->Use2DMode << endl;
-}
+  os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
+  os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
+  os << indent << "LastMinDisplayCoordinates: ("
+     << this->LastMinDisplayCoordinate[0] << ", "
+     << this->LastMinDisplayCoordinate[1] << ", "
+     << this->LastMinDisplayCoordinate[2] << ")" << endl;
+  os << indent << "LastMaxDisplayCoordinates: ("
+     << this->LastMaxDisplayCoordinate[0] << ", "
+     << this->LastMaxDisplayCoordinate[1] << ", "
+     << this->LastMaxDisplayCoordinate[2] << ")" << endl;
+  }
 
 // **************************************************************************
 // Sets text string for label vectors.  Allocates memory if necessary.
@@ -2152,16 +2177,18 @@ bool vtkAxisActor::BoundsDisplayCoordinateChanged(vtkViewport *viewport)
   viewport->WorldToDisplay();
   viewport->GetDisplayPoint(transMaxPt);
 
-  if( LastMinDisplayCoordinate[0] != transMinPt[0] || LastMinDisplayCoordinate[1] != transMinPt[1] ||
-      LastMinDisplayCoordinate[2] != transMinPt[2] || 
-      LastMaxDisplayCoordinate[0] != transMaxPt[0] || LastMaxDisplayCoordinate[1] != transMaxPt[1] ||
-      LastMaxDisplayCoordinate[2] != transMaxPt[2] )
+  if( this->LastMinDisplayCoordinate[0] != transMinPt[0] 
+      || this->LastMinDisplayCoordinate[1] != transMinPt[1]
+      || this->LastMinDisplayCoordinate[2] != transMinPt[2]
+      || this->LastMaxDisplayCoordinate[0] != transMaxPt[0]
+      || this->LastMaxDisplayCoordinate[1] != transMaxPt[1]
+      || this->LastMaxDisplayCoordinate[2] != transMaxPt[2] )
     {
     int i = 0;
     for( i=0 ; i<3 ; ++i )
       {
-      LastMinDisplayCoordinate[i] = transMinPt[i];
-      LastMaxDisplayCoordinate[i] = transMaxPt[i];
+      this->LastMinDisplayCoordinate[i] = transMinPt[i];
+      this->LastMaxDisplayCoordinate[i] = transMaxPt[i];
       }
     return true;
     }

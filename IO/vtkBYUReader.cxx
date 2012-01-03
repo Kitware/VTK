@@ -150,7 +150,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   //
   // Read header (not using fixed format! - potential problem in some files.)
   //
-  fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
+  (void) fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
 
   if ( this->PartNumber > numParts )
     {
@@ -163,12 +163,12 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
     vtkDebugMacro(<<"Reading part number: " << this->PartNumber);
     for (i=0; i < (this->PartNumber-1); i++)
       {
-      fscanf (geomFile, "%*d %*d");
+      (void) fscanf (geomFile, "%*d %*d");
       }
-    fscanf (geomFile, "%d %d", &partStart, &partEnd);
+    (void) fscanf (geomFile, "%d %d", &partStart, &partEnd);
     for (i=this->PartNumber; i < numParts; i++)
       {
-      fscanf (geomFile, "%*d %*d");
+      (void) fscanf (geomFile, "%*d %*d");
       }
     }
   else // read all parts
@@ -176,7 +176,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
     vtkDebugMacro(<<"Reading all parts.");
     for (i=0; i < numParts; i++)
       {
-      fscanf (geomFile, "%*d %*d");
+      (void) fscanf (geomFile, "%*d %*d");
       }
     partStart = 1;
     partEnd = VTK_LARGE_INTEGER;
@@ -201,7 +201,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   // read point coordinates
   for (i=0; i<numPts; i++)
     {
-    fscanf(geomFile, "%e %e %e", x, x+1, x+2);
+    (void) fscanf(geomFile, "%e %e %e", x, x+1, x+2);
     newPts->InsertPoint(i,x);
     }
   this->UpdateProgress(0.333);
@@ -265,7 +265,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(dispFp, "%e %e %e", v, v+1, v+2);
+    (void) fscanf(dispFp, "%e %e %e", v, v+1, v+2);
     newVectors->SetTuple(i,v);
     }
 
@@ -305,7 +305,7 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(scalarFp, "%e", &s);
+    (void) fscanf(scalarFp, "%e", &s);
     newScalars->SetTuple(i,&s);
     }
 
@@ -346,7 +346,7 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    fscanf(textureFp, "%e %e", t, t+1);
+    (void) fscanf(textureFp, "%e %e", t, t+1);
     newTCoords->SetTuple(i,t);
     }
 

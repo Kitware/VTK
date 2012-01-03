@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkDiscretizableColorTransferFunction);
 //-----------------------------------------------------------------------------

@@ -32,12 +32,14 @@ IF(VTK_USE_DISPLAY)
     TestGradientBackground.cxx
     TestHomogeneousTransformOfActor.cxx
     TestImageResliceMapperAlpha.cxx
+    TestImageResliceMapperBackground.cxx
     TestImageResliceMapperBorder.cxx
     TestImageResliceMapperInterpolation.cxx
     TestImageResliceMapperOffAxis.cxx
     TestImageResliceMapperOrient3D.cxx
     TestImageResliceMapperSlab.cxx
     TestImageSliceMapperAlpha.cxx
+    TestImageSliceMapperBackground.cxx
     TestImageSliceMapperBorder.cxx
     TestImageSliceMapperOrient2D.cxx
     TestImageSliceMapperOrient3D.cxx

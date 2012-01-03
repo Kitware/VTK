@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <stdarg.h> // va_list
 
-#include <vtkstd/vector>
+#include <vector>
 
 // ----------------------------------------------------------------------
 vtkStandardNewMacro(vtkSQLDatabaseSchema);
@@ -54,7 +54,7 @@ public:  // NB: use of string instead of char* here to avoid leaks on destructio
     {
     vtkSQLDatabaseSchema::DatabaseIndexType Type;
     vtkStdString Name;
-    vtkstd::vector<vtkStdString> ColumnNames;
+    std::vector<vtkStdString> ColumnNames;
     };
 
   struct Trigger
@@ -74,14 +74,14 @@ public:  // NB: use of string instead of char* here to avoid leaks on destructio
   struct Table
   {
     vtkStdString Name;
-    vtkstd::vector<Column> Columns;
-    vtkstd::vector<Index> Indices;
-    vtkstd::vector<Trigger> Triggers;
-    vtkstd::vector<Option> Options;
+    std::vector<Column> Columns;
+    std::vector<Index> Indices;
+    std::vector<Trigger> Triggers;
+    std::vector<Option> Options;
   };
 
-  vtkstd::vector<Statement> Preambles;
-  vtkstd::vector<Table> Tables;
+  std::vector<Statement> Preambles;
+  std::vector<Table> Tables;
 };
 
 // ----------------------------------------------------------------------
@@ -690,7 +690,7 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
 #if !defined(__sgi) || defined(__GNUC__)
   va_list args;
 #else // SGI CC
-  vtkstd::va_list args;
+  std::va_list args;
 #endif // SGI CC
   va_start( args, tblName );
   while ( ( token = va_arg( args, int ) ) != END_TABLE_TOKEN )

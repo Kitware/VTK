@@ -21,7 +21,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkAMRBox.h"
 #include "vtkUnsignedCharArray.h"
-#include <vtkstd/set>
+#include <set>
 
 class vtkExtractDataSets::vtkInternals
 {
@@ -42,7 +42,7 @@ public:
     };
 
 
-  typedef vtkstd::set<Node, Node> DatasetsType;
+  typedef std::set<Node, Node> DatasetsType;
   DatasetsType Datasets;
 };
 

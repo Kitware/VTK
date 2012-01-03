@@ -21,7 +21,7 @@
 #ifndef __vtkTableToDatabaseWriter_h
 #define __vtkTableToDatabaseWriter_h
 
-#include <vtkstd/string> // STL Header
+#include <string> // STL Header
 #include "vtkTableWriter.h"
 
 class vtkSQLDatabase;
@@ -64,7 +64,7 @@ protected:
   vtkSQLDatabase *Database;
   vtkTable *Input;
   //BTX
-  vtkstd::string TableName;
+  std::string TableName;
   //ETX
 
 private:

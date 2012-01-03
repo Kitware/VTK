@@ -252,8 +252,8 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   //  File is read to obtain raw information as well as bounding box
   //
-  fread (header, 1, 80, fp);
-  fread (&ulint, 1, 4, fp);
+  (void) fread (header, 1, 80, fp);
+  (void) fread (&ulint, 1, 4, fp);
   vtkByteSwap::Swap4LE(&ulint);
 
   // Many .stl files contain bogus count.  Hence we will ignore and read 
@@ -279,7 +279,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
     {
-    fread(&ibuff2,2,1,fp); //read extra junk
+    (void) fread(&ibuff2,2,1,fp); //read extra junk
 
     vtkByteSwap::Swap4LE (facet.n);
     vtkByteSwap::Swap4LE (facet.n+1);
@@ -325,7 +325,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 
   //  Ingest header and junk to get to first vertex
   //
-  fgets (line, 255, fp);
+  (void) fgets (line, 255, fp);
 
   done = (fscanf(fp,"%s %*s %f %f %f\n", line, x, x+1, x+2)==EOF);
   if ((strcmp(line, "COLOR") == 0) || (strcmp(line, "color") == 0))
@@ -342,15 +342,15 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 //    fprintf(stdout, "Reading record %d\n", ctr);
 //}
 //ctr += 7;
-    fgets (line, 255, fp);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fgets (line, 255, fp);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[0] = newPts->InsertNextPoint(x);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[1] = newPts->InsertNextPoint(x);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[2] = newPts->InsertNextPoint(x);
-    fgets (line, 255, fp); // end loop
-    fgets (line, 255, fp); // end facet
+    (void) fgets (line, 255, fp); // end loop
+    (void) fgets (line, 255, fp); // end facet
 
     newPolys->InsertNextCell(3,pts);
     if (scalars) 
@@ -367,11 +367,11 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0)) 
       {
       currentSolid++;
-      fgets(line, 255, fp);
+      (void) fgets(line, 255, fp);
       done = feof(fp);
       while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done) 
         {
-        fgets(line, 255, fp);
+        (void) fgets(line, 255, fp);
         done = feof(fp);
         }
 

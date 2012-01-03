@@ -36,9 +36,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <map>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkPOrderStatistics);
 vtkCxxSetObjectMacro(vtkPOrderStatistics, Controller, vtkMultiProcessController);
@@ -63,12 +63,12 @@ void vtkPOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& strings,
+static void StringVectorToStringBuffer( const std::vector<vtkStdString>& strings,
                                         vtkStdString& buffer )
 {
   buffer.clear();
 
-  for( vtkstd::vector<vtkStdString>::const_iterator it = strings.begin();
+  for( std::vector<vtkStdString>::const_iterator it = strings.begin();
        it != strings.end(); ++ it )
     {
     buffer.append( *it );
@@ -80,7 +80,7 @@ static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& stri
 static void StringArrayToStringBuffer( vtkStringArray* sVals,
                                        vtkStdString& sPack )
 {
-  vtkstd::vector<vtkStdString> sVect; // consecutive strings
+  std::vector<vtkStdString> sVect; // consecutive strings
 
   vtkIdType nv = sVals->GetNumberOfValues();
   for ( vtkIdType i = 0; i < nv; ++ i )
@@ -94,7 +94,7 @@ static void StringArrayToStringBuffer( vtkStringArray* sVals,
 }
 
 //-----------------------------------------------------------------------------
-static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& histo,
+static void StringHistoToBuffers( const std::map<vtkStdString,vtkIdType>& histo,
                                   vtkStdString& buffer,
                                   vtkIdTypeArray* card )
 {
@@ -103,7 +103,7 @@ static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& his
   card->SetNumberOfTuples( histo.size() );
 
   vtkIdType r = 0;
-  for( vtkstd::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
+  for( std::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
        it != histo.end(); ++ it, ++ r )
     {
     buffer.append( it->first );
@@ -114,7 +114,7 @@ static void StringHistoToBuffers( const vtkstd::map<vtkStdString,vtkIdType>& his
 
 //-----------------------------------------------------------------------------
 static void StringBufferToStringVector( const vtkStdString& buffer,
-                                        vtkstd::vector<vtkStdString>& strings )
+                                        std::vector<vtkStdString>& strings )
 {
   strings.clear();
   
@@ -314,7 +314,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         }
 
       // Reduce to global histogram on process rProc
-      vtkstd::map<vtkStdString,vtkIdType> histogram;
+      std::map<vtkStdString,vtkIdType> histogram;
       if ( myRank == rProc )
         {
         if ( this->Reduce( card_g, ncTotal, sPack_g, histogram ) )
@@ -390,7 +390,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
     }
 
   // Reduce to the global histogram table
-  vtkstd::map<double,vtkIdType> histogram;
+  std::map<double,vtkIdType> histogram;
   double x;
   vtkIdType c;
   for ( vtkIdType r = 0; r < nRow_g; ++ r )
@@ -411,7 +411,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
   card_g->SetNumberOfTuples( nRow_g );
 
   // Then store reduced histogram into array
-  vtkstd::map<double,vtkIdType>::iterator hit = histogram.begin();
+  std::map<double,vtkIdType>::iterator hit = histogram.begin();
   for ( vtkIdType r = 0; r < nRow_g; ++ r, ++ hit )
     {
     dVals_g->SetTuple1( r, hit->first );
@@ -425,10 +425,10 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
 bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
                                   vtkIdType& ncTotal,
                                   char* sPack_g,
-                                  vtkstd::map<vtkStdString,vtkIdType>& histogram )
+                                  std::map<vtkStdString,vtkIdType>& histogram )
 {
   // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> sVect_g;
+  std::vector<vtkStdString> sVect_g;
   StringBufferToStringVector( vtkStdString ( sPack_g, ncTotal ), sVect_g );
 
   // Second, check consistency: we must have as many values as cardinality entries
@@ -449,7 +449,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
   // Third, reduce to the global histogram
   vtkIdType c;
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect_g.begin(); 
+  for ( std::vector<vtkStdString>::iterator vit = sVect_g.begin();
         vit != sVect_g.end(); ++ vit , ++ i )
     {
     // First, retrieve cardinality
@@ -463,7 +463,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
 }
 
 // ----------------------------------------------------------------------
-bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histogram,
+bool vtkPOrderStatistics::Broadcast( std::map<vtkStdString,vtkIdType>& histogram,
                                      vtkIdTypeArray* card,
                                      vtkStringArray* sVals,
                                      vtkIdType rProc )
@@ -499,7 +499,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
     }
 
   // Unpack the packet of strings
-  vtkstd::vector<vtkStdString> sVect;
+  std::vector<vtkStdString> sVect;
   StringBufferToStringVector( sPack, sVect );
 
   // Broadcast histogram cardinalities
@@ -517,7 +517,7 @@ bool vtkPOrderStatistics::Broadcast( vtkstd::map<vtkStdString,vtkIdType>& histog
 
   // Then store reduced histogram into array
   vtkIdType r = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = sVect.begin(); 
+  for ( std::vector<vtkStdString>::iterator vit = sVect.begin();
         vit != sVect.end(); ++ vit, ++ r )
     {
     sVals->SetValue( r, *vit );

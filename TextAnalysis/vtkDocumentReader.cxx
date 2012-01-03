@@ -32,11 +32,11 @@
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 
-#include <vtkstd/algorithm>
-#include <vtkstd/iterator>
-#include <vtkstd/stdexcept>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -65,8 +65,8 @@ public:
     return result;
   }
 
-  vtkstd::vector<vtkStdString> Files;
-  vtkstd::vector<vtkIdType> ID;
+  std::vector<vtkStdString> Files;
+  std::vector<vtkIdType> ID;
 };
 
 vtkStandardNewMacro(vtkDocumentReader);
@@ -144,7 +144,7 @@ int vtkDocumentReader::RequestData(
       const vtkStdString uri = Implementation::PathToURI(file);
 
       ifstream file_stream(file.c_str(), ios::in | ios::binary);
-      vtkstd::stringstream contents;
+      std::stringstream contents;
       contents << file_stream.rdbuf();
 
       document_array->InsertNextValue(document);
@@ -166,7 +166,7 @@ int vtkDocumentReader::RequestData(
     uri_array->Delete();
     content_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

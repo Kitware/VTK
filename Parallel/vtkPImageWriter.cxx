@@ -80,7 +80,6 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   int             min, max, mid;
   vtkImageData    *data;
   int             fileOpenedHere = 0;
-  int             *ext;
   unsigned long   inputMemorySize;
 
   // if we need to open another slice, do it
@@ -147,7 +146,9 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // if so the just get the data and write it out
   if ( inputMemorySize < this->MemoryLimit )
     {
-    ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+#ifndef NDEBUG
+    int *ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+#endif
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] << endl);
     this->GetInputAlgorithm()->Update();
     data = cache;

@@ -154,7 +154,6 @@ void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
   int   temp;
   int   data_compression;
   int   plane_size;
-  int   volume_size;
   double f[3];
   int   size[3];
   int   magic_num;
@@ -215,7 +214,9 @@ void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
   fscanf( fp, "%d\n", &data_compression );
 
   plane_size = size[0] * size[1];
-  volume_size = plane_size * size[2];
+#ifndef NDEBUG
+  int   volume_size = plane_size * size[2];
+#endif
 
   // Skip Over Icon
   fscanf( fp, "%d %d X", &icon_width,  &icon_height );

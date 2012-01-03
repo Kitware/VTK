@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 

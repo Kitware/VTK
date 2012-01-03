@@ -30,7 +30,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkSmartPointer.h"
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 struct vtkMultiBlockPLOT3DReaderInternals
 {
-  vtkstd::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
+  std::vector<vtkSmartPointer<vtkStructuredGrid> > Blocks;
 };
 
 vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
@@ -156,7 +156,7 @@ void vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
   if (this->BinaryFile && this->HasByteCount)
     {
     int tmp;
-    fread(&tmp, sizeof(int), 1, fp);
+    (void) fread(&tmp, sizeof(int), 1, fp);
     }
 }
 
@@ -317,7 +317,7 @@ int vtkMultiBlockPLOT3DReader::GenerateDefaultConfiguration()
     return 0;
     }
   char buf[1024];
-  fread(buf, 1, 1024, xyzFp);
+  (void) fread(buf, 1, 1024, xyzFp);
   int retVal = this->VerifySettings(buf, 1024);
   fclose(xyzFp);
   return retVal;

@@ -46,7 +46,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // because it is good
 //BTX
-#include <vtkstd/vector> // Because they are good
+#include <vector> // Because they are good
 //ETX
 
 #define ID_INSIDE_ALL  00
@@ -154,7 +154,7 @@ protected:
 //BTX
   vtkSmartPointer<vtkCachingInterpolatedVelocityField> ivf[2];
   // we want to keep track of static datasets so we can optimize caching
-  vtkstd::vector<bool> StaticDataSets;
+  std::vector<bool> StaticDataSets;
 //ETX
 private:
   // Hide this since we need multiple time steps and are using a different

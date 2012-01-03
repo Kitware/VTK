@@ -31,15 +31,15 @@
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -156,7 +156,7 @@ int TestQtXMLProcessor(int argc, char* argv[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

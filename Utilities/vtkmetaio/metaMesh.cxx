@@ -24,6 +24,18 @@
 namespace METAIO_NAMESPACE {
 #endif
 
+union bufferAlignedUnion {
+  char character;
+  unsigned char ucharacter;
+  short shortint;
+  unsigned short ushortint;
+  int integer;
+  unsigned int uinteger;
+  long int linteger;
+  unsigned long int ulinteger;
+  float floatingpoint;
+  double doublefloatingpoint;
+};
 
 MeshPoint::
 MeshPoint(int dim)
@@ -425,8 +437,6 @@ M_Read(void)
     strcpy(m_PointDim,(char *)(mF->value));
   }
 
-  int j;
-
   if(m_BinaryData)
   {
     int elementSize;
@@ -448,27 +458,26 @@ M_Read(void)
     }
 
     int i=0;
-    int d;
-    int td;
-    for(j=0; j<m_NPoints; j++)
+    for(int j=0; j<m_NPoints; j++)
       {
       MeshPoint* pnt = new MeshPoint(m_NDims);
-      unsigned int k;
-      char* num = new char[sizeof(int)];
-      for(k=0;k<sizeof(int);k++)
         {
-        num[k] = _data[i+k];
+        int td;
+        char * const num = (char *)(&td);
+        for(unsigned int k=0;k<sizeof(int);k++)
+          {
+          num[k] = _data[i+k];
+          }
+        MET_SwapByteIfSystemMSB(&td,MET_INT);
+        pnt->m_Id = td;
+        i+= sizeof(int);
         }
-      td = (int)((int*)num)[0];
-      MET_SwapByteIfSystemMSB(&td,MET_INT);
-      pnt->m_Id = td;
-      i+= sizeof(int);
-      delete [] num;
 
-      for(d=0; d<m_NDims; d++)
+      for(int d=0; d<m_NDims; d++)
         {
-        num = new char[elementSize];
-        for(k=0;k<static_cast<unsigned int>(elementSize);k++)
+        bufferAlignedUnion alignedBuffer;
+        char * const num = (char *)(&alignedBuffer);
+        for(unsigned int k=0;k<static_cast<unsigned int>(elementSize);k++)
           {
           num[k] = _data[i+k];
           }
@@ -476,63 +485,60 @@ M_Read(void)
 
         if(m_PointType == MET_CHAR)
           {
-          char val = (char)((char*)num)[0];
-          pnt->m_X[d] = val;
+          pnt->m_X[d] = alignedBuffer.character;
           }
         else if(m_PointType == MET_UCHAR)
           {
-          unsigned char val = (unsigned char)((unsigned char*)num)[0];
-          pnt->m_X[d] = val;
+          pnt->m_X[d] = alignedBuffer.ucharacter;
           }
         else if(m_PointType == MET_SHORT)
           {
-          short val = (short)((short*)num)[0];
+          short val = alignedBuffer.shortint;
           MET_SwapByteIfSystemMSB(&val,MET_SHORT);
           pnt->m_X[d] = val;
           }
         else if(m_PointType == MET_USHORT)
           {
-          unsigned short val = (unsigned short)((unsigned short*)num)[0];
+          unsigned short val = alignedBuffer.ushortint;
           MET_SwapByteIfSystemMSB(&val,MET_USHORT);
           pnt->m_X[d] = val;
           }
         else if(m_PointType == MET_INT)
           {
-          int val = (int)((int*)num)[0];
+          int val = alignedBuffer.integer;
           MET_SwapByteIfSystemMSB(&val,MET_INT);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_UINT)
           {
-          unsigned int val = (unsigned int)((char*)num)[0];
+          unsigned int val = alignedBuffer.uinteger;
           MET_SwapByteIfSystemMSB(&val,MET_UINT);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_LONG)
           {
-          long val = (long)((long*)num)[0];
+          long val = alignedBuffer.linteger;
           MET_SwapByteIfSystemMSB(&val,MET_LONG);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_ULONG)
           {
-          unsigned long val = (unsigned long)((unsigned long*)num)[0];
+          unsigned long val = alignedBuffer.ulinteger;
           MET_SwapByteIfSystemMSB(&val,MET_ULONG);
           pnt->m_X[d] = (float)val;
           }
         else if(m_PointType == MET_FLOAT)
           {
-          float val = (float)((float*)num)[0];
+          float val = alignedBuffer.floatingpoint;
           MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
           pnt->m_X[d] = val;
           }
         else if(m_PointType == MET_DOUBLE)
           {
-          double val = (double)((double*)num)[0];
+          double val = alignedBuffer.doublefloatingpoint;
           MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
           pnt->m_X[d] = (float)val;
           }
-        delete [] num;
         }
         m_PointList.push_back(pnt);
       }
@@ -540,7 +546,7 @@ M_Read(void)
     }
   else
     {
-    for(j=0; j<m_NPoints; j++)
+    for(int j=0; j<m_NPoints; j++)
       {
       MeshPoint* pnt = new MeshPoint(m_NDims);
 
@@ -602,7 +608,7 @@ M_Read(void)
     mF = MET_GetFieldRecord("CellType", &m_Fields);
     if(mF->defined)
       {
-      for(j=0;j<MET_NUM_CELL_TYPES;j++)
+      for(int j=0;j<MET_NUM_CELL_TYPES;j++)
         {
         if(!strncmp((char *)(mF->value),MET_CellTypeName[j],3))
           {
@@ -631,38 +637,34 @@ M_Read(void)
         }
 
       int i=0;
-      int d;
-      int td;
-      for(j=0; j<(int)m_NCells; j++)
+      for(int j=0; j<(int)m_NCells; j++)
         {
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(n);
-        unsigned int k;
-
-        char* num = new char[sizeof(int)];
-        for(k=0;k<sizeof(int);k++)
           {
-          num[k] = _data[i+k];
+          int td;
+          char * const num = (char *)(&td);
+          for(unsigned int k=0;k<sizeof(int);k++)
+            {
+            num[k] = _data[i+k];
+            }
+          MET_SwapByteIfSystemMSB(&td,MET_INT);
+          cell->m_Id = td;
+          i+= sizeof(int);
           }
-        td = (int)((int*)num)[0];
-        MET_SwapByteIfSystemMSB(&td,MET_INT);
-        cell->m_Id = td;
-        i+= sizeof(int);
-        delete [] num;
 
-        for(d=0; d<n; d++)
+        for(int d=0; d<n; d++)
           {
-          num = new char[sizeof(int)];
-          for(k=0;k<static_cast<unsigned int>(sizeof(int));k++)
+          int val;
+          char * const num = (char *)(&val);
+          for(unsigned int k=0;k<static_cast<unsigned int>(sizeof(int));k++)
              {
              num[k] = _data[i+k];
              }
           i+=sizeof(int);
 
-          int val = (int)((int*)num)[0];
           MET_SwapByteIfSystemMSB(&val,MET_INT);
           cell->m_PointsId[d] = val;
-          delete [] num;
           }
         m_CellListArray[celltype]->push_back(cell);
         }
@@ -670,12 +672,12 @@ M_Read(void)
       }
     else
       {
-      for(j=0; j<(int)m_NCells; j++)
+      for(int j=0; j<(int)m_NCells; j++)
         {
-        int v;
         int n = MET_CellSize[celltype];
         MeshCell* cell = new MeshCell(MET_CellSize[celltype]);
 
+        int v;
         *m_ReadStream >> v;
         m_ReadStream->get();
         cell->m_Id = v;
@@ -749,56 +751,59 @@ M_Read(void)
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaMesh: m_Read: Cell Link not read completely"
-                << METAIO_STREAM::endl;
+        << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
       delete [] _data;
       return false;
       }
     int i=0;
-    int d;
-    int td;
-    for(j=0; j<(int)m_NCellLinks; j++)
+    for(int j=0; j<(int)m_NCellLinks; j++)
       {
       MeshCellLink* link = new MeshCellLink();
-
-      unsigned int k;
-      char* num = new char[sizeof(int)];
-      for(k=0;k<sizeof(int);k++)
         {
-        num[k] = _data[i+k];
-        }
-      td = (int)((int*)num)[0];
-      MET_SwapByteIfSystemMSB(&td,MET_INT);
-      link->m_Id = (int)td;
-
-      i += sizeof(int);
-      for(k=0;k<sizeof(int);k++)
-        {
-        num[k] = _data[i+k];
-        }
-      int n = (int)((int*)num)[0];
-      MET_SwapByteIfSystemMSB(&n,MET_INT);
-      i += sizeof(int);
-
-      for(d=0; d<n; d++)
-        {
-        for(k=0;k<sizeof(int);k++)
+        int td;
+        char * const num = (char *)(&td);
+        for(unsigned int k=0;k<sizeof(int);k++)
           {
           num[k] = _data[i+k];
           }
-        td = (int)((int*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_INT);
-        link->m_Links.push_back((int)td);
-        i += sizeof(int);
+        link->m_Id = (int)td;
+        }
+
+      i += sizeof(int);
+        {
+        int n;
+          {
+          char * const num = (char *)(&n);
+          for(unsigned int k=0;k<sizeof(int);k++)
+            {
+            num[k] = _data[i+k];
+            }
+          MET_SwapByteIfSystemMSB(&n,MET_INT);
+          i += sizeof(int);
+          }
+
+        for(int d=0; d<n; d++)
+          {
+          int td;
+          char * const num = (char *)(&td);
+          for(unsigned int k=0;k<sizeof(int);k++)
+            {
+            num[k] = _data[i+k];
+            }
+          MET_SwapByteIfSystemMSB(&td,MET_INT);
+          link->m_Links.push_back((int)td);
+          i += sizeof(int);
+          }
         }
       m_CellLinks.push_back(link);
-      delete [] num;
       }
     delete [] _data;
     }
   else
     {
-    for(j=0; j<(int)m_NCellLinks; j++)
+    for(int j=0; j<(int)m_NCellLinks; j++)
       {
       int v;
       MeshCellLink* link = new MeshCellLink();
@@ -885,29 +890,28 @@ M_Read(void)
     return false;
     }
   int i=0;
-  int td;
 
-  for(j=0; j<(int)m_NPointData; j++)
+  for(int j=0; j<(int)m_NPointData; j++)
     {
     MeshDataBase* pd;
 
-    unsigned int k;
-    char* num = new char[sizeof(int)];
-    for(k=0;k<sizeof(int);k++)
+    int td;
       {
-      num[k] = _data[i+k];
+      char * const num = (char *)(&td);
+      for(unsigned int k=0;k<sizeof(int);k++)
+        {
+        num[k] = _data[i+k];
+        }
+      MET_SwapByteIfSystemMSB(&td,MET_INT);
+      i+=sizeof(int);
       }
-    td = (int)((int*)num)[0];
-    MET_SwapByteIfSystemMSB(&td,MET_INT);
-
-    delete [] num;
-    i+=sizeof(int);
 
     int elementSize;
     MET_SizeOfType(m_PointDataType, &elementSize);
 
-    num = new char[elementSize];
-    for(k=0;k<static_cast<unsigned int>(elementSize);k++)
+    bufferAlignedUnion alignedBuffer;
+    char * const num = (char *)(&alignedBuffer);
+    for(unsigned int k=0;k<static_cast<unsigned int>(elementSize);k++)
       {
       num[k] = _data[i+k];
       }
@@ -915,68 +919,68 @@ M_Read(void)
 
     if(m_PointDataType == MET_CHAR)
       {
-      char val = (char)((char*)num)[0];
+      char val = alignedBuffer.character;
       pd = new MeshData<char>();
       static_cast<MeshData<char>*>(pd)->m_Data = (char)val;
       }
     else if(m_PointDataType == MET_UCHAR)
       {
-      unsigned char val = (unsigned char)((unsigned char*)num)[0];
+      unsigned char val = alignedBuffer.ucharacter;
       pd = new MeshData<unsigned char>();
       static_cast<MeshData<unsigned char>*>(pd)->m_Data = (unsigned char)val;
       }
     else if(m_PointDataType == MET_SHORT)
       {
-      short val = (short)((short*)num)[0];
+      short val = alignedBuffer.shortint;
       pd = new MeshData<short>();
       MET_SwapByteIfSystemMSB(&val,MET_SHORT);
       static_cast<MeshData<short>*>(pd)->m_Data = (short)val;
       }
     else if(m_PointDataType == MET_USHORT)
       {
-      unsigned short val = (unsigned short)((unsigned short*)num)[0];
+      unsigned short val = alignedBuffer.ushortint;
       pd = new MeshData<unsigned short>();
       MET_SwapByteIfSystemMSB(&val,MET_USHORT);
       static_cast<MeshData<unsigned short>*>(pd)->m_Data = (unsigned short)val;
       }
     else if(m_PointDataType == MET_INT)
       {
-      int val = (int)((int*)num)[0];
+      int val = alignedBuffer.integer;
       pd = new MeshData<int>();
       MET_SwapByteIfSystemMSB(&val,MET_INT);
       static_cast<MeshData<int>*>(pd)->m_Data = (int)val;
       }
     else if(m_PointDataType == MET_UINT)
       {
-      unsigned int val = (unsigned int)((char*)num)[0];
+      unsigned int val = alignedBuffer.uinteger;
       pd = new MeshData<unsigned int>();
       MET_SwapByteIfSystemMSB(&val,MET_UINT);
       static_cast<MeshData<unsigned int>*>(pd)->m_Data = (unsigned int)val;
       }
     else if(m_PointDataType == MET_LONG)
       {
-      long val = (long)((long*)num)[0];
+      long val = alignedBuffer.linteger;
       pd = new MeshData<long>();
       MET_SwapByteIfSystemMSB(&val,MET_LONG);
       static_cast<MeshData<long>*>(pd)->m_Data = (long)val;
       }
     else if(m_PointDataType == MET_ULONG)
       {
-      unsigned long val = (unsigned long)((unsigned long*)num)[0];
+      unsigned long val = alignedBuffer.ulinteger;
       pd = new MeshData<unsigned long>();
       MET_SwapByteIfSystemMSB(&val,MET_ULONG);
       static_cast<MeshData<unsigned long>*>(pd)->m_Data = (unsigned long)val;
       }
     else if(m_PointDataType == MET_FLOAT)
       {
-      float val = (float)((float*)num)[0];
+      float val = alignedBuffer.floatingpoint;
       pd = new MeshData<float>();
       MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
       static_cast<MeshData<float>*>(pd)->m_Data = (float)val;
       }
     else if(m_PointDataType == MET_DOUBLE)
       {
-      double val = (double)((double*)num)[0];
+      double val = alignedBuffer.doublefloatingpoint;
       pd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(pd)->m_Data = val;
@@ -985,13 +989,11 @@ M_Read(void)
       {
       METAIO_STREAM::cerr << "Warning: Mesh point data type not known - assuming double"
                 << METAIO_STREAM::endl;
-      double val = (double)((double*)num)[0];
+      double val = alignedBuffer.doublefloatingpoint;
       pd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(pd)->m_Data = val;
       }
-
-    delete [] num;
     pd->m_Id = (int)td;
     m_PointData.push_back(pd);
     }
@@ -1055,27 +1057,25 @@ M_Read(void)
     }
 
   i=0;
-  for(j=0; j<(int)m_NCellData; j++)
+  for(int j=0; j<(int)m_NCellData; j++)
     {
     MeshDataBase* cd;
-
-    unsigned int k;
-    char* num = new char[sizeof(int)];
-    for(k=0;k<sizeof(int);k++)
+    int td;
       {
-      num[k] = _celldata[i+k];
+      char * const num = (char *)(&td);
+      for(unsigned int k=0;k<sizeof(int);k++)
+        {
+        num[k] = _celldata[i+k];
+        }
+      MET_SwapByteIfSystemMSB(&td,MET_INT);
       }
-
-    td = (int)((int*)num)[0];
-    MET_SwapByteIfSystemMSB(&td,MET_INT);
-
-    delete [] num;
     i+=sizeof(int);
 
     int elementSize;
     MET_SizeOfType(m_CellDataType, &elementSize);
-    num = new char[elementSize];
-    for(k=0;k<static_cast<unsigned int>(elementSize);k++)
+    bufferAlignedUnion alignedBuffer;
+    char * const num = (char *)(&alignedBuffer);
+    for(unsigned int k=0;k<static_cast<unsigned int>(elementSize);k++)
       {
       num[k] = _celldata[i+k];
       }
@@ -1083,68 +1083,68 @@ M_Read(void)
 
     if(m_CellDataType == MET_CHAR)
       {
-      char val = (char)((char*)num)[0];
+      char val = alignedBuffer.character;
       cd = new MeshData<char>();
       static_cast<MeshData<char>*>(cd)->m_Data = (char)val;
       }
     else if(m_CellDataType == MET_UCHAR)
       {
-      unsigned char val = (unsigned char)((unsigned char*)num)[0];
+      unsigned char val = alignedBuffer.ucharacter;
       cd = new MeshData<unsigned char>();
       static_cast<MeshData<unsigned char>*>(cd)->m_Data = (unsigned char)val;
       }
     else if(m_CellDataType == MET_SHORT)
       {
-      short val = (short)((short*)num)[0];
+      short val = alignedBuffer.shortint;
       cd = new MeshData<short>();
       MET_SwapByteIfSystemMSB(&val,MET_SHORT);
       static_cast<MeshData<short>*>(cd)->m_Data = (short)val;
       }
     else if(m_CellDataType == MET_USHORT)
       {
-      unsigned short val = (unsigned short)((unsigned short*)num)[0];
+      unsigned short val = alignedBuffer.ushortint;
       cd = new MeshData<unsigned short>();
       MET_SwapByteIfSystemMSB(&val,MET_USHORT);
       static_cast<MeshData<unsigned short>*>(cd)->m_Data = (unsigned short)val;
       }
     else if(m_CellDataType == MET_INT)
       {
-      int val = (int)((int*)num)[0];
+      int val = alignedBuffer.integer;
       cd = new MeshData<int>();
       MET_SwapByteIfSystemMSB(&val,MET_INT);
       static_cast<MeshData<int>*>(cd)->m_Data = (int)val;
       }
     else if(m_CellDataType == MET_UINT)
       {
-      unsigned int val = (unsigned int)((unsigned int*)num)[0];
+      unsigned int val = alignedBuffer.uinteger;
       cd = new MeshData<unsigned int>();
       MET_SwapByteIfSystemMSB(&val,MET_UINT);
       static_cast<MeshData<unsigned int>*>(cd)->m_Data = (unsigned int)val;
       }
     else if(m_CellDataType == MET_LONG)
       {
-      long val = (long)((long*)num)[0];
+      long val = alignedBuffer.linteger;
       cd = new MeshData<long>();
       MET_SwapByteIfSystemMSB(&val,MET_LONG);
       static_cast<MeshData<long>*>(cd)->m_Data = (long)val;
       }
     else if(m_CellDataType == MET_ULONG)
       {
-      unsigned long val = (unsigned long)((unsigned long*)num)[0];
+      unsigned long val = alignedBuffer.ulinteger;
       cd = new MeshData<unsigned long>();
       MET_SwapByteIfSystemMSB(&val,MET_ULONG);
       static_cast<MeshData<unsigned long>*>(cd)->m_Data = (long)val;
       }
     else if(m_CellDataType == MET_FLOAT)
       {
-      float val = (float)((float*)num)[0];
+      float val = alignedBuffer.floatingpoint;
       cd = new MeshData<float>();
       MET_SwapByteIfSystemMSB(&val,MET_FLOAT);
       static_cast<MeshData<float>*>(cd)->m_Data = (float)val;
       }
     else if(m_CellDataType == MET_DOUBLE)
       {
-      double val = (double)((double*)num)[0];
+      double val = alignedBuffer.doublefloatingpoint;
       cd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(cd)->m_Data = val;
@@ -1152,15 +1152,12 @@ M_Read(void)
     else
       {
       METAIO_STREAM::cerr << "Warning: Mesh point data type not known - assuming double"
-                << METAIO_STREAM::endl;
-      double val = (double)((double*)num)[0];
+        << METAIO_STREAM::endl;
+      double val = alignedBuffer.doublefloatingpoint;
       cd = new MeshData<double>();
       MET_SwapByteIfSystemMSB(&val,MET_DOUBLE);
       static_cast<MeshData<double>*>(cd)->m_Data = val;
       }
-
-    delete [] num;
-
     cd->m_Id = (int)td;
     m_CellData.push_back(cd);
     }
@@ -1498,9 +1495,7 @@ M_Write(void)
       }
     m_WriteStream->write("\n",1);
     }
-
   return true;
-
 }
 
 #if (METAIO_USE_NAMESPACE)

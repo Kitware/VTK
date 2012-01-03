@@ -21,8 +21,8 @@
 #include "vtkPointData.h"
 #include "vtkErrorCode.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 
 #include <sys/stat.h>
 
@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkDICOMImageReader);
 
-class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
+class vtkDICOMImageReaderVector : public std::vector<std::string>
 {
 
 };
@@ -174,7 +174,7 @@ void vtkDICOMImageReader::ExecuteInformation()
         continue;
         }
 
-      vtkstd::string fileString = this->DirectoryName;
+      std::string fileString = this->DirectoryName;
       fileString += "/";
       fileString += dir->GetFile(i);
 
@@ -191,7 +191,7 @@ void vtkDICOMImageReader::ExecuteInformation()
         }
 
       }
-    vtkstd::vector<vtkstd::string>::iterator iter;
+    std::vector<std::string>::iterator iter;
 
     for (iter = this->DICOMFileNames->begin();
          iter != this->DICOMFileNames->end();
@@ -217,7 +217,7 @@ void vtkDICOMImageReader::ExecuteInformation()
       vtkDebugMacro( << "Slice number : " << this->AppHelper->GetSliceNumber());
       }
 
-    vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
+    std::vector<std::pair<float, std::string> > sortedFiles;
 
     this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
@@ -227,7 +227,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     if (sortedFiles.size() > 0)
       {
       this->DICOMFileNames->clear();
-      vtkstd::vector<vtkstd::pair<float, vtkstd::string> >::iterator siter;
+      std::vector<std::pair<float, std::string> >::iterator siter;
       for (siter = sortedFiles.begin();
            siter != sortedFiles.end();
            siter++)
@@ -322,7 +322,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output,
       return;
       }
 
-    vtkstd::vector<vtkstd::string>::iterator fiter;
+    std::vector<std::string>::iterator fiter;
 
     int count = 0;
     int numFiles = static_cast<int>(this->DICOMFileNames->size());
@@ -457,7 +457,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 //----------------------------------------------------------------------------
 double* vtkDICOMImageReader::GetPixelSpacing()
 {
-  vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
+  std::vector<std::pair<float, std::string> > sortedFiles;
 
   this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
 
@@ -467,8 +467,8 @@ double* vtkDICOMImageReader::GetPixelSpacing()
 
   if (sortedFiles.size() > 1)
     {
-    vtkstd::pair<float, vtkstd::string> p1 = sortedFiles[0];
-    vtkstd::pair<float, vtkstd::string> p2 = sortedFiles[1];
+    std::pair<float, std::string> p1 = sortedFiles[0];
+    std::pair<float, std::string> p2 = sortedFiles[1];
     this->DataSpacing[2] = fabs(p1.first - p2.first);
     }
   else
@@ -524,7 +524,7 @@ int vtkDICOMImageReader::GetNumberOfComponents()
 //----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetTransferSyntaxUID()
 {
-  vtkstd::string tmp = this->AppHelper->GetTransferSyntaxUID();
+  std::string tmp = this->AppHelper->GetTransferSyntaxUID();
 
   if (this->TransferSyntaxUID)
     {
@@ -552,7 +552,7 @@ float vtkDICOMImageReader::GetRescaleOffset()
 //----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetPatientName()
 {
-  vtkstd::string tmp = this->AppHelper->GetPatientName();
+  std::string tmp = this->AppHelper->GetPatientName();
 
   if (this->PatientName)
     {
@@ -568,7 +568,7 @@ const char* vtkDICOMImageReader::GetPatientName()
 //----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetStudyUID()
 {
-  vtkstd::string tmp = this->AppHelper->GetStudyUID();
+  std::string tmp = this->AppHelper->GetStudyUID();
 
   if (this->StudyUID)
     {
@@ -584,7 +584,7 @@ const char* vtkDICOMImageReader::GetStudyUID()
 //----------------------------------------------------------------------------
 const char* vtkDICOMImageReader::GetStudyID()
 {
-  vtkstd::string tmp = this->AppHelper->GetStudyID();
+  std::string tmp = this->AppHelper->GetStudyID();
 
   if (this->StudyID)
     {

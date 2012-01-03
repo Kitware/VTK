@@ -69,9 +69,9 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "vtkstd/string"
-#include "vtkstd/vector"
-#include "vtksys/SystemTools.hxx"
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
 
 #ifndef VTK_BINARY
 #define VTK_ASCII 1

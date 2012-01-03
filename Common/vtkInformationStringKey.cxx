@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-#include <vtkstd/string>
+#include <string>
 
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class vtkInformationStringValue: public vtkObjectBase
 {
 public:
   vtkTypeMacro(vtkInformationStringValue, vtkObjectBase);
-  vtkstd::string Value;
+  std::string Value;
 };
 
 //----------------------------------------------------------------------------

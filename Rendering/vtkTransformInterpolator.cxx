@@ -19,7 +19,7 @@
 #include "vtkProp3D.h"
 #include "vtkTupleInterpolator.h"
 #include "vtkQuaternionInterpolator.h"
-#include <vtkstd/list>
+#include <list>
 
 vtkStandardNewMacro(vtkTransformInterpolator);
 
@@ -59,7 +59,7 @@ struct vtkQTransform
 };
 
 // The list is arranged in increasing order in T
-class vtkTransformList : public vtkstd::list<vtkQTransform> {};
+class vtkTransformList : public std::list<vtkQTransform> {};
 typedef vtkTransformList::iterator TransformListIterator;
 
 

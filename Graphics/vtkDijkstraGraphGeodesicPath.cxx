@@ -67,7 +67,7 @@ void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray *weights)
   
   weights->Initialize();
   double *weightsArray = new double[this->Internals->CumulativeWeights.size()];
-  vtkstd::copy(this->Internals->CumulativeWeights.begin(), 
+  std::copy(this->Internals->CumulativeWeights.begin(),
     this->Internals->CumulativeWeights.end(), weightsArray);
   weights->SetArray(weightsArray, this->Internals->CumulativeWeights.size(), 0);
 }
@@ -137,17 +137,17 @@ void vtkDijkstraGraphGeodesicPath::Initialize( vtkDataSet *inData )
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::Reset()
 {
-  vtkstd::fill( this->Internals->CumulativeWeights.begin(),
+  std::fill( this->Internals->CumulativeWeights.begin(),
     this->Internals->CumulativeWeights.end(), -1.0 );
-  vtkstd::fill( this->Internals->Predecessors.begin(),
+  std::fill( this->Internals->Predecessors.begin(),
     this->Internals->Predecessors.end(), -1 );
-  vtkstd::fill( this->Internals->OpenVertices.begin(),
+  std::fill( this->Internals->OpenVertices.begin(),
     this->Internals->OpenVertices.end(), false );
-  vtkstd::fill( this->Internals->ClosedVertices.begin(),
+  std::fill( this->Internals->ClosedVertices.begin(),
     this->Internals->ClosedVertices.end(), false );
   if( this->RepelPathFromVertices )
     {
-    vtkstd::fill( this->Internals->BlockedVertices.begin(),
+    std::fill( this->Internals->BlockedVertices.begin(),
       this->Internals->BlockedVertices.end(), false );
     }
 
@@ -213,18 +213,18 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet *inData)
         vtkIdType u = pts[j];
         vtkIdType v = pts[(( j + 1 ) % npts)];
 
-        vtkstd::map<int,double>& mu = this->Internals->Adjacency[u];
+        std::map<int,double>& mu = this->Internals->Adjacency[u];
         if ( mu.find(v) == mu.end() )
           {
           cost = this->CalculateStaticEdgeCost( inData, u, v );
-          mu.insert( vtkstd::pair<int,double>( v, cost ) );
+          mu.insert( std::pair<int,double>( v, cost ) );
           }
 
-        vtkstd::map<int,double>& mv = this->Internals->Adjacency[v];
+        std::map<int,double>& mv = this->Internals->Adjacency[v];
         if ( mv.find(u) == mv.end() )
           {
           cost = this->CalculateStaticEdgeCost( inData, v, u );
-          mv.insert( vtkstd::pair<int,double>( u, cost ) );
+          mv.insert( std::pair<int,double>( u, cost ) );
           }
         }
       }
@@ -325,7 +325,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
       stop = true;
       }
     
-    vtkstd::map<int,double>::iterator it = this->Internals->Adjacency[u].begin();
+    std::map<int,double>::iterator it = this->Internals->Adjacency[u].begin();
      
     // Update all vertices v adjacent to u
     for ( ; it != this->Internals->Adjacency[u].end(); ++it )

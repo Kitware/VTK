@@ -23,8 +23,8 @@
 #include "vtksys/ios/sstream"
 using vtksys_ios::ostringstream;
 using vtksys_ios::istringstream;
-#include "vtkstd/string"
-using vtkstd::string;
+#include <string>
+using std::string;
 
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
 

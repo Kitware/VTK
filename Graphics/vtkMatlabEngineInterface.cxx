@@ -27,10 +27,10 @@
 #include "engine.h"
 
 #include <stdlib.h>
-#include <vtkstd/string>
+#include <string>
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
-#include <vtkstd/string>
+#include <string>
 
 vtkStandardNewMacro(vtkMatlabEngineInterface);
 

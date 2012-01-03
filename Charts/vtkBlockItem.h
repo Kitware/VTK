@@ -78,14 +78,14 @@ public:
   // coordinate of the bottom corner. Elements 2 and 3 are the width and
   // height.
   // Initial value is (0,0,0,0).
-  vtkSetVector4Macro(Dimensions, int);
+  vtkSetVector4Macro(Dimensions, float);
 
   // Description:
   // Get the dimensions of the block, elements 0 and 1 are the x and y
   // coordinate of the bottom corner. Elements 2 and 3 are the width and
   // height.
   // Initial value is (0,0,0,0)
-  vtkGetVector4Macro(Dimensions, int);
+  vtkGetVector4Macro(Dimensions, float);
 
 //BTX
   void SetScalarFunctor(double (*scalarFunction)(double, double));
@@ -96,14 +96,11 @@ protected:
   vtkBlockItem();
   ~vtkBlockItem();
 
-  int Dimensions[4];
-
-  float LastPosition[2];
+  float Dimensions[4];
 
   vtkStdString Label;
 
   bool MouseOver;
-  int MouseButtonPressed;
 
   // Some function pointers to optionally do funky things...
   double (*scalarFunction)(double, double);

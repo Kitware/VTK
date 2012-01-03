@@ -24,7 +24,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkImageStencilData);
 
@@ -1343,7 +1343,7 @@ void vtkImageStencilRaster::FillStencilData(
         continue;
         }
 
-      vtkstd::sort(rline, rlineEnd);
+      std::sort(rline, rlineEnd);
 
       int xy[2];
       xy[2-xj] = idY;
@@ -1414,7 +1414,7 @@ void vtkImageStencilRaster::FillStencilData(
         continue;
         }
 
-      vtkstd::sort(rline, rlineEnd);
+      std::sort(rline, rlineEnd);
 
       int lastr = VTK_INT_MIN;
 

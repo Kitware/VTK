@@ -32,7 +32,7 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    throw vtkstd::runtime_error("Expression failed: " #expression); \
+    throw std::runtime_error("Expression failed: " #expression); \
 }
 
 static bool close_enough(const double lhs, const double rhs)
@@ -51,7 +51,7 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->SetSuperDiagonal(0.5);
     source->SetSubDiagonal(-0.5);
 
-    cout << vtkstd::fixed << setprecision(1);
+    cout << std::fixed << setprecision(1);
     cout << "sparse diagonal source:\n";
     source->Update();
     vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(
@@ -64,7 +64,7 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     normalize->Update();
     vtkTypedArray<double>* normalized = vtkTypedArray<double>::SafeDownCast(
       normalize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    cout << vtkstd::fixed << setprecision(17);
+    cout << std::fixed << setprecision(17);
     cout << "sparse normalized:\n";
     vtkPrintMatrixFormat(cout, normalized);
 
@@ -82,7 +82,7 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));
 
     source->SetArrayType(vtkDiagonalMatrixSource::DENSE);
-    cout << vtkstd::fixed << setprecision(1);
+    cout << std::fixed << setprecision(1);
     cout << "dense diagonal source:\n";
     source->Update();
     vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(
@@ -91,7 +91,7 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     normalize->Update();
     normalized = vtkTypedArray<double>::SafeDownCast(
       normalize->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    cout << vtkstd::fixed << setprecision(17);
+    cout << std::fixed << setprecision(17);
     cout << "dense normalized:\n";
     vtkPrintMatrixFormat(cout, normalized);
 
@@ -110,7 +110,7 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

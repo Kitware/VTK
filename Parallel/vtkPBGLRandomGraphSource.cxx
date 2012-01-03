@@ -361,7 +361,7 @@ vtkPBGLRandomGraphSource::RequestData(
     boost::mpi::communicator world;
     vtkIdType myStartEdge 
       = boost::mpi::scan(world, output->GetNumberOfEdges(), 
-                         vtkstd::plus<vtkIdType>());
+                         std::plus<vtkIdType>());
 
     vtkIdType numEdge = output->GetNumberOfEdges();
     vtkSmartPointer<vtkIdTypeArray> edgeIds =

@@ -35,7 +35,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkPerturbCoincidentVertices);
 //----------------------------------------------------------------------------
@@ -248,7 +248,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   // the points that have distinct coordinates.
   coincidentPoints->InitTraversal();
 
-  vtkstd::vector<Coord> coincidentFoci;
+  std::vector<Coord> coincidentFoci;
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
   while(coincidentPointsList != NULL)
     {

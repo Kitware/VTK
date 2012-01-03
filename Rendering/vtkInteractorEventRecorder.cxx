@@ -146,7 +146,7 @@ void vtkInteractorEventRecorder::Record()
       
       // Use C locale. We don't want the user-defined locale when we write
       // float values.
-      (*this->OutputStream).imbue(vtkstd::locale::classic());
+      (*this->OutputStream).imbue(std::locale::classic());
       
       *this->OutputStream << "# StreamVersion " 
                           << vtkInteractorEventRecorder::StreamVersion << "\n";
@@ -175,7 +175,7 @@ void vtkInteractorEventRecorder::Play()
         vtkErrorMacro(<< "No input string specified");
         return;
         }
-      vtkstd::string inputStr(this->InputString, len);
+      std::string inputStr(this->InputString, len);
       if (this->InputStream)
         {
         delete this->InputStream;
@@ -217,7 +217,7 @@ void vtkInteractorEventRecorder::Play()
       
       // Use classic locale, we don't want to parse float values with
       // user-defined locale.
-      iss.imbue(vtkstd::locale::classic());
+      iss.imbue(std::locale::classic());
       
       iss.width(256);
       iss >> event;

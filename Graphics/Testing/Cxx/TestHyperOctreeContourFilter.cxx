@@ -243,6 +243,7 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   vtkPolyDataMapper *mapper1d = vtkPolyDataMapper::New();
   mapper1d->SetInputConnection(0,contour1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
+  mapper1d->SetScalarModeToUseCellData();
   
   if(contour1d->GetOutput()->GetCellData()!=0)
     {

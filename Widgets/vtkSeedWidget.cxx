@@ -27,14 +27,14 @@
 #include "vtkSeedRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include <vtkstd/iterator>
-#include <vtkstd/list>
+#include <iterator>
+#include <list>
 
 vtkStandardNewMacro(vtkSeedWidget);
 
 // The vtkSeedList is a PIMPLed list<T>.
-class vtkSeedList : public vtkstd::list<vtkHandleWidget*> {};
-typedef vtkstd::list<vtkHandleWidget*>::iterator vtkSeedListIterator;
+class vtkSeedList : public std::list<vtkHandleWidget*> {};
+typedef std::list<vtkHandleWidget*>::iterator vtkSeedListIterator;
 
 //----------------------------------------------------------------------
 vtkSeedWidget::vtkSeedWidget()
@@ -81,7 +81,7 @@ void vtkSeedWidget::DeleteSeed(int i)
     }
 
   vtkSeedListIterator iter = this->Seeds->begin();
-  vtkstd::advance(iter,i);
+  std::advance(iter,i);
   (*iter)->SetEnabled(0);
   (*iter)->RemoveObservers(vtkCommand::StartInteractionEvent);
   (*iter)->RemoveObservers(vtkCommand::InteractionEvent);
@@ -110,7 +110,7 @@ vtkHandleWidget * vtkSeedWidget::GetSeed(int i)
    return NULL;
    }
   vtkSeedListIterator iter = this->Seeds->begin();
-  vtkstd::advance(iter,i);
+  std::advance(iter,i);
   return *iter;
 }
 

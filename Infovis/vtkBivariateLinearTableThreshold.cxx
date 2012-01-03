@@ -28,15 +28,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkBivariateLinearTableThreshold);
 
 class vtkBivariateLinearTableThreshold::Internals
 {
 public:
-  vtkstd::vector<vtkIdType> ColumnsToThreshold;
-  vtkstd::vector<vtkIdType> ColumnComponentsToThreshold;
+  std::vector<vtkIdType> ColumnsToThreshold;
+  std::vector<vtkIdType> ColumnComponentsToThreshold;
 };
 
 vtkBivariateLinearTableThreshold::vtkBivariateLinearTableThreshold()

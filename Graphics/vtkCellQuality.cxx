@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
-#include "vtkstd/utility"
+#include <utility>
 
 vtkStandardNewMacro(vtkCellQuality);
 
