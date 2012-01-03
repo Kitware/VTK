@@ -786,11 +786,12 @@ bool CompareFields( vtkMultiBlockDataSet *mbds )
 //------------------------------------------------------------------------------
 int SimpleTest( int argc, char **argv )
 {
-  assert( "pre: argument counter must equal 4" && (argc==4) );
+  assert( "pre: argument counter must equal 4" && (argc==5) );
 
-  int dim = atoi( argv[1] );
-  int np  = atoi( argv[2] );
-  int ng  = atoi( argv[3] );
+  int dim = atoi( argv[1] ); // The dimension of the data
+  int np  = atoi( argv[2] ); // The number of partitions to create
+  int ng  = atoi( argv[3] ); // The number of initial ghost layers
+  int nng = atoi( argv[4] ); // The number of additional ghost layers to create
 
   assert( "pre: dim must be 2 or 3" && ( (dim==2) || (dim==3) ) );
 
@@ -843,8 +844,13 @@ int SimpleTest( int argc, char **argv )
 
   std::cout << "Creating/Extending ghost layers...";
   std::cout.flush();
-  vtkMultiBlockDataSet *gmbds = GetGhostedDataSet( mbds, gridConnectivity, 1 );
+  vtkMultiBlockDataSet *gmbds = GetGhostedDataSet( mbds, gridConnectivity, nng );
   std::cout << "[DONE]\n";
+  std::cout.flush();
+
+  std::cout << "Ghosted Grid connectivity:\n";
+  std::cout.flush();
+  gridConnectivity->Print( std::cout );
   std::cout.flush();
 
   int NumNodesOnGhostedDataSet = GetTotalNumberOfNodes( gmbds );
