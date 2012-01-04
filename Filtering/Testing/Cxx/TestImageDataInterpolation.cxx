@@ -215,13 +215,6 @@ inline int TestInterpolation( int dims[3], double origin[3], double h[3] )
       std::cout << "f_expeted=" << fExpected << " ";
       std::cout << "f_interp=" << f << std::endl;
       std::cout.flush();
-
-    if( !eq( f, fExpected ) )
-      {
-      std::cout << "INTERPOLATION ERROR: ";
-      std::cout << "f_expeted=" << fExpected << " ";
-      std::cout << "f_interp=" << f << std::endl;
-      std::cout.flush();
       ++ interpErrors;
       }
 
