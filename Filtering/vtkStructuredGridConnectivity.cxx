@@ -957,6 +957,7 @@ int vtkStructuredGridConnectivity::PartialOverlap(
     }
 
   // Code should not reach here!
+  assert( "Hmm...code should not reach here!" && false );
   return NO_OVERLAP;
 }
 
@@ -1427,6 +1428,11 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
           (Neighbor.NeighborID >= 0) &&
           (Neighbor.NeighborID < static_cast<int>(this->NumberOfGrids)));
 
+  std::cout << "Transferring local neighbor data for grid: " << gridID
+            << " from neighbor grid: " << Neighbor.NeighborID << std::endl;
+  std::cout.flush();
+
+
   // STEP 0: Get ghosted grid (node) extent and corresponding cell extent
   int GhostedGridExtent[6];
   this->GetGhostedGridExtent( gridID, GhostedGridExtent );
@@ -1440,6 +1446,10 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
   int NeighborCellExtent[6];
   vtkStructuredData::GetCellExtentFromNodeExtent(
       NeighborExtent, NeighborCellExtent );
+
+  int RcvCellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      const_cast<int*>(Neighbor.RcvExtent), RcvCellExtent );
 
   // STEP 3: Transfer the RcvExtent to the grid from the Neighbor
   int ijk[3];
@@ -1472,7 +1482,7 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
             this->GridPointData[Neighbor.NeighborID], srcIdx,
             this->GhostedGridPointData[gridID], targetIdx );
 
-//        if( this->IsNodeWithinExtent(i,j,k,NeighborCellExtent) )
+//        if( this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
 //          {
 //          // Compute the source cell idx. Note, since we are passing to
 //          // ComputePointIdForExtent a cell extent, this is a cell id, not

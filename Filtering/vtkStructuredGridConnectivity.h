@@ -739,57 +739,87 @@ inline bool vtkStructuredGridConnectivity::IsNodeWithinExtent(
 inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
     const int idx, int A[2], int B[2], int overlap[2], int orient[3] )
 {
-  // We know that A,B are overlapping!
+  // We know that A,B are overlapping
 
-  assert( "pre: idx is out-of-bounds" && (idx >= 0) && (idx < 3) );
-
-  bool lo = this->InBounds( A[0], overlap[0],overlap[1] );
-  bool hi = this->InBounds( A[1], overlap[0],overlap[1] );
+  bool lo = this->InBounds( A[0], overlap[0], overlap[1] );
+  bool hi = this->InBounds( A[1], overlap[0], overlap[1] );
 
   if( lo && !hi )
     {
-    orient[ idx ] = vtkStructuredNeighbor::LO;
+
     }
   else if( !lo && hi )
     {
-    orient[ idx ] = vtkStructuredNeighbor::HI;
+
     }
   else if( lo && hi )
     {
 
-    int CardinalityOfA = this->Cardinality( A );
-    int CardinalityOfB = this->Cardinality( B );
-    if( CardinalityOfA == CardinalityOfB )
-      {
-      orient[ idx ] = vtkStructuredNeighbor::ONE_TO_ONE;
-      }
-    else
-      {
-      assert( "pre: |B| > |A|" && CardinalityOfB > CardinalityOfA );
-      if( this->StrictklyInsideBounds( A[0], B[0], B[1] ) &&
-          this->StrictklyInsideBounds( A[1], B[0], B[1])      )
-        {
-        // A is completely inside B
-        orient[ idx ] = vtkStructuredNeighbor::SUBSET;
-        } // END if
-      else if( A[0] == B[0] )
-        {
-        // A touches B.Lo
-        orient[ idx ] = vtkStructuredNeighbor::LO_SUBSET;
-        }
-      else if( A[1] == B[1] )
-        {
-        // A touches B.Hi
-        orient[ idx ] = vtkStructuredNeighbor::HI_SUBSET;
-        }
-      }
-    }// END else if(lo && hi)
+    }
+  else if( !lo && !hi )
+    {
+
+    }
   else
     {
-    // A has B, their overlap is exactly B.
-    orient[ idx ] = vtkStructuredNeighbor::SUPERSET;
+    assert( "Hmm code should not reach here!" && false );
     }
 }
+
+//inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
+//    const int idx, int A[2], int B[2], int overlap[2], int orient[3] )
+//{
+//  // We know that A,B are overlapping!
+//
+//  assert( "pre: idx is out-of-bounds" && (idx >= 0) && (idx < 3) );
+//
+//  bool lo = this->InBounds( A[0], overlap[0],overlap[1] );
+//  bool hi = this->InBounds( A[1], overlap[0],overlap[1] );
+//
+//  if( lo && !hi )
+//    {
+//    orient[ idx ] = vtkStructuredNeighbor::LO;
+//    }
+//  else if( !lo && hi )
+//    {
+//    orient[ idx ] = vtkStructuredNeighbor::HI;
+//    }
+//  else if( lo && hi )
+//    {
+//
+//    int CardinalityOfA = this->Cardinality( A );
+//    int CardinalityOfB = this->Cardinality( B );
+//    if( CardinalityOfA == CardinalityOfB )
+//      {
+//      orient[ idx ] = vtkStructuredNeighbor::ONE_TO_ONE;
+//      }
+//    else
+//      {
+//      assert( "pre: |B| > |A|" && CardinalityOfB > CardinalityOfA );
+//      if( this->StrictklyInsideBounds( A[0], B[0], B[1] ) &&
+//          this->StrictklyInsideBounds( A[1], B[0], B[1])      )
+//        {
+//        // A is completely inside B
+//        orient[ idx ] = vtkStructuredNeighbor::SUBSET;
+//        } // END if
+//      else if( A[0] == B[0] )
+//        {
+//        // A touches B.Lo
+//        orient[ idx ] = vtkStructuredNeighbor::LO_SUBSET;
+//        }
+//      else if( A[1] == B[1] )
+//        {
+//        // A touches B.Hi
+//        orient[ idx ] = vtkStructuredNeighbor::HI_SUBSET;
+//        }
+//      }
+//    }// END else if(lo && hi)
+//  else
+//    {
+//    // A has B, their overlap is exactly B.
+//    orient[ idx ] = vtkStructuredNeighbor::SUPERSET;
+//    }
+//}
 
 //------------------------------------------------------------------------------
 inline int vtkStructuredGridConnectivity::Get1DOrientation(
