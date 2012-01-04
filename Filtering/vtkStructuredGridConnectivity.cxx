@@ -964,8 +964,6 @@ int vtkStructuredGridConnectivity::PartialOverlap(
 int vtkStructuredGridConnectivity::IntervalOverlap(
                     int A[2], int B[2], int overlap[2] )
 {
-  int rc = NO_OVERLAP;
-
   // STEP 0: Check if we must check for a partial overlap
   int CardinalityOfA = this->Cardinality( A );
   int CardinalityOfB = this->Cardinality( B );
@@ -1474,27 +1472,27 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
             this->GridPointData[Neighbor.NeighborID], srcIdx,
             this->GhostedGridPointData[gridID], targetIdx );
 
-        if( this->IsNodeWithinExtent(i,j,k,NeighborCellExtent) )
-          {
-          // Compute the source cell idx. Note, since we are passing to
-          // ComputePointIdForExtent a cell extent, this is a cell id, not
-          // a point id.
-          vtkIdType sourceCellIdx =
-              vtkStructuredData::ComputePointIdForExtent(
-                  NeighborCellExtent, ijk, this->DataDescription );
-
-          // Compute the target cell idx. Note, since we are passing to
-          // ComputePointIdForExtent a cell extent, this is a cell id, not
-          // a point id.
-          vtkIdType targetCellIdx =
-              vtkStructuredData::ComputePointIdForExtent(
-                  GhostedGridCellExtent, ijk, this->DataDescription );
-
-          // Transfer cell data from the registered grid to the ghosted grid
-          this->CopyFieldData(
-              this->GridCellData[Neighbor.NeighborID], sourceCellIdx,
-              this->GhostedGridCellData[gridID], targetCellIdx );
-          } // END if node is within cell extent
+//        if( this->IsNodeWithinExtent(i,j,k,NeighborCellExtent) )
+//          {
+//          // Compute the source cell idx. Note, since we are passing to
+//          // ComputePointIdForExtent a cell extent, this is a cell id, not
+//          // a point id.
+//          vtkIdType sourceCellIdx =
+//              vtkStructuredData::ComputePointIdForExtent(
+//                  NeighborCellExtent, ijk, this->DataDescription );
+//
+//          // Compute the target cell idx. Note, since we are passing to
+//          // ComputePointIdForExtent a cell extent, this is a cell id, not
+//          // a point id.
+//          vtkIdType targetCellIdx =
+//              vtkStructuredData::ComputePointIdForExtent(
+//                  GhostedGridCellExtent, ijk, this->DataDescription );
+//
+//          // Transfer cell data from the registered grid to the ghosted grid
+//          this->CopyFieldData(
+//              this->GridCellData[Neighbor.NeighborID], sourceCellIdx,
+//              this->GhostedGridCellData[gridID], targetCellIdx );
+//          } // END if node is within cell extent
 
         } // END for all k
       } // END for all j
