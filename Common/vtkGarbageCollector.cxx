@@ -19,9 +19,9 @@
 #include "vtkSmartPointerBase.h"
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/queue>
-#include <vtkstd/stack>
-#include <vtkstd/vector>
+#include <queue>
+#include <stack>
+#include <vector>
 
 // Leave the hashing version off for now.
 #define VTK_GARBAGE_COLLECTOR_HASH 0
@@ -30,8 +30,8 @@
 # include <vtksys/hash_set.hxx>
 # include <vtksys/hash_map.hxx>
 #else
-# include <vtkstd/map>
-# include <vtkstd/set>
+# include <map>
+# include <set>
 #endif
 
 #include <assert.h>
@@ -177,7 +177,7 @@ public:
   typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
-  typedef vtkstd::map<vtkObjectBase*, int> ReferencesType;
+  typedef std::map<vtkObjectBase*, int> ReferencesType;
 #endif
   ReferencesType References;
 
@@ -221,7 +221,7 @@ public:
   typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
-  typedef vtkstd::map<vtkObjectBase*, int> ReferencesType;
+  typedef std::map<vtkObjectBase*, int> ReferencesType;
 #endif
   struct ComponentType;
 
@@ -261,7 +261,7 @@ public:
     int GarbageCount;
 
     // The list of references reported by this entry's object.
-    typedef vtkstd::vector<EntryEdge> ReferencesType;
+    typedef std::vector<EntryEdge> ReferencesType;
     ReferencesType References;
   };
 
@@ -280,14 +280,14 @@ public:
 #else
   struct EntryCompare
   {
-    vtkstd::less<vtkObjectBase*> Compare;
+    std::less<vtkObjectBase*> Compare;
     vtkstd_bool operator()(Entry* l, Entry* r) const
       { return Compare(l->Object, r->Object); }
   };
 #endif
 
   // Represent a strongly connected component of the reference graph.
-  typedef vtkstd::vector<Entry*> ComponentBase;
+  typedef std::vector<Entry*> ComponentBase;
   struct ComponentType: public ComponentBase
   {
     typedef ComponentBase::iterator iterator;
@@ -309,7 +309,7 @@ public:
 #if VTK_GARBAGE_COLLECTOR_HASH
   typedef vtksys::hash_set<Entry*, EntryHash, EntryCompare> VisitedType;
 #else
-  typedef vtkstd::set<Entry*, EntryCompare> VisitedType;
+  typedef std::set<Entry*, EntryCompare> VisitedType;
 #endif
   VisitedType Visited;
 
@@ -322,16 +322,16 @@ public:
   typedef vtksys::hash_set<ComponentType*, vtkGarbageCollectorHash>
     ComponentsType;
 #else
-  typedef vtkstd::set<ComponentType*> ComponentsType;
+  typedef std::set<ComponentType*> ComponentsType;
 #endif
   ComponentsType ReferencedComponents;
 
   // Queue leaked components for deletion.
-  vtkstd::queue<ComponentType*> LeakedComponents;
+  std::queue<ComponentType*> LeakedComponents;
 
   // The stack of objects forming the connected components.  This is
   // used in the implementation of Tarjan's algorithm.
-  vtkstd::stack<Entry*> Stack;
+  std::stack<Entry*> Stack;
 
   // The object whose references are currently being traced by
   // Tarjan's algorithm.  Used during the ReportReferences callback.

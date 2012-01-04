@@ -1694,7 +1694,7 @@ bool vtkAMRBox::Collides( vtkAMRBox &b1, vtkAMRBox &b2)
 void Split(
       const int N[3],
       const int minSide[3],
-      vtkstd::vector<vtkAMRBox> &decomp)
+      std::vector<vtkAMRBox> &decomp)
 {
   vector<vtkAMRBox> tDecomp; // Working array for resulting splits
   vector<vtkAMRBox> aDecomp; // and for atomic boxes.
@@ -1756,7 +1756,7 @@ void Split(
 //*****************************************************************************
 void Split(
       const int minSide[3],
-      vtkstd::vector<vtkAMRBox> &decomp)
+      std::vector<vtkAMRBox> &decomp)
 {
   vector<vtkAMRBox> tDecomp; // Working array for resulting splits
   vector<vtkAMRBox> aDecomp; // and for atomic boxes.

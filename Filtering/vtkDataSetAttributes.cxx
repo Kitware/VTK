@@ -31,12 +31,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 namespace
 {
-  typedef  vtkstd::vector< vtkStdString* > vtkInternalComponentNameBase;
+  // pair.first it used to indicate if pair.second is valid.
+  typedef  std::vector<std::pair<bool, vtkStdString> > vtkInternalComponentNameBase;
 }
+
 class vtkDataSetAttributes::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 
 vtkStandardNewMacro(vtkDataSetAttributes);
@@ -1489,7 +1491,6 @@ void vtkDataSetAttributes::InternalCopyAllocate(
 {
   vtkAbstractArray* newAA=0;
   vtkDataArray* newDA=0;
-  vtkStdString *compName;
   int i;
 
   // Allocate attributes if any
@@ -1505,10 +1506,10 @@ void vtkDataSetAttributes::InternalCopyAllocate(
         {
         for (unsigned int j=0; j < list.FieldComponentsNames[i]->size(); ++j)
           {
-          compName = list.FieldComponentsNames[i]->at(j);
-          if ( compName )
+          if (list.FieldComponentsNames[i]->at(j).first)
             {
-            newAA->SetComponentName( j, compName->c_str() );
+            newAA->SetComponentName(j,
+              list.FieldComponentsNames[i]->at(j).second.c_str());
             }
           }
         }
@@ -1734,7 +1735,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
 
   // unlike Intersection, with Union the the total number of fields may change,
   // so we have to be careful with that.
-  vtkstd::vector<int> dsaIndices;
+  std::vector<int> dsaIndices;
   dsaIndices.resize(this->NumberOfFields, -1);
 
   // Intersect the active attributes. (Even though we are taking a union, we
@@ -1790,7 +1791,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
       }
     }
 
-  vtkstd::vector<bool> dsaMarkedArrays;
+  std::vector<bool> dsaMarkedArrays;
   dsaMarkedArrays.resize(dsa->GetNumberOfArrays(), false);
 
   // * Try to match the existing fields with those in dsa.
@@ -1814,7 +1815,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
   // * Now every array in dsaMarkedArrays that has a false, implies that it did not
   // match with any of the existing fields. So those will be appended to the
   // end of the field list.
-  vtkstd::vector<int> dsaPendingIndices;
+  std::vector<int> dsaPendingIndices;
   for (size_t cc=0; cc < dsaMarkedArrays.size(); cc++)
     {
     if (dsaMarkedArrays[cc] == false)
@@ -2055,14 +2056,7 @@ void vtkDataSetAttributes::FieldList::ClearFields()
     {
     for (i=0; i<this->NumberOfFields; i++)
       {
-      if ( this->FieldComponentsNames[i] )
-        {
-        for (size_t j=0; j<this->FieldComponentsNames[i]->size(); j++)
-          {
-          delete this->FieldComponentsNames[i]->at(j);
-          }
-        delete this->FieldComponentsNames[i];
-        }
+      delete this->FieldComponentsNames[i];
       }
     delete [] this->FieldComponentsNames;
     this->FieldComponentsNames = 0;
@@ -2103,10 +2097,6 @@ void vtkDataSetAttributes::FieldList::SetField(
   //so we unallocate correctly
   if ( this->FieldComponentsNames[index] )
     {    
-    for (size_t i=0; i<this->FieldComponentsNames[index]->size(); i++)
-      {
-      delete this->FieldComponentsNames[index]->at(i);
-      }
     delete this->FieldComponentsNames[index];
     this->FieldComponentsNames[index] = NULL;    
     }
@@ -2117,14 +2107,16 @@ void vtkDataSetAttributes::FieldList::SetField(
     {    
     this->FieldComponentsNames[index] = 
       new vtkDataSetAttributes::vtkInternalComponentNames();
-    this->FieldComponentsNames[index]->resize( numberOfComponents, NULL );
+    this->FieldComponentsNames[index]->resize(numberOfComponents,
+      std::pair<bool, vtkStdString>(false, vtkStdString()));
     name = NULL;
     for ( vtkIdType i=0; i < numberOfComponents; ++i)
       {    
       name = aa->GetComponentName(i);  
       if ( name )
         {        
-        this->FieldComponentsNames[index]->at(i) = new vtkStdString(name);
+        this->FieldComponentsNames[index]->at(i) =
+          std::pair<bool, vtkStdString>(true, name);
         name = NULL;
         }    
       }

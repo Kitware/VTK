@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 #include <assert.h>
-#include <vtkstd/list>
+#include <list>
 
 class vtkGLPickInfo
 {
@@ -58,7 +58,7 @@ vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
 class vtkOpenGLRendererLayerList
 {
 public:
-  vtkstd::list<GLuint> List;
+  std::list<GLuint> List;
 };
 
 extern const char *vtkOpenGLRenderer_PeelingFS;
@@ -723,8 +723,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     // the transparent layers
-    vtkstd::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
-    vtkstd::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
+    std::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
+    std::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
     while(it!=itEnd)
       {
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,(*it));
@@ -761,7 +761,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     // Destroy the layers
     size_t c=this->LayerList->List.size();
     GLuint *ids=new GLuint[c];
-    vtkstd::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
+    std::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
     size_t layer=0;
     while(layer<c)
       {

@@ -45,8 +45,8 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 
 #define EXTENT_HEADER_SIZE      128
@@ -1147,8 +1147,8 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
 int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                              int destProcessId)
 {
-  vtkstd::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
-  vtkstd::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
+  std::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
+  std::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   vtkIdType sendLength = numComponents*numTuples;
@@ -1357,8 +1357,8 @@ int vtkCommunicator::AllGatherV(vtkDataArray *sendBuffer,
 int vtkCommunicator::AllGatherV(vtkDataArray *sendBuffer,
                                 vtkDataArray *recvBuffer)
 {
-  vtkstd::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
-  vtkstd::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
+  std::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
+  std::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   vtkIdType sendLength = numComponents*numTuples;
@@ -1458,7 +1458,7 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
       switch (type)
         {
         vtkTemplateMacro
-          (vtkstd::copy(reinterpret_cast<const VTK_TT*>(sendBuffer),
+          (std::copy(reinterpret_cast<const VTK_TT*>(sendBuffer),
                         reinterpret_cast<const VTK_TT*>(sendBuffer) + length,
                         reinterpret_cast<VTK_TT*>(recvBuffer)));
         }
@@ -1588,7 +1588,7 @@ int vtkCommunicator::Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
 {
   if (this->GetLocalProcessId() == srcProcessId)
     {
-    vtkstd::vector<unsigned char> data;
+    std::vector<unsigned char> data;
     stream.GetRawData(data);
     unsigned int length = static_cast<unsigned int>(data.size());
     if (!this->Broadcast(reinterpret_cast<int*>(&length), 1, srcProcessId))
@@ -1611,7 +1611,7 @@ int vtkCommunicator::Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
       }
     if (length > 0)
       {
-      vtkstd::vector<unsigned char> data;
+      std::vector<unsigned char> data;
       data.resize(length);
       if (!this->Broadcast(&data[0], length, srcProcessId))
         {
@@ -1626,7 +1626,7 @@ int vtkCommunicator::Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
 //----------------------------------------------------------------------------
 int vtkCommunicator::Send(const vtkMultiProcessStream& stream, int remoteId, int tag)
 {
-  vtkstd::vector<unsigned char> data;
+  std::vector<unsigned char> data;
   stream.GetRawData(data);
   unsigned int length = static_cast<unsigned int>(data.size());
   if (!this->Send(&length, 1, remoteId, tag))
@@ -1653,7 +1653,7 @@ int vtkCommunicator::Receive(vtkMultiProcessStream& stream, int remoteId, int ta
 
   if (length > 0)
     {
-    vtkstd::vector<unsigned char> data;
+    std::vector<unsigned char> data;
     data.resize(length);
     if (!this->Receive(&data[0], length, remoteId, tag))
       {

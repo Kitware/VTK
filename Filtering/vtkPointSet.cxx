@@ -26,7 +26,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtkstd/set>
+#include <set>
 
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
@@ -162,7 +162,7 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
                               vtkGenericCell *gencell, vtkIdType cellId,
                               double tol2, int &subId, double pcoords[3],
                               double *weights,
-                              vtkstd::set<vtkIdType> &visitedCells,
+                              std::set<vtkIdType> &visitedCells,
                               vtkIdList *ptIds, vtkIdList *neighbors)
 {
   for (int walk = 0; walk < VTK_MAX_WALK; walk++)
@@ -214,7 +214,7 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
                               vtkGenericCell *gencell, vtkIdList *cellIds,
                               double tol2, int &subId, double pcoords[3],
                               double *weights,
-                              vtkstd::set<vtkIdType> &visitedCells,
+                              std::set<vtkIdType> &visitedCells,
                               vtkIdList *ptIds, vtkIdList *neighbors)
 {
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
@@ -268,7 +268,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     this->Locator->BuildLocator();
     }
 
-  vtkstd::set<vtkIdType> visitedCells;
+  std::set<vtkIdType> visitedCells;
   VTK_CREATE(vtkIdList, ptIds);
   ptIds->Allocate(8, 100);
   VTK_CREATE(vtkIdList, neighbors);

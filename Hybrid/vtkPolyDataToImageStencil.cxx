@@ -116,9 +116,70 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 }
 
 //----------------------------------------------------------------------------
+// Select contours within slice z
+void vtkPolyDataToImageStencil::PolyDataSelector(
+  vtkPolyData *input, vtkPolyData *output, double z, double thickness,
+  vtkMergePoints *locator)
+{
+  vtkPoints *points = input->GetPoints();
+  vtkCellArray *lines = input->GetLines();
+  vtkPoints *newPoints = vtkPoints::New();
+  newPoints->Allocate(333);
+  vtkCellArray *newLines = vtkCellArray::New();
+  newLines->Allocate(1000);
+
+  double minz = z - 0.5*thickness;
+  double maxz = z + 0.5*thickness;
+
+  double bounds[6];
+  input->GetBounds(bounds);
+  bounds[4] = minz;
+  bounds[5] = maxz;
+  locator->InitPointInsertion(newPoints, bounds);
+
+  vtkIdType loc = 0;
+  vtkIdType numCells = lines->GetNumberOfCells();
+  for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+    {
+    // check if all points in cell are within the slice
+    vtkIdType npts, *ptIds;
+    lines->GetCell(loc, npts, ptIds);
+    loc += npts + 1;
+    vtkIdType i;
+    for (i = 0; i < npts; i++)
+      {
+      double point[3];
+      points->GetPoint(ptIds[i], point);
+      if (point[2] < minz || point[2] >= maxz)
+        {
+        break;
+        }
+      }
+    if (i < npts)
+      {
+      continue;
+      }
+    newLines->InsertNextCell(npts);
+    for (i = 0; i < npts; i++)
+      {
+      vtkIdType ptId;
+      double point[3];
+      points->GetPoint(ptIds[i], point);
+      locator->InsertUniquePoint(point, ptId);
+      newLines->InsertCellPoint(ptId);
+      }
+    }
+
+  output->SetPoints(newPoints);
+  output->SetLines(newLines);
+  newPoints->Delete();
+  newLines->Delete();
+}
+
+//----------------------------------------------------------------------------
 // This method was taken from vtkCutter and slightly modified
 void vtkPolyDataToImageStencil::PolyDataCutter(
-  vtkPolyData *input, vtkPolyData *output, double z, double thickness,
+  vtkPolyData *input, vtkPolyData *output, double z,
   vtkMergePoints *locator)
 {
   vtkCellData *inCD = input->GetCellData();
@@ -153,23 +214,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
     vtkPoints *cellPts = cell->GetPoints();
     vtkIdList *cellIds = cell->GetPointIds();
 
-    if (cell->GetCellDimension() == 1 && input->GetNumberOfPolys() == 0)
-      {
-      double *bounds = cell->GetBounds();
-      if (bounds[4] >= z - 0.5*thickness && bounds[5] < z + 0.5*thickness)
-        {
-        vtkIdType numCellPts = cellPts->GetNumberOfPoints();
-        newLines->InsertNextCell(numCellPts);
-        for (vtkIdType i = 0; i < numCellPts; i++)
-          {
-          vtkIdType ptId;
-          locator->InsertUniquePoint(cellPts->GetPoint(i), ptId);
-          newLines->InsertCellPoint(ptId);
-          }
-        outCD->CopyData(inCD, cellId, newLines->GetNumberOfCells()-1);
-        }
-      }
-    else if (cell->GetCellDimension() == 2)
+    if (cell->GetCellDimension() == 2)
       {
       vtkIdType numCellPts = cellPts->GetNumberOfPoints();
       cellScalars->SetNumberOfTuples(numCellPts);
@@ -272,7 +317,15 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     raster.PrepareForNewData();
 
     // Step 1: Cut the data into slices
-    this->PolyDataCutter(input, slice, z, spacing[2], locator);
+    if (input->GetNumberOfPolys() > 0 || input->GetNumberOfStrips() > 0)
+      {
+      this->PolyDataCutter(input, slice, z, locator);
+      }
+    else
+      {
+      // if no polys, select polylines instead
+      this->PolyDataSelector(input, slice, z, spacing[2], locator);
+      }
     
     if (!slice->GetNumberOfLines())
       {
@@ -305,8 +358,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     for (vtkIdType i = 0; i < numberOfPoints; i++)
       {
       double yval = points->GetPoint(i)[1];
-      int bottomPoint = 1;
-      int topPoint = 1;
+      bool bottomPoint = 1;
+      bool topPoint = 1;
 
       int numberOfNeighbors = 0;
       vtkIdType neighborId = 0;
@@ -316,37 +369,31 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       vtkIdType *pointIds;
       while( lines->GetNextCell(npts, pointIds) )
         {
+        int isClosed = 0;
+        if (pointIds[0] == pointIds[npts-1])
+          {
+          isClosed = 1;
+          npts -= 1;
+          }
         for (vtkIdType j = 0; j < npts; j++)
           {
           if ( pointIds[j] == i )
             {
-            if (j > 0)
+            if (j > 0 || isClosed)
               {
               numberOfNeighbors++;
-              neighborId = pointIds[j-1];
+              neighborId = pointIds[(j+npts-1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
-              if (yneighbor < yval)
-                {
-                bottomPoint = 0;
-                }
-              else if (yneighbor > yval)
-                {
-                topPoint = 0;
-                }
+              bottomPoint &= (yneighbor >= yval);
+              topPoint &= (yneighbor <= yval);
               }
-            if (j < npts-1)
+            if (j < npts-1 || isClosed)
               {
               numberOfNeighbors++;
-              neighborId = pointIds[j+1];
+              neighborId = pointIds[(j+1)%npts];
               double yneighbor = points->GetPoint(neighborId)[1];
-              if (yneighbor < yval)
-                {
-                bottomPoint = 0;
-                }
-              else if (yneighbor > yval)
-                {
-                topPoint = 0;
-                }
+              bottomPoint &= (yneighbor >= yval);
+              topPoint &= (yneighbor <= yval);
               }
             break;
             }

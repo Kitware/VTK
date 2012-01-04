@@ -27,13 +27,13 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPriorityQueue.h"
-#include <vtkstd/vector>
-#include <vtkstd/queue>
-#include <vtkstd/map>
+#include <vector>
+#include <queue>
+#include <map>
 
 struct vtkDecimatePolylineFilter::vtkDecimatePolylineVertexErrorSTLMap
 {
-  vtkstd::map< int, double > VertexErrorMap;
+  std::map< int, double > VertexErrorMap;
 };
 
 
@@ -186,7 +186,7 @@ int vtkDecimatePolylineFilter::RequestData(
 //---------------------------------------------------------------------
 int vtkDecimatePolylineFilter::GetPrev( int iId )
 {
-  vtkstd::map< int, double >::iterator it = this->ErrorMap->VertexErrorMap.find( iId );
+  std::map< int, double >::iterator it = this->ErrorMap->VertexErrorMap.find( iId );
 
   if( it == this->ErrorMap->VertexErrorMap.begin() )
     {
@@ -210,9 +210,9 @@ int vtkDecimatePolylineFilter::GetPrev( int iId )
 //---------------------------------------------------------------------
 int vtkDecimatePolylineFilter::GetNext( int iId )
 {
-  vtkstd::map< int, double >::iterator
+  std::map< int, double >::iterator
     it = this->ErrorMap->VertexErrorMap.find( iId );
-  vtkstd::map< int, double >::iterator
+  std::map< int, double >::iterator
     end_it = this->ErrorMap->VertexErrorMap.end();
   --end_it;
   if( it == end_it )

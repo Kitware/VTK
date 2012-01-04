@@ -41,7 +41,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 #include <assert.h>
-#include <vtkstd/set>
+#include <set>
 #include "vtkBitArray.h"
 #include "vtkIncrementalPointLocator.h"
 
@@ -69,7 +69,7 @@ void vtkHyperOctreeContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 class vtkHyperOctreeIdSet // Pimpl idiom
 {
 public:
-  vtkstd::set<vtkIdType> Set;
+  std::set<vtkIdType> Set;
 };
 
 class vtkHyperOctreeContourPointsGrabber; 

@@ -33,9 +33,9 @@
 #include "vtkUnstructuredGridLinearRayIntegrator.h"
 #include "vtkMath.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <set>
+#include <algorithm>
 
 //-----------------------------------------------------------------------------
 
@@ -59,8 +59,8 @@ public:
   struct acolor {
     double c[4];
   };
-  vtkstd::vector<double> ControlPoints;
-  vtkstd::vector<acolor> Colors;
+  std::vector<double> ControlPoints;
+  std::vector<acolor> Colors;
 };
 
 static const double huebends[6] = {
@@ -73,7 +73,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
                                               double unit_distance,
                                               double scalar_range[2])
 {
-  vtkstd::set<double> cpset;
+  std::set<double> cpset;
 
   double *function_range = color->GetRange();
   double *function = color->GetDataPointer();
@@ -95,7 +95,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
     double rgb[3], hsv[3];
     double hue1, hue2;
     double x1, x2;
-    vtkstd::set<double>::iterator i = cpset.begin();
+    std::set<double>::iterator i = cpset.begin();
     x1 = *i;
     color->GetColor(x1, rgb);
     vtkMath::RGBToHSV(rgb, hsv);
@@ -196,7 +196,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
   this->Colors.erase(this->Colors.begin(), this->Colors.end());
   this->Colors.resize(cpset.size());
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
+  std::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
   for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
     {
     color->GetColor(this->ControlPoints[i], this->Colors[i].c);
@@ -211,7 +211,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
                                               double unit_distance,
                                               double scalar_range[2])
 {
-  vtkstd::set<double> cpset;
+  std::set<double> cpset;
 
   double *function_range = intensity->GetRange();
   double *function = intensity->GetDataPointer();
@@ -249,7 +249,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
   this->Colors.erase(this->Colors.begin(), this->Colors.end());
   this->Colors.resize(cpset.size());
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
+  std::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
   for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
     {
     // Is setting all the colors to the same value the right thing to do?
@@ -409,7 +409,7 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
     int numscalars = nearIntersections->GetNumberOfComponents();
     double *nearScalars = new double[numscalars];
     double *farScalars = new double[numscalars];
-    vtkstd::set<double> segments;
+    std::set<double> segments;
     for (vtkIdType i = 0; i < numintersections; i++)
       {
       double total_length = intersectionLengths->GetValue(i);
@@ -423,7 +423,7 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
         {
-        vtkstd::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
+        std::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
         vtkIdType numcp = cp.size();
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
@@ -447,7 +447,7 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
 
       // Iterate over all the segment pieces (from front to back) and
       // integrate each piece.
-      vtkstd::set<double>::iterator segi = segments.begin();
+      std::set<double>::iterator segi = segments.begin();
       double nearInterpolant = *segi;
       for (segi++; segi != segments.end(); segi++)
         {

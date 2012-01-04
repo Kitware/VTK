@@ -22,14 +22,14 @@
 #include "vtkXMLMaterialParser.h"
 #include "vtkXMLShader.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 class vtkXMLMaterialInternals
 {
 public:
-  typedef vtkstd::vector<vtkXMLDataElement*> VectorOfElements;
-  typedef vtkstd::vector<vtkSmartPointer<vtkXMLShader> > VectorOfShaders;
+  typedef std::vector<vtkXMLDataElement*> VectorOfElements;
+  typedef std::vector<vtkSmartPointer<vtkXMLShader> > VectorOfShaders;
   VectorOfElements Properties;
   VectorOfShaders VertexShaders;
   VectorOfShaders FragmentShaders;

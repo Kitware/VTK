@@ -23,9 +23,9 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkMultiPieceDataSet.h"
 
-#include <vtkstd/set>
+#include <set>
 
-class vtkExtractBlock::vtkSet : public vtkstd::set<unsigned int>
+class vtkExtractBlock::vtkSet : public std::set<unsigned int>
 {
 };
 

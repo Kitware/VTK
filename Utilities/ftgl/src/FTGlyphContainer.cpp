@@ -5,6 +5,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGlyphContainer::FTGlyphContainer( FTFace* f, unsigned int g, bool p)
 :  preCache( p),
@@ -65,3 +69,7 @@ FT_Vector& FTGlyphContainer::render( unsigned int index,
 //  kernAdvance.y = advance.y + kernAdvance.y;
   return kernAdvance;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

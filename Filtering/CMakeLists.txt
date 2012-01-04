@@ -8,6 +8,7 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 SET( Kit_SRCS
 vtkImageToStructuredGrid.cxx
 vtkAbstractCellLocator.cxx
+vtkAbstractImageInterpolator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
 vtkAbstractPointLocator.cxx
@@ -97,6 +98,8 @@ vtkGraphAlgorithm.cxx
 vtkGraph.cxx
 vtkGraphEdge.cxx
 vtkGraphInternals.cxx
+vtkGraphWeightFilter.cxx
+vtkGraphWeightEuclideanDistanceFilter.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataIterator.cxx
@@ -107,12 +110,16 @@ vtkHyperOctreeCursor.cxx
 vtkHyperOctree.cxx
 vtkHyperOctreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
+vtkImageBSplineInternals.cxx
+vtkImageBSplineInterpolator.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
+vtkImageInterpolator.cxx
 vtkImageIterator.cxx
 vtkImageMultipleInputFilter.cxx
 vtkImageMultipleInputOutputFilter.cxx
 vtkImageProgressIterator.cxx
+vtkImageSincInterpolator.cxx
 vtkImageSource.cxx
 vtkImageToImageFilter.cxx
 vtkImageToStructuredPoints.cxx
@@ -137,10 +144,13 @@ vtkKdTree.cxx
 vtkKdTreePointLocator.cxx
 vtkKochanekSpline.cxx
 vtkLine.cxx
+vtkLinearExtractor.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMeanValueCoordinatesInterpolator.cxx
 vtkMergePoints.cxx
+vtkMarchingSquaresLineCases.cxx
+vtkMarchingCubesTriangleCases.cxx
 vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataSet.cxx
 vtkMultiPieceDataSet.cxx
@@ -256,6 +266,7 @@ vtkWedge.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
+vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
 vtkAbstractPointLocator
@@ -285,6 +296,7 @@ vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkGraph
+vtkGraphWeightFilter
 vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor
 vtkHyperOctreePointsGrabber
@@ -335,10 +347,19 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAMRBox.cxx
   vtkExecutionSchedulerManager.cxx
   vtkFilteringInformationKeyManager.cxx
+  vtkImageBSplineInternals.cxx
   vtkImageIterator.cxx
   vtkInformation.cxx
   vtkImageProgressIterator.cxx
+  vtkMarchingSquaresLineCases.cxx
+  vtkMarchingCubesTriangleCases.cxx
   WRAP_EXCLUDE
+)
+
+SET_SOURCE_FILES_PROPERTIES(
+  vtkImageBSplineInternals.cxx
+
+  PROPERTIES WRAP_SPECIAL 1
 )
 
 SET(Kit_EXTRA_SRCS)
@@ -387,6 +408,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkCellType.h
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageIterator.txx
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageProgressIterator.txx
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtkImageInterpolatorInternals.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )

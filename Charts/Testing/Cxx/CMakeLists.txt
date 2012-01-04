@@ -5,7 +5,8 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
   # add tests that do not require data
   SET(MyTests
     TestContextScene.cxx
-    TestVector.cxx
+    TestControlPointsItem.cxx
+    TestControlPointsItemEvents.cxx
     )
 
   IF (VTK_DATA_ROOT)
@@ -15,15 +16,19 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestBarGraph.cxx
       TestBarGraphHorizontal.cxx
       TestColorTransferFunction.cxx
+      TestChartMatrix.cxx
       TestChartsOn3D.cxx
       TestContext.cxx
       TestContextImage.cxx
+      TestControlPointsHandleItem.cxx
       TestDiagram.cxx
       #TestFreeTypeContextUnicode.cxx
       #TestFreeTypeRender.cxx
       TestHistogram2D.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
+      TestLinePlotAxisFonts.cxx
+      TestLinePlot2.cxx
       TestLinePlotInteraction.cxx
       TestMultipleChartRenderers.cxx
       TestMultipleRenderers.cxx
@@ -33,6 +38,8 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestPlotMatrix.cxx
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
+      TestScatterPlotMatrix.cxx
+      TestScatterPlotMatrixVisible.cxx
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx
       TestStackedPlot.cxx
@@ -46,10 +53,12 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
     set(TestGLSLError 12)
     set(TestChartsOn3DError 16)
     SET(TestLinePlotError 25)
+    SET(TestLinePlot2Error 25)
     SET(TestLinePlotInteractionError 25)
     SET(TestMultipleRenderersError 25)
     SET(TestMultipleScalarsToColorsError 25)
     SET(TestParallelCoordinatesError 15)
+    SET(TestControlPointsHandleItemError 30)
   ENDIF (VTK_DATA_ROOT)
 
   IF (VTK_USE_QT)

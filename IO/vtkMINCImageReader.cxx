@@ -72,8 +72,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <stdlib.h>
 #include <ctype.h>
 #include <float.h>
-#include <vtkstd/string>
-#include <vtkstd/map>
+#include <string>
+#include <map>
 
 #define VTK_MINC_MAX_DIMS 8
 
@@ -174,7 +174,7 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     }
 
   char magic[4];
-  fread(magic, 4, 1, fp);
+  (void) fread(magic, 4, 1, fp);
   fclose(fp);
 
   if (magic[0] != 'C' ||

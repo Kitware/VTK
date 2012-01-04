@@ -77,9 +77,6 @@ void vtkExtractDataSets::AddDataSet(
 //----------------------------------------------------------------------------
 void vtkExtractDataSets::ClearDataSetList()
 {
-//  std::cout << "Called clear datasets list!!!!\n";
-//  std::cout.flush();
-
   this->Internals->Datasets.clear();
   this->Modified();
 }

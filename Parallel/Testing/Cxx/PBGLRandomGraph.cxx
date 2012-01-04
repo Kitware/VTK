@@ -44,8 +44,8 @@
 
 #include <stdlib.h>
 
-using vtkstd::pair;
-using vtkstd::vector;
+using std::pair;
+using std::vector;
 
 // Percentage of the time that the AddEdge operation in this test will
 // perform an "immediate" edge-addition operation, requiring the
@@ -88,7 +88,7 @@ namespace boost { namespace mpi {
 } } // end namespace boost::mpi
 
 // Order added edges by their source
-struct OrderEdgesBySource : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
+struct OrderEdgesBySource : std::binary_function<AddedEdge, AddedEdge, bool>
 {
   bool operator()(AddedEdge const& e1, AddedEdge const& e2)
   {
@@ -98,7 +98,7 @@ struct OrderEdgesBySource : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
 };
 
 // Order added edges by their target
-struct OrderEdgesByTarget : vtkstd::binary_function<AddedEdge, AddedEdge, bool>
+struct OrderEdgesByTarget : std::binary_function<AddedEdge, AddedEdge, bool>
 {
   bool operator()(AddedEdge const& e1, AddedEdge const& e2)
   {
@@ -113,7 +113,7 @@ bool operator==(AddedEdge const& e1, AddedEdge const& e2)
 }
 
 // Predicate that tests whether this is a self-loop
-struct IsSelfLoop : vtkstd::unary_function<AddedEdge, bool>
+struct IsSelfLoop : std::unary_function<AddedEdge, bool>
 {
   bool operator()(AddedEdge const& e)
   {
@@ -242,10 +242,10 @@ void TestDirectedGraph()
   // actually added on other nodes. Do a large exchange so that
   // addedEdges contains all of the edges that should originate on
   // this node.
-  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
-  vtkstd::vector<AddedEdge> addedEdges;
+  std::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  std::vector<AddedEdge> addedEdges;
   ExchangeEdges(graph, generatedEdges, addedEdges, true);
-  vtkstd::vector<AddedEdge>().swap(generatedEdges);
+  std::vector<AddedEdge>().swap(generatedEdges);
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -270,7 +270,7 @@ void TestDirectedGraph()
     }
 
   // Keep our list of the edges we added sorted by source.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -289,12 +289,12 @@ void TestDirectedGraph()
     // Find bounds within the addedEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(addedEdges.begin(), addedEdges.end(),
+    myEdgesStart = std::lower_bound(addedEdges.begin(), addedEdges.end(),
                                        AddedEdge
                                          (u,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, addedEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
                                        (u+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -312,13 +312,13 @@ void TestDirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
 
       // Check the source and target of the edge.
       myassert(u == graph->GetSourceVertex(e.Id));
@@ -354,13 +354,13 @@ void TestDirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(bracket.first, bracket.second,
+        = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
 
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
-      vtkstd::swap(*found, *bracket.second);
+      std::swap(*found, *bracket.second);
     }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
@@ -374,7 +374,7 @@ void TestDirectedGraph()
     }
 
   // Let everyone know about the in-edges they should have.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
   vector<AddedEdge> inEdges;
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
@@ -383,7 +383,7 @@ void TestDirectedGraph()
     {
     (cout << "  Testing in edges...").flush();
     }
-  vtkstd::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
+  std::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
   graph->GetVertices(vertices);
   while (vertices->HasNext())
     {
@@ -392,12 +392,12 @@ void TestDirectedGraph()
     // Find bounds within the inEdges array where the incoming edges
     // for this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(inEdges.begin(), inEdges.end(),
+    myEdgesStart = std::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
                                          (helper->MakeDistributedId(0, 0), 
                                           u),
                                        OrderEdgesByTarget());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, inEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, inEdges.end(),
                                      AddedEdge
                                        (helper->MakeDistributedId(0, 0),
                                         u+1),
@@ -415,13 +415,13 @@ void TestDirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(e.Source, u));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
 
       // Check the source and target of the edge.
       myassert(e.Source == graph->GetSourceVertex(e.Id));
@@ -558,10 +558,10 @@ void TestDirectedGraphProperties()
   // actually added on other nodes. Do a large exchange so that
   // addedEdges contains all of the edges that should originate on
   // this node.
-  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
-  vtkstd::vector<AddedEdge> addedEdges;
+  std::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  std::vector<AddedEdge> addedEdges;
   ExchangeEdges(graph, generatedEdges, addedEdges, true);
-  vtkstd::vector<AddedEdge>().swap(generatedEdges);
+  std::vector<AddedEdge>().swap(generatedEdges);
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -586,7 +586,7 @@ void TestDirectedGraphProperties()
     }
 
   // Keep our list of the edges we added sorted by source.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -605,12 +605,12 @@ void TestDirectedGraphProperties()
     // Find bounds within the addedEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(addedEdges.begin(), addedEdges.end(),
+    myEdgesStart = std::lower_bound(addedEdges.begin(), addedEdges.end(),
                                        AddedEdge
                                          (u,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, addedEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
                                        (u+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -628,13 +628,13 @@ void TestDirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges
@@ -666,13 +666,13 @@ void TestDirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(bracket.first, bracket.second,
+        = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
 
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
-      vtkstd::swap(*found, *bracket.second);
+      std::swap(*found, *bracket.second);
     }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
@@ -686,7 +686,7 @@ void TestDirectedGraphProperties()
     }
 
   // Let everyone know about the in-edges they should have.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
   vector<AddedEdge> inEdges;
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
@@ -695,7 +695,7 @@ void TestDirectedGraphProperties()
     {
     (cout << "  Testing in edges...").flush();
     }
-  vtkstd::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
+  std::sort(inEdges.begin(), inEdges.end(), OrderEdgesByTarget());
   graph->GetVertices(vertices);
   while (vertices->HasNext())
     {
@@ -704,12 +704,12 @@ void TestDirectedGraphProperties()
     // Find bounds within the inEdges array where the incoming edges
     // for this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(inEdges.begin(), inEdges.end(),
+    myEdgesStart = std::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
                                          (helper->MakeDistributedId(0, 0), 
                                           u),
                                        OrderEdgesByTarget());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, inEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, inEdges.end(),
                                      AddedEdge
                                        (helper->MakeDistributedId(0, 0),
                                         u+1),
@@ -727,13 +727,13 @@ void TestDirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(e.Source, u));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges
@@ -799,7 +799,7 @@ void TestUndirectedGraph()
     // vtkEdgeListIterator.
     if (helper->GetVertexOwner(source) == helper->GetVertexOwner(target)
         && source > target)
-      vtkstd::swap(source, target);
+      std::swap(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
     }
@@ -820,10 +820,10 @@ void TestUndirectedGraph()
   // actually added on other nodes. Do a large exchange so that
   // addedEdges contains all of the edges that should originate on
   // this node.
-  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
-  vtkstd::vector<AddedEdge> addedEdges;
+  std::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  std::vector<AddedEdge> addedEdges;
   ExchangeEdges(graph, generatedEdges, addedEdges, true);
-  vtkstd::vector<AddedEdge>().swap(generatedEdges);
+  std::vector<AddedEdge>().swap(generatedEdges);
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -849,12 +849,12 @@ void TestUndirectedGraph()
 
   // Find all of the incoming edges
   vector<AddedEdge> inEdges;
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Remove self-loops from the list of in-edges. We don't want them
   // to appear twice. 
-  inEdges.erase(vtkstd::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
+  inEdges.erase(std::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
                 inEdges.end());
 
   // Build a list of all of the in/out edges we'll see. 
@@ -867,7 +867,7 @@ void TestUndirectedGraph()
     }
 
   // Keep this list of all edges sorted.
-  vtkstd::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
+  std::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -885,12 +885,12 @@ void TestUndirectedGraph()
     // Find bounds within the allEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
+    myEdgesStart = std::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (u,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (u+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -906,13 +906,13 @@ void TestUndirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges
@@ -932,7 +932,7 @@ void TestUndirectedGraph()
 
   // Find where each of the local vertices has edges stored in the
   // allEdges list.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
@@ -961,13 +961,13 @@ void TestUndirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(bracket.first, bracket.second,
+        = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
 
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
-      vtkstd::swap(*found, *bracket.second);
+      std::swap(*found, *bracket.second);
     }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
@@ -1006,12 +1006,12 @@ void TestUndirectedGraph()
     // Find bounds within the allEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
+    myEdgesStart = std::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (v,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (v+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -1027,13 +1027,13 @@ void TestUndirectedGraph()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(v, e.Source));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges
@@ -1138,7 +1138,7 @@ void TestUndirectedGraphProperties()
     // vtkEdgeListIterator.
     if (helper->GetVertexOwner(source) == helper->GetVertexOwner(target)
         && source > target)
-      vtkstd::swap(source, target);
+      std::swap(source, target);
 
     generatedEdges.push_back(AddedEdge(source, target));
     }
@@ -1159,10 +1159,10 @@ void TestUndirectedGraphProperties()
   // actually added on other nodes. Do a large exchange so that
   // addedEdges contains all of the edges that should originate on
   // this node.
-  vtkstd::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
-  vtkstd::vector<AddedEdge> addedEdges;
+  std::sort(generatedEdges.begin(), generatedEdges.end(), OrderEdgesBySource());
+  std::vector<AddedEdge> addedEdges;
   ExchangeEdges(graph, generatedEdges, addedEdges, true);
-  vtkstd::vector<AddedEdge>().swap(generatedEdges);
+  std::vector<AddedEdge>().swap(generatedEdges);
 
   // Test the vertex descriptors
   if (myRank == 0)
@@ -1188,12 +1188,12 @@ void TestUndirectedGraphProperties()
 
   // Find all of the incoming edges
   vector<AddedEdge> inEdges;
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesByTarget());
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Remove self-loops from the list of in-edges. We don't want them
   // to appear twice. 
-  inEdges.erase(vtkstd::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
+  inEdges.erase(std::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
                 inEdges.end());
 
   // Build a list of all of the in/out edges we'll see. 
@@ -1206,7 +1206,7 @@ void TestUndirectedGraphProperties()
     }
 
   // Keep this list of all edges sorted.
-  vtkstd::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
+  std::sort(allEdges.begin(), allEdges.end(), OrderEdgesBySource());
 
   // Test the outgoing edges of each local vertex
   if (myRank == 0)
@@ -1224,12 +1224,12 @@ void TestUndirectedGraphProperties()
     // Find bounds within the allEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
+    myEdgesStart = std::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (u,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (u+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -1245,13 +1245,13 @@ void TestUndirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges
@@ -1271,7 +1271,7 @@ void TestUndirectedGraphProperties()
 
   // Find where each of the local vertices has edges stored in the
   // allEdges list.
-  vtkstd::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
+  std::sort(addedEdges.begin(), addedEdges.end(), OrderEdgesBySource());
   vector<pair<AddedEdgeIterator, AddedEdgeIterator> > startPositions(V);
   AddedEdgeIterator position = addedEdges.begin();
   for (vtkIdType v = 0; v < V; ++v)
@@ -1300,13 +1300,13 @@ void TestUndirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(bracket.first, bracket.second,
+        = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
 
       // Move this edge out of the way, so we don't find it again
       --bracket.second;
-      vtkstd::swap(*found, *bracket.second);
+      std::swap(*found, *bracket.second);
     }
   // Ensure that all of the edges we added actually got added
   for (vtkIdType v = 0; v < V; ++v)
@@ -1345,12 +1345,12 @@ void TestUndirectedGraphProperties()
     // Find bounds within the allEdges array where the edges for
     // this node will occur.
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
-    myEdgesStart = vtkstd::lower_bound(allEdges.begin(), allEdges.end(),
+    myEdgesStart = std::lower_bound(allEdges.begin(), allEdges.end(),
                                        AddedEdge
                                          (v,
                                           helper->MakeDistributedId(0, 0)),
                                        OrderEdgesBySource());
-    myEdgesEnd = vtkstd::lower_bound(myEdgesStart, allEdges.end(),
+    myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
                                        (v+1, 
                                         helper->MakeDistributedId(0, 0)),
@@ -1366,13 +1366,13 @@ void TestUndirectedGraphProperties()
 
       // Make sure that we added an edge with the same source/target
       vector<AddedEdge>::iterator found 
-        = vtkstd::find(myEdgesStart, myEdgesEnd,
+        = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(v, e.Source));
       myassert(found != myEdgesEnd);
 
       // Move this edge out of the way, so we don't find it again
       --myEdgesEnd;
-      vtkstd::swap(*found, *myEdgesEnd);
+      std::swap(*found, *myEdgesEnd);
       }
 
     // Make sure that the constructed graph isn't missing any edges

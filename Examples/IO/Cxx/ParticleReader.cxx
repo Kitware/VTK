@@ -11,8 +11,8 @@ int main ( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
  
-  vtkstd::string inputFileName = argv[1];
-  vtkstd::string outputFileName = argv[2];
+  std::string inputFileName = argv[1];
+  std::string outputFileName = argv[2];
  
   vtkSmartPointer<vtkParticleReader> reader =
     vtkSmartPointer<vtkParticleReader>::New();

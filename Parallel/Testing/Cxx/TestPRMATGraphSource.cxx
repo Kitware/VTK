@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
                  
   for (int argIdx = 7; argIdx < argc; ++argIdx)
     {
-      vtkstd::string arg = argv[argIdx];
+      std::string arg = argv[argIdx];
       if (arg == "--print")
         {
         doPrint = true;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
   totalNumberOfVertices
     = boost::mpi::all_reduce(world, g->GetNumberOfVertices(),
-                             vtkstd::plus<vtkIdType>());
+                             std::plus<vtkIdType>());
   if (totalNumberOfVertices != wantVertices)
     {
     cerr << "ERROR: Wrong number of vertices (" 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 
   totalNumberOfEdges
     = boost::mpi::all_reduce(world, g->GetNumberOfEdges(),
-                             vtkstd::plus<vtkIdType>());
+                             std::plus<vtkIdType>());
   if (totalNumberOfEdges != wantEdges)
     {
     cerr << "ERROR: Wrong number of edges ("

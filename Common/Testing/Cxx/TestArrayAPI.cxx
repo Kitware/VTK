@@ -33,7 +33,7 @@
     { \
     vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -44,11 +44,11 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkArray> array;
 
     // Test to see that we can create every supported combination of storage- and value-type.
-    vtkstd::vector<int> storage_types;
+    std::vector<int> storage_types;
     storage_types.push_back(vtkArray::DENSE);
     storage_types.push_back(vtkArray::SPARSE);
 
-    vtkstd::vector<int> value_types;
+    std::vector<int> value_types;
     value_types.push_back(VTK_CHAR);
     value_types.push_back(VTK_UNSIGNED_CHAR);
     value_types.push_back(VTK_SHORT);
@@ -62,7 +62,7 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     value_types.push_back(VTK_STRING);
     value_types.push_back(VTK_VARIANT);
 
-    vtkstd::vector<vtkVariant> sample_values;
+    std::vector<vtkVariant> sample_values;
     sample_values.push_back(static_cast<char>(1));
     sample_values.push_back(static_cast<unsigned char>(2));
     sample_values.push_back(static_cast<short>(3));
@@ -76,7 +76,7 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     sample_values.push_back(vtkStdString("11"));
     sample_values.push_back(vtkVariant(12.0));
 
-    for(vtkstd::vector<int>::const_iterator storage_type = storage_types.begin(); storage_type != storage_types.end(); ++storage_type)
+    for(std::vector<int>::const_iterator storage_type = storage_types.begin(); storage_type != storage_types.end(); ++storage_type)
       {
       for(size_t value_type = 0; value_type != value_types.size(); ++value_type)
         {
@@ -105,7 +105,7 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

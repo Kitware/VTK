@@ -45,6 +45,7 @@ vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
   this->Cutter        = vtkCutter::New();
   this->Box           = vtkBox::New();
   this->ClipWithBox   = vtkClipPolyData::New();
+  this->Extrude = 0;
   this->ExtrusionFilter1 = vtkLinearExtrusionFilter::New();
   this->ExtrusionFilter2 = vtkLinearExtrusionFilter::New();
   this->ExtrusionFilter2->SetInput(this->ExtrusionFilter1->GetOutput());

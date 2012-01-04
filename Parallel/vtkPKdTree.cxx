@@ -34,8 +34,8 @@
 #include "vtkSubGroup.h"
 #include "vtkCommand.h"
 
-#include <vtkstd/queue>
-#include <vtkstd/algorithm>
+#include <queue>
+#include <algorithm>
 #include <assert.h>
 
 // Timing data ---------------------------------------------
@@ -614,7 +614,7 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
 {
   int returnVal = 0;
 
-  vtkstd::queue <vtkNodeInfo> Queue;
+  std::queue <vtkNodeInfo> Queue;
 
   if (this->AllocateDoubleBuffer())
     {

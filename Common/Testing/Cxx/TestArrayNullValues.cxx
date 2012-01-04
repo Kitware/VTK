@@ -35,26 +35,26 @@ void VerifyType(const T& DefaultNull, const T& AlternateNull)
   // Verify that the default NULL value is iniitialized correctly ...
   if(array->GetNullValue() != DefaultNull)
     {
-    throw vtkstd::runtime_error("Incorrect default NULL value for " + vtkstd::string(array->GetClassName()));
+    throw std::runtime_error("Incorrect default NULL value for " + std::string(array->GetClassName()));
     }
 
   // Verify that GetValue() returns the default NULL value for NULL elements ...
   if(array->GetValue(1) != DefaultNull)
     {
-    throw vtkstd::runtime_error("Empty value did not return default NULL for " + vtkstd::string(array->GetClassName()));
+    throw std::runtime_error("Empty value did not return default NULL for " + std::string(array->GetClassName()));
     }
 
   // Verify that we can override the default NULL value ...
   array->SetNullValue(AlternateNull);
   if(array->GetNullValue() != AlternateNull)
     {
-    throw vtkstd::runtime_error("Error overriding NULL value for " + vtkstd::string(array->GetClassName()));
+    throw std::runtime_error("Error overriding NULL value for " + std::string(array->GetClassName()));
     }
 
   // Verify that GetValue() returns the alternate NULL value forr NULL elements ...
   if(array->GetValue(1) != AlternateNull)
     {
-    throw vtkstd::runtime_error("Empty value did not overridden NULL for " + vtkstd::string(array->GetClassName()));
+    throw std::runtime_error("Empty value did not overridden NULL for " + std::string(array->GetClassName()));
     }
 }
 
@@ -75,7 +75,7 @@ int TestArrayNullValues(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

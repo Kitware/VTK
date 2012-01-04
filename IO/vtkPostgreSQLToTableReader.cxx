@@ -73,7 +73,7 @@ int vtkPostgreSQLToTableReader::RequestData(vtkInformation *,
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   //perform a query to get the names and types of the columns
-  vtkstd::string queryStr =
+  std::string queryStr =
     "select column_name, data_type FROM information_schema.columns WHERE table_name = '";
   queryStr += this->TableName;
   queryStr += "';";
@@ -86,15 +86,15 @@ int vtkPostgreSQLToTableReader::RequestData(vtkInformation *,
     }
 
   //use the results of the query to create columns of the proper name & type
-  vtkstd::vector<std::string> columnTypes;
+  std::vector<std::string> columnTypes;
   while(query->NextRow())
     {
-    vtkstd::string columnName = query->DataValue(0).ToString();
-    vtkstd::string columnType = query->DataValue(1).ToString();
-    if( (columnType.find("int") != vtkstd::string::npos) ||
-        (columnType.find("INT") != vtkstd::string::npos) ||
-        (columnType.find("serial") != vtkstd::string::npos) ||
-        (columnType.find("SERIAL") != vtkstd::string::npos) )
+    std::string columnName = query->DataValue(0).ToString();
+    std::string columnType = query->DataValue(1).ToString();
+    if( (columnType.find("int") != std::string::npos) ||
+        (columnType.find("INT") != std::string::npos) ||
+        (columnType.find("serial") != std::string::npos) ||
+        (columnType.find("SERIAL") != std::string::npos) )
       {
       vtkSmartPointer<vtkIntArray> column =
         vtkSmartPointer<vtkIntArray>::New();
@@ -102,14 +102,14 @@ int vtkPostgreSQLToTableReader::RequestData(vtkInformation *,
       output->AddColumn(column);
       columnTypes.push_back("int");
       }
-    else if( (columnType.find("double") != vtkstd::string::npos) ||
-             (columnType.find("DOUBLE") != vtkstd::string::npos) ||
-             (columnType.find("real") != vtkstd::string::npos) ||
-             (columnType.find("REAL") != vtkstd::string::npos) ||
-             (columnType.find("decimal") != vtkstd::string::npos) ||
-             (columnType.find("DECIMAL") != vtkstd::string::npos) ||
-             (columnType.find("numeric") != vtkstd::string::npos) ||
-             (columnType.find("NUMERIC") != vtkstd::string::npos) )
+    else if( (columnType.find("double") != std::string::npos) ||
+             (columnType.find("DOUBLE") != std::string::npos) ||
+             (columnType.find("real") != std::string::npos) ||
+             (columnType.find("REAL") != std::string::npos) ||
+             (columnType.find("decimal") != std::string::npos) ||
+             (columnType.find("DECIMAL") != std::string::npos) ||
+             (columnType.find("numeric") != std::string::npos) ||
+             (columnType.find("NUMERIC") != std::string::npos) )
       {
       vtkSmartPointer<vtkDoubleArray> column =
         vtkSmartPointer<vtkDoubleArray>::New();

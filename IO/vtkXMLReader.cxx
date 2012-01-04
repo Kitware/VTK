@@ -503,7 +503,7 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
   // Give the vtkXMLParser instance its file back so that data section
   // reads will work.
   
-  (*this->Stream).imbue(vtkstd::locale::classic());
+  (*this->Stream).imbue(std::locale::classic());
   this->XMLParser->SetStream(this->Stream);
   
   // We are just starting to read.  Do not call UpdateProgressDiscrete

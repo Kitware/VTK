@@ -32,6 +32,8 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
+#include "vtkColor.h"
+#include "vtkTextProperty.h"
 #include "vtkFreeTypeTools.h"
 #include <algorithm>
 #include <list>
@@ -113,7 +115,7 @@ public:
 
 protected:
   // Description:
-  // Add a new cache entree into the cache list. Enforce the MaxSize size of the
+  // Add a new cache entry into the cache list. Enforce the MaxSize size of the
   // list by removing the least used cache if needed.
   CacheData& AddCacheData(const Key& key, const CacheData& cacheData)
   {
@@ -158,11 +160,11 @@ struct TextPropertyKey
 {
   // Description:
   // Transform a text property into an unsigned long
-  static unsigned long GetIdFromTextProperty(vtkTextProperty* textProperty)
+  static unsigned int GetIdFromTextProperty(vtkTextProperty* textProperty)
   {
     unsigned long id;
     vtkFreeTypeTools::GetInstance()->MapTextPropertyToId(textProperty, &id);
-    return id;
+    return static_cast<unsigned int>(id);
   }
 
   // Description:
@@ -170,6 +172,13 @@ struct TextPropertyKey
   TextPropertyKey(vtkTextProperty* textProperty, const vtkStdString& text)
   {
     this->TextPropertyId = GetIdFromTextProperty(textProperty);
+    this->FontSize = textProperty->GetFontSize();
+    double color[3];
+    textProperty->GetColor(color);
+    this->Color.Set(static_cast<unsigned char>(color[0] * 255),
+                    static_cast<unsigned char>(color[1] * 255),
+                    static_cast<unsigned char>(color[2] * 255),
+                    static_cast<unsigned char>(textProperty->GetOpacity() * 255));
     this->Text = text;
   }
 
@@ -179,9 +188,18 @@ struct TextPropertyKey
   bool operator==(const TextPropertyKey& other)const
   {
     return this->TextPropertyId == other.TextPropertyId &&
-      this->Text == other.Text;
+      this->FontSize == other.FontSize &&
+      this->Text == other.Text &&
+      this->Color[0] == other.Color[0] &&
+      this->Color[1] == other.Color[1] &&
+      this->Color[2] == other.Color[2] &&
+      this->Color[3] == other.Color[3];
   }
-  unsigned long TextPropertyId;
+
+  unsigned short FontSize;
+  vtkColor4ub Color;
+  // States in the function not to use more than 32 bits - int works fine here.
+  unsigned int TextPropertyId;
   vtkStdString Text;
 };
 

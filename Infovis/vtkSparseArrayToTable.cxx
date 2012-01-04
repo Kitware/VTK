@@ -42,7 +42,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
     return false;
 
   if(!ValueColumn)
-    throw vtkstd::runtime_error("ValueColumn not specified.");
+    throw std::runtime_error("ValueColumn not specified.");
 
   const vtkIdType dimensions = array->GetDimensions();
   const vtkIdType value_count = array->GetNonNullSize();
@@ -54,7 +54,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
     vtkIdTypeArray* const table_coordinates = vtkIdTypeArray::New();
     table_coordinates->SetName(array->GetDimensionLabel(dimension));
     table_coordinates->SetNumberOfTuples(value_count);
-    vtkstd::copy(array_coordinates, array_coordinates + value_count, table_coordinates->GetPointer(0));
+    std::copy(array_coordinates, array_coordinates + value_count, table_coordinates->GetPointer(0));
     Table->AddColumn(table_coordinates);
     table_coordinates->Delete();
     }
@@ -64,7 +64,7 @@ static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)
   ValueColumnT* const table_values = ValueColumnT::New();
   table_values->SetName(ValueColumn);
   table_values->SetNumberOfTuples(value_count);
-  vtkstd::copy(array_values, array_values + value_count, table_values->GetPointer(0));
+  std::copy(array_values, array_values + value_count, table_values->GetPointer(0));
   Table->AddColumn(table_values);
   table_values->Delete();
 
@@ -124,7 +124,7 @@ int vtkSparseArrayToTable::RequestData(
     {
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(input_array_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
+      throw std::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
     
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
     
@@ -133,7 +133,7 @@ int vtkSparseArrayToTable::RequestData(
     if(Convert<double, vtkDoubleArray>(input_array, this->ValueColumn, output_table)) return 1;
     if(Convert<vtkStdString, vtkStringArray>(input_array, this->ValueColumn, output_table)) return 1;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< e.what());
     }

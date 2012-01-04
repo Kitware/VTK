@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkHyperOctreeDualGridContourFilter.h"
-#include "vtkMarchingCubesCases.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 #include "vtkHyperOctree.h"
 #include "vtkCellArray.h"
@@ -41,7 +41,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 #include <assert.h>
-#include <vtkstd/set>
+#include <set>
 #include "vtkBitArray.h"
 #include "vtkTimerLog.h"
 #include "vtkIncrementalPointLocator.h"
@@ -70,7 +70,7 @@ void vtkHyperOctreeDualGridContourFilter::PrintSelf(ostream& os,
 class vtkHyperOctreeIdSet // Pimpl idiom
 {
 public:
-  vtkstd::set<vtkIdType> Set;
+  std::set<vtkIdType> Set;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);

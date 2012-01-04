@@ -164,6 +164,44 @@ public:
   vtkBooleanMacro(DetectNumericColumns, bool);
 
   // Description:
+  // When set to true and DetectNumericColumns is also true, forces all
+  // numeric columns to vtkDoubleArray even if they contain only
+  // integer values. Default is off.
+  vtkSetMacro(ForceDouble, bool);
+  vtkGetMacro(ForceDouble, bool);
+  vtkBooleanMacro(ForceDouble, bool);
+
+  // Description:
+  // When DetectNumericColumns is set to true, whether to trim whitespace from
+  // strings prior to conversion to a numeric.
+  // Default is false to preserve backward compatibility.
+  //
+  // vtkVariant handles whitespace inconsistently, so trim it before we try to
+  // convert it.  For example:
+  //
+  // vtkVariant("  2.0").ToDouble() == 2.0 <-- leading whitespace is not a problem
+  // vtkVariant("  2.0  ").ToDouble() == NaN <-- trailing whitespace is a problem
+  // vtkVariant("  infinity  ").ToDouble() == NaN <-- any whitespace is a problem
+  //
+  // In these cases, trimming the whitespace gives us the result we expect:
+  // 2.0 and INF respectively.
+  vtkSetMacro(TrimWhitespacePriorToNumericConversion, bool);
+  vtkGetMacro(TrimWhitespacePriorToNumericConversion, bool);
+  vtkBooleanMacro(TrimWhitespacePriorToNumericConversion, bool);
+
+  // Description:
+  // When DetectNumericColumns is set to true, the reader use this value to populate
+  // the vtkIntArray where empty strings are found. Default is 0.
+  vtkSetMacro(DefaultIntegerValue, int);
+  vtkGetMacro(DefaultIntegerValue, int);
+
+  // Description:
+  // When DetectNumericColumns is set to true, the reader use this value to populate
+  // the vtkDoubleArray where empty strings are found. Default is 0.0
+  vtkSetMacro(DefaultDoubleValue, double);
+  vtkGetMacro(DefaultDoubleValue, double);
+
+  // Description:
   // The name of the array for generating or assigning pedigree ids
   // (default "id").
   vtkSetStringMacro(PedigreeIdArrayName);
@@ -214,6 +252,10 @@ protected:
   vtkUnicodeString UnicodeWhitespace;
   vtkUnicodeString UnicodeEscapeCharacter;
   bool DetectNumericColumns;
+  bool ForceDouble;
+  bool TrimWhitespacePriorToNumericConversion;
+  int DefaultIntegerValue;
+  double DefaultDoubleValue;
   char* FieldDelimiterCharacters;
   char StringDelimiter;
   bool UseStringDelimiter;

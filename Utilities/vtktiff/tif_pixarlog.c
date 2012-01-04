@@ -1280,7 +1280,7 @@ TIFFInitPixarLog(TIFF* tif, int scheme)
 {
         PixarLogState* sp;
 
-        assert(scheme == COMPRESSION_PIXARLOG);
+        assert(scheme == COMPRESSION_PIXARLOG); (void)scheme;
 
         /*
          * Allocate state block so tag methods have storage to record values.

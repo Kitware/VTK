@@ -30,7 +30,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 /* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio 
    instead of the remove stl algorithm. */
@@ -39,7 +39,7 @@
 #endif
 /* Include algorithm last so "remove" macro Borland hack does not
    affect other headers.  */
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
@@ -47,7 +47,7 @@ vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);
 class vtkAnnotationLayers::Internals
 {
 public:
-  vtkstd::vector<vtkSmartPointer<vtkAnnotation> > Annotations;
+  std::vector<vtkSmartPointer<vtkAnnotation> > Annotations;
 };
 
 vtkAnnotationLayers::vtkAnnotationLayers() :
@@ -118,7 +118,7 @@ void vtkAnnotationLayers::AddAnnotation(vtkAnnotation* annotation)
 void vtkAnnotationLayers::RemoveAnnotation(vtkAnnotation* annotation)
 {
   this->Implementation->Annotations.erase(
-    vtkstd::remove(
+    std::remove(
       this->Implementation->Annotations.begin(),
       this->Implementation->Annotations.end(),
       annotation),

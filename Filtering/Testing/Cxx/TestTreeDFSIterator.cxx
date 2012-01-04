@@ -2,7 +2,7 @@
 #include <vtkTree.h>
 #include <vtkNew.h>
 
-#include <vtkstd/vector>
+#include <vector>
 
 #include "vtkTreeDFSIterator.h"
 
@@ -34,7 +34,7 @@ int TestTreeDFSIterator(int, char *[])
   vtkNew<vtkTree> tree;
   tree->CheckedShallowCopy(g.GetPointer());
 
-  vtkstd::vector<int> correctSequence;
+  std::vector<int> correctSequence;
   for(int i = 0; i <= 8; i++)
     {
     correctSequence.push_back(i);
@@ -50,7 +50,7 @@ int TestTreeDFSIterator(int, char *[])
     }
 
   //traverse the tree in a depth first fashion
-  for(int i = 0; i < correctSequence.size(); i++)
+  for(size_t i = 0; i < correctSequence.size(); i++)
     {
     if(!dfsIterator->HasNext())
       {

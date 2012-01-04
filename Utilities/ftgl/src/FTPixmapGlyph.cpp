@@ -3,6 +3,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTPixmapGlyph::FTPixmapGlyph( FT_Glyph _glyph)
 :  FTGlyph(),
@@ -157,3 +161,7 @@ float FTPixmapGlyph::Render( const FT_Vector& pen,
 
   return advance;
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

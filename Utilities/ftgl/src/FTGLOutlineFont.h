@@ -5,6 +5,11 @@
 
 #include "FTFont.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGlyph;
 
 
@@ -53,4 +58,9 @@ class FTGL_EXPORT FTGLOutlineFont : public FTFont
     virtual FTGlyph* MakeGlyph( unsigned int g);
     
 };
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
+
 #endif // __FTGLOutlineFont__

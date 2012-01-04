@@ -405,7 +405,7 @@ char *vtkExodusIIWriter::StrDupWithNew(const char *s)
 }
 
 //----------------------------------------------------------------------------
-void vtkExodusIIWriter::StringUppercase(vtkstd::string& str)
+void vtkExodusIIWriter::StringUppercase(std::string& str)
 { 
   for (size_t i=0; i<str.size (); i++)
     {
@@ -901,7 +901,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
     this->CellToElementOffset[i].resize (ncells);
     for(int j=0; j<ncells; j++)
       {
-      vtkstd::map<int, Block>::iterator iter = 
+      std::map<int, Block>::iterator iter =
         this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
                                  // shift by 1 in case there's a 0  This was removed because it changes the user supplied block ids in the metadata.
       if (iter == this->BlockInfoMap.end ())
@@ -962,7 +962,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
   if (this->NumberOfProcesses > 1)
     {
     int maxId = -1;
-    vtkstd::map<int, Block>::const_iterator iter;
+    std::map<int, Block>::const_iterator iter;
     for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); iter ++)
       {
       if (iter->first > maxId)
@@ -1003,7 +1003,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
     }
 
   // Find the ElementStartIndex and the output order
-  vtkstd::map<int, Block>::iterator iter;
+  std::map<int, Block>::iterator iter;
   int runningCount = 0;
   int index = 0;
   for (iter = this->BlockInfoMap.begin ();
@@ -1043,7 +1043,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         vtkWarningMacro ("Array in input field data has Null name, cannot output it");
         continue;
         }
-      vtkstd::string upper (name);
+      std::string upper (name);
       this->StringUppercase(upper);
       if (strncmp(upper.c_str (),"QA_RECORD",9) == 0)
         {
@@ -1058,7 +1058,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         continue;
         }
       int numComp = fd->GetArray(j)->GetNumberOfComponents ();
-      vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter = 
+      std::map<std::string, VariableInfo>::const_iterator iter =
         this->GlobalVariableMap.find (name);
       if (iter == this->GlobalVariableMap.end ())
         {
@@ -1090,7 +1090,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         vtkWarningMacro ("Array in input cell data has Null name, cannot output it");
         continue;
         }
-      vtkstd::string upper (name);
+      std::string upper (name);
       this->StringUppercase(upper);
 
       if (!this->WriteOutGlobalElementIdArray && 
@@ -1109,7 +1109,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         }
 
       int numComp = cd->GetArray(j)->GetNumberOfComponents ();
-      vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter = 
+      std::map<std::string, VariableInfo>::const_iterator iter =
         this->BlockVariableMap.find (name);
       if (iter == this->BlockVariableMap.end ())
         {
@@ -1141,7 +1141,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         vtkWarningMacro ("Array in input point data has Null name, cannot output it");
         continue;
         }
-      vtkstd::string upper (name);
+      std::string upper (name);
       this->StringUppercase(upper);
 
       // Is this array displacement?
@@ -1167,7 +1167,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         }
 
       int numComp = pd->GetArray(j)->GetNumberOfComponents ();
-      vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter = 
+      std::map<std::string, VariableInfo>::const_iterator iter =
         this->NodeVariableMap.find (name);
       if (iter == this->NodeVariableMap.end ())
         {
@@ -1193,12 +1193,12 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     {
     this->BlockElementVariableTruthTable = new int [ttsize];
     int index = 0;
-    vtkstd::map<int, Block>::const_iterator blockIter;
+    std::map<int, Block>::const_iterator blockIter;
     for (blockIter = this->BlockInfoMap.begin ();
          blockIter != this->BlockInfoMap.end ();
          blockIter ++)
       {
-      vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
+      std::map<std::string, VariableInfo>::const_iterator varIter;
       for (varIter = this->BlockVariableMap.begin ();
            varIter != this->BlockVariableMap.end ();
            varIter ++)
@@ -1387,7 +1387,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
   int *numNodesPerElement = new int [nblocks];
   int *numAttributes = new int [nblocks];
 
-  vtkstd::map<int, Block>::const_iterator iter;
+  std::map<int, Block>::const_iterator iter;
   for(iter = this->BlockInfoMap.begin(); 
       iter != this->BlockInfoMap.end(); 
       iter++)
@@ -1428,7 +1428,7 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
     int *scalarIndex = new int [narrays];
 
     int index = 0;
-    vtkstd::map<vtkstd::string, VariableInfo>::const_iterator var_iter; 
+    std::map<std::string, VariableInfo>::const_iterator var_iter;
     for (var_iter = this->BlockVariableMap.begin (); 
          var_iter != this->BlockVariableMap.end (); 
          var_iter ++)
@@ -1457,7 +1457,7 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
     int *scalarOutOffset = new int [narrays];
 
     int index = 0;
-    vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter;
+    std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->NodeVariableMap.begin ();
          iter != this->NodeVariableMap.end ();
          iter ++)
@@ -1491,7 +1491,7 @@ int vtkExodusIIWriter::ParseMetadata ()
   // Extract the attribute data from the meta model.
   for (int n = 0; n < nblocks; n ++)
     {
-    vtkstd::map<int, Block>::iterator iter = this->BlockInfoMap.find (ids[n]);
+    std::map<int, Block>::iterator iter = this->BlockInfoMap.find (ids[n]);
     if (iter == this->BlockInfoMap.end ())
       {
       vtkErrorMacro (<< "Unknown id " << ids[n] << " found in meta data");
@@ -1571,7 +1571,7 @@ int vtkExodusIIWriter::WriteInformationRecords()
 
 template<typename T>
 int vtkExodusIIWriterWritePoints (
-    vtkstd::vector< vtkSmartPointer<vtkUnstructuredGrid> > input,
+    std::vector< vtkSmartPointer<vtkUnstructuredGrid> > input,
     int numPoints, int fid)
 {
     T *px = new T [numPoints];
@@ -1672,13 +1672,13 @@ int vtkExodusIIWriter::WriteBlockInformation()
 {
   int rc;
 
-  vtkstd::map<int, Block>::const_iterator blockIter;
+  std::map<int, Block>::const_iterator blockIter;
   size_t nblocks = this->BlockInfoMap.size ();
 
-  vtkstd::vector<int*> connectivity (nblocks);
+  std::vector<int*> connectivity (nblocks);
 
   // Use this to copy the attributes into if we need it.
-  vtkstd::vector<double*> attributesD;
+  std::vector<double*> attributesD;
   if (this->PassDoubles)
     {
     attributesD.resize (nblocks);
@@ -1947,7 +1947,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
   if (this->NumberOfScalarGlobalArrays > 0)
     {
     outputArrayNames = new const char * [this->NumberOfScalarGlobalArrays];
-    vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter;
+    std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->GlobalVariableMap.begin (); 
          iter != this->GlobalVariableMap.end (); 
          iter ++)
@@ -1985,7 +1985,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     {
     outputArrayNames = new const char * [this->NumberOfScalarElementArrays];
     
-    vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter;
+    std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->BlockVariableMap.begin (); 
          iter != this->BlockVariableMap.end (); 
          iter ++)
@@ -2034,7 +2034,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     {
     outputArrayNames = new const char * [this->NumberOfScalarNodeArrays];
   
-    vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter;
+    std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->NodeVariableMap.begin (); 
          iter != this->NodeVariableMap.end ();
          iter ++)
@@ -2106,9 +2106,9 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
 
 //----------------------------------------------------------------------------
 void vtkExodusIIWriter::ConvertVariableNames(
-             vtkstd::map<vtkstd::string, VariableInfo>& variableMap)
+             std::map<std::string, VariableInfo>& variableMap)
 {
-  vtkstd::map<vtkstd::string, VariableInfo>::iterator varIter;
+  std::map<std::string, VariableInfo>::iterator varIter;
   // Global output variable names 
   for (varIter = variableMap.begin ();
        varIter != variableMap.end ();
@@ -2117,7 +2117,7 @@ void vtkExodusIIWriter::ConvertVariableNames(
     int numComp = varIter->second.NumComponents;
     if (numComp == 1)
       {
-      varIter->second.OutNames[0] = vtkstd::string (varIter->first);
+      varIter->second.OutNames[0] = std::string (varIter->first);
       }
     else
       {
@@ -2134,11 +2134,11 @@ void vtkExodusIIWriter::ConvertVariableNames(
 
 char **vtkExodusIIWriter::FlattenOutVariableNames(
              int nScalarArrays, 
-             const vtkstd::map<vtkstd::string, VariableInfo>& variableMap)
+             const std::map<std::string, VariableInfo>& variableMap)
 {
   char **newNames = new char * [nScalarArrays];
 
-  vtkstd::map<vtkstd::string, VariableInfo>::const_iterator iter;
+  std::map<std::string, VariableInfo>::const_iterator iter;
   for (iter = variableMap.begin ();
        iter != variableMap.end ();
        iter ++)
@@ -2158,22 +2158,22 @@ char **vtkExodusIIWriter::FlattenOutVariableNames(
 }
 
 //----------------------------------------------------------------------------
-vtkstd::string vtkExodusIIWriter::CreateNameForScalarArray(
+std::string vtkExodusIIWriter::CreateNameForScalarArray(
   const char *root, int component, int numComponents)
 {
   // Naming conventions chosen to match ExodusIIReader expectations
   if (component >= numComponents)
     {
     vtkErrorMacro ("CreateNameForScalarArray: Component out of range");
-    return vtkstd::string ();
+    return std::string ();
     }
   if (numComponents == 1)
     {
-    return vtkstd::string (root);
+    return std::string (root);
     }
   else if (numComponents <= 2)
     {
-    vtkstd::string s (root);
+    std::string s (root);
     // Adjust for Exodus' MAX_STR_LENGTH
     if (s.size () > MAX_STR_LENGTH - 2)
       {
@@ -2192,7 +2192,7 @@ vtkstd::string vtkExodusIIWriter::CreateNameForScalarArray(
     }
   else if (numComponents <= 3)
     {
-    vtkstd::string s (root);
+    std::string s (root);
     // Adjust for Exodus' MAX_STR_LENGTH
     if (s.size () > MAX_STR_LENGTH - 1)
       {
@@ -2214,7 +2214,7 @@ vtkstd::string vtkExodusIIWriter::CreateNameForScalarArray(
     }
   else if (numComponents <= 6)
     {
-    vtkstd::string s (root);
+    std::string s (root);
     // Adjust for Exodus' MAX_STR_LENGTH
     if (s.size () > MAX_STR_LENGTH - 2)
       {
@@ -2245,7 +2245,7 @@ vtkstd::string vtkExodusIIWriter::CreateNameForScalarArray(
     }
   else
     {
-    vtkstd::string s (root);
+    std::string s (root);
     // Adjust for Exodus' MAX_STR_LENGTH
     if (s.size () > MAX_STR_LENGTH - 10)
       {
@@ -2264,7 +2264,7 @@ vtkIdType vtkExodusIIWriter::GetNodeLocalId(vtkIdType id)
 {
   if (!this->LocalNodeIdMap)
     {
-    this->LocalNodeIdMap = new vtkstd::map<vtkIdType, vtkIdType>;
+    this->LocalNodeIdMap = new std::map<vtkIdType, vtkIdType>;
     vtkIdType index = 0;
     for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
       {
@@ -2275,7 +2275,7 @@ vtkIdType vtkExodusIIWriter::GetNodeLocalId(vtkIdType id)
         for (int j=0; j<npoints; j++)
           {
           this->LocalNodeIdMap->insert(
-            vtkstd::map<vtkIdType,vtkIdType>::value_type(ids[j], index));
+            std::map<vtkIdType,vtkIdType>::value_type(ids[j], index));
           index ++;
           }
         }
@@ -2286,7 +2286,7 @@ vtkIdType vtkExodusIIWriter::GetNodeLocalId(vtkIdType id)
       }
     }
 
-  vtkstd::map<vtkIdType,vtkIdType>::iterator mapit = 
+  std::map<vtkIdType,vtkIdType>::iterator mapit =
     this->LocalNodeIdMap->find(id);
 
   if (mapit == this->LocalNodeIdMap->end())
@@ -2426,7 +2426,7 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
 {
   if (!this->LocalElementIdMap)
     {
-    this->LocalElementIdMap = new vtkstd::map<vtkIdType, vtkIdType>;
+    this->LocalElementIdMap = new std::map<vtkIdType, vtkIdType>;
     for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
       {
       if (this->GlobalElementIdList[i])
@@ -2438,13 +2438,13 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
           int offset = this->CellToElementOffset[i][j];
           int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j)].ElementStartIndex; 
           this->LocalElementIdMap->insert(
-            vtkstd::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
+            std::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
           }
         }
       }   
     }
   
-  vtkstd::map<vtkIdType,vtkIdType>::iterator mapit = this->LocalElementIdMap->find(id);
+  std::map<vtkIdType,vtkIdType>::iterator mapit = this->LocalElementIdMap->find(id);
   if (mapit == this->LocalElementIdMap->end())
     {
       return -1;
@@ -2471,7 +2471,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
   // they appear in the input. We need a mapping from their internal
   // id in the input to their internal id in the output.
 
-  vtkstd::map<int, int>::iterator idIt;
+  std::map<int, int>::iterator idIt;
 
   int nids = em->GetSumSidesPerSideSet();
 
@@ -2773,7 +2773,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       vtkIdType ncomp = da->GetNumberOfComponents ();
       for (vtkIdType j = 0; j < ncells; j ++)
         {
-        vtkstd::map<int, Block>::const_iterator blockIter = 
+        std::map<int, Block>::const_iterator blockIter =
                 this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
         if (blockIter == this->BlockInfoMap.end ())
           {
@@ -2797,7 +2797,7 @@ void vtkExodusIIWriter::ExtractCellData (const char *name, int comp,
       {
       for (vtkIdType j = 0; j < ncells; j ++)
         {
-        vtkstd::map<int, Block>::const_iterator blockIter = 
+        std::map<int, Block>::const_iterator blockIter =
                 this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
         if (blockIter == this->BlockInfoMap.end ())
           {
@@ -2852,7 +2852,7 @@ void vtkExodusIIWriter::ExtractPointData (const char *name, int comp,
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteGlobalData (int timestep, vtkDataArray *buffer)
 {
-  vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
+  std::map<std::string, VariableInfo>::const_iterator varIter;
   buffer->Initialize ();
   buffer->SetNumberOfComponents (1);
   buffer->SetNumberOfTuples (this->NumberOfScalarGlobalArrays);
@@ -2893,7 +2893,7 @@ int vtkExodusIIWriter::WriteGlobalData (int timestep, vtkDataArray *buffer)
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
 {
-  vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
+  std::map<std::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->BlockVariableMap.begin ();
        varIter != this->BlockVariableMap.end ();
        varIter ++)
@@ -2907,7 +2907,7 @@ int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
       this->ExtractCellData(nameIn, component, buffer);
       int varOutIndex = varIter->second.ScalarOutOffset + component;
 
-      vtkstd::map<int, Block>::const_iterator blockIter;
+      std::map<int, Block>::const_iterator blockIter;
       for (blockIter = this->BlockInfoMap.begin ();
            blockIter != this->BlockInfoMap.end ();
            blockIter ++)
@@ -2954,7 +2954,7 @@ int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
     {
     return 1;
     }
-  vtkstd::map<vtkstd::string, VariableInfo>::const_iterator varIter;
+  std::map<std::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->NodeVariableMap.begin ();
        varIter != this->NodeVariableMap.end ();
        varIter ++)

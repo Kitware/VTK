@@ -365,8 +365,11 @@ static size_t vtkWrapPython_PyTemplateName(const char *name, char *pname)
 
   /* look for VTK types that become common python types */
   if ((n == 12 && strncmp(name, "vtkStdString", n) == 0) ||
-      (n == 11 && strncmp(name, "std::string", n) == 0) ||
-      (n == 14 && strncmp(name, "vtkstd::string", n) == 0))
+      (n == 11 && strncmp(name, "std::string", n) == 0)
+#ifndef VTK_LEGACY_REMOVE
+      || (n == 14 && strncmp(name, "vtkstd::string", n) == 0)
+#endif
+      )
     {
     strcpy(pname, "str");
     return n;
@@ -445,10 +448,11 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkArrayRange", "vtkArrayRange.h" },
     { "vtkArraySort", "vtkArraySort.h" },
     { "vtkArrayWeights", "vtkArrayWeights.h" },
-    { "vtkTimeStamp", "vtkTimeStap.h" },
+    { "vtkTimeStamp", "vtkTimeStamp.h" },
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
     { "vtkUnicodeString", "vtkUnicodeString.h" },
+    { "vtkVectorBase", "vtkVector.h" },
     { "vtkVector", "vtkVector.h" },
     { "vtkVector2", "vtkVector.h" },
     { "vtkVector2i", "vtkVector.h" },
@@ -471,6 +475,11 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkColor4ub", "vtkColor.h" },
     { "vtkColor4f", "vtkColor.h" },
     { "vtkColor4d", "vtkColor.h" },
+    { "vtkAMRBox", "vtkAMRBox.h" },
+    { "vtkEdgeBase", "vtkGraph.h" },
+    { "vtkEdgeType", "vtkGraph.h" },
+    { "vtkInEdgeType", "vtkGraph.h" },
+    { "vtkOutEdgeType", "vtkGraph.h" },
     { NULL, NULL }
   };
 
@@ -3081,23 +3090,12 @@ static void vtkWrapPython_CustomMethods(
   if (strcmp("vtkObject", data->Name) == 0 &&
       do_constructors == 0)
     {
-    /* remove the original vtkCommand observer methods */
+    /* Remove the original AddObserver method */
     for (i = 0; i < data->NumberOfFunctions; i++)
       {
       theFunc = data->Functions[i];
 
-      if ((strcmp(theFunc->Name, "AddObserver") == 0) ||
-          (strcmp(theFunc->Name, "GetCommand") == 0) ||
-          ((strcmp(theFunc->Name, "RemoveObserver") == 0) &&
-           (theFunc->Arguments[0]->Type != VTK_PARSE_UNSIGNED_LONG)) ||
-          (((strcmp(theFunc->Name, "RemoveObservers") == 0) ||
-            (strcmp(theFunc->Name, "HasObserver") == 0)) &&
-           (((theFunc->Arguments[0]->Type != VTK_PARSE_UNSIGNED_LONG) &&
-             (theFunc->Arguments[0]->Type !=
-              (VTK_PARSE_CHAR_PTR|VTK_PARSE_CONST))) ||
-            (theFunc->NumberOfArguments > 1))) ||
-          ((strcmp(theFunc->Name, "RemoveAllObservers") == 0) &&
-           (theFunc->NumberOfArguments > 0)))
+      if (strcmp(theFunc->Name, "AddObserver") == 0)
         {
         data->Functions[i]->Name = NULL;
         }

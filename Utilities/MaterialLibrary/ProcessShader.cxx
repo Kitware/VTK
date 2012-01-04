@@ -15,8 +15,8 @@
 
 #include "vtkObject.h"
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/ios/fstream>
@@ -38,8 +38,8 @@ public:
   int MaxLen;
   vtksys_ios::streamoff CurrentPosition;
   int Count;
-  vtkstd::string Prefix;
-  vtkstd::string Suffix;
+  std::string Prefix;
+  std::string Suffix;
 
   void PrintHeader(const char* title, const char* file)
     {
@@ -66,7 +66,7 @@ public:
     vtksys_ios::ifstream ifs(file);
     if ( !ifs )
       {
-      cout << "Canot open file: " << file << endl;
+      cout << "Cannot open file: " << file << endl;
       return 0;
       }
     int ch;
@@ -76,8 +76,8 @@ public:
     this->PrintHeader(title, file);
     this->Stream << "\"";
 
-    vtkstd::string line;
-    vtkstd::string::size_type cc;
+    std::string line;
+    std::string::size_type cc;
 
     vtksys::RegularExpression reIfDef("^[ \r\n\t]*#[ \r\n\t]*if");
     vtksys::RegularExpression reElse("^[ \r\n\t]*#[ \r\n\t]*el(se|if)");
@@ -173,13 +173,13 @@ int main(int argc, char* argv[])
     << "#define __" << ot.Prefix.c_str() << "_h" << endl
     << endl;
 
-  vtkstd::string output = argv[1];
+  std::string output = argv[1];
 
   int cc;
   for ( cc = 5; cc < argc; cc ++ )
     {
-    vtkstd::string fname = argv[cc];
-    vtkstd::string moduleName;
+    std::string fname = argv[cc];
+    std::string moduleName;
     moduleName = vtksys::SystemTools::GetFilenameWithoutExtension(fname);
 
     cout << "-- Generate module: " << moduleName << endl;

@@ -7,6 +7,11 @@
 #include "FTGL.h"
 #include "FTFace.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTGlyphContainer;
 class FTGlyph;
 
@@ -273,6 +278,9 @@ class FTGL_EXPORT FTFont
 
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTFont__
 

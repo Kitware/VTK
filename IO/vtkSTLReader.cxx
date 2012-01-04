@@ -14,18 +14,19 @@
 =========================================================================*/
 #include "vtkSTLReader.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
-#include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkErrorCode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
 
 #include <ctype.h>
 #include <vtksys/SystemTools.hxx>
@@ -165,18 +166,19 @@ int vtkSTLReader::RequestData(
       mergedScalars->Allocate(newPolys->GetSize());
       }
 
-    if ( this->Locator == NULL )
+    vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
+    if (this->Locator == NULL)
       {
-      this->CreateDefaultLocator();
+      locator.TakeReference(this->NewDefaultLocator());
       }
-    this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
+    locator->InitPointInsertion (mergedPts, newPts->GetBounds());
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
       {
       for (i=0; i < 3; i++)
         {
         newPts->GetPoint(pts[i],x);
-        this->Locator->InsertUniquePoint(x, nodes[i]);
+        locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
@@ -250,8 +252,8 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   //  File is read to obtain raw information as well as bounding box
   //
-  fread (header, 1, 80, fp);
-  fread (&ulint, 1, 4, fp);
+  (void) fread (header, 1, 80, fp);
+  (void) fread (&ulint, 1, 4, fp);
   vtkByteSwap::Swap4LE(&ulint);
 
   // Many .stl files contain bogus count.  Hence we will ignore and read 
@@ -277,7 +279,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
     {
-    fread(&ibuff2,2,1,fp); //read extra junk
+    (void) fread(&ibuff2,2,1,fp); //read extra junk
 
     vtkByteSwap::Swap4LE (facet.n);
     vtkByteSwap::Swap4LE (facet.n+1);
@@ -323,7 +325,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 
   //  Ingest header and junk to get to first vertex
   //
-  fgets (line, 255, fp);
+  (void) fgets (line, 255, fp);
 
   done = (fscanf(fp,"%s %*s %f %f %f\n", line, x, x+1, x+2)==EOF);
   if ((strcmp(line, "COLOR") == 0) || (strcmp(line, "color") == 0))
@@ -340,15 +342,15 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 //    fprintf(stdout, "Reading record %d\n", ctr);
 //}
 //ctr += 7;
-    fgets (line, 255, fp);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fgets (line, 255, fp);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[0] = newPts->InsertNextPoint(x);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[1] = newPts->InsertNextPoint(x);
-    fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[2] = newPts->InsertNextPoint(x);
-    fgets (line, 255, fp); // end loop
-    fgets (line, 255, fp); // end facet
+    (void) fgets (line, 255, fp); // end loop
+    (void) fgets (line, 255, fp); // end facet
 
     newPolys->InsertNextCell(3,pts);
     if (scalars) 
@@ -365,11 +367,11 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0)) 
       {
       currentSolid++;
-      fgets(line, 255, fp);
+      (void) fgets(line, 255, fp);
       done = feof(fp);
       while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done) 
         {
-        fgets(line, 255, fp);
+        (void) fgets(line, 255, fp);
         done = feof(fp);
         }
 
@@ -414,14 +416,9 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
 
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkSTLReader::CreateDefaultLocator()
+vtkIncrementalPointLocator* vtkSTLReader::NewDefaultLocator()
 {
-  if ( this->Locator == NULL )
-    {
-    this->Locator = vtkMergePoints::New();
-    this->Locator->Register(this);
-    this->Locator->Delete();
-    }
+  return vtkMergePoints::New();
 }
 
 void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)

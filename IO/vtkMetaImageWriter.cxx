@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-#include <vtkstd/string>
+#include <string>
 #include "vtkmetaio/metaTypes.h"
 #include "vtkmetaio/metaUtils.h"
 #include "vtkmetaio/metaEvent.h"

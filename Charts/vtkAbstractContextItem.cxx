@@ -126,19 +126,31 @@ bool vtkAbstractContextItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
+bool vtkAbstractContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent&)
 {
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::MouseDoubleClickEvent(const vtkContextMouseEvent & event)
+bool vtkAbstractContextItem::MouseDoubleClickEvent(const vtkContextMouseEvent&)
 {
-  return this->MouseButtonPressEvent(event);
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkAbstractContextItem::MouseWheelEvent(const vtkContextMouseEvent &, int)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::KeyPressEvent(const vtkContextKeyEvent&)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAbstractContextItem::KeyReleaseEvent(const vtkContextKeyEvent&)
 {
   return false;
 }
@@ -148,8 +160,8 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
   const vtkContextMouseEvent &mouse)
 {
   vtkContextMouseEvent childMouse = mouse;
-  childMouse.Pos = this->MapFromParent(mouse.Pos);
-  childMouse.LastPos = this->MapFromParent(mouse.LastPos);
+  childMouse.SetPos(this->MapFromParent(mouse.GetPos()));
+  childMouse.SetLastPos(this->MapFromParent(mouse.GetLastPos()));
   for(vtkContextScenePrivate::const_reverse_iterator it =
       this->Children->rbegin(); it != this->Children->rend(); ++it)
     {

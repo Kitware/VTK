@@ -32,9 +32,9 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkMath.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <set>
+#include <algorithm>
 
 #include <math.h>
 
@@ -106,7 +106,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
                                               double unit_distance,
                                               double scalar_range[2])
 {
-  vtkstd::set<double> cpset;
+  std::set<double> cpset;
 
   double *function_range = color->GetRange();
   double *function = color->GetDataPointer();
@@ -124,7 +124,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     double rgb[3], hsv[3];
     double hue1, hue2;
     double x1, x2;
-    vtkstd::set<double>::iterator i = cpset.begin();
+    std::set<double>::iterator i = cpset.begin();
     x1 = *i;
     color->GetColor(x1, rgb);
     vtkMath::RGBToHSV(rgb, hsv);
@@ -225,7 +225,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   this->ControlPoints = new double[this->NumControlPoints];
   this->Colors = new acolor[this->NumControlPoints];
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints);
+  std::copy(cpset.begin(), cpset.end(), this->ControlPoints);
   for (int i = 0; i < this->NumControlPoints; i++)
     {
     color->GetColor(this->ControlPoints[i], this->Colors[i].c);
@@ -240,7 +240,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
                                               double unit_distance,
                                               double scalar_range[2])
 {
-  vtkstd::set<double> cpset;
+  std::set<double> cpset;
 
   double *function_range = intensity->GetRange();
   double *function = intensity->GetDataPointer();
@@ -278,7 +278,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
   this->ControlPoints = new double[this->NumControlPoints];
   this->Colors = new acolor[this->NumControlPoints];
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints);
+  std::copy(cpset.begin(), cpset.end(), this->ControlPoints);
   for (int i = 0; i < this->NumControlPoints; i++)
     {
     // Is setting all the colors to the same value the right thing to do?
@@ -405,7 +405,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
     int numscalars = nearIntersections->GetNumberOfComponents();
     double *nearScalars = new double[numscalars];
     double *farScalars = new double[numscalars];
-    vtkstd::set<double> segments;
+    std::set<double> segments;
     for (vtkIdType i = 0; i < numintersections; i++)
       {
       double total_length = intersectionLengths->GetValue(i);
@@ -443,7 +443,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
 
       // Iterate over all the segment pieces (from front to back) and
       // integrate each piece.
-      vtkstd::set<double>::iterator segi = segments.begin();
+      std::set<double>::iterator segi = segments.begin();
       double nearInterpolant = *segi;
       for (segi++; segi != segments.end(); segi++)
         {

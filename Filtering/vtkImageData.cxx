@@ -812,23 +812,23 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
   vtkIdType cellIdx = this->ComputeCellId( idx );
   if (weights)
     {
-      // Shift parametric coordinates for XZ/YZ planes
-      switch( this->DataDescription )
-        {
-          case VTK_XZ_PLANE:
-            pcoords[1] = pcoords[2];
-            pcoords[2] = 0.0;
-            break;
-          case VTK_YZ_PLANE:
-            pcoords[0] = pcoords[1];
-            pcoords[1] = pcoords[2];
-            pcoords[2] = 0.0;
-            break;
-          default:
-            ; // NO-OP
-        }
-      vtkVoxel::InterpolationFunctions( pcoords, weights );
-
+    // Shift parametric coordinates for XZ/YZ planes
+    if( this->DataDescription == VTK_XZ_PLANE )
+      {
+      pcoords[1] = pcoords[2];
+      pcoords[2] = 0.0;
+      }
+    else if( this->DataDescription == VTK_YZ_PLANE )
+      {
+      pcoords[0] = pcoords[1];
+      pcoords[1] = pcoords[2];
+      pcoords[2] = 0.0;  
+      }
+    else if( this->DataDescription == VTK_XY_PLANE )
+      {
+      pcoords[2] = 0.0;
+      }
+    vtkVoxel::InterpolationFunctions( pcoords, weights );
     }
 
   //
@@ -1285,7 +1285,8 @@ void vtkImageData::GetIncrements(vtkIdType inc[3])
 
 
 //----------------------------------------------------------------------------
-void vtkImageData::GetIncrements(vtkDataArray *scalars, vtkIdType inc[3])
+void vtkImageData::GetIncrements(vtkDataArray* vtkNotUsed(scalars),
+                                 vtkIdType inc[3])
 {
   this->ComputeIncrements(inc);
 }

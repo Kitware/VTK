@@ -61,12 +61,12 @@ int vtkTokenLengthFilter::RequestData(
     {
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
-      throw vtkstd::runtime_error("missing input table");
+      throw std::runtime_error("missing input table");
 
     vtkUnicodeStringArray* const input_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_array)
-      throw vtkstd::runtime_error("missing input array");
+      throw std::runtime_error("missing input array");
 
     vtkDataSetAttributes* const input_attributes = input_table->GetRowData();
 
@@ -91,7 +91,7 @@ int vtkTokenLengthFilter::RequestData(
         }
       }
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

@@ -179,6 +179,44 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
   return false;
 }
 
+inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *exctext)
+{
+  if (PyString_Check(o))
+    {
+    char* val;
+    Py_ssize_t len;
+    PyString_AsStringAndSize(o, &val, &len);
+    a = std::string(val, len);
+    return true;
+    }
+#ifdef Py_USING_UNICODE
+  else if (PyUnicode_Check(o))
+    {
+#ifdef _PyUnicode_AsDefaultEncodedString
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+#else
+    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
+#endif
+    if (s)
+      {
+      char* val;
+      Py_ssize_t len;
+      PyString_AsStringAndSize(s, &val, &len);
+      a = std::string(val, len);
+#ifndef _PyUnicode_AsDefaultEncodedString
+      Py_DECREF(s);
+#endif
+      return true;
+      }
+
+    exctext = "(unicode conversion error)";
+    }
+#endif
+
+  PyErr_SetString(PyExc_TypeError, exctext);
+  return false;
+}
+
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
@@ -190,9 +228,11 @@ bool vtkPythonGetValue(PyObject *o, const void *&a)
     if (b->bf_getsegcount(o, NULL) == 1)
       {
       void *p;
-      int s = (int)b->bf_getreadbuffer(o, 0, &p);
-      if (s >= 0)
+      Py_ssize_t sz = b->bf_getreadbuffer(o, 0, &p);
+      if (sz >= 0 && sz <= VTK_INT_MAX)
         {
+        // check for pointer mangled as string
+        int s = (int)sz;
         a = vtkPythonUtil::UnmanglePointer((char *)p, &s, "void_p");
         if (s >= 0)
           {
@@ -208,6 +248,12 @@ bool vtkPythonGetValue(PyObject *o, const void *&a)
           {
           PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
           }
+        }
+      else if (sz >= 0)
+        {
+        // directly use the pointer to the buffer contents
+        a = p;
+        return true;
         }
       return false;
       }
@@ -251,10 +297,8 @@ bool vtkPythonGetValue(PyObject *o, char *&a)
 inline
 bool vtkPythonGetValue(PyObject *o, std::string &a)
 {
-  const char *b;
-  if (vtkPythonGetStringValue(o, b, "string is required"))
+  if (vtkPythonGetStdStringValue(o, a, "string is required"))
     {
-    a = b;
     return true;
     }
   return false;

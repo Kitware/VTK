@@ -29,8 +29,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTypedArray.h"
 
-#include <vtkstd/stdexcept>
-#include <vtkstd/vector>
+#include <stdexcept>
+#include <vector>
 
 #include <iterator>
 #include <limits>
@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkSelectArraySlices);
 vtkSelectArraySlices::vtkSelectArraySlices() :
   SliceDimension(0),
   MinimumCount(1),
-  MaximumCount(vtkstd::numeric_limits<vtkIdType>::max()),
+  MaximumCount(std::numeric_limits<vtkIdType>::max()),
   MinimumPercent(0.0),
   MaximumPercent(1.0)
 {
@@ -100,18 +100,18 @@ int vtkSelectArraySlices::RequestData(
     // Enforce our preconditions ...
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_array_data)
-      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
+      throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_array_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
+      throw std::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(
       input_array_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
+      throw std::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
 
     const vtkIdType dimension = this->SliceDimension;
 
     if(dimension < 0 || dimension >= input_array->GetDimensions())
-      throw vtkstd::runtime_error("SliceDimension out-of-range.");
+      throw std::runtime_error("SliceDimension out-of-range.");
 
     const vtkArrayRange dimension_extents = input_array->GetExtent(dimension);
 
@@ -124,7 +124,7 @@ int vtkSelectArraySlices::RequestData(
 
     // Compute the number of non-zero values in each slice along the target dimension ...
     vtkArrayCoordinates coordinates;
-    vtkstd::vector<vtkIdType> slice_counts(dimension_extents.GetSize(), 0);
+    std::vector<vtkIdType> slice_counts(dimension_extents.GetSize(), 0);
     for(vtkIdType n = 0; n != non_null_count; ++n)
       {
       input_array->GetCoordinatesN(n, coordinates);
@@ -148,7 +148,7 @@ int vtkSelectArraySlices::RequestData(
 
     return 1;
     } 
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     }

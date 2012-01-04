@@ -30,7 +30,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include <vtkstd/stdexcept>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkPointwiseMutualInformation
@@ -60,12 +60,12 @@ int vtkPointwiseMutualInformation::RequestData(
     // Enforce our input preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
+      throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
+      throw std::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Unsupported input array type.");
+      throw std::runtime_error("Unsupported input array type.");
 
     // Create an output array ...
     vtkTypedArray<double>* const output_array = vtkTypedArray<double>::SafeDownCast(input_array->DeepCopy());
@@ -88,7 +88,7 @@ int vtkPointwiseMutualInformation::RequestData(
 
     // Compute array value sums along each dimension ...
     double array_sum = 0.0;
-    vtkstd::vector<vtkstd::vector<double> > dimension_sums(dimension_count);
+    std::vector<std::vector<double> > dimension_sums(dimension_count);
     for(vtkIdType i = 0; i != dimension_count; ++i)
       {
       dimension_sums[i].resize(input_array->GetExtent(i).GetSize(), 0.0);
@@ -108,7 +108,7 @@ int vtkPointwiseMutualInformation::RequestData(
       }
 
     if(!array_sum)
-      throw vtkstd::runtime_error("Cannot compute PMI with zero array probability.");
+      throw std::runtime_error("Cannot compute PMI with zero array probability.");
 
     // Compute the PMI for each array value ...
     for(vtkIdType n = 0; n != value_count; ++n)
@@ -140,10 +140,10 @@ int vtkPointwiseMutualInformation::RequestData(
         result /= (value / dimension_sums[i][coordinates[i]]);
         }
 
-      output_array->SetValueN(n, vtkstd::log(result) / ln2);
+      output_array->SetValueN(n, std::log(result) / ln2);
       }
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

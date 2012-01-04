@@ -36,17 +36,16 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkProperty.h"
-#include "vtkOpenGLProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderDeviceAdapter.h"
-#include "vtkGLSLShaderDeviceAdapter2.h"
+#include "vtkShaderDeviceAdapter2.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkStandardPolyDataPainter::vtkInternal
 {
@@ -56,8 +55,8 @@ public:
     unsigned int MappingsIndex;
     vtkDataArray* Array;
     };
-  typedef vtkstd::vector<vtkInfo> InfoVector;
-  typedef vtkstd::vector<vtkDataArray *> DataArrayVector;
+  typedef std::vector<vtkInfo> InfoVector;
+  typedef std::vector<vtkDataArray *> DataArrayVector;
   InfoVector CellAttributesCache;
   InfoVector PointAttributesCache;
   DataArrayVector MultiTextureCoords;
@@ -121,7 +120,7 @@ void vtkStandardPolyDataPainter::ProcessInformation(vtkInformation* info)
 //-----------------------------------------------------------------------------
 void vtkStandardPolyDataPainter::UpdateGenericAttributesCache(
   vtkShaderDeviceAdapter* shaderDevice,
-  vtkGLSLShaderDeviceAdapter2* shaderDevice2)
+  vtkShaderDeviceAdapter2* shaderDevice2)
 {
   if (this->Internal->Mappings)
     {
@@ -205,7 +204,7 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer,
   vtkIdType startCell = 0;
   int interpolation = property->GetInterpolation();
   vtkShaderDeviceAdapter* shaderDevice=0;
-  vtkGLSLShaderDeviceAdapter2* shaderDevice2=0;
+  vtkShaderDeviceAdapter2* shaderDevice2=0;
   this->Internal->PointAttributesCache.clear();
   this->Internal->CellAttributesCache.clear();
   if(property->GetShading())
@@ -222,19 +221,12 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer,
       }
     else
       {
-      vtkOpenGLProperty *oglProperty=vtkOpenGLProperty::SafeDownCast(property);
-      if(oglProperty!=0)
+      // Preprocess the generic vertex attributes that we need to pass to the
+      // shader.
+      shaderDevice2 = property->GetShaderDeviceAdapter2();
+      if(shaderDevice2!=0)
         {
-        if(oglProperty->GetCurrentShaderProgram2()!=0)
-          {
-          // Preprocess the generic vertex attributes that we need to pass to the
-          // shader.
-          shaderDevice2 = oglProperty->GetShaderDeviceAdapter2();
-          if(shaderDevice2!=0)
-            {
-            shaderDevice2->PrepareForRender();
-            }
-          }
+        shaderDevice2->PrepareForRender();
         }
       }
     }
@@ -300,7 +292,7 @@ void vtkStandardPolyDataPainter::DrawCells(
   vtkCellArray *connectivity,
   vtkIdType startCellId,
   vtkShaderDeviceAdapter *shaderDevice,
-  vtkGLSLShaderDeviceAdapter2 *shaderDevice2,
+  vtkShaderDeviceAdapter2 *shaderDevice2,
   vtkRenderer *renderer,
   int buildnormals,
   int interpolation)

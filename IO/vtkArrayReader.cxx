@@ -407,10 +407,12 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
 
   // Read the stream contents ...
   vtkArray::SizeT value_count = 0;
-  for(std::getline(stream, line_buffer); stream; std::getline(stream, line_buffer), ++value_count)
+  for(; value_count < non_null_size; ++value_count)
     {
-    if(value_count + 1 > non_null_size)
-      throw std::runtime_error("Stream contains too many values.");
+    std::getline(stream, line_buffer);
+
+    if(!stream)
+      break;
 
     line_stream.clear();
     line_stream.str(line_buffer);
@@ -455,17 +457,24 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
   ValueT value;
   vtkArray::SizeT n = 0;
   vtkArrayCoordinates coordinates;
-  for(ExtractValue(stream, value); stream; ExtractValue(stream, value), ++n)
+  for(; n < non_null_size; ++n)
     {
-    if(n + 1 > non_null_size)
-      throw std::runtime_error("Stream contains too many values.");
-
+    ExtractValue(stream, value);
+    if (!stream)
+      break;
     extents.GetRightToLeftCoordinatesN(n, coordinates);
     array->SetValue(coordinates, value);
     }
 
   if(n != non_null_size)
     throw std::runtime_error("Stream doesn't contain enough values.");
+
+  // If there is more in the stream (e.g. in vtkArrayDataReader),
+  // eat the newline so the stream is ready for the next vtkArray.
+  if(stream)
+    {
+    stream.get();
+    }
 
   array->Register(0);
   return array;

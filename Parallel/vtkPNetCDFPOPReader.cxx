@@ -29,7 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkMPI.h"  // added by RGM
 #include "vtkMPIController.h" // added by RGM
-#include "vtkTimerLog.h" // added by RGM for debugging
 
 #include "vtk_netcdf.h"
 #include <string>

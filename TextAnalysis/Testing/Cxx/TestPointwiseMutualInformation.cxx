@@ -35,15 +35,15 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
 static bool close_enough(const double& lhs, const double& rhs)
 {
-    return vtkstd::fabs(lhs - rhs) < 1.0e-10;
+    return std::fabs(lhs - rhs) < 1.0e-10;
 }
 
 int TestPointwiseMutualInformation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -78,13 +78,13 @@ int TestPointwiseMutualInformation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
     test_expression(a->GetExtents() == array->GetExtents());
 
     test_expression(close_enough(array->GetValue(0, 0), 0));
-    test_expression(close_enough(array->GetValue(0, 1), vtkstd::log(2.0 / 3.0) / vtkstd::log(2.0)));
-    test_expression(close_enough(array->GetValue(1, 0), vtkstd::log(2.0 / 3.0) / vtkstd::log(2.0)));
-    test_expression(close_enough(array->GetValue(1, 1), vtkstd::log(4.0 / 3.0) / vtkstd::log(2.0)));
+    test_expression(close_enough(array->GetValue(0, 1), std::log(2.0 / 3.0) / std::log(2.0)));
+    test_expression(close_enough(array->GetValue(1, 0), std::log(2.0 / 3.0) / std::log(2.0)));
+    test_expression(close_enough(array->GetValue(1, 1), std::log(4.0 / 3.0) / std::log(2.0)));
  
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

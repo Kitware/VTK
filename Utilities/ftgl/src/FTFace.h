@@ -9,6 +9,11 @@
 
 #include "FTSize.h"
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
+
 class FTCharmap;
 
 /**
@@ -158,5 +163,8 @@ class FTGL_EXPORT FTFace
     FT_Error err;
 };
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif
 
 #endif  //  __FTFace__

@@ -183,7 +183,7 @@ int TestSmartVolumeMapperWindowLevel(int argc,
 
   renWin->Render();
   
-  retVal = vtkTesting::Test(argc, argv, renWin, 75);
+  retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

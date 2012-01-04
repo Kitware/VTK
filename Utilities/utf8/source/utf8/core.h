@@ -84,7 +84,7 @@ namespace internal
     }  
 
     template <typename octet_iterator>
-    inline vtkstd::string::difference_type
+    inline std::string::difference_type
     sequence_length(octet_iterator lead_it)
     {
         uint8_t lead = mask8(*lead_it);
@@ -107,7 +107,7 @@ namespace internal
     {
         uint32_t cp = mask8(*it);
         // Check the lead octet
-        typedef typename vtkstd::string::difference_type octet_difference_type;
+        typedef typename std::string::difference_type octet_difference_type;
         octet_difference_type length = sequence_length(it);
 
         // "Shortcut" for ASCII characters
@@ -123,7 +123,7 @@ namespace internal
         }
 
         // Do we have enough memory?     
-//        if (vtkstd::distance(it, end) < length)
+//        if (std::distance(it, end) < length)
         if (end - it < length)
             return NOT_ENOUGH_ROOM;
         
@@ -148,7 +148,7 @@ namespace internal
                         cp += (*it) & 0x3f;
                     }
                     else {
-                        vtkstd::advance(it, -2);
+                        std::advance(it, -2);
                         return INCOMPLETE_SEQUENCE;
                     }
                 }
@@ -166,12 +166,12 @@ namespace internal
                             cp += (*it) & 0x3f; 
                         }
                         else {
-                            vtkstd::advance(it, -3);
+                            std::advance(it, -3);
                             return INCOMPLETE_SEQUENCE;
                         }
                     }
                     else {
-                        vtkstd::advance(it, -2);
+                        std::advance(it, -2);
                         return INCOMPLETE_SEQUENCE;
                     }
                 }
@@ -193,19 +193,19 @@ namespace internal
             
         if (cp < 0x80) {
             if (length != 1) {
-                vtkstd::advance(it, -(length-1));
+                std::advance(it, -(length-1));
                 return OVERLONG_SEQUENCE;
             }
         }
         else if (cp < 0x800) {
             if (length != 2) {
-                vtkstd::advance(it, -(length-1));
+                std::advance(it, -(length-1));
                 return OVERLONG_SEQUENCE;
             }
         }
         else if (cp < 0x10000) {
             if (length != 3) {
-                vtkstd::advance(it, -(length-1));
+                std::advance(it, -(length-1));
                 return OVERLONG_SEQUENCE;
             }
         }

@@ -1840,11 +1840,40 @@ void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix)
     }
 
   // Expand the bounding box by model view transform matrix.
-  double min[4] = {bounds[0], bounds[2], bounds[4], 1.0};
-  double max[4] = {bounds[1], bounds[3], bounds[5], 1.0};
+  double pt[8][4] = {{bounds[0], bounds[2], bounds[5], 1.0},
+		     {bounds[1], bounds[2], bounds[5], 1.0},
+		     {bounds[1], bounds[2], bounds[4], 1.0},
+		     {bounds[0], bounds[2], bounds[4], 1.0},
+		     {bounds[0], bounds[3], bounds[5], 1.0},
+		     {bounds[1], bounds[3], bounds[5], 1.0},
+		     {bounds[1], bounds[3], bounds[4], 1.0},
+		     {bounds[0], bounds[3], bounds[4], 1.0}};
 
-  matrix->MultiplyPoint(min, min);
-  matrix->MultiplyPoint(max, max);
+  // \note: Assuming that matrix doesn not have projective component. Hence not
+  // dividing by the homogeneous coordinate after multiplication
+  for (int i = 0; i < 8; ++i)
+    {
+    matrix->MultiplyPoint(pt[i],pt[i]);
+    }
+
+  // min = max = pt[0]
+  double min[4], max[4];
+  for (int i = 0; i < 4; ++i)
+  {
+    min[i] = pt[0][i];
+    max[i] = pt[0][i];
+  }
+
+  for (int i = 1; i < 8; ++i)
+    {
+      for (int j = 0; j < 3; ++j)
+	{
+	  if(min[j] > pt[i][j])
+	    min[j] = pt[i][j];
+	  if(max[j] < pt[i][j])
+	    max[j] = pt[i][j];
+	}
+    }
 
   // Copy values back to bounds.
   bounds[0] = min[0];

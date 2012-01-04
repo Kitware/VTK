@@ -21,6 +21,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 #include "vtkMetaImageWriter.h"
@@ -215,6 +218,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
     vtkImageData *outData, int outExt[6],
     T )
 {
+
   // the number of independent components for which we need to keep track of
   // min/max
   vtkDataArray * scalars = self->GetCurrentScalars();
@@ -278,6 +282,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1 )
@@ -289,6 +299,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -300,6 +316,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
         sx1 += outExt[0];
         sx2 += outExt[0];
 
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }
+        
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -414,6 +436,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
@@ -427,6 +455,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -437,6 +471,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
         sx1 += outExt[0];
         sx2 += outExt[0];
+
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }        
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -550,6 +590,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
     sz1 += outExt[4];
     sz2 += outExt[4];
 
+    // Bounds check
+    if ((int)sz2 > outExt[5])
+      {
+      sz2 = outExt[5];
+      }
+    
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
@@ -563,6 +609,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
       sy1 += outExt[2];
       sy2 += outExt[2];
 
+      // Bounds check
+      if ((int)sy2 > outExt[3])
+        {
+        sy2 = outExt[3];
+        }
+      
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
@@ -574,6 +626,12 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
         sx1 += outExt[0];
         sx2 += outExt[0];
 
+        // Bounds check
+        if ((int)sx2 > outExt[1])
+          {
+          sx2 = outExt[1];
+          }
+        
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -799,6 +857,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   vtkImageData **outData,
   int outExt[6], int vtkNotUsed(id))
 {
+#ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
+  std::cout << "Thread id = " << id << std::endl;
+#endif
 
   // A. Initialize the data with a blank flag.
 

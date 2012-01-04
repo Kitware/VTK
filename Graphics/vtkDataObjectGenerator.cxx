@@ -39,7 +39,7 @@
 
 #include <vtkStreamingDemandDrivenPipeline.h>
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
@@ -110,7 +110,7 @@ public:
   }
   ~vtkInternalStructureCache()
   {
-    vtkstd::vector<vtkInternalStructureCache *>::iterator it;
+    std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
          it++)
@@ -140,7 +140,7 @@ public:
       {
       cerr << "HOLDER" << endl;
       }
-    vtkstd::vector<vtkInternalStructureCache *>::iterator it;
+    std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
          it++)
@@ -170,7 +170,7 @@ public:
 
   int type;
   vtkInternalStructureCache *parent;
-  vtkstd::vector<vtkInternalStructureCache *> children;
+  std::vector<vtkInternalStructureCache *> children;
 };
 
 
@@ -693,7 +693,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
     hbo->SetNumberOfLevels(
                          static_cast<unsigned int>(structure->children.size()));
-    vtkstd::vector<vtkInternalStructureCache *>::iterator git;
+    std::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
@@ -713,7 +713,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       int refinement = 2; 
       hbo->SetRefinementRatio(gcnt,refinement);       
 
-      vtkstd::vector<vtkInternalStructureCache *>::iterator dit;
+      std::vector<vtkInternalStructureCache *>::iterator dit;
       vtkIdType dcnt = 0; //TODO: read in a location to create sparse trees
 
       int maxchildren = static_cast<int>(pow(8.0,static_cast<double>(gcnt)));
@@ -795,7 +795,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     //by iterating over the children of all my children (which must be groups)
     mbo->SetNumberOfBlocks(
                          static_cast<unsigned int>(structure->children.size()));
-    vtkstd::vector<vtkInternalStructureCache *>::iterator git;
+    std::vector<vtkInternalStructureCache *>::iterator git;
     vtkIdType gcnt = 0;
 
     for (git = structure->children.begin();

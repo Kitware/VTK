@@ -16,11 +16,13 @@ SET(Kit_SRCS
   vtkAbstractContextBufferId.cxx
   vtkAbstractContextItem.cxx
   vtkAxis.cxx
+  vtkAxisExtended.cxx
   vtkBlockItem.cxx
   vtkBrush.cxx
   vtkChart.cxx
   vtkChartLegend.cxx
   vtkChartHistogram2D.cxx
+  vtkChartMatrix.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
   vtkChartPie.cxx
@@ -38,8 +40,9 @@ SET(Kit_SRCS
   vtkContextDevice2D.cxx
   vtkContextInteractorStyle.cxx
   vtkContextItem.cxx
+  vtkContextKeyEvent.cxx
   vtkContextMapper2D.cxx
-  vtkContextMouseEvent.h
+  vtkContextMouseEvent.cxx
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkContextView.cxx
@@ -52,6 +55,7 @@ SET(Kit_SRCS
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx
+  vtkPiecewisePointHandleItem.cxx
   vtkPlot.cxx
   vtkPlotBar.cxx
   vtkPlotGrid.cxx
@@ -61,13 +65,9 @@ SET(Kit_SRCS
   vtkPlotParallelCoordinates.cxx
   vtkPlotPoints.cxx
   vtkScalarsToColorsItem.cxx
+  vtkScatterPlotMatrix.cxx
   vtkTooltipItem.cxx
   )
-
-SET_SOURCE_FILES_PROPERTIES(
-  vtkContextMouseEvent
-  HEADER_FILE_ONLY
-)
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
@@ -85,6 +85,7 @@ SET_SOURCE_FILES_PROPERTIES(
 SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextBufferId
   vtkContextBufferId
+  vtkContextKeyEvent
   vtkContextMouseEvent
   vtkChartColors
   vtkOpenGLContextBufferId

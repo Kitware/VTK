@@ -68,10 +68,10 @@
   }
 
 #ifdef VTK_USE_64BIT_IDS
-#ifdef NC_INT64
-// This may or may not work with the netCDF 4 library reading in netCDF 3 files.
-#define nc_get_vars_vtkIdType nc_get_vars_longlong
-#else // NC_INT64
+//#ifdef NC_INT64
+//// This may or may not work with the netCDF 4 library reading in netCDF 3 files.
+//#define nc_get_vars_vtkIdType nc_get_vars_longlong
+//#else // NC_INT64
 static int nc_get_vars_vtkIdType(int ncid, int varid,
                                  const size_t start[], const size_t count[],
                                  const ptrdiff_t stride[],
@@ -102,7 +102,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid,
 
   return NC_NOERR;
 }
-#endif // NC_INT64
+//#endif // NC_INT64
 #else // VTK_USE_64_BIT_IDS
 #define nc_get_vars_vtkIdType nc_get_vars_int
 #endif // VTK_USE_64BIT_IDS
@@ -223,8 +223,8 @@ namespace vtkPSLACReaderTypes
     = sizeof(midpointTopologyType)/sizeof(vtkIdType);
 
   typedef struct {
-    vtkstd::vector<midpointPositionType> position;
-    vtkstd::vector<midpointTopologyType> topology;
+    std::vector<midpointPositionType> position;
+    std::vector<midpointTopologyType> topology;
   } midpointListsType;
 
   typedef struct {
@@ -252,15 +252,15 @@ namespace vtkPSLACReaderTypes
     vtkIdType numProcesses = controller->GetNumberOfProcesses();
 
     // Gather the amount of data each process is going to send.
-    vtkstd::vector<vtkIdType> receiveCounts(numProcesses);
+    std::vector<vtkIdType> receiveCounts(numProcesses);
     controller->Gather(&sendLength, &receiveCounts.at(0), 1, process);
 
     // Get ready the arrays for the receiver that determine how much data
     // to get and where to put it.
-    vtkstd::vector<vtkIdType> positionLengths(numProcesses);
-    vtkstd::vector<vtkIdType> positionOffsets(numProcesses);
-    vtkstd::vector<vtkIdType> topologyLengths(numProcesses);
-    vtkstd::vector<vtkIdType> topologyOffsets(numProcesses);
+    std::vector<vtkIdType> positionLengths(numProcesses);
+    std::vector<vtkIdType> positionOffsets(numProcesses);
+    std::vector<vtkIdType> topologyLengths(numProcesses);
+    std::vector<vtkIdType> topologyOffsets(numProcesses);
 
     const double *sendPositionBuffer
       = (  (sendLength > 0)
@@ -609,7 +609,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
 
 
   // If we are reading midpoints, record any edges that might require endpoints.
-  vtkstd::vector<vtkSLACReader::EdgeEndpoints> edgesNeeded;
+  std::vector<vtkSLACReader::EdgeEndpoints> edgesNeeded;
 
   if (this->ReadMidpoints)
     {
@@ -756,7 +756,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
     this->Internal->EdgesToSendToProcessesOffsets = vtkSmartPointer<vtkIdTypeArray>::New();
     this->Internal->EdgesToSendToProcessesOffsets->SetNumberOfTuples(this->NumberOfPieces);
 
-    vtkstd::vector< vtkSmartPointer<vtkIdTypeArray> > edgeLists (this->NumberOfPieces);
+    std::vector< vtkSmartPointer<vtkIdTypeArray> > edgeLists (this->NumberOfPieces);
     for (int process = 0; process < this->NumberOfPieces; process ++)
       {
       edgeLists[process] = vtkSmartPointer<vtkIdTypeArray>::New ();
@@ -994,7 +994,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   // processes are aware of who requested hose original points.  Thus they can
   // redistribute the midpoints that correspond to those processes that
   // requested the original points.
-  vtkstd::vector<midpointListsType> midpointsToDistribute(this->NumberOfPieces);
+  std::vector<midpointListsType> midpointsToDistribute(this->NumberOfPieces);
 
   int pointsPerProcess = this->NumberOfGlobalPoints / this->NumberOfPieces + 1;
   for (vtkIdType i = 0; i < midpointData->GetNumberOfTuples(); i ++) 
@@ -1030,8 +1030,8 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   // quickly find them.
   MidpointsAvailableType MidpointsAvailable;
 
-  vtkstd::vector<midpointPositionType>::iterator posIter;
-  vtkstd::vector<midpointTopologyType>::iterator topIter;
+  std::vector<midpointPositionType>::iterator posIter;
+  std::vector<midpointTopologyType>::iterator topIter;
   for (posIter = midpointsToRedistribute.position.begin(),
          topIter = midpointsToRedistribute.topology.begin();
        posIter != midpointsToRedistribute.position.end();
@@ -1043,11 +1043,11 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     // Deal with Sun Studio old libCstd.
     // http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
     MidpointsAvailable.insert(
-      vtkstd::pair<const EdgeEndpoints,midpointPointersType>(
+      std::pair<const EdgeEndpoints,midpointPointersType>(
         EdgeEndpoints(topIter->minEdgePoint,topIter->maxEdgePoint),mp));
 #else
     MidpointsAvailable.insert(
-      vtkstd::make_pair(EdgeEndpoints(topIter->minEdgePoint,
+      std::make_pair(EdgeEndpoints(topIter->minEdgePoint,
                                       topIter->maxEdgePoint),
                         mp));
 #endif

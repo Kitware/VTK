@@ -29,7 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 using namespace std;
 
@@ -37,7 +37,7 @@ using namespace std;
 //----------------------------------------------------------------------------
 struct vtkSelectionInternals
 {
-  vtkstd::vector<vtkSmartPointer<vtkSelectionNode> > Nodes;
+  std::vector<vtkSmartPointer<vtkSelectionNode> > Nodes;
 };
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkSelection::RemoveNode(unsigned int idx)
     {
     return;
     }
-  vtkstd::vector<vtkSmartPointer<vtkSelectionNode> >::iterator iter =
+  std::vector<vtkSmartPointer<vtkSelectionNode> >::iterator iter =
     this->Internal->Nodes.begin();
   this->Internal->Nodes.erase(iter+idx);
   this->Modified();

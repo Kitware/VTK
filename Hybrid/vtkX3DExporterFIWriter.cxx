@@ -24,7 +24,7 @@
 
 #include <vtksys/ios/sstream>
 #include <cassert>
-#include <vtkstd/vector>
+#include <vector>
 
 //#define ENCODEASSTRING 1
 
@@ -45,7 +45,7 @@ struct NodeInfo
 };
 
 /*======================================================================== */
-typedef vtkstd::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
+typedef std::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
 class vtkX3DExporterFINodeInfoStack : 
   public vtkX3DExporterFINodeInfoStackBase
 {
@@ -65,9 +65,10 @@ public:
   // Opens the specified file in binary mode. Returns 0
   // if failed
   int OpenFile(const char* file);
+  int OpenStream();
 
   // Puts a bitstring to the current byte bit by bit
-  void PutBits(const vtkstd::string &bitstring);
+  void PutBits(const std::string &bitstring);
   // Puts the integer value to the stream using count bits
   // for encoding
   void PutBits(unsigned int value, unsigned char count);
@@ -79,10 +80,15 @@ public:
   // Fills up the current byte with 0 values
   void FillByte();
 
+  // Get stream info
+  const char* GetStringStream(int& size);
+
 private:
   unsigned char Append(unsigned int value, unsigned char count);
   void TryFlush();
-  ofstream FileStream;
+  ostream* Stream;
+
+  int WriteToOutputString;
 
   vtkX3DExporterFIByteWriter(const vtkX3DExporterFIByteWriter&); // Not implemented
   void operator=(const vtkX3DExporterFIByteWriter&); // Not implemented
@@ -91,19 +97,57 @@ private:
 //----------------------------------------------------------------------------
 vtkX3DExporterFIByteWriter::~vtkX3DExporterFIByteWriter()
 {
-  if (this->FileStream.is_open())
+  if(this->Stream != NULL)
     {
-    this->FileStream.close();
+    delete this->Stream;
+    this->Stream = NULL;
     }
 }
 
 //----------------------------------------------------------------------------
 int vtkX3DExporterFIByteWriter::OpenFile(const char* file)
 {
+  this->WriteToOutputString = 0;
   this->CurrentByte = 0;
   this->CurrentBytePos = 0;
-  this->FileStream.open (file, ios::out | ios::binary);
-  return this->FileStream.fail() ? 0 : 1;
+  ofstream* fileStream = new ofstream();
+  fileStream->open (file, ios::out | ios::binary);
+  if(fileStream->fail())
+    {
+    delete fileStream;
+    return 0;
+    }
+  else
+    {
+    this->Stream = fileStream;
+    return 1;
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkX3DExporterFIByteWriter::OpenStream()
+{
+  this->WriteToOutputString = 1;
+  this->CurrentByte = 0;
+  this->CurrentBytePos = 0;
+  this->Stream = new vtksys_ios::ostringstream();
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
+{
+  if (this->WriteToOutputString && this->Stream)
+    {
+    vtksys_ios::ostringstream *ostr =
+      static_cast<vtksys_ios::ostringstream*>(this->Stream);
+
+    size = static_cast<int>(ostr->str().size());
+    return ostr->str().c_str();
+    }
+
+  size = 0;
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -111,7 +155,7 @@ void vtkX3DExporterFIByteWriter::TryFlush()
 {
   if (this->CurrentBytePos == 8)
     {
-    this->FileStream.write((char*)(&(this->CurrentByte)), 1);
+    this->Stream->write((char*)(&(this->CurrentByte)), 1);
     this->CurrentByte = 0;
     this->CurrentBytePos = 0;
     }
@@ -165,7 +209,7 @@ void vtkX3DExporterFIByteWriter::PutBytes(const char* bytes, size_t length)
 {
   if(this->CurrentBytePos == 0)
     {
-    FileStream.write(bytes, length);
+    this->Stream->write(bytes, length);
     }
   else
     {
@@ -186,9 +230,9 @@ void vtkX3DExporterFIByteWriter::PutBits(unsigned int value, unsigned char count
 
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
+void vtkX3DExporterFIByteWriter::PutBits(const std::string &bitstring)
 {
-  vtkstd::string::const_iterator I = bitstring.begin();
+  std::string::const_iterator I = bitstring.begin();
   while(I != bitstring.end())
     {
     this->PutBit((*I) == '1');
@@ -203,6 +247,7 @@ vtkStandardNewMacro(vtkX3DExporterFIWriter);
 //----------------------------------------------------------------------------
 vtkX3DExporterFIWriter::~vtkX3DExporterFIWriter()
 {
+  this->CloseFile();
   delete this->InfoStack;
   this->Compressor->Delete();
 }
@@ -228,19 +273,42 @@ void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkX3DExporterFIWriter::OpenFile(const char* file)
 {
-  vtkstd::string t(file);
+  std::string t(file);
   this->CloseFile();
 
   // Delegate to vtkX3DExporterFIByteWriter
   this->Writer = new vtkX3DExporterFIByteWriter();
+  this->WriteToOutputString = 0;
   return this->Writer->OpenFile(file);
+}
+
+int vtkX3DExporterFIWriter::OpenStream()
+{
+  // Delegate to vtkX3DExporterFIByteWriter
+  this->Writer = new vtkX3DExporterFIByteWriter();
+  this->WriteToOutputString = 1;
+  return this->Writer->OpenStream();
 }
 
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::CloseFile()
 {
-  delete this->Writer;
-  this->Writer = 0;
+  if(this->Writer != NULL)
+    {
+    if(this->WriteToOutputString)
+      {
+      if(this->OutputString)
+        {
+        delete [] this->OutputString;
+        this->OutputString = NULL;
+        }
+      const char* tmp = this->Writer->GetStringStream(this->OutputStringLength);
+      this->OutputString = new char[this->OutputStringLength];
+      memcpy(this->OutputString, tmp, this->OutputStringLength);
+      }
+    delete this->Writer;
+    this->Writer = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -444,7 +512,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
   vtksys_ios::ostringstream ss;
-  vtkstd::vector<double> values;
+  std::vector<double> values;
 
   this->StartAttribute(attributeID, true, false);
 
@@ -537,7 +605,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtksys_ios::ostringstream ss;
-  vtkstd::vector<int> values;
+  std::vector<int> values;
 
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
@@ -631,18 +699,18 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value,
   bool vtkNotUsed(mfstring))
 {
   this->StartAttribute(attributeID, true, true);
-  vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, vtkstd::string(value));
+  vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, std::string(value));
 }
 
 //----------------------------------------------------------------------------
-/*void vtkX3DExporterFIWriter::SetField(int attributeID, const vtkstd::string &value)
+/*void vtkX3DExporterFIWriter::SetField(int attributeID, const std::string &value)
   {
   this->StartAttribute(attributeID, true, true);
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, value);
   }*/
 
 //----------------------------------------------------------------------------
-/*void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkstd::string value)
+/*void vtkX3DExporterFIWriter::SetField(int attributeID, int type, std::string value)
   {
   assert(type == MFSTRING);
   type++;

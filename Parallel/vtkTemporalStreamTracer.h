@@ -28,8 +28,8 @@
 #include "vtkStreamTracer.h"
 
 //BTX
-#include <vtkstd/vector> // STL Header
-#include <vtkstd/list>   // STL Header
+#include <vector> // STL Header
+#include <list>   // STL Header
 //ETX
 
 class vtkMultiProcessController;
@@ -75,9 +75,9 @@ namespace vtkTemporalStreamTracerNamespace
     float         speed;
   } ParticleInformation;
 
-  typedef vtkstd::vector<ParticleInformation>  ParticleVector;
+  typedef std::vector<ParticleInformation>  ParticleVector;
   typedef ParticleVector::iterator             ParticleIterator;
-  typedef vtkstd::list<ParticleInformation>    ParticleDataList;
+  typedef std::list<ParticleInformation>    ParticleDataList;
   typedef ParticleDataList::iterator           ParticleListIterator;
 };
 //ETX
@@ -348,8 +348,8 @@ public:
     int           IgnorePipelineTime;
     unsigned int  NumberOfInputTimeSteps;
 //BTX
-    vtkstd::vector<double>  InputTimeValues;
-    vtkstd::vector<double>  OutputTimeValues;
+    std::vector<double>  InputTimeValues;
+    std::vector<double>  OutputTimeValues;
 //ETX
 
     // more time management
@@ -414,7 +414,7 @@ public:
     typedef struct {
       double b[6];
     } bounds;
-    vtkstd::vector<bounds> CachedBounds[2];
+    std::vector<bounds> CachedBounds[2];
 
     // utility funtion we use to test if a point is inside any of our local datasets
     bool InsideBounds(double point[]);

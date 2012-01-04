@@ -30,6 +30,7 @@ class vtkContext2D;
 class vtkAbstractContextItem;
 class vtkTransform2D;
 class vtkContextMouseEvent;
+class vtkContextKeyEvent;
 class vtkContextScenePrivate;
 class vtkContextInteractorStyle;
 
@@ -176,34 +177,36 @@ protected:
   ~vtkContextScene();
 
   // Description:
-  // Called to process events - figure out what child(ren) to propagate events
-  // to.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
-                             void* callData);
-
-  // Description:
   // Process a rubber band selection event.
   virtual bool ProcessSelectionEvent(unsigned int rect[5]);
 
   // Description:
   // Process a mouse move event.
-  virtual bool MouseMoveEvent(int x, int y);
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
 
   // Description:
   // Process a mouse button press event.
-  virtual bool ButtonPressEvent(int button, int x, int y);
+  virtual bool ButtonPressEvent(const vtkContextMouseEvent &event);
 
   // Description:
   // Process a mouse button release event.
-  virtual bool ButtonReleaseEvent(int button, int x, int y);
+  virtual bool ButtonReleaseEvent(const vtkContextMouseEvent &event);
 
   // Description:
   // Process a mouse button double click event.
-  virtual bool DoubleClickEvent(int button, int x, int y);
+  virtual bool DoubleClickEvent(const vtkContextMouseEvent &event);
 
   // Description:
   // Process a mouse wheel event where delta is the movement forward or back.
-  virtual bool MouseWheelEvent(int delta, int x, int y);
+  virtual bool MouseWheelEvent(int delta, const vtkContextMouseEvent &event);
+
+  // Description:
+  // Process a key press event.
+  virtual bool KeyPressEvent(const vtkContextKeyEvent& keyEvent);
+
+  // Description:
+  // Process a key release event.
+  virtual bool KeyReleaseEvent(const vtkContextKeyEvent& keyEvent);
 
   // Description:
   // Paint the scene in a special mode to build a cache for picking.
@@ -235,10 +238,8 @@ protected:
   int Geometry[2];
 
   // Description:
-  // The command object for the charts.
-  //class Command;
-  //friend class Command;
-  //Command *Observer;
+  // The vtkContextInteractorStyle class delegates all of the events to the
+  // scene, accessing protected API.
   friend class vtkContextInteractorStyle;
 
   // Description:
@@ -278,6 +279,7 @@ private:
   bool ProcessItem(vtkAbstractContextItem* cur,
                    const vtkContextMouseEvent& event,
                    MouseEvents eventPtr);
+  void EventCopy(const vtkContextMouseEvent &event);
 //ETX
 };
 

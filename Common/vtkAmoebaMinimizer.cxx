@@ -15,6 +15,9 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
+#define  N_STEPS_NO_VALUE_IMPROVEMENT  2
+#define  N_STEPS_NO_PARAM_IMPROVEMENT  18
+
 vtkStandardNewMacro(vtkAmoebaMinimizer);
 
 //----------------------------------------------------------------------------
@@ -31,7 +34,11 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
 
   this->FunctionValue = 0.0;
 
+  this->ContractionRatio = 0.5;
+  this->ExpansionRatio = 2.0;
+
   this->Tolerance = 1e-4;
+  this->ParameterTolerance = 1e-4;
   this->MaxIterations = 1000;
   this->Iterations = 0;
   this->FunctionEvaluations = 0;
@@ -40,6 +47,8 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->AmoebaVertices = NULL;
   this->AmoebaValues = NULL;
   this->AmoebaSum = NULL;
+  this->AmoebaSize = 0;
+  this->AmoebaHighValue = 0;
   this->AmoebaNStepsNoImprovement = 0;
 }
   
@@ -130,6 +139,9 @@ void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Iterations: " << this->GetIterations() << "\n";
   os << indent << "MaxIterations: " << this->GetMaxIterations() << "\n";
   os << indent << "Tolerance: " << this->GetTolerance() << "\n";
+  os << indent << "ParameterTolerance: " << this->GetParameterTolerance() << "\n";
+  os << indent << "ContractionRatio: " << this->GetContractionRatio() << "\n";
+  os << indent << "ExpansionRatio: " << this->GetExpansionRatio() << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -313,6 +325,7 @@ void vtkAmoebaMinimizer::Initialize()
   this->NumberOfParameters = 0;
   this->Iterations = 0;
   this->FunctionEvaluations = 0;
+  this->AmoebaSize = 0;
 
   this->Modified();
 }
@@ -325,6 +338,40 @@ void vtkAmoebaMinimizer::EvaluateFunction()
     this->Function(this->FunctionArg);
     }
   this->FunctionEvaluations++;
+}
+
+//----------------------------------------------------------------------------
+int vtkAmoebaMinimizer::CheckParameterTolerance()
+{
+  int n = this->NumberOfParameters;
+
+  double *vertex0 = this->AmoebaVertices[0];
+  double *scales = this->ParameterScales;
+  double size = 0;
+
+  for (int i = 1; i <= n; i++)
+    {
+    double *vertex = this->AmoebaVertices[i];
+    for (int j = 0; j < n; j++)
+      {
+      double d = fabs((vertex[j] - vertex0[j])/scales[j]);
+      size = ((d < size) ? size : d);
+      }
+    }
+
+  if (size != this->AmoebaSize)
+    {
+    this->AmoebaNStepsNoImprovement = N_STEPS_NO_VALUE_IMPROVEMENT-1;
+    }
+  this->AmoebaSize = size;
+  // if amoeba is static, only make a set number of tries
+  if (this->AmoebaNStepsNoImprovement >
+      (N_STEPS_NO_VALUE_IMPROVEMENT + N_STEPS_NO_PARAM_IMPROVEMENT))
+    {
+    return 1;
+    }
+
+  return (size <= this->ParameterTolerance);
 }
 
 //----------------------------------------------------------------------------
@@ -341,10 +388,15 @@ int vtkAmoebaMinimizer::Iterate()
     }
 
   int improved = this->PerformAmoeba();
+  int paramsWithinTol = 0;
+  if (!improved)
+    {
+    paramsWithinTol = this->CheckParameterTolerance();
+    }
   this->GetAmoebaParameterValues();
   this->Iterations++;
 
-  return improved;
+  return (improved || !paramsWithinTol);
 }
 
 //----------------------------------------------------------------------------
@@ -365,7 +417,10 @@ void vtkAmoebaMinimizer::Minimize()
     int improved = this->PerformAmoeba();
     if (!improved)
       {
-      break;
+      if (this->CheckParameterTolerance())
+        {
+        break;
+        }
       }
     }
 
@@ -391,10 +446,6 @@ void vtkAmoebaMinimizer::Minimize()
   have been expanded, functions have been renamed to match VTK
   conventions, and the formatting has been changed.
 */
-
-#define  VTK_AMOEBA_FLIP_RATIO      1.0
-#define  VTK_AMOEBA_CONTRACT_RATIO  0.5
-#define  VTK_AMOEBA_STRETCH_RATIO   2.0
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : vtkAmoebaNumericallyClose
@@ -635,8 +686,6 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
   return( y_try );
 }
 
-#define  N_STEPS_NO_IMPROVEMENT  20
-
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : PerformAmoeba
 @INPUT      : 
@@ -693,12 +742,13 @@ int vtkAmoebaMinimizer::PerformAmoeba()
       }
     }
 
-  if( vtkAmoebaNumericallyClose( this->AmoebaValues[low], 
+  if( this->AmoebaValues[high] == this->AmoebaHighValue ||
+      vtkAmoebaNumericallyClose( this->AmoebaValues[low],
                                  this->AmoebaValues[high],
                                  this->Tolerance ) )
     {
     ++this->AmoebaNStepsNoImprovement;
-    if( this->AmoebaNStepsNoImprovement >= N_STEPS_NO_IMPROVEMENT )
+    if( this->AmoebaNStepsNoImprovement >= N_STEPS_NO_VALUE_IMPROVEMENT )
       {
       improvement_found = 0;
       }
@@ -708,16 +758,18 @@ int vtkAmoebaMinimizer::PerformAmoeba()
     this->AmoebaNStepsNoImprovement = 0;
     }
 
-  y_try = this->TryAmoeba( this->AmoebaSum, high, -VTK_AMOEBA_FLIP_RATIO );
+  this->AmoebaHighValue = this->AmoebaValues[high];
+
+  y_try = this->TryAmoeba( this->AmoebaSum, high, -1.0 );
 
   if( y_try <= this->AmoebaValues[low] )
     {
-    TryAmoeba( this->AmoebaSum, high, VTK_AMOEBA_STRETCH_RATIO );
+    TryAmoeba( this->AmoebaSum, high, this->ExpansionRatio );
     }
   else if( y_try >= this->AmoebaValues[next_high] )
     {
     y_save = this->AmoebaValues[high];
-    y_try = TryAmoeba( this->AmoebaSum, high, VTK_AMOEBA_CONTRACT_RATIO );
+    y_try = TryAmoeba( this->AmoebaSum, high, this->ContractionRatio );
 
     if( y_try >= y_save )
       {

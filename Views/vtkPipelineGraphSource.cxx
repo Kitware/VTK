@@ -272,12 +272,12 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
     {
     vtkObjectBase* const object = vertex_object_array->GetVariantValue(i).ToVTKObject();
 
-    vtkstd::stringstream buffer;
+    std::stringstream buffer;
     object->PrintSelf(buffer, vtkIndent());
 
-    vtkstd::string line;
-    vtkstd::string object_state;
-    for(vtkstd::getline(buffer, line); buffer; vtkstd::getline(buffer, line))
+    std::string line;
+    std::string object_state;
+    for(std::getline(buffer, line); buffer; std::getline(buffer, line))
       {
       boost::algorithm::replace_all(line, "\"", "'");
       boost::algorithm::replace_all(line, "\r", "");
@@ -309,7 +309,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
       object_state += line + "\\n";
       }
 
-    vtkstd::string fillcolor = "#ccffcc";
+    std::string fillcolor = "#ccffcc";
     if(vtkView::SafeDownCast(object))
       {
       fillcolor = "#ffffcc";
@@ -334,7 +334,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
     const vtkStdString input_port = edge_input_port_array->GetVariantValue(edge.Id).ToString();
     vtkObjectBase* const object = edge_object_array->GetVariantValue(edge.Id).ToVTKObject();
 
-    vtkstd::string color = "black";
+    std::string color = "black";
     if(vtkTree::SafeDownCast(object))
       {
       color = "#00bb00";

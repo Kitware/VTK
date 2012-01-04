@@ -551,13 +551,13 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
     }
 
   this->SetLineType(this->Pen->GetLineType());
-  glColor4ubv(this->Pen->GetColor());
   glLineWidth(this->Pen->GetWidth());
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, p);
-  glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glColor4ubv(this->Brush->GetColor());
   glDrawArrays(GL_TRIANGLE_FAN, 0, iterations+1);
+  glColor4ubv(this->Pen->GetColor());
+  glDrawArrays(GL_LINE_STRIP, 0, iterations+1);
   glDisableClientState(GL_VERTEX_ARRAY);
 
   delete[] p;
@@ -1076,13 +1076,19 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
-  glEnable(GL_SCISSOR_TEST);
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DisableClipping()
+void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 {
-  glDisable(GL_SCISSOR_TEST);
+  if (enable)
+    {
+    glEnable(GL_SCISSOR_TEST);
+    }
+  else
+    {
+    glDisable(GL_SCISSOR_TEST);
+    }
 }
 
 //-----------------------------------------------------------------------------

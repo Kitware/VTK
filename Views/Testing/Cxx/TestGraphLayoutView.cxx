@@ -33,7 +33,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
 
-using vtkstd::string;
+using std::string;
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \

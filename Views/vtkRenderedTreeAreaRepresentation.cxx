@@ -75,12 +75,12 @@
 #include "vtkQtTreeRingLabelMapper.h"
 #endif
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkRenderedTreeAreaRepresentation::Internals
 {
 public:
-  vtkstd::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
+  std::vector<vtkSmartPointer<vtkHierarchicalGraphPipeline> > Graphs;
 };
 
 vtkStandardNewMacro(vtkRenderedTreeAreaRepresentation);

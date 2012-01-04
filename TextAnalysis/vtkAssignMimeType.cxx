@@ -74,19 +74,19 @@ int vtkAssignMimeType::RequestData(
   try
     {
     if(!this->OutputArray)
-      throw vtkstd::runtime_error("missing OutputArray");
+      throw std::runtime_error("missing OutputArray");
 
     vtkTable* const input_table = vtkTable::GetData(inputVector[0]);
     if(!input_table)
-      throw vtkstd::runtime_error("missing input table");
+      throw std::runtime_error("missing input table");
       
     vtkAbstractArray* const uri_array = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
     if(!uri_array)
-      throw vtkstd::runtime_error("missing uri array");
+      throw std::runtime_error("missing uri array");
 
     vtkAbstractArray* const content_array = this->GetInputAbstractArrayToProcess(1, 0, inputVector);
     if(!content_array)
-      throw vtkstd::runtime_error("missing content array");
+      throw std::runtime_error("missing content array");
 
     vtkStringArray* const mime_type_array = vtkStringArray::New();
     mime_type_array->SetName(this->OutputArray);
@@ -116,7 +116,7 @@ int vtkAssignMimeType::RequestData(
     output_table->AddColumn(mime_type_array);
     mime_type_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

@@ -36,8 +36,8 @@
 #include "vtkXMLDataElement.h"
 #include "vtkWindow.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 // GL/glu.h is needed for the error reporting, this should be removed
 // after the initial development phase.
 //#include <GL/glu.h>
@@ -134,7 +134,7 @@ void vtkGLSLShaderProgram::GetProgramInfo()
     return;
     }
 
-  vtkstd::string infoString;
+  std::string infoString;
   if(this->IsProgram())
     {
     infoString += "GLSL Program. \n";
@@ -234,15 +234,15 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
   vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
                       vtkgl::ATTACHED_SHADERS, &numObjects);
   
-  vtkstd::vector<GLuint> attachedObjects(numObjects);
+  std::vector<GLuint> attachedObjects(numObjects);
   if( numObjects > 0 )
     {
     vtkgl::GetAttachedShaders(static_cast<GLuint>(this->Program), numObjects, 
                               &writtenObjects, &attachedObjects[0]);
     }
 
-  vtkstd::vector<GLuint>::iterator it = attachedObjects.begin();
-  vtkstd::vector<GLuint>::iterator itEnd = attachedObjects.end();
+  std::vector<GLuint>::iterator it = attachedObjects.begin();
+  std::vector<GLuint>::iterator itEnd = attachedObjects.end();
   while( it != itEnd )
     {
     if( static_cast<GLuint>(handle) == *it )

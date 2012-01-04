@@ -4,6 +4,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 inline GLuint NextPowerOf2( GLuint in)
 {
@@ -173,3 +177,6 @@ void FTGLTextureFont::render( const wchar_t* string)
   glPopAttrib();
 }
 
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

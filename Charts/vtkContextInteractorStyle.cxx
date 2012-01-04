@@ -15,6 +15,7 @@
 #include "vtkContextInteractorStyle.h"
 
 #include "vtkContextMouseEvent.h"
+#include "vtkContextKeyEvent.h"
 #include "vtkContextScene.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
@@ -31,21 +32,20 @@ vtkContextInteractorStyle::vtkContextInteractorStyle()
 {
   this->Scene = NULL;
   this->ProcessingEvents = 0;
-  this->SceneCallbackCommand = vtkCallbackCommand::New();
   this->SceneCallbackCommand->SetClientData(this);
   this->SceneCallbackCommand->SetCallback(
     vtkContextInteractorStyle::ProcessSceneEvents);
+  this->InteractorCallbackCommand->SetClientData(this);
+  this->InteractorCallbackCommand->SetCallback(
+    vtkContextInteractorStyle::ProcessInteractorEvents);
   this->LastSceneRepaintMTime = 0;
+  this->TimerId = 0;
+  this->TimerCallbackInitialized = false;
 }
 
 //--------------------------------------------------------------------------
 vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
-  if (this->SceneCallbackCommand)
-    {
-    this->SceneCallbackCommand->Delete();
-    this->SceneCallbackCommand = 0;
-    }
 }
 
 //--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
     }
   if (this->Scene)
     {
-    this->Scene->RemoveObserver(this->SceneCallbackCommand);
+    this->Scene->RemoveObserver(this->SceneCallbackCommand.GetPointer());
     }
 
   this->Scene = scene;
@@ -76,14 +76,14 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
   if (this->Scene)
     {
     this->Scene->AddObserver(vtkCommand::ModifiedEvent,
-                             this->SceneCallbackCommand,
+                             this->SceneCallbackCommand.GetPointer(),
                              this->Priority);
     }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* vtkNotUsed(object),
+void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject*,
                                                    unsigned long event,
                                                    void* clientdata,
                                                    void* vtkNotUsed(calldata))
@@ -101,6 +101,28 @@ void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject* vtkNotUsed(object)
 }
 
 //----------------------------------------------------------------------------
+void vtkContextInteractorStyle::ProcessInteractorEvents(vtkObject*,
+                                                        unsigned long,
+                                                        void* clientdata,
+                                                        void* vtkNotUsed(calldata))
+{
+  vtkContextInteractorStyle* self =
+    reinterpret_cast<vtkContextInteractorStyle *>(clientdata);
+  self->RenderNow();
+}
+
+//----------------------------------------------------------------------------
+void vtkContextInteractorStyle::RenderNow()
+{
+  this->TimerId = 0;
+  if (this->Scene && !this->ProcessingEvents &&
+      this->Interactor->GetInitialized())
+    {
+    this->Interactor->GetRenderWindow()->Render();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkContextInteractorStyle::OnSceneModified()
 {
   if (!this->Scene
@@ -112,8 +134,19 @@ void vtkContextInteractorStyle::OnSceneModified()
     return;
     }
   this->BeginProcessingEvent();
+  if (!this->TimerCallbackInitialized && this->Interactor)
+    {
+    this->Interactor->AddObserver(vtkCommand::TimerEvent,
+                                  this->InteractorCallbackCommand.GetPointer(),
+                                  0.0);
+    this->TimerCallbackInitialized = true;
+    }
   this->LastSceneRepaintMTime = this->Scene->GetMTime();
-  this->Interactor->GetRenderWindow()->Render();
+  // If there is no timer, create a one shot timer to render an updated scene
+  if (this->TimerId == 0)
+    {
+    this->Interactor->CreateOneShotTimer(40);
+    }
   this->EndProcessingEvent();
 }
 
@@ -142,9 +175,9 @@ void vtkContextInteractorStyle::OnMouseMove()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent = this->Scene->MouseMoveEvent(x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::NO_BUTTON);
+    eatEvent = this->Scene->MouseMoveEvent(event);
     }
   if (!eatEvent)
     {
@@ -152,6 +185,31 @@ void vtkContextInteractorStyle::OnMouseMove()
     }
 
   this->EndProcessingEvent();
+}
+
+inline bool vtkContextInteractorStyle::ProcessMousePress(
+    const vtkContextMouseEvent &event)
+{
+  bool eatEvent(false);
+  if (this->Interactor->GetRepeatCount())
+    {
+    eatEvent = this->Scene->DoubleClickEvent(event);
+    //
+    // The second ButtonRelease event seems not to be processed automatically,
+    // need manually processing here so that the following MouseMove event will
+    // not think the mouse button is still pressed down, and we don't really
+    // care about the return result from the second ButtonRelease.
+    //
+    if (eatEvent)
+      {
+      this->Scene->ButtonReleaseEvent(event);
+      }
+    }
+  else
+    {
+    eatEvent = this->Scene->ButtonPressEvent(event);
+    }
+  return eatEvent;
 }
 
 //----------------------------------------------------------------------------
@@ -162,18 +220,9 @@ void vtkContextInteractorStyle::OnLeftButtonDown()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    if (this->Interactor->GetRepeatCount())
-      {
-      eatEvent =
-        this->Scene->DoubleClickEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
-      }
-    else
-      {
-      eatEvent =
-        this->Scene->ButtonPressEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
-      }
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::LEFT_BUTTON);
+    eatEvent = this->ProcessMousePress(event);
     }
   if (!eatEvent)
     {
@@ -190,10 +239,9 @@ void vtkContextInteractorStyle::OnLeftButtonUp()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent =
-      this->Scene->ButtonReleaseEvent(vtkContextMouseEvent::LEFT_BUTTON, x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::LEFT_BUTTON);
+    eatEvent = this->Scene->ButtonReleaseEvent(event);
     }
   if (!eatEvent)
     {
@@ -210,18 +258,9 @@ void vtkContextInteractorStyle::OnMiddleButtonDown()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    if (this->Interactor->GetRepeatCount())
-      {
-      eatEvent =
-        this->Scene->DoubleClickEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
-      }
-    else
-      {
-      eatEvent =
-        this->Scene->ButtonPressEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
-      }
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    eatEvent = this->ProcessMousePress(event);
     }
   if (!eatEvent)
     {
@@ -238,10 +277,9 @@ void vtkContextInteractorStyle::OnMiddleButtonUp()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent =
-      this->Scene->ButtonReleaseEvent(vtkContextMouseEvent::MIDDLE_BUTTON, x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    eatEvent = this->Scene->ButtonReleaseEvent(event);
     }
   if (!eatEvent)
     {
@@ -258,18 +296,9 @@ void vtkContextInteractorStyle::OnRightButtonDown()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    if (this->Interactor->GetRepeatCount())
-      {
-      eatEvent =
-        this->Scene->DoubleClickEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
-      }
-    else
-      {
-      eatEvent =
-        this->Scene->ButtonPressEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
-      }
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::RIGHT_BUTTON);
+    eatEvent = this->ProcessMousePress(event);
     }
   if (!eatEvent)
     {
@@ -286,10 +315,9 @@ void vtkContextInteractorStyle::OnRightButtonUp()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent =
-      this->Scene->ButtonReleaseEvent(vtkContextMouseEvent::RIGHT_BUTTON, x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::RIGHT_BUTTON);
+    eatEvent = this->Scene->ButtonReleaseEvent(event);
     }
   if (!eatEvent)
     {
@@ -306,10 +334,10 @@ void vtkContextInteractorStyle::OnMouseWheelForward()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent =
-      this->Scene->MouseWheelEvent(static_cast<int>(this->MouseWheelMotionFactor), x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    eatEvent = this->Scene->MouseWheelEvent(
+          static_cast<int>(this->MouseWheelMotionFactor), event);
     }
   if (!eatEvent)
     {
@@ -326,10 +354,10 @@ void vtkContextInteractorStyle::OnMouseWheelBackward()
   bool eatEvent = false;
   if (this->Scene)
     {
-    int x = this->Interactor->GetEventPosition()[0];
-    int y = this->Interactor->GetEventPosition()[1];
-    eatEvent =
-      this->Scene->MouseWheelEvent(-static_cast<int>(this->MouseWheelMotionFactor), x, y);
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    eatEvent = this->Scene->MouseWheelEvent(
+          -static_cast<int>(this->MouseWheelMotionFactor), event);
     }
   if (!eatEvent)
     {
@@ -347,4 +375,62 @@ void vtkContextInteractorStyle::OnSelection(unsigned int rect[5])
     this->Scene->ProcessSelectionEvent(rect);
     }
   this->EndProcessingEvent();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnChar()
+{
+  this->Superclass::OnChar();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnKeyPress()
+{
+  this->BeginProcessingEvent();
+  vtkContextKeyEvent event;
+  vtkVector2i position(this->Interactor->GetEventPosition()[0],
+                       this->Interactor->GetEventPosition()[0]);
+  event.SetInteractor(this->Interactor);
+  event.SetPosition(position);
+  bool keepEvent = false;
+  if (this->Scene)
+    {
+    keepEvent = this->Scene->KeyPressEvent(event);
+    }
+  if (!keepEvent)
+    {
+    this->Superclass::OnKeyPress();
+    }
+  this->EndProcessingEvent();
+}
+
+//--------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnKeyRelease()
+{
+  this->BeginProcessingEvent();
+  vtkContextKeyEvent event;
+  vtkVector2i position(this->Interactor->GetEventPosition()[0],
+                       this->Interactor->GetEventPosition()[0]);
+  event.SetInteractor(this->Interactor);
+  event.SetPosition(position);
+  bool keepEvent = false;
+  if (this->Scene)
+    {
+    keepEvent = this->Scene->KeyReleaseEvent(event);
+    }
+  if (!keepEvent)
+    {
+    this->Superclass::OnKeyRelease();
+    }
+  this->EndProcessingEvent();
+}
+
+//-------------------------------------------------------------------------
+inline void vtkContextInteractorStyle::ConstructMouseEvent(
+    vtkContextMouseEvent &event, int button)
+{
+  event.SetInteractor(this->Interactor);
+  event.SetPos(vtkVector2f(this->Interactor->GetEventPosition()[0],
+                           this->Interactor->GetEventPosition()[1]));
+  event.SetButton(button);
 }

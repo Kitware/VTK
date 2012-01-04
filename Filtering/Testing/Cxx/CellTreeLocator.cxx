@@ -23,7 +23,7 @@
 
 #include "vtkDebugLeaks.h"
 
-int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
+int TestWithCachedCellBoundsParameter(int cachedCellBounds)
 {
   // kuhnan's sample code used to test
   // vtkCellLocator::IntersectWithLine(...9 params...)
@@ -48,7 +48,7 @@ int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   // the cell locator
   vtkNew<vtkCellTreeLocator> locator;
   locator->SetDataSet(sphere2->GetOutput());
-  //locator->CacheCellBoundsOn();
+  locator->SetCacheCellBounds(cachedCellBounds);
   locator->AutomaticOn();
   locator->BuildLocator();
 
@@ -83,8 +83,9 @@ int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   if ( numIntersected != 9802 )
     {
     int numMissed = 9802 - numIntersected;
-    cerr << "ERROR: " << numMissed << " ray-sphere intersections missed!!!" << endl;
-    cerr << "If on a non-WinTel32 platform, try rayLen = 0.200001 or 0.20001 for a new test." << endl;
+    vtkGenericWarningMacro("ERROR: " << numMissed << " ray-sphere intersections missed! "
+                           << "If on a non-WinTel32 platform, try rayLen = 0.200001"
+                           << " or 0.20001 for a new test.");
     return 1;
     }
   else
@@ -95,4 +96,11 @@ int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   sphereNormals = NULL;
 
   return 0;
+}
+
+int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
+{
+  int retVal = TestWithCachedCellBoundsParameter(0);
+  retVal += TestWithCachedCellBoundsParameter(1);
+  return retVal;
 }

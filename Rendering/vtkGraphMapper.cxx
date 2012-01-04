@@ -38,7 +38,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneSource.h"
-#include "vtkPNGReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"

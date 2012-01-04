@@ -45,7 +45,7 @@
 #include <QPixmap>
 #include <QImage>
 
-#include <vtkstd/set>
+#include <set>
 #include <vtksys/ios/sstream>
 
 //----------------------------------------------------------------------------
@@ -392,12 +392,12 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
   IndexSelection->AddNode(node);
   
   // Run through the QModelIndexList pulling out vtk indexes
-  vtkstd::set<int> unique_ids;
+  std::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
     unique_ids.insert(qmil.at(i).internalId());
     }  
-  vtkstd::set<int>::iterator iter;
+  std::set<int>::iterator iter;
   for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
     {
     index_arr->InsertNextValue(*iter);
@@ -745,7 +745,7 @@ bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *d,
     return false;
 
   void* temp = 0;
-  vtkstd::istringstream buffer(d->data("vtk/selection").data());
+  std::istringstream buffer(d->data("vtk/selection").data());
   buffer >> temp;
   vtkSelection* s = reinterpret_cast<vtkSelection*>(temp);
 

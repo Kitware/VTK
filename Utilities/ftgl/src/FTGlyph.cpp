@@ -3,6 +3,10 @@
   #include "mmgr.h"
 #endif
 
+#ifdef FTGL_USE_NAMESPACE
+namespace ftgl
+{
+#endif
 
 FTGlyph::FTGlyph()
 :  advance(0),
@@ -22,3 +26,7 @@ FTGlyph::~FTGlyph()
     FT_Done_Glyph( glyph );
     }
 }
+
+#ifdef FTGL_USE_NAMESPACE
+} // namespace ftgl
+#endif

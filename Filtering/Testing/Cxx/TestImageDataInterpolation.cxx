@@ -91,9 +91,9 @@ inline vtkImageData* GetGrid( int dims[3], double origin[3], double h[3] )
   vtkIdType idx = 0;
   for( ; idx < image->GetNumberOfPoints(); ++idx )
     {
-      double pnt[3];
-      image->GetPoint(idx, pnt);
-      dataArray->SetComponent( idx, 0, F(pnt[0],pnt[1],pnt[2]) );
+    double pnt[3];
+    image->GetPoint(idx, pnt);
+    dataArray->SetComponent( idx, 0, F(pnt[0],pnt[1],pnt[2]) );
     } // END for all points
 
   PD->AddArray( dataArray );
@@ -115,21 +115,21 @@ inline vtkPoints* GetReceivePoints(
   vtkIdType cellIdx = 0;
   for( ; cellIdx < img->GetNumberOfCells(); ++cellIdx  )
     {
-      // Get cell
-      vtkCell *myCell = img->GetCell( cellIdx  );
-      assert( "pre: myCell != NULL" && (myCell != NULL) );
+    // Get cell
+    vtkCell *myCell = img->GetCell( cellIdx  );
+    assert( "pre: myCell != NULL" && (myCell != NULL) );
 
-      // Compute center
-      double c[3];
-      double pCenter[3];
-      double *weights = new double[ myCell->GetNumberOfPoints() ];
-      int subId       = myCell->GetParametricCenter( pCenter );
-      myCell->EvaluateLocation( subId,pCenter,c,weights );
-      delete [] weights;
+    // Compute center
+    double c[3];
+    double pCenter[3];
+    double *weights = new double[ myCell->GetNumberOfPoints() ];
+    int subId       = myCell->GetParametricCenter( pCenter );
+    myCell->EvaluateLocation( subId,pCenter,c,weights );
+    delete [] weights;
 
-      // Insert center to point list
-      donorCellList->SetId( cellIdx, cellIdx );
-      rcvPoints->SetPoint( cellIdx, c );
+    // Insert center to point list
+    donorCellList->SetId( cellIdx, cellIdx );
+    rcvPoints->SetPoint( cellIdx, c );
     } // END for all cells
 
   return( rcvPoints );
@@ -155,10 +155,10 @@ inline double InterpolateValue(vtkImageData *img, vtkCell *c, double* w)
   vtkIdType numNodes = c->GetNumberOfPoints();
   for( vtkIdType nodeIdx=0; nodeIdx < numNodes; ++nodeIdx )
     {
-      std::cout << w[ nodeIdx ] << " ";
-      std::cout.flush();
-      vtkIdType meshNodeIdx = c->GetPointId( nodeIdx );
-      val += w[nodeIdx]*dataArray->GetComponent( meshNodeIdx, 0 );
+    std::cout << w[ nodeIdx ] << " ";
+    std::cout.flush();
+    vtkIdType meshNodeIdx = c->GetPointId( nodeIdx );
+    val += w[nodeIdx]*dataArray->GetComponent( meshNodeIdx, 0 );
     } // END for all cells nodes
   std::cout << "]\n";
   std::cout.flush();
@@ -188,38 +188,42 @@ inline int TestInterpolation( int dims[3], double origin[3], double h[3] )
   vtkIdType idx = 0;
   for( ; idx < pnts->GetNumberOfPoints(); ++idx )
     {
-      pnts->GetPoint( idx, x );
-      vtkIdType cellIdx =
-        grid->FindCell(x,NULL,0,0.0,subId,pcoords,weights);
+    pnts->GetPoint( idx, x );
+    vtkIdType cellIdx =
+     grid->FindCell(x,NULL,0,0.0,subId,pcoords,weights);
 
-      if( cellIdx < 0 )
-        {
-          std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2];
-          std::cerr << ") is out-of-bounds!\n";
-          return 1;
-        }
+    if( cellIdx < 0 )
+      {
+      std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2];
+      std::cerr << ") is out-of-bounds!\n";
+      return 1;
+      }
 
-      vtkCell *donorCell = grid->GetCell( cellIdx );
-      assert( "pre: donor cell is NULL" && (donorCell != NULL));
+    vtkCell *donorCell = grid->GetCell( cellIdx );
+    assert( "pre: donor cell is NULL" && (donorCell != NULL));
 
-//      std::cout << "Cell Type: "  << donorCell->GetCellType() << std::endl;
-//      std::cout.flush();
+    std::cout << "N:  [" << pcoords[0] << " ";
+    std::cout << pcoords[1] << " " << pcoords[2] << "]\n";
+    std::cout.flush();
 
-      std::cout << "N:  [" << pcoords[0] << " ";
-      std::cout << pcoords[1] << " " << pcoords[2] << "]\n";
+    double f         = InterpolateValue( grid, donorCell, weights );
+    double fExpected = F( x[0],x[1],x[2] );
+
+    if( !eq( f, fExpected ) )
+      {
+      std::cout << "INTERPOLATION ERROR: ";
+      std::cout << "f_expeted=" << fExpected << " ";
+      std::cout << "f_interp=" << f << std::endl;
       std::cout.flush();
 
-      double f         = InterpolateValue( grid, donorCell, weights );
-      double fExpected = F( x[0],x[1],x[2] );
-
-      if( !eq( f, fExpected ) )
-        {
-          std::cout << "INTERPOLATION ERROR: ";
-          std::cout << "f_expeted=" << fExpected << " ";
-          std::cout << "f_interp=" << f << std::endl;
-          std::cout.flush();
-          ++ interpErrors;
-        }
+    if( !eq( f, fExpected ) )
+      {
+      std::cout << "INTERPOLATION ERROR: ";
+      std::cout << "f_expeted=" << fExpected << " ";
+      std::cout << "f_interp=" << f << std::endl;
+      std::cout.flush();
+      ++ interpErrors;
+      }
 
     } // END for all points
 
@@ -241,7 +245,7 @@ int TestImageDataInterpolation(int, char *[])
       {3,3,3}  // XYZ Volume
   };
 
-  static char* TestName[4]={
+  static const char* TestName[4]={
       "XY-Plane",
       "XZ-Plane",
       "YZ-Plane",
@@ -257,25 +261,25 @@ int TestImageDataInterpolation(int, char *[])
   int testStatus = 0;
   for( int i=0; i < 4; ++i )
     {
-      std::cout << "Testing " << TestName[ i ] << "...\n";
-      std::cout.flush();
-      int rc = 0;
-      rc     = TestInterpolation( dims[i], origin, h );
-      testStatus += rc;
-      std::cout << "[DONE]\n";
-      std::cout.flush();
+    std::cout << "Testing " << TestName[ i ] << "...\n";
+    std::cout.flush();
+    int rc = 0;
+    rc     = TestInterpolation( dims[i], origin, h );
+    testStatus += rc;
+    std::cout << "[DONE]\n";
+    std::cout.flush();
 
-      if( rc != 0 )
-        {
-          std::cout << rc << " failures detected!\n";
-          std::cout << "TEST FAILED!\n\n";
-          std::cout.flush();
-        }
-      else
-        {
-          std::cout << "TEST PASSED!\n";
-          std::cout << std::endl;
-        }
+    if( rc != 0 )
+      {
+      std::cout << rc << " failures detected!\n";
+      std::cout << "TEST FAILED!\n\n";
+      std::cout.flush();
+      }
+    else
+      {
+      std::cout << "TEST PASSED!\n";
+      std::cout << std::endl;
+      }
     } // END for all tests
 
   return( testStatus );

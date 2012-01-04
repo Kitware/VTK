@@ -77,34 +77,34 @@ int vtkConcatenateArray::RequestData(
     {
     vtkArrayData* const input1 = vtkArrayData::GetData(inputVector[0]);
     if(!input1)
-      throw vtkstd::runtime_error("missing first input array data.");
+      throw std::runtime_error("missing first input array data.");
 
     if(input1->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData containing exactly one vtkArray required for first input.");
+      throw std::runtime_error("vtkArrayData containing exactly one vtkArray required for first input.");
 
     vtkArrayData* const input2 = vtkArrayData::GetData(inputVector[1]);
     if(!input2)
-      throw vtkstd::runtime_error("missing second input array data.");
+      throw std::runtime_error("missing second input array data.");
 
     if(input2->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData containing exactly one vtkArray required for second input.");
+      throw std::runtime_error("vtkArrayData containing exactly one vtkArray required for second input.");
 
     vtkArray* const array1 = input1->GetArray(0);
     if(!array1)
-      throw vtkstd::runtime_error("missing first input array.");
+      throw std::runtime_error("missing first input array.");
 
     vtkArray* const array2 = input2->GetArray(0);
     if(!array2)
-      throw vtkstd::runtime_error("missing second input array.");
+      throw std::runtime_error("missing second input array.");
 
     if(vtkStdString(array1->GetClassName()) != vtkStdString(array2->GetClassName()))
-      throw vtkstd::runtime_error("first and second input arrays must be identical types.");
+      throw std::runtime_error("first and second input arrays must be identical types.");
 
     if(array1->GetDimensions() != array2->GetDimensions())
-      throw vtkstd::runtime_error("input arrays must match dimensions.");
+      throw std::runtime_error("input arrays must match dimensions.");
 
     if(this->AdjacentDimension < 0 || this->AdjacentDimension >= array1->GetDimensions())
-      throw vtkstd::runtime_error("adjacent dimension out-of-bounds.");
+      throw std::runtime_error("adjacent dimension out-of-bounds.");
 
     for(vtkIdType i = 0; i != array1->GetDimensions(); ++i)
       {
@@ -112,7 +112,7 @@ int vtkConcatenateArray::RequestData(
         continue;
 
       if(array1->GetExtent(i) != array2->GetExtent(i))
-        throw vtkstd::runtime_error("array extent mismatch");
+        throw std::runtime_error("array extent mismatch");
       }
 
     vtkArrayExtents output_extents = array1->GetExtents();
@@ -135,7 +135,7 @@ int vtkConcatenateArray::RequestData(
 
     return 1;
     } 
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "caught exception: " << e.what() << endl);
     }

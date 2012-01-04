@@ -187,10 +187,11 @@ vtkChartLegend * vtkChartPie::GetLegend()
 //-----------------------------------------------------------------------------
 bool vtkChartPie::Hit(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.ScreenPos[0] > this->Point1[0] &&
-      mouse.ScreenPos[0] < this->Point2[0] &&
-      mouse.ScreenPos[1] > this->Point1[1] &&
-      mouse.ScreenPos[1] < this->Point2[1])
+  vtkVector2i pos(mouse.GetScreenPos());
+  if (pos[0] > this->Point1[0] &&
+      pos[0] < this->Point2[0] &&
+      pos[1] > this->Point1[1] &&
+      pos[1] < this->Point2[1])
     {
     return true;
     }
@@ -209,7 +210,7 @@ bool vtkChartPie::MouseEnterEvent(const vtkContextMouseEvent &)
 //-----------------------------------------------------------------------------
 bool vtkChartPie::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == vtkContextMouseEvent::NO_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
     this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
@@ -251,23 +252,27 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
   else
     {
     int dimensions[4];
-    vtkVector2f position(mouse.ScreenPos[0],mouse.ScreenPos[1]);
-    vtkVector2f tolerance(5,5);
+    vtkVector2f position(mouse.GetScreenPos().Cast<float>().GetData());
+    vtkVector2f tolerance(5, 5);
     vtkVector2f plotPos;
     this->Private->Plot->GetDimensions(dimensions);
-    if (mouse.ScreenPos[0] >= dimensions[0] &&
-        mouse.ScreenPos[0] <= dimensions[0] + dimensions[2] &&
-        mouse.ScreenPos[1] >= dimensions[1] &&
-        mouse.ScreenPos[1] <= dimensions[1] + dimensions[3])
+
+    vtkVector2i pos(mouse.GetScreenPos());
+    if (pos[0] >= dimensions[0] &&
+        pos[0] <= dimensions[0] + dimensions[2] &&
+        pos[1] >= dimensions[1] &&
+        pos[1] <= dimensions[1] + dimensions[3])
       {
-      int labelIndex = this->Private->Plot->GetNearestPoint(position,tolerance,&plotPos);
+      int labelIndex = this->Private->Plot->GetNearestPoint(position, tolerance,
+                                                            &plotPos);
       if (labelIndex >= 0)
         {
         const char *label = this->Private->Plot->GetLabel(labelIndex);
         vtksys_ios::ostringstream ostr;
         ostr << label << ": " << plotPos.X();
         this->Tooltip->SetText(ostr.str().c_str());
-        this->Tooltip->SetPosition(mouse.ScreenPos[0]+2,mouse.ScreenPos[1]+2);
+        this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,
+                                   mouse.GetScreenPos()[1] + 2);
         return true;
         }
       }

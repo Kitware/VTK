@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTransformFilter - transform points and associated normals and vectors
 // .SECTION Description
-// vtkTransformFilter is a filter to transform point coordinates, and 
+// vtkTransformFilter is a filter to transform point coordinates, and
 // associated point normals and vectors. Other point data is passed
 // through the filter.
 //
@@ -22,8 +22,8 @@
 // to scale, rotate, and translate objects. The difference between the
 // two methods is that vtkActor's transformation simply effects where
 // objects are rendered (via the graphics pipeline), whereas
-// vtkTransformFilter actually modifies point coordinates in the 
-// visualization pipeline. This is necessary for some objects 
+// vtkTransformFilter actually modifies point coordinates in the
+// visualization pipeline. This is necessary for some objects
 // (e.g., vtkProbeFilter) that require point coordinates as input.
 
 // .SECTION See Also
@@ -52,11 +52,18 @@ public:
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestDataObject(vtkInformation *request,
+                        vtkInformationVector **inputVector,
+                        vtkInformationVector *outputVector);
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
+                  vtkInformationVector *);
   vtkAbstractTransform *Transform;
 private:
   vtkTransformFilter(const vtkTransformFilter&);  // Not implemented.

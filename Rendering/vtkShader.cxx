@@ -36,8 +36,8 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLShader.h"
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 #include <vtksys/SystemTools.hxx>
 
 //-----------------------------------------------------------------------------
@@ -322,7 +322,7 @@ public:
       }
     }
 private:
-  vtkstd::string Name;
+  std::string Name;
   int NumberOfValues;
   int Type;
   int* IntValues;
@@ -335,7 +335,7 @@ private:
 class vtkShaderInternals
 {
 public:
-  vtkstd::map<vtkstd::string, vtkShaderUniformVariable> UniformVariables;
+  std::map<std::string, vtkShaderUniformVariable> UniformVariables;
 };
 
 //-----------------------------------------------------------------------------
@@ -1045,7 +1045,7 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
   // vtkCgShader and not in vtkShader
   if (strcmp(type, "State") == 0)
     {
-    vtkstd::vector<vtkstd::string> args;
+    std::vector<std::string> args;
     vtksys::SystemTools::Split(cvalue, args, ' ');
     if (args.size() != static_cast<unsigned int>(number_of_elements))
       {
@@ -1148,7 +1148,7 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
     vtkShaderUniformVariable var = this->Internals->UniformVariables.find(value)->second;
     if( var.GetType() == VTK_INT )
       {
-      vtkstd::vector<int> x(4,0);
+      std::vector<int> x(4,0);
       if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
@@ -1158,7 +1158,7 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
       }
     else if( var.GetType() == VTK_FLOAT )
       {
-      vtkstd::vector<float> x(4,0.0);
+      std::vector<float> x(4,0.0);
       if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
@@ -1168,7 +1168,7 @@ void vtkShader::SetApplicationParameter(vtkXMLDataElement* elem)
       }
     else if( var.GetType() == VTK_DOUBLE )
       {
-      vtkstd::vector<double> x(4,0.0);
+      std::vector<double> x(4,0.0);
       if( var.GetValue(&x[0])==1 )
         {
         this->SetUniformParameter( name,
@@ -1198,7 +1198,7 @@ void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Number of Shader Variables: " 
     << this->Internals->UniformVariables.size() << endl;
  
-  vtkstd::map<vtkstd::string, vtkShaderUniformVariable>::iterator iter;
+  std::map<std::string, vtkShaderUniformVariable>::iterator iter;
   for (iter = this->Internals->UniformVariables.begin();
     iter != this->Internals->UniformVariables.end(); ++iter)
     {

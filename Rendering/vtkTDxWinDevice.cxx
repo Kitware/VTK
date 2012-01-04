@@ -34,7 +34,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkTDxWinDevice);
 
@@ -63,9 +63,9 @@ public:
 // It would be better to have the following variables as member of variable
 // but the SetTimer on windows is only initialized with a function pointer
 // without calldata.
-vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObject;
+std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObject;
 
-vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObjectConnection;
+std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle> vtkWindowHandleToDeviceObjectConnection;
 
 class vtkTDxWinDevicePrivate
 {
@@ -210,7 +210,7 @@ void vtkTDxWinDevice::Initialize()
   if(alreadyConnected)
     {
       // take the first one, to copy the device information.
-      vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.begin();
+      std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.begin();
       vtkTDxWinDevice *other=(*it).second;
       vtkTDxWinDevicePrivate *o=this->Private;
       vtkTDxWinDevicePrivate *otherO=other->Private;
@@ -218,7 +218,7 @@ void vtkTDxWinDevice::Initialize()
       o->Keyboard=otherO->Keyboard;
       o->Interactor=this->Interactor;
       
-      vtkWindowHandleToDeviceObjectConnection.insert(vtkstd::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
+      vtkWindowHandleToDeviceObjectConnection.insert(std::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
       this->Initialized=true;
     }
   else
@@ -252,7 +252,7 @@ void vtkTDxWinDevice::Initialize()
               // Connect to the driver
               d->Connect();
               
-              vtkWindowHandleToDeviceObjectConnection.insert(vtkstd::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
+              vtkWindowHandleToDeviceObjectConnection.insert(std::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
 
               vtkDebugMacro(<< "Connected to COM-object for 3dConnexion device.");
             }
@@ -290,7 +290,7 @@ void vtkTDxWinDevice::StartListening()
                                      vtkTDxWinDeviceTimerProc);
   
   vtkWindowHandleToDeviceObject.insert(
-    vtkstd::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
+    std::pair<const HWND,vtkTDxWinDevice *>(this->WindowHandle,this));
   
   this->IsListening=true;
   
@@ -310,7 +310,7 @@ void vtkTDxWinDevice::StopListening()
   this->Private->TimerId=0;
   this->IsListening=false;
   
-  vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(this->WindowHandle);
+  std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(this->WindowHandle);
   
   if(it==vtkWindowHandleToDeviceObject.end())
     {
@@ -343,7 +343,7 @@ void vtkTDxWinDevice::Close()
     this->StopListening();
     }
   
-  vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.find(this->WindowHandle);
+  std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObjectConnection.find(this->WindowHandle);
   
   if(it==vtkWindowHandleToDeviceObjectConnection.end())
     {
@@ -505,7 +505,7 @@ VOID CALLBACK vtkTDxWinDeviceTimerProc(HWND hwnd,
                                        UINT_PTR vtkNotUsed(idEvent),
                                        DWORD vtkNotUsed(dwTime))
 { 
-  vtkstd::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(hwnd);
+  std::map<HWND,vtkTDxWinDevice *,vtkLessThanWindowHandle>::iterator it=vtkWindowHandleToDeviceObject.find(hwnd);
   
   //  cout << "proc for hwnd=" << hwnd << endl;
 

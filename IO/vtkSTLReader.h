@@ -76,14 +76,14 @@ public:
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-
-  // Description:
-  // Create default locator. Used to create one when none is specified.
-  void CreateDefaultLocator();
       
 protected:
   vtkSTLReader();
   ~vtkSTLReader();
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  vtkIncrementalPointLocator* NewDefaultLocator();
 
   char *FileName;
   int Merging;

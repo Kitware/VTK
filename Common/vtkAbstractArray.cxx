@@ -50,7 +50,7 @@ vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 
 namespace
 {
-  typedef  vtkstd::vector< vtkStdString* > vtkInternalComponentNameBase;
+  typedef  std::vector< vtkStdString* > vtkInternalComponentNameBase;
 }
 class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentNameBase {};
 

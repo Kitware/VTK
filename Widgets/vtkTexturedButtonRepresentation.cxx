@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkTexturedButtonRepresentation);
 
@@ -40,8 +40,8 @@ vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation,HoveringProperty,vtkPropert
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation,SelectingProperty,vtkProperty);
 
 // Map of textures
-class vtkTextureArray : public vtkstd::map<int,vtkSmartPointer<vtkImageData> > {};
-typedef vtkstd::map<int,vtkSmartPointer<vtkImageData> >::iterator vtkTextureArrayIterator;
+class vtkTextureArray : public std::map<int,vtkSmartPointer<vtkImageData> > {};
+typedef std::map<int,vtkSmartPointer<vtkImageData> >::iterator vtkTextureArrayIterator;
 
 
 //----------------------------------------------------------------------

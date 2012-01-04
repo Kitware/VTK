@@ -26,7 +26,7 @@
 #include "vtkExecutive.h"
 #include "vtkMath.h"
 #include "vtkPixel.h"
-#include <vtkstd/vector>
+#include <vector>
 
 // Define the edge list class--------------------------------------------------
 struct vtkEdge
@@ -39,7 +39,7 @@ struct vtkEdge
   double    tNeg; //parametric coordinates where negative maximum error occurs
 };
 
-class vtkEdgeList : public vtkstd::vector<vtkEdge> {};
+class vtkEdgeList : public std::vector<vtkEdge> {};
 typedef vtkEdgeList EdgeListType;
 typedef vtkEdgeList::iterator EdgeListIterator;
 

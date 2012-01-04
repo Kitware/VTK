@@ -44,7 +44,7 @@ namespace
     { \
     vtksys_ios::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -155,7 +155,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch( vtkstd::exception& e )
+  catch( std::exception& e )
     {
     cerr << e.what() 
          << "\n";

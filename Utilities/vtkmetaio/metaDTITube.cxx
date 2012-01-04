@@ -488,30 +488,28 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
         {
-        char* num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_X[d] = (float)td;
-        delete [] num;
         }
 
       for(d=0; d<6; d++)
         {
-        char* num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_TensorMatrix[d] = (float)td;
-        delete [] num;
         }
 
       METAIO_STL::vector<PositionType>::const_iterator itFields =
@@ -531,16 +529,15 @@ M_Read(void)
           && strcmp((*itFields).first.c_str(),"tensor6")
           )
           {
-          char* num = new char[sizeof(float)];
+          float td;
+          char * const num = (char *)(&td);
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
             }
-          float td = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
           i+=sizeof(float);
           pnt->AddField((*itFields).first.c_str(),(float)td);
-          delete [] num;
           }
         itFields++;
         }

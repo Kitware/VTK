@@ -445,9 +445,9 @@ vtkStdString vtkSQLiteDatabase::GetURL()
 // ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::ParseURL(const char* URL)
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string dataglom;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string dataglom;
 
   if ( ! vtksys::SystemTools::ParseURLProtocol( urlstr, protocol, dataglom))
     {

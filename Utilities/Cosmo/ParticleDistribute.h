@@ -61,10 +61,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef USE_VTK_COSMO
 #include "CosmoDefinition.h"
-#include "vtkstd/string"
-#include "vtkstd/vector"
+#include <string>
+#include <vector>
 
-using namespace vtkstd;
+using namespace std;
 #else
 #include "Definition.h"
 #include <string>

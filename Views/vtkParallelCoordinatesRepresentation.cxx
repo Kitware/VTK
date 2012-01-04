@@ -78,7 +78,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
@@ -167,9 +167,9 @@ void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it,
 class vtkParallelCoordinatesRepresentation::Internals
 {
 public:
-  vtkstd::vector< vtkSmartPointer<vtkPolyData> > SelectionData;
-  vtkstd::vector< vtkSmartPointer<vtkPolyDataMapper2D> > SelectionMappers;
-  vtkstd::vector< vtkSmartPointer<vtkActor2D> > SelectionActors;
+  std::vector< vtkSmartPointer<vtkPolyData> > SelectionData;
+  std::vector< vtkSmartPointer<vtkPolyDataMapper2D> > SelectionMappers;
+  std::vector< vtkSmartPointer<vtkActor2D> > SelectionActors;
   static const double Colors[10][3];
   static const unsigned int NumberOfColors = 10;
   double *GetColor(unsigned int idx) 
@@ -626,7 +626,7 @@ void vtkParallelCoordinatesRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 {
   this->Superclass::ApplyViewTheme(theme);
 
-  double opacity = vtkstd::max(0.0,vtkstd::min(1.0,theme->GetCellOpacity()));
+  double opacity = std::max(0.0,std::min(1.0,theme->GetCellOpacity()));
   this->SetLineOpacity(opacity);
   this->SetLineColor(theme->GetCellColor());
   this->SetAxisColor(theme->GetEdgeLabelColor());
@@ -1924,7 +1924,7 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
     }
 
   vtkSmartPointer<vtkIdTypeArray> unselected = vtkSmartPointer<vtkIdTypeArray>::New();
-  vtkstd::vector<int> idxs(numNodes,0);
+  std::vector<int> idxs(numNodes,0);
  
   for (int i=0; i<this->NumberOfSamples; i++)
     {

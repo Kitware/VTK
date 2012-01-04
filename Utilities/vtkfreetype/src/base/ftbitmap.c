@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType utility functions for bitmaps (body).                       */
 /*                                                                         */
-/*  Copyright 2004, 2005, 2006, 2007, 2008, 2009 by                        */
+/*  Copyright 2004-2009, 2011 by                                           */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -105,7 +105,7 @@
     int             new_pitch;
     FT_UInt         bpp;
     FT_Int          i, width, height;
-    unsigned char*  buffer;
+    unsigned char*  buffer = NULL;
 
 
     width  = bitmap->width;
@@ -416,6 +416,10 @@
         }
 
         target->pitch = source->width + pad;
+
+        if ( target->pitch > 0                           &&
+             target->rows > (int)(FT_ULONG_MAX / target->pitch) )
+          return FT_Err_Invalid_Argument;
 
         if ( target->rows * target->pitch > old_size             &&
              FT_QREALLOC( target->buffer,

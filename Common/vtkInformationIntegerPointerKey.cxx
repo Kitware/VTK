@@ -16,8 +16,8 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 
 //----------------------------------------------------------------------------

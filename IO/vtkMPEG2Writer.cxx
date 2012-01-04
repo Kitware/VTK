@@ -22,8 +22,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkErrorCode.h"
 
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 
 #include "mpeg2enc_config.h"
 #include "mpeg2enc_global.h"
@@ -37,7 +37,7 @@ public:
   vtkMPEG2WriterInternal();
   ~vtkMPEG2WriterInternal();
 
-  typedef vtkstd::map<vtkstd::string, vtkSmartPointer<vtkImageData> > StringToImageMap;
+  typedef std::map<std::string, vtkSmartPointer<vtkImageData> > StringToImageMap;
 
   int StoreImage(const char* name, vtkImageData* id);
   unsigned char* GetImagePtr(const char* name);

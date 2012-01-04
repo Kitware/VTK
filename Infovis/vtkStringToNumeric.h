@@ -34,6 +34,40 @@ public:
   static vtkStringToNumeric* New();
   vtkTypeMacro(vtkStringToNumeric,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Convert all numeric columns to vtkDoubleArray, even if they
+  // contain only integer values. Default is off.
+  vtkSetMacro(ForceDouble, bool);
+  vtkGetMacro(ForceDouble, bool);
+  vtkBooleanMacro(ForceDouble, bool);
+
+  // Description:
+  // Set the default integer value assigned to arrays.  Default is 0.
+  vtkSetMacro(DefaultIntegerValue, int);
+  vtkGetMacro(DefaultIntegerValue, int);
+
+  // Description:
+  // Set the default double value assigned to arrays.  Default is 0.0
+  vtkSetMacro(DefaultDoubleValue, double);
+  vtkGetMacro(DefaultDoubleValue, double);
+
+  // Description:
+  // Whether to trim whitespace from strings prior to conversion to a numeric.
+  // Default is false to preserve backward compatibility.
+  //
+  // vtkVariant handles whitespace inconsistently, so trim it before we try to
+  // convert it.  For example:
+  //
+  // vtkVariant("  2.0").ToDouble() == 2.0 <-- leading whitespace is not a problem
+  // vtkVariant("  2.0  ").ToDouble() == NaN <-- trailing whitespace is a problem
+  // vtkVariant("  infinity  ").ToDouble() == NaN <-- any whitespace is a problem
+  //
+  // In these cases, trimming the whitespace gives us the result we expect:
+  // 2.0 and INF respectively.
+  vtkSetMacro(TrimWhitespacePriorToNumericConversion, bool);
+  vtkGetMacro(TrimWhitespacePriorToNumericConversion, bool);
+  vtkBooleanMacro(TrimWhitespacePriorToNumericConversion, bool);
   
   // Description:
   // Whether to detect and convert field data arrays.  Default is on.
@@ -100,6 +134,10 @@ protected:
   bool ConvertFieldData;
   bool ConvertPointData;
   bool ConvertCellData;
+  bool ForceDouble;
+  int DefaultIntegerValue;
+  double DefaultDoubleValue;
+  bool TrimWhitespacePriorToNumericConversion;
 
   // Description:
   // Count the total number of items (array components) that will need

@@ -19,12 +19,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkUnicodeStringArray::Implementation
 {
 public:
-  typedef vtkstd::vector<vtkUnicodeString> StorageT;
+  typedef std::vector<vtkUnicodeString> StorageT;
   StorageT Storage;
 };
 

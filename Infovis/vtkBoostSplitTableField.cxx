@@ -34,7 +34,7 @@ class vtkBoostSplitTableField::implementation
 public:
   typedef boost::char_separator<char> delimiter_t;
   typedef boost::tokenizer<delimiter_t> tokenizer_t;
-  typedef vtkstd::vector<tokenizer_t*> tokenizers_t;
+  typedef std::vector<tokenizer_t*> tokenizers_t;
   
   static void GenerateRows(const tokenizers_t& tokenizers, const unsigned int column_index, vtkVariantArray* input_row, vtkVariantArray* output_row, vtkTable* output_table)
   {
@@ -49,7 +49,7 @@ public:
 
     if(tokenizer && input_value.IsString())
       {
-      const vtkstd::string value = input_value.ToString();
+      const std::string value = input_value.ToString();
       tokenizer->assign(value);
       for(tokenizer_t::iterator token = tokenizer->begin(); token != tokenizer->end(); ++token)
         {
@@ -147,7 +147,7 @@ int vtkBoostSplitTableField::RequestData(
       {
       if(this->Fields->GetValue(field) == input->GetColumn(column)->GetName())
         {
-        tokenizers[column] = new implementation::tokenizer_t(vtkstd::string(), implementation::delimiter_t(this->Delimiters->GetValue(field)));
+        tokenizers[column] = new implementation::tokenizer_t(std::string(), implementation::delimiter_t(this->Delimiters->GetValue(field)));
         break;
         }
       }

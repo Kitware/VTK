@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 
 #include <ctype.h>
-#include <vtkstd/exception>
+#include <exception>
 
 vtkStandardNewMacro(vtkImageImport);
 
@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkImageImport);
       {\
       invocation;\
       }\
-    catch (vtkstd::exception &_e)\
+    catch (std::exception &_e)\
       {\
       vtkErrorMacro(<<messagePrepend <<_e.what());\
       }\
@@ -303,7 +303,7 @@ int vtkImageImport::InvokePipelineModifiedCallbacks()
       {
       ret = (this->PipelineModifiedCallback)(this->CallbackUserData);
       }
-    catch (vtkstd::exception &_e)
+    catch (std::exception &_e)
       {
       vtkErrorMacro(<<"Calling PipelineModifiedCallback: " << _e.what());
       // if an error occurred, we don't want the pipeline to run again

@@ -26,7 +26,7 @@
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 //BTX
-#include <vtkstd/vector> // for the lists of logical buffers.
+#include <vector> // for the lists of logical buffers.
 //ETX
 
 class vtkRenderWindow;
@@ -212,10 +212,10 @@ protected:
   // Load all necessary extensions.
   bool LoadRequiredExtensions(vtkOpenGLExtensionManager *manager);
 
-  vtkstd::vector<unsigned int> UserZSlices;
-  vtkstd::vector<vtkSmartPointer<vtkTextureObject> > UserColorBuffers;
-  vtkstd::vector<vtkSmartPointer<vtkTextureObject> > ColorBuffers;
-  vtkstd::vector<unsigned int> ActiveBuffers;
+  std::vector<unsigned int> UserZSlices;
+  std::vector<vtkSmartPointer<vtkTextureObject> > UserColorBuffers;
+  std::vector<vtkSmartPointer<vtkTextureObject> > ColorBuffers;
+  std::vector<unsigned int> ActiveBuffers;
   vtkSmartPointer<vtkTextureObject> UserDepthBuffer;
   bool DepthBufferDirty;
 private:

@@ -29,13 +29,13 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 
 //----------------------------------------------------------------------------
-typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
+typedef std::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
 class vtkEnSightReaderCellIdsType: public vtkEnSightReaderCellIdsTypeBase {};
 
 //----------------------------------------------------------------------------
@@ -420,7 +420,7 @@ int vtkEnSightReader::RequestInformation(
   this->CaseFileRead = this->ReadCaseFile();
 
   // Convert time steps to one sorted and uniquefied list.
-  vtkstd::vector<double> timeValues;
+  std::vector<double> timeValues;
   if (this->GetTimeSets())
     {
     int numItems = this->GetTimeSets()->GetNumberOfItems();
@@ -439,10 +439,10 @@ int vtkEnSightReader::RequestInformation(
     }
   if (timeValues.size() > 0)
     {
-    vtkstd::sort(timeValues.begin(), timeValues.end());
-    vtkstd::vector<double> uniqueTimeValues(
+    std::sort(timeValues.begin(), timeValues.end());
+    std::vector<double> uniqueTimeValues(
       timeValues.begin(),
-      vtkstd::unique(timeValues.begin(), timeValues.end()));
+      std::unique(timeValues.begin(), timeValues.end()));
     int numTimeValues = static_cast<int>(uniqueTimeValues.size());
     if (numTimeValues > 0)
       {
@@ -1329,7 +1329,7 @@ int vtkEnSightReader::ReadCaseFile()
     vtkErrorMacro("A CaseFileName must be specified.");
     return 0;
     }
-  vtkstd::string sfilename;
+  std::string sfilename;
   if (this->FilePath)
     {
     sfilename = this->FilePath;

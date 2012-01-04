@@ -3,7 +3,7 @@
 
 #include "vtkStatisticsAlgorithm.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkDataArray;
 class vtkTable;
@@ -28,12 +28,12 @@ public:
   vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>( this->Columns.size() ); }
   vtkDataArray* GetColumn( vtkIdType colIdx ) { return this->Columns[colIdx]; }
 
-  vtkstd::vector<vtkDataArray*> Columns; // Source of data
+  std::vector<vtkDataArray*> Columns; // Source of data
   double* Center; // Offset per column (usu. to re-center the data about the mean)
-  vtkstd::vector<double> Factor; // Weights per column
+  std::vector<double> Factor; // Weights per column
   //double Normalization; // Scale factor for the volume under a multivariate Gaussian used to normalize the CDF
-  vtkstd::vector<double> Tuple; // Place to store product of detrended input tuple and Cholesky inverse
-  vtkstd::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
+  std::vector<double> Tuple; // Place to store product of detrended input tuple and Cholesky inverse
+  std::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
 };
 
 #endif // __vtkMultiCorrelativeStatisticsAssessFunctor_h

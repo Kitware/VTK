@@ -23,7 +23,9 @@
 #define __vtkContextInteractorStyle_h
 
 #include "vtkInteractorStyle.h"
+#include "vtkNew.h" // For ivars
 
+class vtkContextMouseEvent;
 class vtkContextScene;
 
 class VTK_CHARTS_EXPORT vtkContextInteractorStyle : public vtkInteractorStyle
@@ -40,6 +42,7 @@ public:
   // view is called appropriately: scene is dirty and no event is being
   // processed.
   void SetScene(vtkContextScene* scene);
+
   // Description:
   // Return the observed scene.
   vtkGetObjectMacro(Scene, vtkContextScene);
@@ -98,11 +101,29 @@ public:
   // Default behavior forwards the event to the observed scene.
   virtual void OnSelection(unsigned int rect[5]);
 
+  // Description:
+  // Handle key presses.
+  virtual void OnChar();
+
+  // Description:
+  // Called when the user presses a key.
+  virtual void OnKeyPress();
+
+  // Description:
+  // Called when the user releases a key.
+  virtual void OnKeyRelease();
+
 protected:
   vtkContextInteractorStyle();
   ~vtkContextInteractorStyle();
+
   static void ProcessSceneEvents(vtkObject* object, unsigned long event,
                                  void* clientdata, void* calldata);
+
+  static void ProcessInteractorEvents(vtkObject* object, unsigned long event,
+                                      void* clientdata, void* calldata);
+
+  void RenderNow();
 
   // Description:
   // Inform the interactor style that an event is being processed.
@@ -117,13 +138,20 @@ protected:
   void EndProcessingEvent();
 
   vtkContextScene*    Scene;
-  vtkCallbackCommand* SceneCallbackCommand;
+  vtkNew<vtkCallbackCommand> SceneCallbackCommand;
+  vtkNew<vtkCallbackCommand> InteractorCallbackCommand;
   int                 ProcessingEvents;
   unsigned long int   LastSceneRepaintMTime;
+
+  unsigned long int   TimerId;
+  bool                TimerCallbackInitialized;
 
 private:
   vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
   void operator=(const vtkContextInteractorStyle&); // Not implemented
+
+  void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
+  bool ProcessMousePress(const vtkContextMouseEvent &event);
 };
 
 #endif
