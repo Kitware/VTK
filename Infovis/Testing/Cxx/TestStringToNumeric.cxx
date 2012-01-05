@@ -27,6 +27,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkMath.h"
 
+#include "vtkSmartPointer.h"
 #include "vtkNew.h"
 
 namespace
@@ -43,7 +44,9 @@ int ArrayTypesTest(int argc, char* argv[])
 
   delete [] file;
 
-  vtkNew<vtkStringToNumeric> numeric;
+  vtkSmartPointer<vtkStringToNumeric> numeric =
+    vtkSmartPointer<vtkStringToNumeric>::New();
+
   numeric->SetInputConnection(reader->GetOutputPort());
   numeric->Update();
 
