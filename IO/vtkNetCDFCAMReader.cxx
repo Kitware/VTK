@@ -23,12 +23,29 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <map>
 #include <vtk_netcdfcpp.h>
+
+namespace
+{
+// determine if this is a cell that wraps from 360 to 0 (i.e. if it's
+// a cell that wraps from the right side of the domain to the left side)
+  bool IsCellInverted(double points[4][3])
+  {
+    double normal[3];
+    vtkPolygon::ComputeNormal(4, points[0], normal);
+    if(normal[2] > 0)
+      {
+      return true;
+      }
+    return false;
+  }
+}
 
 vtkStandardNewMacro(vtkNetCDFCAMReader);
 
@@ -332,40 +349,22 @@ int vtkNetCDFCAMReader::RequestData(
   long numCells = dimension->size();
   std::vector<int> cellConnectivity(4*numCells);
   connectivity->get(&(cellConnectivity[0]), 4, numCells);
-  double bounds[6];
-  points->GetBounds(bounds);
-  double leftSide = bounds[0] + .25*(bounds[1]-bounds[0]);
-  double rightSide = bounds[0] + .75*(bounds[1]-bounds[0]);
-  if(1)
-    {
-    leftSide = -300;
-    rightSide = 500;
-    }
+  double leftSide = 1.;
+  double rightSide = 359.;
   for(long i=0;i<numCells;i++)
     {
     vtkIdType pointIds[4];
-    bool nearRightBoundary = false;
-    bool nearLeftBoundary = false;
-    double point[3];
+    double coords[4][3]; // assume quads here
     for(int j=0;j<4;j++)
       {
       pointIds[j] = cellConnectivity[i+j*numCells]-1;
-      points->GetPoint(pointIds[j], point);
-      if(point[0] > rightSide)
-        {
-        nearRightBoundary = true;
-        }
-      else if(point[0] < leftSide)
-        {
-        nearLeftBoundary = true;
-        }
+      points->GetPoint(pointIds[j], coords[j]);
       }
-    if(nearLeftBoundary == true && nearRightBoundary == true)
+    if(IsCellInverted(coords) == true)
       {
       for(int j=0;j<4;j++)
         {
-        points->GetPoint(pointIds[j], point);
-        if(this->CellLayerRight && point[0] < leftSide)
+        if(this->CellLayerRight && coords[j][0] < leftSide)
           {
           std::map<vtkIdType, vtkIdType>::iterator otherPoint =
             boundaryPoints.find(pointIds[j]);
@@ -376,24 +375,24 @@ int vtkNetCDFCAMReader::RequestData(
           else
             { // need to make point on the right boundary
             vtkIdType index =
-              points->InsertNextPoint(point[0]+360., point[1], point[2]);
+              points->InsertNextPoint(coords[j][0]+360., coords[j][1], coords[j][2]);
             cellConnectivity[i+j*numCells] = index+1;
             boundaryPoints[pointIds[j]] = index;
-            cerr << "making a copy of point " << pointIds[j] << " to " << index << endl;
+            //cerr << "making a copy of point " << pointIds[j] << " to " << index << endl;
             }
           }
-        else if(this->CellLayerRight == 0 && point[0] > rightSide)
+        else if(this->CellLayerRight == 0 && coords[j][0] > rightSide)
           {
           std::map<vtkIdType, vtkIdType>::iterator otherPoint =
             boundaryPoints.find(pointIds[j]);
           if(otherPoint != boundaryPoints.end())
             { // already made point on the right boundary
-            cellConnectivity[i+j*numCells] = otherPoint->second;
+            cellConnectivity[i+j*numCells] = otherPoint->second+1;
             }
           else
             { // need to make point on the right boundary
             vtkIdType index =
-              points->InsertNextPoint(point[0]-360., point[1], point[2]);
+              points->InsertNextPoint(coords[j][0]-360., coords[j][1], coords[j][2]);
             cellConnectivity[i+j*numCells] = index+1;
             boundaryPoints[pointIds[j]] = index;
             }
@@ -541,8 +540,6 @@ int vtkNetCDFCAMReader::RequestData(
 
   this->SetProgress(.75);  // educated guess for progress
 
-  double maxCellLength = 0;
-  long maxCellLengthId = -1;
   // now we actually create the cells
   output->Allocate(numCells*(levelData.size()-1));
   for(long i=0;i<numCells;i++)
@@ -568,27 +565,9 @@ int vtkNetCDFCAMReader::RequestData(
     else if(numLevels == 1)
       { // surface grid
       output->InsertNextCell(VTK_QUAD, 4, pointIds);
-      double cellpoints[6];
-      for(int j=0;j<4;j++)
-        {
-        output->GetPoint(pointIds[j], cellpoints+j);
-        }
-      double cellLength =
-        std::max(
-          fabs(cellpoints[1]-cellpoints[0]),
-          std::max(fabs(cellpoints[2]-cellpoints[0]),
-                   std::max(fabs(cellpoints[3]-cellpoints[0]),
-                            std::max(fabs(cellpoints[2]-cellpoints[1]),
-                                     std::max(fabs(cellpoints[3]-cellpoints[1]), fabs(cellpoints[3]-cellpoints[2]))))));
-      if(maxCellLength < cellLength)
-        {
-        maxCellLength = cellLength;
-        maxCellLengthId = i;
-        }
       }
     }
 
-  cerr << "max cell length is " << maxCellLength << " at id " << maxCellLengthId << endl;
   vtkDebugMacro(<<"Read " << output->GetNumberOfPoints() <<" points,"
                 << output->GetNumberOfCells() <<" cells.\n");
 
