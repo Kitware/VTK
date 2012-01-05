@@ -39,6 +39,8 @@ vtkNetCDFCAMReader::vtkNetCDFCAMReader()
   this->ConnectivityFileName = NULL;
   this->PointsFile = NULL;
   this->ConnectivityFile = NULL;
+  this->SingleLevel = 0;
+  this->CellLayerRight = 1;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -87,6 +89,7 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
   if (this->FileName)
     {
     delete [] this->FileName;
+    this->FileName = NULL;
     }
   if (fileName)
     {
@@ -247,6 +250,10 @@ int vtkNetCDFCAMReader::RequestData(
     vtkErrorMacro("The lev variable is not consistent.");
     return 0;
     }
+  if(this->SingleLevel != 0)
+    {
+    numLevels = 1;
+    }
   NcDim* dimension = this->PointsFile->get_dim("ncol");
   if(dimension == NULL)
     {
@@ -298,7 +305,6 @@ int vtkNetCDFCAMReader::RequestData(
       points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
       }
     }
-
   this->SetProgress(.25);  // educated guess for progress
 
   // now read in the cell connectivity.  note that this is a periodic
@@ -306,6 +312,8 @@ int vtkNetCDFCAMReader::RequestData(
   // the points file.  if a cell uses a point that is on the left
   // boundary and it should be on the right boundary we will have
   // to create that point.  that's what boundaryPoints is used for.
+  // note that if this->CellLayerRight is false then we do the opposite
+  // and make the 'connecting' cell on the left side of the domain
   // we don't actually build the cells yet though.
   std::map<vtkIdType, vtkIdType> boundaryPoints;
   dimension = this->ConnectivityFile->get_dim("ncells");
@@ -328,6 +336,11 @@ int vtkNetCDFCAMReader::RequestData(
   points->GetBounds(bounds);
   double leftSide = bounds[0] + .25*(bounds[1]-bounds[0]);
   double rightSide = bounds[0] + .75*(bounds[1]-bounds[0]);
+  if(1)
+    {
+    leftSide = -300;
+    rightSide = 500;
+    }
   for(long i=0;i<numCells;i++)
     {
     vtkIdType pointIds[4];
@@ -352,18 +365,37 @@ int vtkNetCDFCAMReader::RequestData(
       for(int j=0;j<4;j++)
         {
         points->GetPoint(pointIds[j], point);
-        if(point[0] < leftSide)
+        if(this->CellLayerRight && point[0] < leftSide)
           {
           std::map<vtkIdType, vtkIdType>::iterator otherPoint =
             boundaryPoints.find(pointIds[j]);
           if(otherPoint != boundaryPoints.end())
             { // already made point on the right boundary
-            pointIds[j] = otherPoint->second;
+            cellConnectivity[i+j*numCells] = otherPoint->second + 1;
             }
           else
             { // need to make point on the right boundary
-            pointIds[j] = boundaryPoints[pointIds[j]] =
+            vtkIdType index =
               points->InsertNextPoint(point[0]+360., point[1], point[2]);
+            cellConnectivity[i+j*numCells] = index+1;
+            boundaryPoints[pointIds[j]] = index;
+            cerr << "making a copy of point " << pointIds[j] << " to " << index << endl;
+            }
+          }
+        else if(this->CellLayerRight == 0 && point[0] > rightSide)
+          {
+          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
+            boundaryPoints.find(pointIds[j]);
+          if(otherPoint != boundaryPoints.end())
+            { // already made point on the right boundary
+            cellConnectivity[i+j*numCells] = otherPoint->second;
+            }
+          else
+            { // need to make point on the right boundary
+            vtkIdType index =
+              points->InsertNextPoint(point[0]-360., point[1], point[2]);
+            cellConnectivity[i+j*numCells] = index+1;
+            boundaryPoints[pointIds[j]] = index;
             }
           }
         }
@@ -373,16 +405,19 @@ int vtkNetCDFCAMReader::RequestData(
   // we now have all of the points at a single level.  build them up
   // for the rest of the levels before creating the cells.
   vtkIdType numPointsPerLevel = points->GetNumberOfPoints();
-  // a hacky way to resize the points array without resetting the data
-  points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
-  for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
+  if(numLevels > 1)
     {
-    double point[3];
-    points->GetPoint(pt, point);
-    for(long lev=1;lev<numLevels;lev++)
+    // a hacky way to resize the points array without resetting the data
+    points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
+    for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
       {
-      point[2] = numLevels - lev;
-      points->SetPoint(pt+lev*numPointsPerLevel, point);
+      double point[3];
+      points->GetPoint(pt, point);
+      for(long lev=1;lev<numLevels;lev++)
+        {
+        point[2] = numLevels - lev;
+        points->SetPoint(pt+lev*numPointsPerLevel, point);
+        }
       }
     }
   points->Modified();
@@ -397,13 +432,20 @@ int vtkNetCDFCAMReader::RequestData(
   for(int i=0;i<this->PointsFile->num_vars();i++)
     {
     NcVar* variable = this->PointsFile->get_var(i);
-    if(variable->num_dims() != 3 ||
-       strcmp(variable->get_dim(0)->name(), "time") != 0 ||
-       strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
-       strcmp(variable->get_dim(2)->name(), "ncol") != 0)
-      { // not a field variable
+    if(numLevels > 1 && (variable->num_dims() != 3 ||
+                         strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                         strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
+                         strcmp(variable->get_dim(2)->name(), "ncol") != 0) )
+      { // not a 3D field variable
       continue;
       }
+    else if(numLevels == 1 && ((variable->num_dims() != 2 ||
+                                strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                                strcmp(variable->get_dim(1)->name(), "ncol") != 0) ) )
+      { // not a 2D field variable
+      continue;
+      }
+
     vtkDoubleArray* doubleArray = NULL;
     vtkFloatArray* floatArray = NULL;
     if(variable->type() == ncDouble)
@@ -422,22 +464,47 @@ int vtkNetCDFCAMReader::RequestData(
       output->GetPointData()->AddArray(floatArray);
       floatArray->Delete();
       }
-    for(long lev=0;lev<numLevels;lev++)
+    if(numLevels > 1)
       {
-      variable->set_cur(0, lev, 0);
+      for(long lev=0;lev<numLevels;lev++)
+        {
+        variable->set_cur(0, lev, 0);
+        if(doubleArray)
+          {
+          if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
+                            1, 1, numFilePoints))
+            {
+            vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
+            return 0;
+            }
+          }
+        else
+          {
+          if(!variable->get(floatArray->GetPointer(0)+lev*numPointsPerLevel,
+                            1, 1, numFilePoints))
+            {
+            vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
+            return 0;
+            }
+          }
+        }
+      }
+    else if(numLevels == 1)
+      {
+      variable->set_cur(0, 0);
       if(doubleArray)
         {
-        if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
-                          1, 1, numFilePoints))
+        if(!variable->get(doubleArray->GetPointer(0), 1, numFilePoints))
           {
+          vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
           return 0;
           }
         }
       else
         {
-        if(!variable->get(floatArray->GetPointer(0)+lev*numPointsPerLevel,
-                          1, 1, numFilePoints))
+        if(!variable->get(floatArray->GetPointer(0), 1, numFilePoints))
           {
+          vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
           return 0;
           }
         }
@@ -474,50 +541,54 @@ int vtkNetCDFCAMReader::RequestData(
 
   this->SetProgress(.75);  // educated guess for progress
 
+  double maxCellLength = 0;
+  long maxCellLengthId = -1;
   // now we actually create the cells
   output->Allocate(numCells*(levelData.size()-1));
   for(long i=0;i<numCells;i++)
     {
     vtkIdType pointIds[4];
-    bool nearRightBoundary = false;
-    bool nearLeftBoundary = false;
-    double point[3];
     for(int j=0;j<4;j++)
       {
       pointIds[j] = cellConnectivity[i+j*numCells]-1;
-      output->GetPoint(pointIds[j], point);
-      if(point[0] > rightSide)
-        {
-        nearRightBoundary = true;
-        }
-      else if(point[0] < leftSide)
-        {
-        nearLeftBoundary = true;
-        }
       }
-    if(nearLeftBoundary == true && nearRightBoundary == true)
-      {
-      for(int j=0;j<4;j++)
+    if(numLevels > 1)
+      { // volumetric grid
+      for(size_t lev=0;lev<levelData.size()-1;lev++)
         {
-        output->GetPoint(pointIds[j], point);
-        if(point[0] < leftSide)
+        vtkIdType hexIds[8];
+        for(int j=0;j<4;j++)
           {
-          pointIds[j] = boundaryPoints[pointIds[j]];
+          hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
+          hexIds[j+4] = pointIds[j]+(1+lev)*numPointsPerLevel;
           }
+        output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
         }
       }
-    for(size_t lev=0;lev<levelData.size()-1;lev++)
-      {
-      vtkIdType hexIds[8];
+    else if(numLevels == 1)
+      { // surface grid
+      output->InsertNextCell(VTK_QUAD, 4, pointIds);
+      double cellpoints[6];
       for(int j=0;j<4;j++)
         {
-        hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
-        hexIds[j+4] = pointIds[j]+(1+lev)*numPointsPerLevel;
+        output->GetPoint(pointIds[j], cellpoints+j);
         }
-      output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
+      double cellLength =
+        std::max(
+          fabs(cellpoints[1]-cellpoints[0]),
+          std::max(fabs(cellpoints[2]-cellpoints[0]),
+                   std::max(fabs(cellpoints[3]-cellpoints[0]),
+                            std::max(fabs(cellpoints[2]-cellpoints[1]),
+                                     std::max(fabs(cellpoints[3]-cellpoints[1]), fabs(cellpoints[3]-cellpoints[2]))))));
+      if(maxCellLength < cellLength)
+        {
+        maxCellLength = cellLength;
+        maxCellLengthId = i;
+        }
       }
     }
 
+  cerr << "max cell length is " << maxCellLength << " at id " << maxCellLengthId << endl;
   vtkDebugMacro(<<"Read " << output->GetNumberOfPoints() <<" points,"
                 << output->GetNumberOfCells() <<" cells.\n");
 

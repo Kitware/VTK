@@ -50,6 +50,24 @@ public:
   void SetConnectivityFileName(const char* fileName);
   vtkGetStringMacro(ConnectivityFileName);
 
+  // Description:
+  // Set whether or not to read a single level.  A non-zero
+  // value indicates that only a single level will be read in.
+  // The NetCDF variables loaded will then be ones with dimensions
+  // of (time, ncols).  This will result in a surface grid. Otherwise
+  // a volumetric grid will be created (if lev > 1) and the variables
+  // with dimensions of (time, lev, ncols) will be read in.
+  // By default, SingleLevel = 0.
+  vtkSetMacro(SingleLevel, int);
+  vtkGetMacro(SingleLevel, int);
+
+  // Description:
+  // Specify which "side" of the domain to add the connecting
+  // cells at.  0 indicates left side and 1 indicates right side.
+  // The default is the right side.
+  vtkSetMacro(CellLayerRight, int);
+  vtkGetMacro(CellLayerRight, int);
+
 protected:
   vtkNetCDFCAMReader();
   ~vtkNetCDFCAMReader();
@@ -72,6 +90,10 @@ private:
   // Description:
   // The file name that contains the cell connectivity information.
   char* ConnectivityFileName;
+
+  int SingleLevel;
+
+  int CellLayerRight;
 
   // Description:
   // The NetCDF file descriptors.  NULL indicates they haven't
