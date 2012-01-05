@@ -1482,27 +1482,27 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
             this->GridPointData[Neighbor.NeighborID], srcIdx,
             this->GhostedGridPointData[gridID], targetIdx );
 
-//        if( this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
-//          {
-//          // Compute the source cell idx. Note, since we are passing to
-//          // ComputePointIdForExtent a cell extent, this is a cell id, not
-//          // a point id.
-//          vtkIdType sourceCellIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  NeighborCellExtent, ijk, this->DataDescription );
-//
-//          // Compute the target cell idx. Note, since we are passing to
-//          // ComputePointIdForExtent a cell extent, this is a cell id, not
-//          // a point id.
-//          vtkIdType targetCellIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  GhostedGridCellExtent, ijk, this->DataDescription );
-//
-//          // Transfer cell data from the registered grid to the ghosted grid
-//          this->CopyFieldData(
-//              this->GridCellData[Neighbor.NeighborID], sourceCellIdx,
-//              this->GhostedGridCellData[gridID], targetCellIdx );
-//          } // END if node is within cell extent
+        if( this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
+          {
+          // Compute the source cell idx. Note, since we are passing to
+          // ComputePointIdForExtent a cell extent, this is a cell id, not
+          // a point id.
+          vtkIdType sourceCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  NeighborCellExtent, ijk, this->DataDescription );
+
+          // Compute the target cell idx. Note, since we are passing to
+          // ComputePointIdForExtent a cell extent, this is a cell id, not
+          // a point id.
+          vtkIdType targetCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridCellExtent, ijk, this->DataDescription );
+
+          // Transfer cell data from the registered grid to the ghosted grid
+          this->CopyFieldData(
+              this->GridCellData[Neighbor.NeighborID], sourceCellIdx,
+              this->GhostedGridCellData[gridID], targetCellIdx );
+          } // END if node is within cell extent
 
         } // END for all k
       } // END for all j
@@ -1543,6 +1543,12 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
     this->ComputeNeighborSendAndRcvExtent( i, N );
+    }
+  this->Print( std::cout );
+
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
+    {
+//    this->ComputeNeighborSendAndRcvExtent( i, N );
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
     this->InitializeGhostedFieldData( i );
