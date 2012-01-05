@@ -24,17 +24,13 @@ vtkStandardNewMacro(vtkPStructuredGridConnectivity);
 vtkPStructuredGridConnectivity::vtkPStructuredGridConnectivity()
 {
   this->Controller       = vtkMultiProcessController::GetGlobalController();
-  this->Rank             = this->Controller->GetLocalProcessId();
-  this->GridConnectivity = vtkStructuredGridConnectivity::New();
+  this->Initialized      = false;
 }
 
 //------------------------------------------------------------------------------
 vtkPStructuredGridConnectivity::~vtkPStructuredGridConnectivity()
 {
-  if( this->GridConnectivity != NULL )
-    {
-    this->GridConnectivity->Delete();
-    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -42,6 +38,17 @@ void vtkPStructuredGridConnectivity::PrintSelf(
     std::ostream& os,vtkIndent indent)
 {
   this->Superclass::PrintSelf( os, indent );
+}
+
+//------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::Initialize()
+{
+  if( !this->Initialized )
+    {
+    this->Rank        = this->Controller->GetLocalProcessId();
+    this->Initialized = true;
+    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -70,14 +77,6 @@ void vtkPStructuredGridConnectivity::RegisterGrid(
 }
 
 //------------------------------------------------------------------------------
-int vtkPStructuredGridConnectivity::GetGridRank( const int gridID )
-{
-  assert( "pre: gridID out-of-bounds!" &&
-          (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
-  return( this->GridRanks[ gridID ] );
-}
-
-//------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::RegisterRemoteGrid(
     const int gridID, int extents[6], int process )
 {
@@ -95,6 +94,7 @@ void vtkPStructuredGridConnectivity::RegisterRemoteGrid(
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::ComputeNeighbors()
 {
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
   assert( "pre: Null multi-process controller" && (this->Controller != NULL) );
 
   this->ExchangeGridExtents();
@@ -105,8 +105,51 @@ void vtkPStructuredGridConnectivity::ComputeNeighbors()
 }
 
 //------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
+{
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
+  if( N==0 )
+    {
+    vtkWarningMacro(
+        "N=0 ghost layers requested! No ghost layers will be created!" );
+    this->Controller->Barrier();
+    return;
+    }
+
+  this->NumberOfGhostLayers += N;
+  this->AllocateInternalDataStructures();
+  this->GhostedExtents.resize(this->NumberOfGrids*6, -1 );
+
+  // TODO: implement this
+  this->ExchangeGhostData();
+  this->Controller->Barrier();
+
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
+    {
+    this->CreateGhostedExtent( i, N );
+    this->CreateGhostedMaskArrays( i );
+    if( this->IsGridLocal( i )  )
+      {
+      this->InitializeGhostedFieldData( i );
+      this->TransferRegisteredDataToGhostedData( i );
+      // TODO: transfer neighbor data
+      }
+
+    } // END for all grids
+  this->Controller->Barrier();
+}
+
+//------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::ExchangeGhostData()
+{
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::ExchangeGridExtents()
 {
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
   assert( "pre: Controlles is NULL!" && (this->Controller != NULL) );
 
   // STEP 0: Serialize the data buffer
@@ -161,6 +204,7 @@ void vtkPStructuredGridConnectivity::ExchangeGridExtents()
 void vtkPStructuredGridConnectivity::SerializeGridExtents(
     int *&sndbuffer, vtkIdType &N )
 {
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
   assert( "pre: send buffer is expected ot be NULL" && sndbuffer == NULL );
 
   //Each local extent is serialized with 7 ints:ID imin imax jmin jmax kmin kmax
@@ -186,6 +230,7 @@ void vtkPStructuredGridConnectivity::DeserializeGridExtentForProcess(
     int *rcvbuffer, vtkIdType &N, const int processId )
 {
   // Sanity checks
+  assert( "pre: Instance has not been intialized!" && this->Initialized );
   assert( "pre: Process controller should not be NULL!" &&
           (this->Controller != NULL) );
   assert( "pre: rcvbuffer should not be NULL" && (rcvbuffer != NULL) );
