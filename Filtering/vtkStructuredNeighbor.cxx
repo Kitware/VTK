@@ -52,11 +52,11 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
     {
     this->RcvExtent[i*2]         =
     this->SendExtent[i*2]        =
-    this->OverlapExtent[ i*2 ]   = overlap[i*2];
+    this->OverlapExtent[ i*2 ]   = overlap[ i*2 ];
 
     this->RcvExtent[i*2+1]       =
     this->SendExtent[i*2+1]      =
-    this->OverlapExtent[ i*2+1 ] = overlap[i*2+1];
+    this->OverlapExtent[ i*2+1 ] = overlap[ i*2+1 ];
 
     this->Orientation[ i ]       = orient[ i ];
     }
@@ -76,23 +76,17 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
     {
     switch( this->Orientation[i] )
       {
+      case vtkStructuredNeighbor::SUBSET_HI:
       case vtkStructuredNeighbor::HI:
         this->RcvExtent[i*2+1] += N;
         this->SendExtent[i*2]  -= N;
         break;
+      case vtkStructuredNeighbor::SUBSET_LO:
       case vtkStructuredNeighbor::LO:
         this->RcvExtent[i*2]    -= N;
         this->SendExtent[i*2+1] += N;
         break;
-      case vtkStructuredNeighbor::LO_SUBSET:
-        this->RcvExtent[i*2+1] += N;
-        this->SendExtent[i*2]  -= N;
-        break;
-      case vtkStructuredNeighbor::HI_SUBSET:
-        this->RcvExtent[i*2]    -= N;
-        this->SendExtent[i*2+1] += N;
-        break;
-      case vtkStructuredNeighbor::SUBSET:
+      case vtkStructuredNeighbor::SUBSET_BOTH:
         this->RcvExtent[i*2]    -= N;
         this->SendExtent[i*2+1] += N;
         this->RcvExtent[i*2+1]  += N;

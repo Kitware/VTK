@@ -27,24 +27,29 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
   public:
 
     // An enum that defines the neighboring orientation which is stored in a
-    // 3-tuple vtkStructuredNeighbor::Orientation. In each dimension, a normal
-    // to the neighbor can be drawn
+    // 3-tuple vtkStructuredNeighbor::Orientation. In each dimension, there
+    // is a high and low end, the orientation tuple defines how to grow ghost
+    // layers along each dimension.
     enum NeighborOrientation
       {
-      LO          = -1, // normal to neighbor points away from the min
+      SUBSET_LO   = -2, // The grid is a subset of the neighboring grid and the
+                        // ghost layers are pointing away from the low end
+      LO          = -1, // The grid partially overlap with its neighbor on the
+                        // low end, thus, ghost layers are pointing away from
+                        // the low end
       ONE_TO_ONE  =  0, // grids abut 1-to-1 in both HI and LO, the
                         // cardinality of both grids is the same in the
                         // corresponding dimension.
-      HI          =  1, // normal to neighbor points away from the max
-      LO_SUBSET   =  2, // grids overlap in both HI,LO, normal points away
-                        // from the LO of the neighboring grid.
-      HI_SUBSET   =  3, // grids overlap in both HI,LO, normal points aways
-                        // from the HI of the neighboring grid.
-      SUBSET      =  4, // grids overlap in both HI,LO, the grid is a subset of
-                        // of the neighboring grid which is strictly inclusive.
-      SUPERSET    =  5, // grid is a superset of the neighboring grid in the
+      HI          =  1, // The grid partially overlaps with its neighbor on the
+                        // high end, thus, ghost layers are pointing away from
+                        // the high end
+      SUBSET_HI   =  2, // The grid is a subset of the neighboring grid and the
+                        // ghost layers are pointing away from the high end
+      SUBSET_BOTH =  3, // The grid is a subset of the neighboring grid and the
+                        // ghost layers grow from both low and high ends.
+      SUPERSET    =  4, // grid is a superset of the neighboring grid in the
                         // given direction.
-      UNDEFINED   =  6  // the neighboring relationship is undefined, e.g., if
+      UNDEFINED   =  5  // the neighboring relationship is undefined, e.g., if
                         // we are checking 2D data, the neighbor orientation
                         // in the 3rd dimension is undefined.
       };
@@ -85,10 +90,6 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N );
 
     // Description:
-    // Flips the orientation of this neighbor.
-    void FlipOrientation();
-
-    // Description:
     // Computes the SendExtent and the RcvExtent for this neighbor. The method
     // assumes that the overlap extent and orientation are already computed.
     // Using this information, the method grows the overlap extent to form the
@@ -117,37 +118,6 @@ inline vtkStructuredNeighbor& vtkStructuredNeighbor::operator=(
       } // END for
     } // END if
   return *this;
-}
-
-//------------------------------------------------------------------------------
-inline void vtkStructuredNeighbor::FlipOrientation()
-{
-  for( int i=0; i < 3; ++i )
-    {
-    switch( this->Orientation[i] )
-      {
-      case vtkStructuredNeighbor::LO:
-        this->Orientation[ i ] = vtkStructuredNeighbor::HI;
-        break;
-      case vtkStructuredNeighbor::HI:
-        this->Orientation[ i ] = vtkStructuredNeighbor::LO;
-        break;
-      case vtkStructuredNeighbor::LO_SUBSET:
-        this->Orientation[ i ] = vtkStructuredNeighbor::LO;
-        break;
-      case vtkStructuredNeighbor::HI_SUBSET:
-        this->Orientation[ i ] = vtkStructuredNeighbor::HI;
-        break;
-      case vtkStructuredNeighbor::SUBSET:
-        this->Orientation[ i ] = vtkStructuredNeighbor::SUPERSET;
-        break;
-      case vtkStructuredNeighbor::SUPERSET:
-        this->Orientation[ i ] = vtkStructuredNeighbor::SUBSET;
-        break;
-      default:
-        ; // NO-OP do nothing
-      } // END SWITCH
-    } // END for all dimensions
 }
 
 #endif /* VTKSTRUCTUREDNEIGHBOR_H_ */
