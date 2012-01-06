@@ -191,6 +191,11 @@ public:
   int Iprobe(int source, int tag, int* flag, int* actualSource,
              double* type, int* size);
 
+  // Description:
+  // Given the request objects of a set of non-blocking operations
+  // (send and/or receive) this method blocks until all requests are complete.
+  void WaitAll(const int count, Request requests[]);
+
 //BTX
 
   friend class vtkMPIController;

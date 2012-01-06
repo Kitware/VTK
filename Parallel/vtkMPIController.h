@@ -219,6 +219,12 @@ public:
   { return ((vtkMPICommunicator*)this->Communicator)->Iprobe(
       source, tag, flag, actualSource, type, size); }
 
+  // Description:
+  // Given the request objects of a set of non-blocking operations
+  // (send and/or receive) this method blocks until all requests are complete.
+  void WaitAll(const int count, vtkMPICommunicator::Request requests[])
+  {return ((vtkMPICommunicator*)this->Communicator)->WaitAll(count,requests); };
+
 //ETX
   static const char* GetProcessorName();
 

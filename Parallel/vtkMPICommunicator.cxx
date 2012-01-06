@@ -1477,6 +1477,24 @@ int vtkMPICommunicator::AllReduceVoidArray(
 
   return res;
 }
+
+//-----------------------------------------------------------------------------
+void vtkMPICommunicator::WaitAll(const int count, Request requests[])
+{
+  if( count == 0 )
+    {
+    return;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  MPI_Waitall( count, r, MPI_STATUSES_IGNORE);
+}
+
 //-----------------------------------------------------------------------------
 int vtkMPICommunicator::Iprobe(
   int source, int tag, int* flag, int* actualSource)
