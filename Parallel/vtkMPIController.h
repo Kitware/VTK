@@ -142,6 +142,10 @@ public:
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
+  int NoBlockSend( const unsigned char* data, int length, int remoteProcessId,
+                   int tag, vtkMPICommunicator::Request& req )
+  { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+      (data, length, remoteProcessId, tag, req);}
   int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
@@ -171,6 +175,10 @@ public:
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(unsigned char* data, int length, int remoteProcessId,
+                       int tag, vtkMPICommunicator::Request& req)
+      { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+          (data, length, remoteProcessId, tag, req); }
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive

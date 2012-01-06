@@ -108,6 +108,8 @@ public:
                   int tag, Request& req);
   int NoBlockSend(const char* data, int length, int remoteProcessId, 
                   int tag, Request& req);
+  int NoBlockSend(const unsigned char* data, int length, int remoteProcessId,
+                    int tag, Request& req);
   int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, Request& req);
   int NoBlockSend(const double* data, int length, int remoteProcessId, 
@@ -124,6 +126,8 @@ public:
   int NoBlockReceive(unsigned long* data, int length, 
                      int remoteProcessId, int tag, Request& req);
   int NoBlockReceive(char* data, int length, int remoteProcessId, 
+                     int tag, Request& req);
+  int NoBlockReceive(unsigned char* data, int length, int remoteProcessId,
                      int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
                      int tag, Request& req);
