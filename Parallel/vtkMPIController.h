@@ -222,8 +222,17 @@ public:
   // Description:
   // Given the request objects of a set of non-blocking operations
   // (send and/or receive) this method blocks until all requests are complete.
+  // Note: This method delegates to the communicator
   void WaitAll(const int count, vtkMPICommunicator::Request requests[])
-  {return ((vtkMPICommunicator*)this->Communicator)->WaitAll(count,requests); };
+  {((vtkMPICommunicator*)this->Communicator)->WaitAll(count,requests);};
+
+  // Description:
+  // Blocks until any of the specified requests in the given request array
+  // completes. Upon return, the index in the array of the completed request
+  // object is returned.
+  // Note: this method delegates to the communicator
+  int WaitAny(const int count, vtkMPICommunicator::Request requests[])
+  {return ((vtkMPICommunicator*)this->Communicator)->WaitAny(count,requests);};
 
 //ETX
   static const char* GetProcessorName();

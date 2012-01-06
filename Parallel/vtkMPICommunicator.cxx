@@ -1481,7 +1481,7 @@ int vtkMPICommunicator::AllReduceVoidArray(
 //-----------------------------------------------------------------------------
 void vtkMPICommunicator::WaitAll(const int count, Request requests[])
 {
-  if( count == 0 )
+  if( count < 1 )
     {
     return;
     }
@@ -1493,6 +1493,30 @@ void vtkMPICommunicator::WaitAll(const int count, Request requests[])
     }
 
   MPI_Waitall( count, r, MPI_STATUSES_IGNORE);
+  delete [] r;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::WaitAny(const int count, Request requests[] )
+{
+  if( count < 1 )
+    {
+    vtkErrorMacro("WaitAny must be called with at least one macro" );
+    return -1;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int idx = -1;
+  MPI_Waitany( count, r, &idx, MPI_STATUS_IGNORE );
+  assert( "post: index from MPI_Waitany is out-of-bounds!" &&
+          (idx >= 0) && (idx < count) );
+  delete [] r;
+  return( idx );
 }
 
 //-----------------------------------------------------------------------------

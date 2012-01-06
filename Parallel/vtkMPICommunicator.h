@@ -196,6 +196,12 @@ public:
   // (send and/or receive) this method blocks until all requests are complete.
   void WaitAll(const int count, Request requests[]);
 
+  // Description:
+  // Blocks until any of the specified requests in the given request array
+  // completes. Upon return, the index in the array of the completed request
+  // object is returned.
+  int WaitAny(const int count, Request requests[]);
+
 //BTX
 
   friend class vtkMPIController;
