@@ -162,6 +162,12 @@ void vtkMultiProcessStream::Reset()
 }
 
 //----------------------------------------------------------------------------
+int vtkMultiProcessStream::Size()
+{
+  this->Internals->Data.size();
+}
+
+//----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator << (double value)
 {
   this->Internals->Data.push_back(vtkInternals::double_value);

@@ -65,7 +65,12 @@ public:
   void Reset();
 
   // Description:
+  // Returns the size of the stream.
+  int Size();
+
+  // Description:
   // Serialization methods used to save/restore the stream to/from raw data.
+  // Note: The 1st byte of the raw data buffer consists of the endian type.
   void GetRawData(std::vector<unsigned char>& data) const;
   void SetRawData(const std::vector<unsigned char>& data);
   void SetRawData(const unsigned char*, unsigned int size);
