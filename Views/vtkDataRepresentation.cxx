@@ -107,7 +107,7 @@ void vtkDataRepresentation::SetInternalInput(int port, int conn,
 {
   this->Implementation->InputInternal[std::pair<int, int>(port, conn)] =
     std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> >(
-      producer->GetOutputPort(), producer);
+      this->GetInputConnection(port, conn), producer);
 }
 
 //----------------------------------------------------------------------------
