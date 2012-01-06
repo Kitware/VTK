@@ -53,11 +53,15 @@ vtkStandardNewMacro(vtkNetCDFCAMReader);
 vtkNetCDFCAMReader::vtkNetCDFCAMReader()
 {
   this->FileName = NULL;
+  this->CurrentFileName = NULL;
   this->ConnectivityFileName = NULL;
+  this->CurrentConnectivityFileName = NULL;
   this->PointsFile = NULL;
   this->ConnectivityFile = NULL;
   this->SingleLevel = 0;
   this->CellLayerRight = 1;
+  this->TimeSteps = NULL;
+  this->NumberOfTimeSteps = 0;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -66,7 +70,9 @@ vtkNetCDFCAMReader::vtkNetCDFCAMReader()
 vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
 {
   this->SetFileName(NULL);
+  this->SetCurrentFileName(NULL);
   this->SetConnectivityFileName(NULL);
+  this->SetCurrentConnectivityFileName(NULL);
   if(this->PointsFile)
     {
     delete this->PointsFile;
@@ -76,6 +82,11 @@ vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
     {
     delete this->ConnectivityFile;
     this->ConnectivityFile = NULL;
+    }
+  if(this->TimeSteps)
+    {
+    delete []this->TimeSteps;
+    this->TimeSteps = NULL;
     }
 }
 
@@ -170,6 +181,76 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
 }
 
 //----------------------------------------------------------------------------
+int vtkNetCDFCAMReader::RequestInformation(
+  vtkInformation* vtkNotUsed(reqInfo),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
+{
+  if(this->FileName == NULL)
+    {
+    vtkWarningMacro("Missing a file name.");
+    return 0;
+    }
+
+  if(this->CurrentFileName != NULL &&
+     strcmp(this->CurrentFileName, this->FileName) != 0)
+    {
+    delete this->PointsFile;
+    this->PointsFile = NULL;
+    this->SetCurrentFileName(NULL);
+    }
+  if(this->PointsFile == NULL)
+    {
+    this->PointsFile = new NcFile(this->FileName, NcFile::ReadOnly);
+    if(this->PointsFile->is_valid() == 0)
+      {
+      vtkErrorMacro(<< "Can't read file " << this->FileName);
+      delete this->PointsFile;
+      this->PointsFile = NULL;
+      return 0;
+      }
+    this->SetCurrentFileName(this->FileName);
+    }
+  NcDim* timeDimension = this->PointsFile->get_dim("time");
+  if(timeDimension == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of time steps (time dimension).");
+    return 0;
+    }
+  this->NumberOfTimeSteps = timeDimension->size();
+  cerr << this->NumberOfTimeSteps << " is the number of time steps in this file\n";
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  if (this->NumberOfTimeSteps > 0)
+    {
+    if(this->TimeSteps)
+      {
+      delete []this->TimeSteps;
+      }
+    this->TimeSteps = new double[this->NumberOfTimeSteps];
+    NcVar* timeVar = this->PointsFile->get_var("time");
+    timeVar->get(this->TimeSteps, this->NumberOfTimeSteps);
+
+    // Tell the pipeline what steps are available
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
+              this->TimeSteps, this->NumberOfTimeSteps);
+
+    // Range is required to get GUI to show things
+    double tRange[2] = {this->TimeSteps[0],
+                        this->TimeSteps[this->NumberOfTimeSteps - 1]};
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
+    }
+  else
+    {
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkNetCDFCAMReader::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **,
@@ -218,16 +299,12 @@ int vtkNetCDFCAMReader::RequestData(
 
   vtkDebugMacro(<<"Reading NetCDF CAM file.");
   this->SetProgress(0);
-  if(this->PointsFile == NULL)
+  if(this->CurrentConnectivityFileName != NULL &&
+     strcmp(this->CurrentConnectivityFileName, this->ConnectivityFileName) != 0)
     {
-    this->PointsFile = new NcFile(this->FileName, NcFile::ReadOnly);
-    if(this->PointsFile->is_valid() == 0)
-      {
-      vtkErrorMacro(<< "Can't read file " << this->FileName);
-      delete this->PointsFile;
-      this->PointsFile = NULL;
-      return 0;
-      }
+    delete this->ConnectivityFile;
+    this->ConnectivityFile = NULL;
+    this->SetCurrentConnectivityFileName(NULL);
     }
   if(this->ConnectivityFile == NULL)
     {
@@ -240,6 +317,7 @@ int vtkNetCDFCAMReader::RequestData(
       this->ConnectivityFile = NULL;
       return 0;
       }
+    this->SetCurrentConnectivityFileName(this->ConnectivityFileName);
     }
 
   // Set the NetCDF error handler to not kill the application.
@@ -424,6 +502,29 @@ int vtkNetCDFCAMReader::RequestData(
 
   this->SetProgress(.5);  // educated guess for progress
 
+  // Collect the time step requested
+  vtkInformationDoubleVectorKey* timeKey =
+    static_cast<vtkInformationDoubleVectorKey*>
+    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+
+  double dTime = 0.0;
+  if (outInfo->Has(timeKey))
+    {
+    double* requestedTimeSteps = outInfo->Get(timeKey);
+    dTime = requestedTimeSteps[0];
+    }
+
+  // Actual time for the time step
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+
+  // Index of the time step to request
+  int timeStep = 0;
+  while (timeStep < this->NumberOfTimeSteps &&
+         this->TimeSteps[timeStep] < dTime)
+    {
+    timeStep++;
+    }
+
   // now that we have the full set of points, read in any point
   // data with dimensions (time, lev, ncol) but read them in
   // by chunks of ncol since it will be a pretty big chunk of
@@ -467,7 +568,7 @@ int vtkNetCDFCAMReader::RequestData(
       {
       for(long lev=0;lev<numLevels;lev++)
         {
-        variable->set_cur(0, lev, 0);
+        variable->set_cur(timeStep, lev, 0);
         if(doubleArray)
           {
           if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
@@ -490,7 +591,7 @@ int vtkNetCDFCAMReader::RequestData(
       }
     else if(numLevels == 1)
       {
-      variable->set_cur(0, 0);
+      variable->set_cur(timeStep, 0);
       if(doubleArray)
         {
         if(!variable->get(doubleArray->GetPointer(0), 1, numFilePoints))

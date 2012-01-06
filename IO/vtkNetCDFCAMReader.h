@@ -72,6 +72,9 @@ protected:
   vtkNetCDFCAMReader();
   ~vtkNetCDFCAMReader();
 
+int RequestInformation(vtkInformation*, vtkInformationVector**,
+                       vtkInformationVector*);
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
@@ -86,14 +89,22 @@ private:
   // The file name of the file that contains all of the point
   // data (coordinates and fields).
   char* FileName;
+  char* CurrentFileName;
+  vtkSetStringMacro(CurrentFileName);
 
   // Description:
   // The file name that contains the cell connectivity information.
   char* ConnectivityFileName;
+  char* CurrentConnectivityFileName;
+  vtkSetStringMacro(CurrentConnectivityFileName);
 
   int SingleLevel;
 
   int CellLayerRight;
+
+  double * TimeSteps;
+
+  long NumberOfTimeSteps;
 
   // Description:
   // The NetCDF file descriptors.  NULL indicates they haven't
