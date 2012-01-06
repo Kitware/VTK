@@ -433,6 +433,28 @@ void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
 }
 
 //----------------------------------------------------------------------------
+void vtkMultiProcessStream::GetRawData(
+    unsigned char*& data, unsigned int &size )
+{
+  if( data != NULL )
+    {
+    delete [] data;
+    }
+
+  size = this->Size();
+  data = new unsigned char[ size+1 ];
+  assert( "pre: cannot allocate raw data buffer" && (data != NULL) );
+
+
+  data[0] = this->Endianness;
+  vtkInternals::DataType::iterator iter = this->Internals->Data.begin();
+  for(int idx=1 ; iter != this->Internals->Data.end(); ++iter, ++idx )
+    {
+    data[ idx ] = *iter;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkMultiProcessStream::SetRawData(const unsigned char* data,
   unsigned int size)
 {
