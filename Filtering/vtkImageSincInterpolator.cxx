@@ -229,7 +229,7 @@ void vtkImageSincInterpolator::SetWindowHalfWidth(int size)
 void vtkImageSincInterpolator::SetWindowFunction(int mode)
 {
   static int minmode = VTK_LANCZOS_WINDOW;
-  static int maxmode = VTK_KAISER_WINDOW;
+  static int maxmode = VTK_BLACKMAN_NUTTALL4;
   mode = ((mode > minmode) ? mode : minmode);
   mode = ((mode < maxmode) ? mode : maxmode);
   if (this->WindowFunction != mode)
@@ -242,22 +242,35 @@ void vtkImageSincInterpolator::SetWindowFunction(int mode)
 //----------------------------------------------------------------------------
 const char *vtkImageSincInterpolator::GetWindowFunctionAsString()
 {
+  const char *result = "";
+
   switch (this->WindowFunction)
     {
     case VTK_LANCZOS_WINDOW:
-      return "Lanczos";
-    case VTK_COSINE_WINDOW:
-      return "Cosine";
-    case VTK_HANN_WINDOW:
-      return "Hann";
-    case VTK_HAMMING_WINDOW:
-      return "Hamming";
-    case VTK_BLACKMAN_WINDOW:
-      return "Blackman";
+      result = "Lanczos";
     case VTK_KAISER_WINDOW:
-      return "Kaiser";
+      result = "Kaiser";
+    case VTK_COSINE_WINDOW:
+      result = "Cosine";
+    case VTK_HANN_WINDOW:
+      result = "Hann";
+    case VTK_HAMMING_WINDOW:
+      result = "Hamming";
+    case VTK_BLACKMAN_WINDOW:
+      result = "Blackman";
+    case VTK_BLACKMAN_HARRIS3:
+      result = "BlackmanHarris3";
+    case VTK_BLACKMAN_HARRIS4:
+      result = "BlackmanHarris4";
+    case VTK_NUTTALL_WINDOW:
+      result = "Nuttall";
+    case VTK_BLACKMAN_NUTTALL3:
+      result = "BlackmanNuttall3";
+    case VTK_BLACKMAN_NUTTALL4:
+      result = "BlackmanNuttall4";
     }
-  return "";
+
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -439,40 +452,15 @@ inline double vtkBesselI0(double x)
 struct vtkSincWindow
 {
   static double Lanczos(double x);
-  static double Cosine(double x);
-  static double Hann(double x, double a);
-  static double Blackman(double x, double a);
   static double Kaiser(double x, double a);
+  static double Cosine(double x);
+  template<int N>
+  static double Hamming(double x, const double *a);
 };
 
 double vtkSincWindow::Lanczos(double x)
 {
   return vtkSincPi(x);
-}
-
-double vtkSincWindow::Cosine(double x)
-{
-  double halfpi = 0.5*vtkMath::DoublePi();
-
-  return cos(x*halfpi);
-}
-
-double vtkSincWindow::Hann(double x, double a)
-{
-  double p = vtkMath::DoublePi();
-
-  return a + (1 - a)*cos(x*p);
-}
-
-double vtkSincWindow::Blackman(double x, double a)
-{
-  static double a1 = 0.5;
-  double a2 = a*a1;
-  double a0 = a1 - a2;
-  double p = vtkMath::DoublePi();
-  double twopi = 2*vtkMath::DoublePi();
-
-  return a0 + a1*cos(x*p) + a2*cos(x*twopi);
 }
 
 double vtkSincWindow::Kaiser(double x, double a)
@@ -482,6 +470,27 @@ double vtkSincWindow::Kaiser(double x, double a)
   y *= (y > 0); // if less than zero, set to zero
 
   return vtkBesselI0(api*sqrt(y))/vtkBesselI0(api);
+}
+
+double vtkSincWindow::Cosine(double x)
+{
+  double halfpi = 0.5*vtkMath::DoublePi();
+
+  return cos(x*halfpi);
+}
+
+template<int N>
+double vtkSincWindow::Hamming(double x, const double *a)
+{
+  double q = 0;
+  double y = a[0];
+  x *= vtkMath::DoublePi();
+  for (int i = 1; i < N; i++)
+    {
+    q += x;
+    y += a[i]*cos(q);
+    }
+  return y;
 }
 
 //----------------------------------------------------------------------------
@@ -496,15 +505,11 @@ struct vtkSincKernel
   template<class F>
   static void Lanczos(F *kernel, int size, int n, double p);
   template<class F>
-  static void Cosine(F *kernel, int size, int n, double p);
-  template<class F>
-  static void Hann(F *kernel, int size, int n, double p, double a);
-  template<class F>
-  static void Hamming(F *kernel, int size, int n, double p);
-  template<class F>
-  static void Blackman(F *kernel, int size, int n, double p, double a);
-  template<class F>
   static void Kaiser(F *kernel, int size, int n, double p, double a);
+  template<class F>
+  static void Cosine(F *kernel, int size, int n, double p);
+  template<class F, int N>
+  static void Hamming(F *kernel, int size, int n, double p, const double *a);
 };
 
 template<class F>
@@ -519,82 +524,6 @@ void vtkSincKernel::Lanczos(F *kernel, int size, int n, double p)
     {
     int inbounds = (x < 1.0);
     *kernel++ = vtkSincWindow::Lanczos(x)*vtkSincPi(y)*inbounds;
-    x += p;
-    y += q;
-    }
-  while (--size);
-}
-
-template<class F>
-void vtkSincKernel::Cosine(F *kernel, int size, int n, double p)
-{
-  double q = n*p;
-  double x = p;
-  double y = q;
-  *kernel++ = 1;
-  --size;
-  do
-    {
-    int inbounds = (x < 1.0);
-    *kernel++ = vtkSincWindow::Cosine(x)*vtkSincPi(y)*inbounds;
-    x += p;
-    y += q;
-    }
-  while (--size);
-}
-
-template<class F>
-void vtkSincKernel::Hann(F *kernel, int size, int n, double p, double a)
-{
-  a = ((a >= 0) ? a : 0.5);
-  double q = n*p;
-  double x = p;
-  double y = q;
-  *kernel++ = 1.0;
-  --size;
-  do
-    {
-    int inbounds = (x < 1.0);
-    *kernel++ = vtkSincWindow::Hann(x, a)*vtkSincPi(y)*inbounds;
-    x += p;
-    y += q;
-    }
-  while (--size);
-}
-
-template<class F>
-void vtkSincKernel::Hamming(F *kernel, int size, int n, double p)
-{
-  double a = 0.54;
-  double q = n*p;
-  double x = p;
-  double y = q;
-  *kernel++ = 1.0;
-  --size;
-  do
-    {
-    int inbounds = (x < 1.0);
-    *kernel++ = vtkSincWindow::Hann(x, a)*vtkSincPi(y)*inbounds;
-    x += p;
-    y += q;
-    }
-  while (--size);
-}
-
-template<class F>
-void vtkSincKernel::Blackman(F *kernel, int size, int n, double p, double a)
-{
-  // Blackman window uses default alpha = 0.16
-  a = ((a >= 0) ? a : 0.16);
-  double q = n*p;
-  double x = p;
-  double y = q;
-  *kernel++ = 1.0;
-  --size;
-  do
-    {
-    int inbounds = (x < 1.0);
-    *kernel++ = vtkSincWindow::Blackman(x, a)*vtkSincPi(y)*inbounds;
     x += p;
     y += q;
     }
@@ -622,6 +551,42 @@ void vtkSincKernel::Kaiser(F *kernel, int size, int n, double p, double a)
     {
     int inbounds = (x < 1.0);
     *kernel++ = vtkSincWindow::Kaiser(x, a)*vtkSincPi(y)*inbounds;
+    x += p;
+    y += q;
+    }
+  while (--size);
+}
+
+template<class F>
+void vtkSincKernel::Cosine(F *kernel, int size, int n, double p)
+{
+  double q = n*p;
+  double x = p;
+  double y = q;
+  *kernel++ = 1;
+  --size;
+  do
+    {
+    int inbounds = (x < 1.0);
+    *kernel++ = vtkSincWindow::Cosine(x)*vtkSincPi(y)*inbounds;
+    x += p;
+    y += q;
+    }
+  while (--size);
+}
+
+template<class F, int N>
+void vtkSincKernel::Hamming(F *kernel, int size, int n, double p, const double *a)
+{
+  double q = n*p;
+  double x = p;
+  double y = q;
+  *kernel++ = 1.0;
+  --size;
+  do
+    {
+    int inbounds = (x < 1.0);
+    *kernel++ = vtkSincWindow::Hamming<N>(x, a)*vtkSincPi(y)*inbounds;
     x += p;
     y += q;
     }
@@ -1379,25 +1344,54 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
     // the tunable parameter, set to -1 to use default
     double a = (this->UseWindowParameter ? this->WindowParameter : -1.0);
 
+    // constants for various windows
+    static double hann[] = { 0.5, 0.5 };
+    static double hamming[] = { 0.54, 0.46 };
+    static double blackman[] = { 0.42, 0.50, 0.08 };
+    // FJ Harris, "On the use of windows for harmonic analysis with
+    // the discrete fourier transform," Proc. IEEE 66:51-83, 1978.
+    static double harris3[] = { 0.42323, 0.49755, 0.07922 };
+    static double harris4[] = { 0.35875, 0.48829, 0.14128, 0.01168 };
+    // AH Nuttall, "Some windows with very good sidelobe behavior," IEEE
+    // Transactions on Acoustics, Speech, and Signal Processing 29:84-91, 1981
+    static double nuttall[] = { 0.355768, 0.487396, 0.144232, 0.012604 };
+    static double nuttall3[] = { 0.4243801, 0.4973406, 0.0782793 };
+    static double nuttall4[] = { 0.3635819, 0.4891775, 0.1365995, 0.0106411 };
+
     switch (this->WindowFunction)
       {
       case VTK_LANCZOS_WINDOW:
         vtkSincKernel::Lanczos(kernel[i], size, n, p);
         break;
+      case VTK_KAISER_WINDOW:
+        vtkSincKernel::Kaiser(kernel[i], size, n, p, a);
+        break;
       case VTK_COSINE_WINDOW:
         vtkSincKernel::Cosine(kernel[i], size, n, p);
         break;
       case VTK_HANN_WINDOW:
-        vtkSincKernel::Hann(kernel[i], size, n, p, a);
+        vtkSincKernel::Hamming<float, 2>(kernel[i], size, n, p, hann);
         break;
       case VTK_HAMMING_WINDOW:
-        vtkSincKernel::Hamming(kernel[i], size, n, p);
+        vtkSincKernel::Hamming<float, 2>(kernel[i], size, n, p, hamming);
         break;
       case VTK_BLACKMAN_WINDOW:
-        vtkSincKernel::Blackman(kernel[i], size, n, p, a);
+        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, blackman);
         break;
-      case VTK_KAISER_WINDOW:
-        vtkSincKernel::Kaiser(kernel[i], size, n, p, a);
+      case VTK_BLACKMAN_HARRIS3:
+        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris3);
+        break;
+      case VTK_BLACKMAN_HARRIS4:
+        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, harris4);
+        break;
+      case VTK_NUTTALL_WINDOW:
+        vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, nuttall);
+        break;
+      case VTK_BLACKMAN_NUTTALL3:
+        vtkSincKernel::Hamming<float, 3>(kernel[i], size, n, p, nuttall3);
+        break;
+      case VTK_BLACKMAN_NUTTALL4:
+        vtkSincKernel::Hamming<float, 4>(kernel[i], size, n, p, nuttall4);
         break;
       }
 
