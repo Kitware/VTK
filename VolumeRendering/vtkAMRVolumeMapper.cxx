@@ -310,16 +310,22 @@ void vtkAMRVolumeMapper::UpdateResamplerFocalPointMethod(vtkRenderer *ren)
   double d = cam->GetDistance(), l;
   double fp[3], var, p[3];
   cam->GetFocalPoint(fp);
-  var = vtkMath::DoublePi() * va / 180.0;
-  l = d * tan(var);
-  p[0] = fp[0] - l;
-  p[1] = fp[1] - l;
-  p[2] = fp[2] - l;
+  // var = vtkMath::DoublePi() * va / 180.0;
+  // l = d * tan(var);
+  // p[0] = fp[0] - l;
+  // p[1] = fp[1] - l;
+  // p[2] = fp[2] - l;
+  p[0] = fp[0] - d;
+  p[1] = fp[1] - d;
+  p[2] = fp[2] - d;
   // Now set the min/max of the resample filter
   this->Resampler->SetMin(p);
-  p[0] = fp[0] + l;
-  p[1] = fp[1] + l;
-  p[2] = fp[2] + l;
+  // p[0] = fp[0] + l;
+  // p[1] = fp[1] + l;
+  // p[2] = fp[2] + l;
+  p[0] = fp[0] + d;
+  p[1] = fp[1] + d;
+  p[2] = fp[2] + d;
   this->Resampler->SetMax(p);
 
   this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
