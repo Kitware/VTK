@@ -136,6 +136,17 @@ public:
   int GetAntialiasing() { return this->Antialiasing; }
 
   // Description:
+  // Turn off renomalization.  Most of the sinc windows provide kernels
+  // for which the weights do not sum to one, and for which the sum depends
+  // on the offset.  Ths results in small ripple artifacts in the output.
+  // By default, the vtkImageSincInterpolator will renormalize these kernels.
+  // This method allows the renormalization to be turned off.
+  void SetRenormalization(int antialiasing);
+  void RenormalizationOn() { this->SetRenormalization(1); }
+  void RenormalizationOff() { this->SetRenormalization(0); }
+  int GetRenormalization() { return this->Renormalization; }
+
+  // Description:
   // Returns true if the interpolator supports weight precomputation.
   // This will always return true for this interpolator.
   virtual bool IsSeparable();
@@ -203,6 +214,7 @@ protected:
   float *KernelLookupTable[3];
   int KernelSize[3];
   int Antialiasing;
+  int Renormalization;
   double BlurFactors[3];
   double LastBlurFactors[3];
   double WindowParameter;

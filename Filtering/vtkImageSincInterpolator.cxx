@@ -57,6 +57,7 @@ vtkImageSincInterpolator::vtkImageSincInterpolator()
   this->KernelSize[1] = 6;
   this->KernelSize[2] = 6;
   this->Antialiasing = 0;
+  this->Renormalization = 1;
   this->BlurFactors[0] = 1.0;
   this->BlurFactors[1] = 1.0;
   this->BlurFactors[2] = 1.0;
@@ -91,6 +92,8 @@ void vtkImageSincInterpolator::PrintSelf(ostream& os, vtkIndent indent)
      << this->BlurFactors[1] << " " << this->BlurFactors[2] << "\n";
   os << indent << "Antialiasing: "
      << (this->Antialiasing ? "On\n" : "Off\n");
+  os << indent << "Renormalization: "
+     << (this->Renormalization ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
@@ -299,6 +302,17 @@ void vtkImageSincInterpolator::SetAntialiasing(int val)
   if (this->Antialiasing != val)
     {
     this->Antialiasing = val;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageSincInterpolator::SetRenormalization(int val)
+{
+  val = (val != 0);
+  if (this->Renormalization != val)
+    {
+    this->Renormalization = val;
     this->Modified();
     }
 }
@@ -629,7 +643,6 @@ void vtkSincInterpWeights(T *kernel, F *fX, F fx, int m)
 
   // interpolate the table, partially unrolled loop
   int n = (m >> 1);
-  F s = 0;
   int i = (1 - n)*p - offset;
   do
     {
@@ -641,7 +654,6 @@ void vtkSincInterpWeights(T *kernel, F *fX, F fx, int m)
     i1 = ((i1 >= 0) ? i1 : ni);
     F y = r*kernel[i0] + f*kernel[i1];
     fX[0] = y;
-    s += y;
     i += p;
     i0 = i;
     i1 = i + 1;
@@ -651,23 +663,133 @@ void vtkSincInterpWeights(T *kernel, F *fX, F fx, int m)
     i1 = ((i1 >= 0) ? i1 : ni);
     y = r*kernel[i0] + f*kernel[i1];
     fX[1] = y;
-    s += y;
     i += p;
     fX += 2;
     }
   while (--n);
+}
 
-  // normalize
-  s = 1/s;
-  n = (m >> 1);
-  fX -= m;
+//----------------------------------------------------------------------------
+// Ensure that the set of n coefficients extracted from the kernel table
+// will always sum to unity.  This renormalization is needed to ensure that
+// the interpolation will not have a DC offset.  For the rationale, see e.g.
+//  NA Thacker, A Jackson, D Moriarty, E Vokurka, "Improved quality of
+//  re-sliced MR images usng re-normalized sinc interpolation," Journal of
+//  Magnetic Resonance Imaging 10:582-588, 1999.
+// Parameters:
+//  kernel = table containing half of a symmetric kernel
+//  m = table offset between lookup positions for adjacent weights
+//  n = number of kernel weights (i.e. size of discrete kernel size)
+//  The kernel table size must be (n*m+1)/2
+template<class T>
+void vtkRenormalizeKernel(T *kernel, int m, int n)
+{
+  // the fact that we only have half the kernel makes the weight
+  // lookup more complex: there will be kn direct lookups and km
+  // mirror lookups.
+  int kn = (n + 1)/2;
+  int km = n - kn;
+
+  if (m == 0 || km == 0)
+    {
+    return;
+    }
+
+  // get sum of weights for zero offset
+  T w = - (*kernel)*0.5;
+  T *kernel2 = kernel;
+  int k = kn;
   do
     {
-    fX[0] *= s;
-    fX[1] *= s;
-    fX += 2;
+    w += *kernel2;
+    kernel2 += m;
     }
-  while (--n);
+  while (--k);
+
+  // divide weights by their sum to renormalize
+  w *= 2;
+  kernel2 = kernel;
+  k = kn;
+  do
+    {
+    *kernel2 /= w;
+    kernel2 += m;
+    }
+  while (--k);
+
+  // need the opposite end of the kernel array
+  kernel2 = kernel + km*m;
+
+  int j = (m - 1)/2;
+  if (j) do
+    {
+    // move to next offset
+    kernel++;
+    kernel2--;
+
+    // get the sum of the weights at this offset
+    w = 0;
+    T *kernel1 = kernel2;
+    k = km;
+    do
+      {
+      w += *kernel1;
+      kernel1 -= m;
+      }
+    while (--k);
+    kernel1 = kernel;
+    k = kn;
+    do
+      {
+      w += *kernel1;
+      kernel1 += m;
+      }
+    while (--k);
+
+    // divide the weights by their sum to renormalize
+    kernel1 = kernel2;
+    k = km;
+    do
+      {
+      *kernel1 /= w;
+      kernel1 -= m;
+      }
+    while (--k);
+    kernel1 = kernel;
+    k = kn;
+    do
+      {
+      *kernel1 /= w;
+      kernel1 += m;
+      }
+    while (--k);
+    }
+  while (--j);
+
+  // get sum of weights for offset of 0.5 (only applies when m is even)
+  if ((m & 1) == 0)
+    {
+    w = 0;
+    kernel2 = kernel;
+    k = km;
+    do
+      {
+      w += *kernel2;
+      kernel2 += m;
+      }
+    while (--k);
+
+    // divide weights by their sum to renormalize
+    w *= 2;
+    kernel2 = kernel;
+    k = km;
+    do
+      {
+      *kernel2 /= w;
+      kernel2 += m;
+      }
+    while (--k);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1277,6 +1399,11 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
       case VTK_KAISER_WINDOW:
         vtkSincKernel::Kaiser(kernel[i], size, n, p, a);
         break;
+      }
+
+    if (this->Renormalization)
+      {
+      vtkRenormalizeKernel(kernel[i], VTK_SINC_KERNEL_TABLE_DIVISIONS, 2*n);
       }
     }
 
