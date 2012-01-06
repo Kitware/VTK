@@ -36,9 +36,9 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/map>
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <map>
+#include <set>
+#include <vector>
 
 // For debugging purposes, output message sizes and intermediate timings
 #define DEBUG_PARALLEL_CONTINGENCY_STATISTICS 0
@@ -70,12 +70,12 @@ void vtkPContingencyStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& strings,
+static void StringVectorToStringBuffer( const std::vector<vtkStdString>& strings,
                                         vtkStdString& buffer )
 {
   buffer.clear();
   
-  for( vtkstd::vector<vtkStdString>::const_iterator it = strings.begin();
+  for( std::vector<vtkStdString>::const_iterator it = strings.begin();
        it != strings.end(); ++ it )
     {
     buffer.append( *it );
@@ -86,7 +86,7 @@ static void StringVectorToStringBuffer( const vtkstd::vector<vtkStdString>& stri
 // ----------------------------------------------------------------------
 static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
                                        vtkStdString& xyPacked,
-                                       vtkstd::vector<vtkIdType>& kcValues )
+                                       std::vector<vtkIdType>& kcValues )
 {
   // Downcast meta columns to string arrays for efficient data access
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
@@ -98,7 +98,7 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
     return true;
     }
 
-  vtkstd::vector<vtkStdString> xyValues; // consecutive (x,y) pairs
+  std::vector<vtkStdString> xyValues; // consecutive (x,y) pairs
 
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
   for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
@@ -120,7 +120,7 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
 
 //-----------------------------------------------------------------------------
 static void StringBufferToStringVector( const vtkStdString& buffer,
-                                        vtkstd::vector<vtkStdString>& strings )
+                                        std::vector<vtkStdString>& strings )
 {
   strings.clear();
   
@@ -246,7 +246,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 
   // Packing step: concatenate all (x,y) pairs in a single string and all (k,c) pairs in single vector
   vtkStdString xyPacked_l;
-  vtkstd::vector<vtkIdType> kcValues_l;
+  std::vector<vtkIdType> kcValues_l;
   if ( StringArrayToStringBuffer( contingencyTab, xyPacked_l, kcValues_l ) )
     {
     vtkErrorMacro("Packing error on process "
@@ -349,7 +349,7 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
 #endif //DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Broadcasting step: broadcast reduced contingency table to all processes
-  vtkstd::vector<vtkStdString> xyValues_l; // local consecutive xy pairs
+  std::vector<vtkStdString> xyValues_l; // local consecutive xy pairs
   if ( this->Broadcast( xySizeTotal,
                         xyPacked_l,
                         xyValues_l,
@@ -377,8 +377,8 @@ void vtkPContingencyStatistics::Learn( vtkTable* inData,
   vtkVariantArray* row4 = vtkVariantArray::New();
   row4->SetNumberOfValues( 4 );
 
-  vtkstd::vector<vtkStdString>::iterator xyit = xyValues_l.begin();
-  vtkstd::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
+  std::vector<vtkStdString>::iterator xyit = xyValues_l.begin();
+  std::vector<vtkIdType>::iterator    kcit = kcValues_l.begin();
 
   // First replace existing rows
   // Start with row 1 and not 0 because of cardinality row (cf. superclass for a detailed explanation)
@@ -437,10 +437,10 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
                                         vtkStdString& xyPacked_l,
                                         vtkIdType& kcSizeTotal,
                                         vtkIdType*  kcValues_g,
-                                        vtkstd::vector<vtkIdType>& kcValues_l )
+                                        std::vector<vtkIdType>& kcValues_l )
 {
   // First, unpack the packet of strings
-  vtkstd::vector<vtkStdString> xyValues_g;
+  std::vector<vtkStdString> xyValues_g;
   StringBufferToStringVector( vtkStdString ( xyPacked_g, xySizeTotal ), xyValues_g );
 
   // Second, check consistency: we must have the same number of xy and kc entries
@@ -458,11 +458,11 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
     }
 
   // Third, reduce to the global contingency table
-  typedef vtkstd::map<vtkStdString,vtkIdType> Distribution;
-  typedef vtkstd::map<vtkStdString,Distribution> Bidistribution;
-  vtkstd::map<vtkIdType,Bidistribution> contingencyTable;
+  typedef std::map<vtkStdString,vtkIdType> Distribution;
+  typedef std::map<vtkStdString,Distribution> Bidistribution;
+  std::map<vtkIdType,Bidistribution> contingencyTable;
   vtkIdType i = 0;
-  for ( vtkstd::vector<vtkStdString>::iterator vit = xyValues_g.begin(); 
+  for ( std::vector<vtkStdString>::iterator vit = xyValues_g.begin();
         vit != xyValues_g.end(); vit += 2, i += 2 )
     {
     contingencyTable
@@ -473,9 +473,9 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
     }
 
   // Fourth, prepare send buffers of (global) xy and kc values
-  vtkstd::vector<vtkStdString> xyValues_l;
+  std::vector<vtkStdString> xyValues_l;
   kcValues_l.clear();
-  for ( vtkstd::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
+  for ( std::map<vtkIdType,Bidistribution>::iterator ait = contingencyTable.begin();
         ait != contingencyTable.end(); ++ ait )
     {
     Bidistribution bidi = ait->second;
@@ -509,9 +509,9 @@ bool vtkPContingencyStatistics::Reduce( vtkIdType& xySizeTotal,
 // ----------------------------------------------------------------------
 bool vtkPContingencyStatistics::Broadcast( vtkIdType xySizeTotal,
                                            vtkStdString& xyPacked,
-                                           vtkstd::vector<vtkStdString>& xyValues,
+                                           std::vector<vtkStdString>& xyValues,
                                            vtkIdType kcSizeTotal,
-                                           vtkstd::vector<vtkIdType>& kcValues,
+                                           std::vector<vtkIdType>& kcValues,
                                            vtkIdType rProc )
 {
   vtkCommunicator* com = this->Controller->GetCommunicator();

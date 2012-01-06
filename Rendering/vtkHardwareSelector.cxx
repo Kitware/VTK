@@ -29,8 +29,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredExtent.h"
 
-#include <vtkstd/set>
-#include <vtkstd/map>
+#include <set>
+#include <map>
 
 #define TEX_UNIT_ATTRIBID 1
 #define ID_OFFSET 1
@@ -38,8 +38,8 @@ class vtkHardwareSelector::vtkInternals
 {
 public:
   // Ids for props that were hit.
-  vtkstd::set<int> HitProps;
-  vtkstd::map<int, vtkSmartPointer<vtkProp> > Props;
+  std::set<int> HitProps;
+  std::map<int, vtkSmartPointer<vtkProp> > Props;
   double OriginalBackground[3];
   bool OriginalGradient;
   int OriginalMultisample;
@@ -416,7 +416,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
 //----------------------------------------------------------------------------
 vtkProp* vtkHardwareSelector::GetPropFromID(int id)
 {
-  vtkstd::map<int, vtkSmartPointer<vtkProp> >::iterator iter =
+  std::map<int, vtkSmartPointer<vtkProp> >::iterator iter =
     this->Internals->Props.find(id);
   if (iter != this->Internals->Props.end())
     {
@@ -603,11 +603,11 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
     this->Area[3], 0, 0};
   vtkStructuredExtent::Clamp(extent, whole_extent);
 
-  typedef vtkstd::map<PixelInformation, vtkstd::set<vtkIdType>,
+  typedef std::map<PixelInformation, std::set<vtkIdType>,
           PixelInformationComparator> MapOfAttributeIds;
   MapOfAttributeIds dataMap;
 
-  typedef vtkstd::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
+  typedef std::map<PixelInformation, vtkIdType, PixelInformationComparator> PixelCountType;
   PixelCountType pixelCounts;
 
   for (unsigned int yy = y1; yy <= y2; yy++)
@@ -630,7 +630,7 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
   for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
     {
     const PixelInformation &key = iter->first;
-    vtkstd::set<vtkIdType> &id_values = iter->second;
+    std::set<vtkIdType> &id_values = iter->second;
     vtkSelectionNode* child = vtkSelectionNode::New();
     child->SetContentType(vtkSelectionNode::INDICES);
     switch (this->FieldAssociation)
@@ -662,7 +662,7 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
     ids->SetNumberOfComponents(1);
     ids->SetNumberOfTuples(iter->second.size());
     vtkIdType* ptr = ids->GetPointer(0);
-    vtkstd::set<vtkIdType>::iterator idIter;
+    std::set<vtkIdType>::iterator idIter;
     vtkIdType cc=0;
     for (idIter = id_values.begin(); idIter != id_values.end(); ++idIter, ++cc)
       {

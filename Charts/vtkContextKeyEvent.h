@@ -22,8 +22,8 @@
 #ifndef __vtkContextKeyEvent_h
 #define __vtkContextKeyEvent_h
 
-#include "vtkVector.h" // For vtkVector2i
 #include "vtkWeakPointer.h" // For vtkWeakPointer
+#include "vtkVector.h" // For vtkVector2i
 
 class vtkRenderWindowInteractor;
 
@@ -38,7 +38,8 @@ public:
   void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
-  // Get the interactor for the key event.
+  // Get the interactor for the key event. This can be null, and is provided
+  // only for convenience.
   vtkRenderWindowInteractor* GetInteractor() const;
 
   // Description:

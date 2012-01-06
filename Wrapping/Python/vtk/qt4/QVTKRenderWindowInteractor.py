@@ -231,9 +231,10 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
     def resizeEvent(self, ev):
         w = self.width()
         h = self.height()
-
-        self._RenderWindow.SetSize(w, h)
+        vtk.vtkRenderWindow.SetSize(self._RenderWindow, w, h)
         self._Iren.SetSize(w, h)
+        self._Iren.ConfigureEvent()
+        self.update()
 
     def _GetCtrlShift(self, ev):
         ctrl = shift = False

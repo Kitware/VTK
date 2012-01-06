@@ -12,22 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageAccumulate - Generalized histograms up to 4 dimensions.
+// .NAME vtkImageAccumulate - Generalized histograms up to 3 dimensions.
 // .SECTION Description
 // vtkImageAccumulate - This filter divides component space into
 // discrete bins.  It then counts the number of pixels associated
-// with each bin.  The output is this "scatter plot" (histogram values for 1D).
+// with each bin.
 // The dimensionality of the output depends on how many components the
-// input pixels have.  Input pixels with one component generate a 1D histogram.
-// This filter can only handle images with 1 to 3 scalar components.
+// input pixels have. An input images with N components per pixels will
+// result in an N-dimensional histogram, where N can be 1, 2, or 3.
 // The input can be any type, but the output is always int.
 // Some statistics are computed on the pixel values at the same time.
-// The SetStencil and ReverseStencil
-// functions allow the statistics to be computed on an arbitrary
-// portion of the input data.
+// The SetStencil and ReverseStencil functions allow the statistics to be
+// computed on an arbitrary portion of the input data.
 // See the documentation for vtkImageStencilData for more information.
 //
-// This filter also support ignoring pixel with value equal to 0. Using this
+// This filter also supports ignoring pixels with value equal to 0. Using this
 // option with vtkImageMask may result in results being slightly off since 0
 // could be a valid value from your input.
 //

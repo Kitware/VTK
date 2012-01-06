@@ -22,11 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h" // for vtkDataSetAttributes::VECTORS
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkGenericInterpolatedVelocityField);
 
-typedef vtkstd::vector< vtkGenericDataSet* > DataSetsTypeBase;
+typedef std::vector< vtkGenericDataSet* > DataSetsTypeBase;
 class vtkGenericInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase {};
 
 vtkGenericInterpolatedVelocityField::vtkGenericInterpolatedVelocityField()

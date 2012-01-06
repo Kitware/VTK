@@ -79,6 +79,11 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
       vtkObject* vtk_obj=NULL, unsigned long event=vtkCommand::NoEvent, 
       const QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
 
+    // Description:
+    // Allow to query vtkEventQtSlotConnect to know if some Connect() have been
+    // setup and how many.
+    virtual int GetNumberOfConnections() const;
+
   protected:
     vtkQtConnections* Connections;
     friend class vtkQtConnection;

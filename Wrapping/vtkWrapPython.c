@@ -365,8 +365,11 @@ static size_t vtkWrapPython_PyTemplateName(const char *name, char *pname)
 
   /* look for VTK types that become common python types */
   if ((n == 12 && strncmp(name, "vtkStdString", n) == 0) ||
-      (n == 11 && strncmp(name, "std::string", n) == 0) ||
-      (n == 14 && strncmp(name, "vtkstd::string", n) == 0))
+      (n == 11 && strncmp(name, "std::string", n) == 0)
+#ifndef VTK_LEGACY_REMOVE
+      || (n == 14 && strncmp(name, "vtkstd::string", n) == 0)
+#endif
+      )
     {
     strcpy(pname, "str");
     return n;
@@ -449,6 +452,7 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
     { "vtkUnicodeString", "vtkUnicodeString.h" },
+    { "vtkVectorBase", "vtkVector.h" },
     { "vtkVector", "vtkVector.h" },
     { "vtkVector2", "vtkVector.h" },
     { "vtkVector2i", "vtkVector.h" },
@@ -471,6 +475,11 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkColor4ub", "vtkColor.h" },
     { "vtkColor4f", "vtkColor.h" },
     { "vtkColor4d", "vtkColor.h" },
+    { "vtkAMRBox", "vtkAMRBox.h" },
+    { "vtkEdgeBase", "vtkGraph.h" },
+    { "vtkEdgeType", "vtkGraph.h" },
+    { "vtkInEdgeType", "vtkGraph.h" },
+    { "vtkOutEdgeType", "vtkGraph.h" },
     { NULL, NULL }
   };
 

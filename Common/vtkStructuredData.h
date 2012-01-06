@@ -111,6 +111,42 @@ public:
   static vtkIdType ComputeCellId(int dim[3], int ijk[3]) {
     return (ijk[2]*static_cast<vtkIdType>(dim[1]-1) + ijk[1])*(dim[0]-1) + ijk[0];}
 
+  // Description:
+  // Given a cellId and grid dimensions 'dim', get the structured coordinates
+  // (i-j-k). This method does not adjust for the beginning of the extent.
+  static void ComputeCellStructuredCoords(const vtkIdType cellId, int dim[3], int ijk[3])
+  {
+    int Ni  = dim[0]-1;
+    int Nj  = dim[1]-1;
+    
+    int Nij = Ni*Nj;
+
+    int k = cellId/Nij + 1;
+    int j = (cellId - (k-1)*Nij)/Ni + 1;
+    int i = cellId - (k-1)*Nij - (j-1)*Ni + 1;
+    ijk[0] = i-1;
+    ijk[1] = j-1;
+    ijk[2] = k-1;
+  }
+
+  // Description:
+  // Given a pointId and grid dimensions 'dim', get the structured coordinates
+  // (i-j-k). This method does not adjust for the beginning of the extent.
+  static void ComputePointStructuredCoords(const vtkIdType cellId, int dim[3], int ijk[3])
+  {
+    int Ni  = dim[0];
+    int Nj  = dim[1];
+
+    int Nij = Ni*Nj;
+
+    int k = cellId/Nij + 1;
+    int j = (cellId - (k-1)*Nij)/Ni + 1;
+    int i = cellId - (k-1)*Nij - (j-1)*Ni + 1;
+    ijk[0] = i-1;
+    ijk[1] = j-1;
+    ijk[2] = k-1;
+  }
+
 protected:
   vtkStructuredData() {};
   ~vtkStructuredData() {};

@@ -19,13 +19,13 @@
 
 #include "vtkPolygon.h"
 #include "vtkPoints.h"
-#include <vtkstd/limits>
+#include <limits>
 #include "vtkSmartPointer.h"
 #include "vtkIdTypeArray.h"
 
 template<class A>
 bool fuzzyCompare(A a, A b) {
-  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return fabs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 int TestPolygon(int,char *[])

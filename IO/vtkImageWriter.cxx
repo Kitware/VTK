@@ -178,7 +178,6 @@ void vtkImageWriter::RecursiveWrite(int axis,
 {
   vtkImageData    *data;
   int             fileOpenedHere = 0;
-  int             *ext;
 
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
@@ -246,7 +245,9 @@ void vtkImageWriter::RecursiveWrite(int axis,
   inputExec->PropagateUpdateExtent(inputOutputPort);
 
   // just get the data and write it out
-  ext = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+#ifndef NDEBUG
+  int *ext = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+#endif
   vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
                 ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
                 ext[4] << ", " << ext[5] << endl);

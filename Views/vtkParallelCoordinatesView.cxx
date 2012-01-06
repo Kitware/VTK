@@ -491,8 +491,8 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double *p1, double *p2)
   p2x = xs[right];
   p1y = lefty;
   p2y = righty;
-  //p1y = vtkstd::max<int>(vtkstd::min<int>(lefty,this->YMax),this->YMin);
-  //p2y = vtkstd::max<int>(vtkstd::min<int>(righty,this->YMax),this->YMin);
+  //p1y = std::max<int>(std::min<int>(lefty,this->YMax),this->YMin);
+  //p2y = std::max<int>(std::min<int>(righty,this->YMax),this->YMin);
   
   // sanity check
   if (p1x >= p2x)

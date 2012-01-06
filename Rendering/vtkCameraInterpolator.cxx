@@ -17,7 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkTransform.h"
 #include "vtkTupleInterpolator.h"
-#include <vtkstd/list>
+#include <list>
 
 vtkStandardNewMacro(vtkCameraInterpolator);
 
@@ -68,7 +68,7 @@ struct vtkICamera
 };
 
 // The list is arranged in increasing order in T
-class vtkCameraList : public vtkstd::list<vtkICamera> {};
+class vtkCameraList : public std::list<vtkICamera> {};
 typedef vtkCameraList::iterator CameraListIterator;
 
 

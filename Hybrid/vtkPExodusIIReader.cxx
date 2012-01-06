@@ -43,7 +43,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-#include <vtkstd/vector>
+#include <vector>
 
 #include <vtksys/RegularExpression.hxx>
 
@@ -186,7 +186,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
     }
 
   // Delete all the readers we may have
-  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  std::vector<vtkExodusIIReader*>::iterator it;
   for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
     (*it)->Delete();
@@ -309,7 +309,7 @@ int vtkPExodusIIReader::RequestInformation(
     //this->SetExodusModelMetadata( 0 );    // turn off for now // XXX Bad set
 
     /*
-    vtkstd::string barfle( "/tmp/barfle_" );
+    std::string barfle( "/tmp/barfle_" );
     barfle += this->ProcRank + 97;
     barfle += ".txt";
     ofstream fout( barfle.c_str() );
@@ -349,7 +349,7 @@ int vtkPExodusIIReader::RequestInformation(
     double* times = outInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     int numTimes = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     numTimes = this->LastCommonTimeStep + 1 < numTimes ? this->LastCommonTimeStep + 1 : numTimes;
-    vtkstd::vector<double> commonTimes;
+    std::vector<double> commonTimes;
     commonTimes.insert( commonTimes.begin(), times, times + numTimes );
     double timeRange[2];
     timeRange[1] = commonTimes[numTimes - 1];
@@ -929,9 +929,9 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
 
   // If we are here, then numberRegEx matched and we have found the part of
   // the filename that is the number.  Extract the filename parts.
-  vtkstd::string prefix = numberRegEx.match(1);
+  std::string prefix = numberRegEx.match(1);
   scount = static_cast<int>(numberRegEx.match(2).size());
-  vtkstd::string extension = numberRegEx.match(3);
+  std::string extension = numberRegEx.match(3);
 
   // Determine the pattern
   sprintf(pattern, "%%s%%0%ii%s", scount, extension.c_str());
@@ -1052,7 +1052,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 vtkIdType vtkPExodusIIReader::GetTotalNumberOfElements()
 {
   vtkIdType total = 0;
-  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  std::vector<vtkExodusIIReader*>::iterator it;
   for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
     total += (*it)->GetTotalNumberOfElements();
@@ -1063,7 +1063,7 @@ vtkIdType vtkPExodusIIReader::GetTotalNumberOfElements()
 vtkIdType vtkPExodusIIReader::GetTotalNumberOfNodes()
 {
   vtkIdType total = 0;
-  vtkstd::vector<vtkExodusIIReader*>::iterator it;
+  std::vector<vtkExodusIIReader*>::iterator it;
   for ( it = this->ReaderList.begin(); it != this->ReaderList.end(); ++ it )
     {
     total += (*it)->GetTotalNumberOfNodes();
@@ -1118,7 +1118,7 @@ static void BroadcastXmitString( vtkMultiProcessController* ctrl, char* str )
     }
 }
 
-static bool BroadcastRecvString( vtkMultiProcessController* ctrl, vtkstd::vector<char>& str )
+static bool BroadcastRecvString( vtkMultiProcessController* ctrl, std::vector<char>& str )
 {
   int len;
   ctrl->Broadcast( &len, 1, 0 );
@@ -1145,7 +1145,7 @@ void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
       }
     else
       {
-      vtkstd::vector<char> tmp;
+      std::vector<char> tmp;
       if ( this->FilePattern )
         delete [] this->FilePattern;
       if ( this->FilePrefix )

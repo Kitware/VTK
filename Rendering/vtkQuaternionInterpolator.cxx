@@ -15,7 +15,7 @@
 #include "vtkQuaternionInterpolator.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include <vtkstd/vector>
+#include <vector>
 
 #define VTKQUATERNIONINTERPOLATOR_TOLERNCE 1e-6
 
@@ -165,7 +165,7 @@ struct vtkQuaternion
 };
 
 // The list is arranged in increasing order in T
-class vtkQuaternionList : public vtkstd::vector<vtkQuaternion> {};
+class vtkQuaternionList : public std::vector<vtkQuaternion> {};
 typedef vtkQuaternionList::iterator QuaternionListIterator;
 
 //----------------------------------------------------------------------------

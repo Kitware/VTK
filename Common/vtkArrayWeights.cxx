@@ -29,7 +29,7 @@ public:
     : Storage(size)
     {
     }
-  vtkstd::vector<double> Storage;
+  std::vector<double> Storage;
 };
 
 vtkArrayWeights::vtkArrayWeights()

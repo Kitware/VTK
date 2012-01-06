@@ -30,7 +30,7 @@
 
 #include "vtkTemporalDataSetAlgorithm.h"
 
-#include <vtkstd/map> // used for the cache
+#include <map> // used for the cache
 
 class VTK_HYBRID_EXPORT vtkTemporalDataSetCache : public vtkTemporalDataSetAlgorithm
 {
@@ -52,7 +52,7 @@ protected:
   int CacheSize;
 
 //BTX
-  typedef vtkstd::map<double,vtkstd::pair<unsigned long,vtkDataObject *> >
+  typedef std::map<double,std::pair<unsigned long,vtkDataObject *> >
   CacheType;
   CacheType Cache;
 //ETX

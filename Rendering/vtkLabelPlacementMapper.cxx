@@ -329,12 +329,12 @@ public:
   /// A rectangular tile on the screen. It contains a set of labels that overlap it.
   struct ScreenTile
     {
-    vtkstd::vector<LabelRect> Labels;
+    std::vector<LabelRect> Labels;
     ScreenTile() { }
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( const LabelRect& r )
       {
-      for ( vtkstd::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
+      for ( std::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
         {
         if (r.Overlaps(*it))
           {
@@ -351,7 +351,7 @@ public:
       this->Labels.push_back( rect );
       }
     };
-  vtkstd::vector<vtkstd::vector<ScreenTile> > Tiles;
+  std::vector<std::vector<ScreenTile> > Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
   int NumTiles[2];
@@ -395,7 +395,7 @@ public:
       {
       for ( int ty = ty0; ty <= ty1; ++ ty )
         {
-        vtkstd::vector<ScreenTile>* trow = &this->Tiles[tx];
+        std::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
         if ( ! (*trow)[ty].IsSpotOpen( r ) )
           return false;

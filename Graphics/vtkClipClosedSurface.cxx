@@ -36,10 +36,10 @@
 
 #include "vtkIncrementalOctreePointLocator.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
-#include <vtkstd/map>
-#include <vtkstd/utility>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <utility>
 
 vtkStandardNewMacro(vtkClipClosedSurface);
 
@@ -248,7 +248,7 @@ public:
 class vtkCCSEdgeLocator
 {
 private:
-  typedef vtkstd::map<vtkIdType, vtkCCSEdgeLocatorNode> MapType;
+  typedef std::map<vtkIdType, vtkCCSEdgeLocatorNode> MapType;
   MapType EdgeMap;
 
 public:
@@ -1398,23 +1398,23 @@ public:
   };
 
 private:
-  vtkstd::vector<unsigned int> bitstorage;
+  std::vector<unsigned int> bitstorage;
 };
 
 //----------------------------------------------------------------------------
 // Simple typedefs for stl-based polygons.
 
 // A poly type that is just a vector of vtkIdType
-typedef vtkstd::vector<vtkIdType> vtkCCSPoly;
+typedef std::vector<vtkIdType> vtkCCSPoly;
 
 // A poly group type that holds indices into a vector of polys.
 // A poly group is used to represent a polygon with holes.
 // The first member of the group is the outer poly, and all
 // other members are the holes.
-typedef vtkstd::vector<size_t> vtkCCSPolyGroup;
+typedef std::vector<size_t> vtkCCSPolyGroup;
 
 // Extra info for each edge in a poly
-typedef vtkstd::vector<vtkIdType> vtkCCSPolyEdges;
+typedef std::vector<vtkIdType> vtkCCSPolyEdges;
 
 //----------------------------------------------------------------------------
 // These are the prototypes for helper functions for manipulating
@@ -1427,20 +1427,20 @@ int vtkCCSDegenerateCheck(vtkCCSPoly &poly, vtkPoints *points);
 // Take a set of lines, join them tip-to-tail to create polygons
 static void vtkCCSMakePolysFromLines(
   vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
-  vtkstd::vector<vtkCCSPoly> &newPolys,
-  vtkstd::vector<size_t> &incompletePolys);
+  std::vector<vtkCCSPoly> &newPolys,
+  std::vector<size_t> &incompletePolys);
 
 // Finish any incomplete polygons by trying to join loose ends
 static void vtkCCSJoinLooseEnds(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkstd::vector<size_t> &incompletePolys,
+  std::vector<vtkCCSPoly> &polys, std::vector<size_t> &incompletePolys,
   vtkPoints *points, const double normal[3]);
 
 // Check for polygons that contain multiple loops, and split the loops apart.
 // Returns the number of splits made.
 static int vtkCCSSplitAtPinchPoints(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPolyEdges> &polyEdges,
   const double normal[3]);
 
 // Given three vectors p->p1, p->p2, and p->p3, this routine
@@ -1463,8 +1463,8 @@ static double vtkCCSPolygonBounds(
 // where each cell in this array will be a polyline consisting of two
 // corner vertices and all the points in between.
 static void vtkCCSFindTrueEdges(
-  vtkstd::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges);
+  std::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
+  std::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges);
 
 // Set sense to 1 if the poly's normal matches the specified normal, and
 // zero otherwise. Returns zero if poly is degenerate.
@@ -1482,16 +1482,16 @@ static void vtkCCSInsertTriangle(
 // Check for polys within other polys, i.e. find polys that are holes and
 // add them to the "polyGroup" of the poly that they are inside of.
 static void vtkCCSMakeHoleyPolys(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
   const double normal[3]);
 
 // For each poly that has holes, make two cuts between each hole and
 // the outer poly in order to turn the polygon+hole into two polys.
 static int vtkCCSCutHoleyPolys(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPolyEdges> &polyEdges,
   const double normal[3]);
 
 // Triangulate a polygon that has been simplified by FindTrueEdges.
@@ -1534,8 +1534,8 @@ void vtkClipClosedSurface::MakePolysFromContours(
   // If we are lucky these will be simple, convex polygons.  But
   // we can't count on that.
 
-  vtkstd::vector<vtkCCSPoly> newPolys;
-  vtkstd::vector<size_t> incompletePolys;
+  std::vector<vtkCCSPoly> newPolys;
+  std::vector<size_t> incompletePolys;
   // reallocating this would be expensive, so start it big
   newPolys.reserve(100);
 
@@ -1553,7 +1553,7 @@ void vtkClipClosedSurface::MakePolysFromContours(
   // Unfortunately removing these points also means that the polys
   // will no longer form a watertight cap over the cut.
 
-  vtkstd::vector<vtkCCSPolyEdges> polyEdges;
+  std::vector<vtkCCSPolyEdges> polyEdges;
   polyEdges.reserve(100);
   vtkCellArray *originalEdges = this->CellArray;
   originalEdges->Initialize();
@@ -1566,7 +1566,7 @@ void vtkClipClosedSurface::MakePolysFromContours(
   // Initialize each group to hold just one polygon.
 
   size_t numNewPolys = newPolys.size();
-  vtkstd::vector<vtkCCSPolyGroup> polyGroups(numNewPolys);
+  std::vector<vtkCCSPolyGroup> polyGroups(numNewPolys);
   for (size_t i = 0; i < numNewPolys; i++)
     {
     polyGroups[i].push_back(i);
@@ -1649,7 +1649,7 @@ int vtkClipClosedSurface::TriangulatePolygon(
   vtkIdList *polygon, vtkPoints *points, vtkCellArray *triangles)
 {
   vtkIdType n = polygon->GetNumberOfIds();
-  vtkstd::vector<vtkCCSPoly> polys(1);
+  std::vector<vtkCCSPoly> polys(1);
   vtkCCSPoly &poly = polys[0];
   poly.resize(n);
 
@@ -1661,7 +1661,7 @@ int vtkClipClosedSurface::TriangulatePolygon(
   vtkCellArray *originalEdges = this->CellArray;
   originalEdges->Initialize();
 
-  vtkstd::vector<vtkCCSPolyEdges> polyEdges;
+  std::vector<vtkCCSPolyEdges> polyEdges;
   vtkCCSFindTrueEdges(polys, points, polyEdges, originalEdges);
   vtkCCSPolyEdges &edges = polyEdges[0];
 
@@ -1741,8 +1741,8 @@ int vtkCCSTriangulate(
 
 void vtkCCSMakePolysFromLines(
   vtkPolyData *data, vtkIdType firstLine, vtkIdType numLines,
-  vtkstd::vector<vtkCCSPoly> &newPolys,
-  vtkstd::vector<size_t> &incompletePolys)
+  std::vector<vtkCCSPoly> &newPolys,
+  std::vector<size_t> &incompletePolys)
 {
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
@@ -1808,7 +1808,7 @@ void vtkCCSMakePolysFromLines(
       // For both open ends of the polygon
       for (int endIdx = 0; endIdx < 2; endIdx++)
         {
-        vtkstd::vector<vtkIdType> matches;
+        std::vector<vtkIdType> matches;
         unsigned short ncells;
         vtkIdType *cells;
         data->GetPointCells(endPts[endIdx], ncells, cells);
@@ -1896,14 +1896,14 @@ void vtkCCSMakePolysFromLines(
 // Shorter edges will be preferred over long edges.
 
 static void vtkCCSJoinLooseEnds(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkstd::vector<size_t> &incompletePolys,
+  std::vector<vtkCCSPoly> &polys, std::vector<size_t> &incompletePolys,
   vtkPoints *points, const double normal[3])
 {
   // Relative tolerance for checking whether an edge is on the hull
   const double tol = VTK_CCS_POLYGON_TOLERANCE;
 
   // A list of polys to remove when everything is done
-  vtkstd::vector<size_t> removePolys;
+  std::vector<size_t> removePolys;
 
   size_t n;
   while ( (n = incompletePolys.size()) )
@@ -2005,7 +2005,7 @@ static void vtkCCSJoinLooseEnds(
     }
 
   // Remove polys that couldn't be completed
-  vtkstd::sort(removePolys.begin(), removePolys.end());
+  std::sort(removePolys.begin(), removePolys.end());
   size_t i = removePolys.size();
   while (i > 0)
     {
@@ -2024,9 +2024,9 @@ static void vtkCCSJoinLooseEnds(
 // the number of splits made.
 
 int vtkCCSSplitAtPinchPoints(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPolyEdges> &polyEdges,
   const double normal[3])
 {
   vtkPoints *tryPoints = vtkPoints::New();
@@ -2263,8 +2263,8 @@ double vtkCCSPolygonBounds(
 // Only original edges with more than two points will be kept.
 
 void vtkCCSFindTrueEdges(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges)
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyEdges> &polyEdges, vtkCellArray *originalEdges)
 {
   // Tolerance^2 for angle to see if line segments are parallel
   const double atol2 = (VTK_CCS_POLYGON_TOLERANCE*VTK_CCS_POLYGON_TOLERANCE);
@@ -2303,7 +2303,7 @@ void vtkCCSFindTrueEdges(
     newEdges.reserve(n);
 
     // Keep the partial edge from before the first corner is found
-    vtkstd::vector<vtkIdType> partialEdge;
+    std::vector<vtkIdType> partialEdge;
     int cellCount = 0;
 
     double p0[3], p1[3], p2[3];
@@ -2699,8 +2699,8 @@ void vtkCCSPrepareForPolyInPoly(
 // will be reversed twice and will become its own group.
 
 void vtkCCSMakeHoleyPolys(
-  vtkstd::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPoly> &newPolys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
   const double normal[3])
 {
   size_t numNewPolys = newPolys.size();
@@ -2831,7 +2831,7 @@ void vtkCCSMakeHoleyPolys(
 // usable.
 
 int vtkCCSCheckCut(
-  const vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  const std::vector<vtkCCSPoly> &polys, vtkPoints *points,
   const double normal[3], const vtkCCSPolyGroup &polyGroup,
   size_t outerPolyId, size_t innerPolyId,
   vtkIdType outerIdx, vtkIdType innerIdx)
@@ -3101,7 +3101,7 @@ void vtkCCSFindSharpestVerts(
 // Used by vtkCCSCutHoleyPolys.
 
 int vtkCCSFindCuts(
-  const vtkstd::vector<vtkCCSPoly> &polys,
+  const std::vector<vtkCCSPoly> &polys,
   const vtkCCSPolyGroup &polyGroup, size_t outerPolyId, size_t innerPolyId,
   vtkPoints *points, const double normal[3], size_t cuts[2][2],
   size_t exhaustive)
@@ -3114,8 +3114,8 @@ int vtkCCSFindCuts(
   vtkCCSFindSharpestVerts(innerPoly, points, normal, verts);
 
   // A list of cut locations according to quality
-  typedef vtkstd::pair<double, size_t> vtkCCSCutLoc;
-  vtkstd::vector<vtkCCSCutLoc> cutlist(outerPoly.size());
+  typedef std::pair<double, size_t> vtkCCSCutLoc;
+  std::vector<vtkCCSCutLoc> cutlist(outerPoly.size());
 
   // Search for potential cuts (need to find two cuts)
   int cutId = 0;
@@ -3142,7 +3142,7 @@ int vtkCCSFindCuts(
         cutlist[kk].second = kk;
         }
 
-      vtkstd::sort(cutlist.begin(), cutlist.end());
+      std::sort(cutlist.begin(), cutlist.end());
 
       for (size_t lid = 0; lid < cutlist.size(); lid++)
         {
@@ -3199,8 +3199,8 @@ int vtkCCSFindCuts(
 // into two separate polygons by making two cuts between them.
 
 void vtkCCSMakeCuts(
-  vtkstd::vector<vtkCCSPoly> &polys,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  std::vector<vtkCCSPoly> &polys,
+  std::vector<vtkCCSPolyEdges> &polyEdges,
   size_t outerPolyId, size_t innerPolyId,
   vtkPoints *points, const size_t cuts[2][2])
 {
@@ -3293,9 +3293,9 @@ void vtkCCSMakeCuts(
 // are created.
 
 int vtkCCSCutHoleyPolys(
-  vtkstd::vector<vtkCCSPoly> &polys, vtkPoints *points,
-  vtkstd::vector<vtkCCSPolyGroup> &polyGroups,
-  vtkstd::vector<vtkCCSPolyEdges> &polyEdges,
+  std::vector<vtkCCSPoly> &polys, vtkPoints *points,
+  std::vector<vtkCCSPolyGroup> &polyGroups,
+  std::vector<vtkCCSPolyEdges> &polyEdges,
   const double normal[3])
 {
   int cutFailure = 0;
@@ -3318,7 +3318,7 @@ int vtkCCSCutHoleyPolys(
       size_t innerPolyId = polyGroup[1];
 
       // Sort the group by size, do largest holes first
-      vtkstd::vector<vtkstd::pair<size_t, size_t> >
+      std::vector<std::pair<size_t, size_t> >
         innerBySize(polyGroup.size());
 
       for (size_t i = 1; i < polyGroup.size(); i++)
@@ -3327,8 +3327,8 @@ int vtkCCSCutHoleyPolys(
         innerBySize[i].second = i;
         }
 
-      vtkstd::sort(innerBySize.begin()+1, innerBySize.end());
-      vtkstd::reverse(innerBySize.begin()+1, innerBySize.end());
+      std::sort(innerBySize.begin()+1, innerBySize.end());
+      std::reverse(innerBySize.begin()+1, innerBySize.end());
 
       // Need to check all inner polys in sequence, until one succeeds.
       // Do a quick search first, then do an exhaustive search.

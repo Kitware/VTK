@@ -28,8 +28,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/string>
-#include <vtkstd/map>
+#include <string>
+#include <map>
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
@@ -41,7 +41,7 @@ vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets,
 class TranslationTableType
 {
 public:
-  vtkstd::map<int,int> PartIdMap;
+  std::map<int,int> PartIdMap;
 };
 
 
@@ -326,7 +326,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
     if (!quiet) vtkErrorMacro("A case file name must be specified.");
     return -1;
     }
-  vtkstd::string sfilename = "";
+  std::string sfilename = "";
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -1127,7 +1127,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
   char line[256],  subLine[256];
   int  cmpTimeSet, cmpFileSet, fileNameNum, lineReadResult, lineScanResult;
 
-  vtkstd::string sfilename;
+  std::string sfilename;
   if ( this->FilePath )
     {
     sfilename = this->FilePath;
@@ -1680,7 +1680,7 @@ int vtkGenericEnSightReader::InsertNewPartId(int partId)
 {
   int lastId = static_cast<int>(this->TranslationTable->PartIdMap.size());
   this->TranslationTable->PartIdMap.insert(
-    vtkstd::map<int,int>::value_type(partId, lastId));
+    std::map<int,int>::value_type(partId, lastId));
   lastId = this->TranslationTable->PartIdMap[partId];
   //assert( lastId == this->PartIdTranslationTable[partId] );
   return lastId;

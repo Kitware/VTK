@@ -32,8 +32,8 @@
 #include "vtkProperty.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkContourFilter.h"
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 
 //-----------------------------------------------------------------------------
 // Create a few actors first
@@ -118,11 +118,11 @@ public:
          << endl;
     }
   
-  void SetActorDescription( vtkProp *a, vtkstd::string s )
+  void SetActorDescription( vtkProp *a, std::string s )
     {
     this->m_ActorDescription[a] = s;
     }
-  vtkstd::map< vtkProp *, vtkstd::string > m_ActorDescription;
+  std::map< vtkProp *, std::string > m_ActorDescription;
 
 protected:
   TestScenePickerCommand()

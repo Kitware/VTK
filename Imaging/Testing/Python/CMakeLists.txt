@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         MultipleUpdateExtents
         #reconstructSurface -- scanf
         resampledTexture
+        ResliceBSpline
         ResliceColorWrap
         ResliceInformationInput
         ResliceInterpolationModes

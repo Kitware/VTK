@@ -106,7 +106,7 @@ public:
 
   furthest_vertex(vtkGraph *g) : graph(g) { }
 
-  vtkstd::pair<vtkIdType, int> operator()(vtkstd::pair<vtkIdType, int> x, vtkstd::pair<vtkIdType, int> y) const
+  std::pair<vtkIdType, int> operator()(std::pair<vtkIdType, int> x, std::pair<vtkIdType, int> y) const
   {
     vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
     if (x.second > y.second 
@@ -381,7 +381,7 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     maxDistance = BFSArray->GetValue(helper->GetVertexIndex(maxFromRootVertex));
     }
   maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
-                                 vtkstd::make_pair(maxFromRootVertex,
+                                 std::make_pair(maxFromRootVertex,
                                                    maxDistance),
                                  furthest_vertex(output)).first;
 

@@ -55,8 +55,8 @@ int vtkNormalizeMatrixVectors::RequestData(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  int vector_dimension = vtkstd::min(1, vtkstd::max(0, this->VectorDimension));
-  double p_value = vtkstd::max(1.0, this->PValue);
+  int vector_dimension = std::min(1, std::max(0, this->VectorDimension));
+  double p_value = std::max(1.0, this->PValue);
 
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
   if(input->GetNumberOfArrays() != 1)
@@ -84,7 +84,7 @@ int vtkNormalizeMatrixVectors::RequestData(
   const vtkIdType value_count = input_array->GetNonNullSize();
   
   // Create temporary storage for computed vector weights ...
-  vtkstd::vector<double> weight(vectors.GetSize(), 0.0);
+  std::vector<double> weight(vectors.GetSize(), 0.0);
 
   // Store the sum of the squares of each vector value ...
   vtkArrayCoordinates coordinates;

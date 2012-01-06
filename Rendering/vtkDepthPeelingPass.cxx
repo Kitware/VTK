@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
-#include <vtkstd/list>
+#include <list>
 #include "vtkShaderProgram2.h"
 #include "vtkShader2.h"
 #include "vtkShader2Collection.h"
@@ -37,7 +37,7 @@ vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 class vtkDepthPeelingPassLayerList
 {
 public:
-  vtkstd::list<GLuint> List;
+  std::list<GLuint> List;
 };
 
 extern const char *vtkDepthPeeling_fs;
@@ -412,8 +412,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     // the transparent layers
-    vtkstd::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
-    vtkstd::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
+    std::list<GLuint>::reverse_iterator it=this->LayerList->List.rbegin();
+    std::list<GLuint>::reverse_iterator itEnd=this->LayerList->List.rend();
     while(it!=itEnd)
       {
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,(*it));
@@ -444,7 +444,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     // Destroy the layers
     size_t c=this->LayerList->List.size();
     GLuint *ids=new GLuint[c];
-    vtkstd::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
+    std::list<GLuint>::const_iterator it2=this->LayerList->List.begin();
     size_t layer=0;
     while(layer<c)
       {

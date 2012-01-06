@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkDebugLeaks.h"
 #include "vtkObserverMediator.h"
-#include <vtkstd/map>
+#include <map>
 
 
 // PIMPL'd class to keep track of timers. It maps the ids returned by CreateTimer()
@@ -45,8 +45,8 @@ struct vtkTimerStruct
 };
 
 
-class vtkTimerIdMap : public vtkstd::map<int,vtkTimerStruct> {};
-typedef vtkstd::map<int,vtkTimerStruct>::iterator vtkTimerIdMapIterator;
+class vtkTimerIdMap : public std::map<int,vtkTimerStruct> {};
+typedef std::map<int,vtkTimerStruct>::iterator vtkTimerIdMapIterator;
 
 // Initialize static variable that keeps track of timer ids for 
 // render window interactors.

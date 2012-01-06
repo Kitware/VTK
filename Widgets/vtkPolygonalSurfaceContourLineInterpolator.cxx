@@ -201,7 +201,7 @@ void vtkPolygonalSurfaceContourLineInterpolator
 
   const int nNodes = rep->GetNumberOfNodes();
 
-  int nPoints = 0;
+  vtkIdType nPoints = 0;
   for (int i = 0; i < nNodes; i++)
     {
     // 1 for the node and then the number of points.

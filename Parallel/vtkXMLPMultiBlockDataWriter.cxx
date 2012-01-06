@@ -23,7 +23,7 @@
 #include "vtkInformation.h"
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/vector>
+#include <vector>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPMultiBlockDataWriter);
@@ -251,7 +251,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
     // pieceProcessList is a list where index is the process number and value is
     // the data-type for the current leaf on that process.
     int numberOfProcesses = this->Controller->GetNumberOfProcesses();
-    vtkstd::vector<int> pieceProcessList(numberOfProcesses);
+    std::vector<int> pieceProcessList(numberOfProcesses);
     this->Internal->GetPieceProcessList(currentFileIndex, &pieceProcessList[0]);
 
     int numPieces = 0;
@@ -307,8 +307,8 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
 vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
   int currentFileIndex, int procId, int dataSetType)
 {
-  vtkstd::string fname;
-  vtkstd::string extension;
+  std::string fname;
+  std::string extension;
   
   switch (dataSetType)
     {

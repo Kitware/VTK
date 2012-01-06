@@ -33,7 +33,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 // -------------------------------------------------------------------------
 
@@ -398,7 +398,7 @@ void vtkSortDataArray::Sort(vtkIdList *keys)
 {
   vtkIdType *data = keys->GetPointer(0);
   vtkIdType numKeys = keys->GetNumberOfIds();
-  vtkstd::sort(data, data + numKeys);
+  std::sort(data, data + numKeys);
 }
 
 void vtkSortDataArray::Sort(vtkAbstractArray *keys)
@@ -414,7 +414,7 @@ void vtkSortDataArray::Sort(vtkAbstractArray *keys)
 
   switch (keys->GetDataType())
     {
-    vtkExtendedTemplateMacro(vtkstd::sort(static_cast<VTK_TT *>(data), static_cast<VTK_TT *>(data) + numKeys));
+    vtkExtendedTemplateMacro(std::sort(static_cast<VTK_TT *>(data), static_cast<VTK_TT *>(data) + numKeys));
     }
 }
 

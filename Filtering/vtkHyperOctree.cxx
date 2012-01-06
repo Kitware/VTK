@@ -36,9 +36,9 @@
 #include "vtkTimerLog.h"
 #include "vtkVoxel.h"
 
-#include <vtkstd/deque>
-//#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <deque>
+//#include <set>
+#include <vector>
 
 #include <assert.h>
 
@@ -508,7 +508,7 @@ protected:
   int IsFound;
   int IsLeaf;
   
-  vtkstd::deque<int> ChildHistory; // a stack, but stack does not have clear()
+  std::deque<int> ChildHistory; // a stack, but stack does not have clear()
   int Index[D]; // index in each dimension of the current node, as if the
   // tree at the current level was a uniform grid.
 private:
@@ -614,7 +614,7 @@ public:
     { 
       os << indent << "Parent=" << this->Parent<<endl;
       
-//      vtkstd::bitset<8> b=this->LeafFlags;
+//      std::bitset<8> b=this->LeafFlags;
       
       os << indent << "LeafFlags="<<static_cast<int>(this->LeafFlags)<<" ";
      
@@ -935,12 +935,12 @@ protected:
       this->NumberOfLeavesPerLevel[0]=1;
     }
   
-  vtkstd::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
+  std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
   // its size is NumberOfLevels;  
   
   vtkIdType NumberOfLevels;
-  vtkstd::vector<vtkCompactHyperOctreeNode<D> > Nodes;
-  vtkstd::vector<int> LeafParent; // record the parent of each leaf
+  std::vector<vtkCompactHyperOctreeNode<D> > Nodes;
+  std::vector<int> LeafParent; // record the parent of each leaf
   vtkDataSetAttributes *Attributes; // cell data or point data.
 private:
   vtkCompactHyperOctree(const vtkCompactHyperOctree<D> &);  // Not implemented.

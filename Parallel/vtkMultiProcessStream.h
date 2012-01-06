@@ -23,8 +23,8 @@
 #define __vtkMultiProcessStream_h
 
 #include "vtkObject.h"
-#include <vtkstd/vector> // needed for vector.
-#include <vtkstd/string> // needed for string.
+#include <vector> // needed for vector.
+#include <string> // needed for string.
 
 class VTK_PARALLEL_EXPORT vtkMultiProcessStream
 {
@@ -44,7 +44,7 @@ public:
   vtkMultiProcessStream& operator << (unsigned char value);
   vtkMultiProcessStream& operator << (vtkTypeInt64 value);
   vtkMultiProcessStream& operator << (vtkTypeUInt64 value);
-  vtkMultiProcessStream& operator << (const vtkstd::string& value);
+  vtkMultiProcessStream& operator << (const std::string& value);
   vtkMultiProcessStream& operator << (const vtkMultiProcessStream&);
 
   // Description:
@@ -57,7 +57,7 @@ public:
   vtkMultiProcessStream& operator >> (unsigned char &value);
   vtkMultiProcessStream& operator >> (vtkTypeInt64 &value);
   vtkMultiProcessStream& operator >> (vtkTypeUInt64 &value);
-  vtkMultiProcessStream& operator >> (vtkstd::string &value);
+  vtkMultiProcessStream& operator >> (std::string &value);
   vtkMultiProcessStream& operator >> (vtkMultiProcessStream&);
 
   // Description:
@@ -66,8 +66,8 @@ public:
 
   // Description:
   // Serialization methods used to save/restore the stream to/from raw data.
-  void GetRawData(vtkstd::vector<unsigned char>& data) const;
-  void SetRawData(const vtkstd::vector<unsigned char>& data);
+  void GetRawData(std::vector<unsigned char>& data) const;
+  void SetRawData(const std::vector<unsigned char>& data);
   void SetRawData(const unsigned char*, unsigned int size);
 
 private:

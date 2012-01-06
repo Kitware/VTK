@@ -25,8 +25,8 @@
 #include "vtkVariantArray.h"
 
 #include <time.h>
-#include <vtkstd/vector>
-using namespace vtkstd;
+#include <vector>
+using namespace std;
 
 void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
 {

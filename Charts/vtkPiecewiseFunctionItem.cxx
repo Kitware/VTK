@@ -78,6 +78,14 @@ void vtkPiecewiseFunctionItem::ComputeBounds(double* bounds)
 //-----------------------------------------------------------------------------
 void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
+  if (t == this->PiecewiseFunction)
+    {
+    return;
+    }
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->RemoveObserver(this->Callback);
+    }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
   if (t)
     {

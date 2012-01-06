@@ -34,7 +34,7 @@ DEALINGS IN THE SOFTWARE.
 namespace vtk_utf8
 {
     // Exceptions that may be thrown from the library functions.
-    class invalid_code_point : public vtkstd::exception {
+    class invalid_code_point : public std::exception {
         uint32_t cp;
     public:
         invalid_code_point(uint32_t _cp) : cp(_cp) {}
@@ -42,7 +42,7 @@ namespace vtk_utf8
         uint32_t code_point() const {return cp;}
     };
 
-    class invalid_utf8 : public vtkstd::exception {
+    class invalid_utf8 : public std::exception {
         uint8_t u8;
     public:
         invalid_utf8 (uint8_t u) : u8(u) {}
@@ -50,7 +50,7 @@ namespace vtk_utf8
         uint8_t utf8_octet() const {return u8;}
     };
 
-    class invalid_utf16 : public vtkstd::exception {
+    class invalid_utf16 : public std::exception {
         uint16_t u16;
     public:
         invalid_utf16 (uint16_t u) : u16(u) {}
@@ -58,7 +58,7 @@ namespace vtk_utf8
         uint16_t utf16_word() const {return u16;}
     };
 
-    class not_enough_room : public vtkstd::exception {
+    class not_enough_room : public std::exception {
     public:
         virtual const char* what() const throw() { return "Not enough space"; }
     };
@@ -189,10 +189,10 @@ namespace vtk_utf8
     }
 
     template <typename octet_iterator>
-    typename vtkstd::string::difference_type
+    typename std::string::difference_type
     distance (octet_iterator first, octet_iterator last)
     {
-        typename vtkstd::string::difference_type dist;
+        typename std::string::difference_type dist;
         for (dist = 0; first < last; ++dist) 
             next(first, last);
         return dist;
@@ -256,7 +256,7 @@ namespace vtk_utf8
 
     // The iterator class
     template <typename octet_iterator>
-    class iterator : public vtkstd::iterator <vtkstd::bidirectional_iterator_tag, uint32_t> { 
+    class iterator : public std::iterator <std::bidirectional_iterator_tag, uint32_t> { 
       octet_iterator it;
       octet_iterator range_start;
       octet_iterator range_end;
@@ -268,7 +268,7 @@ namespace vtk_utf8
                it(octet_it), range_start(_range_start), range_end(_range_end)
       {
           if (it < range_start || it > range_end)
-              throw vtkstd::out_of_range("Invalid utf-8 iterator position");
+              throw std::out_of_range("Invalid utf-8 iterator position");
       }
       // the default "big three" are OK
       octet_iterator base () const { return it; }
@@ -280,7 +280,7 @@ namespace vtk_utf8
       bool operator == (const iterator& rhs) const 
       { 
           if (range_start != rhs.range_start || range_end != rhs.range_end)
-              throw vtkstd::logic_error("Comparing utf-8 iterators defined with different ranges");
+              throw std::logic_error("Comparing utf-8 iterators defined with different ranges");
           return (it == rhs.it);
       }
       bool operator != (const iterator& rhs) const

@@ -52,9 +52,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef USE_VTK_COSMO
 #include "CosmoDefinition.h"
-#include "vtkstd/queue"
+#include <queue>
 
-using namespace vtkstd;
+using namespace std;
 #else
 #include "Definition.h"
 #include <queue>

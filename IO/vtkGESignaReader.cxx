@@ -33,7 +33,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
     }
   
   int magic;
-  fread(&magic, 4, 1, fp);
+  (void) fread(&magic, 4, 1, fp);
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746) // "IMGF"
@@ -61,7 +61,7 @@ void vtkGESignaReader::ExecuteInformation()
     }
 
   int magic;
-  fread(&magic, 4, 1, fp);
+  (void) fread(&magic, 4, 1, fp);
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746)
@@ -73,77 +73,77 @@ void vtkGESignaReader::ExecuteInformation()
 
   // read in the pixel offset from the header
   int offset;
-  fread(&offset, 4, 1, fp);
+  (void) fread(&offset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&offset);
   this->SetHeaderSize(offset);
 
   int width, height, depth;
-  fread(&width, 4, 1, fp);
+  (void) fread(&width, 4, 1, fp);
   vtkByteSwap::Swap4BE(&width);
-  fread(&height, 4, 1, fp);
+  (void) fread(&height, 4, 1, fp);
   vtkByteSwap::Swap4BE(&height);
   // depth in bits
-  fread(&depth, 4, 1, fp);
+  (void) fread(&depth, 4, 1, fp);
   vtkByteSwap::Swap4BE(&depth);
 
   int compression;
-  fread(&compression, 4, 1, fp);
+  (void) fread(&compression, 4, 1, fp);
   vtkByteSwap::Swap4BE(&compression);
 
   // seek to the exam series and image header offsets
   fseek(fp, 132, SEEK_SET);
   int examHdrOffset;
-  fread(&examHdrOffset, 4, 1, fp);
+  (void) fread(&examHdrOffset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&examHdrOffset);
   fseek(fp, 140, SEEK_SET);
   int seriesHdrOffset;
-  fread(&seriesHdrOffset, 4, 1, fp);
+  (void) fread(&seriesHdrOffset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&seriesHdrOffset);
   fseek(fp, 148, SEEK_SET);
   int imgHdrOffset;
-  fread(&imgHdrOffset, 4, 1, fp);
+  (void) fread(&imgHdrOffset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&imgHdrOffset);
 
   // seek to the exam and read some info
   char tmpStr[1024];
   // suite ID
   fseek(fp, examHdrOffset + 0, SEEK_SET);
-  fread(tmpStr,4,1,fp);
+  (void) fread(tmpStr,4,1,fp);
   tmpStr[4] = 0;
   this->GetMedicalImageProperties()->SetStudyDescription( tmpStr ); // StudyID would be more suited...
   // exam number
   fseek(fp, examHdrOffset + 8, SEEK_SET);
   unsigned short examnumber;
-  fread(&examnumber,2,1,fp);
+  (void) fread(&examnumber,2,1,fp);
   vtkByteSwap::Swap2BE(&examnumber);
   sprintf(tmpStr,"%d",examnumber);
   //this->SetStudyNumber(tmpStr);
   // Patient ID
   fseek(fp, examHdrOffset + 84, SEEK_SET);
-  fread(tmpStr,13,1,fp);
+  (void) fread(tmpStr,13,1,fp);
   tmpStr[13] = 0;
   this->SetPatientID(tmpStr);
   // Patient Name
-  fread(tmpStr,25,1,fp);
+  (void) fread(tmpStr,25,1,fp);
   tmpStr[25] = 0;
   this->SetPatientName(tmpStr);
   // Patient Age
   fseek(fp, examHdrOffset + 122, SEEK_SET);
   short patientage;
-  fread(&patientage,2,1,fp);
+  (void) fread(&patientage,2,1,fp);
   vtkByteSwap::Swap2BE(&patientage);
   sprintf(tmpStr,"%d",patientage);
   this->GetMedicalImageProperties()->SetPatientAge( tmpStr );
   // Patient Sex
   fseek(fp, examHdrOffset + 126, SEEK_SET);
   short patientsex;
-  fread(&patientsex,2,1,fp);
+  (void) fread(&patientsex,2,1,fp);
   vtkByteSwap::Swap2BE(&patientsex);
   sprintf(tmpStr,"%d",patientsex);
   this->GetMedicalImageProperties()->SetPatientSex( tmpStr );
   // Modality
   fseek(fp, examHdrOffset + 305, SEEK_SET);
-  fread(tmpStr,3,1,fp);
+  (void) fread(tmpStr,3,1,fp);
   tmpStr[3] = 0;
   this->SetModality(tmpStr);
   
@@ -151,13 +151,13 @@ void vtkGESignaReader::ExecuteInformation()
   // series number
   fseek(fp, seriesHdrOffset + 10, SEEK_SET);
   short series;
-  fread(&series,2,1,fp);
+  (void) fread(&series,2,1,fp);
   vtkByteSwap::Swap2BE(&series);
   sprintf(tmpStr,"%d",series);
   this->SetSeries(tmpStr);
   // scan protocol name
   fseek(fp, seriesHdrOffset + 92, SEEK_SET);
-  fread(tmpStr,25,1,fp);
+  (void) fread(tmpStr,25,1,fp);
   tmpStr[25] = 0;
   this->SetStudy(tmpStr); // ??
 
@@ -165,35 +165,35 @@ void vtkGESignaReader::ExecuteInformation()
   float tmpX, tmpY, tmpZ;
   float spacingX, spacingY, spacingZ;
   fseek(fp, imgHdrOffset + 50, SEEK_SET);
-  fread(&spacingX, 4, 1, fp);
+  (void) fread(&spacingX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingX);
-  fread(&spacingY, 4, 1, fp);
+  (void) fread(&spacingY, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingY);
   fseek(fp, imgHdrOffset + 116, SEEK_SET);  
-  fread(&spacingZ, 4, 1, fp);
+  (void) fread(&spacingZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingZ);
   // Slice Thickness
   fseek(fp, imgHdrOffset + 26, SEEK_SET);  
-  fread(&tmpZ, 4, 1, fp);
+  (void) fread(&tmpZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpZ);
   spacingZ = spacingZ + tmpZ;
   
   float origX, origY, origZ;
   fseek(fp, imgHdrOffset + 154, SEEK_SET);
   // read TLHC
-  fread(&origX, 4, 1, fp);
+  (void) fread(&origX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&origX);
-  fread(&origY, 4, 1, fp);
+  (void) fread(&origY, 4, 1, fp);
   vtkByteSwap::Swap4BE(&origY);
-  fread(&origZ, 4, 1, fp);
+  (void) fread(&origZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&origZ);
 
   // read TRHC
-  fread(&tmpX, 4, 1, fp);
+  (void) fread(&tmpX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpX);
-  fread(&tmpY, 4, 1, fp);
+  (void) fread(&tmpY, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpY);
-  fread(&tmpZ, 4, 1, fp);
+  (void) fread(&tmpZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpZ);
 
   // compute BLHC = TLHC - TRHC + BRHC
@@ -202,11 +202,11 @@ void vtkGESignaReader::ExecuteInformation()
   origZ = origZ - tmpZ;
   
   // read BRHC
-  fread(&tmpX, 4, 1, fp);
+  (void) fread(&tmpX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpX);
-  fread(&tmpY, 4, 1, fp);
+  (void) fread(&tmpY, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpY);
-  fread(&tmpZ, 4, 1, fp);
+  (void) fread(&tmpZ, 4, 1, fp);
   vtkByteSwap::Swap4BE(&tmpZ);
 
   // compute BLHC = TLHC - TRHC + BRHC
@@ -363,7 +363,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
     }
 
   int magic;
-  fread(&magic, 4, 1, fp);
+  (void) fread(&magic, 4, 1, fp);
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746)
@@ -375,20 +375,20 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 
   // read in the pixel offset from the header
   int offset;
-  fread(&offset, 4, 1, fp);
+  (void) fread(&offset, 4, 1, fp);
   vtkByteSwap::Swap4BE(&offset);
 
   int width, height, depth;
-  fread(&width, 4, 1, fp);
+  (void) fread(&width, 4, 1, fp);
   vtkByteSwap::Swap4BE(&width);
-  fread(&height, 4, 1, fp);
+  (void) fread(&height, 4, 1, fp);
   vtkByteSwap::Swap4BE(&height);
   // depth in bits
-  fread(&depth, 4, 1, fp);
+  (void) fread(&depth, 4, 1, fp);
   vtkByteSwap::Swap4BE(&depth);
 
   int compression;
-  fread(&compression, 4, 1, fp);
+  (void) fread(&compression, 4, 1, fp);
   vtkByteSwap::Swap4BE(&compression);
 
   short *leftMap = 0;
@@ -401,7 +401,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 
       fseek(fp, 64, SEEK_SET);
       int packHdrOffset;
-      fread(&packHdrOffset, 4, 1, fp);
+      (void) fread(&packHdrOffset, 4, 1, fp);
       vtkByteSwap::Swap4BE(&packHdrOffset);
       
       // now seek to the pack header and read some values
@@ -410,9 +410,9 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
       int i;
       for (i = 0; i < height; i++)
         {
-          fread(leftMap+i, 2, 1, fp);
+          (void) fread(leftMap+i, 2, 1, fp);
           vtkByteSwap::Swap2BE(leftMap+i);
-          fread(widthMap+i, 2, 1, fp);
+          (void) fread(widthMap+i, 2, 1, fp);
           vtkByteSwap::Swap2BE(widthMap+i);
         }
     }

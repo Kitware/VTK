@@ -25,8 +25,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////
 // vtkMimeTypes::Implementation
@@ -34,7 +34,7 @@
 class vtkMimeTypes::Implementation
 {
 public:
-  vtkstd::vector<vtkMimeTypeStrategy*> Strategies;
+  std::vector<vtkMimeTypeStrategy*> Strategies;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void vtkMimeTypes::PrependStrategy(vtkMimeTypeStrategy* strategy)
     return;
     }
 
-  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+  if(std::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
     vtkErrorMacro(<< "Cannot prepend the same strategy twice.");
     return;
@@ -100,7 +100,7 @@ void vtkMimeTypes::AppendStrategy(vtkMimeTypeStrategy* strategy)
     return;
     }
 
-  if(vtkstd::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
+  if(std::count(this->Internal->Strategies.begin(), this->Internal->Strategies.end(), strategy))
     {
     vtkErrorMacro(<< "Cannot append the same strategy twice.");
     return;
@@ -134,7 +134,7 @@ vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri, const vtkTypeUInt8* b
 {
   for(unsigned int i = 0; i != this->Internal->Strategies.size(); ++i)
     {
-    const vtkStdString mime_type = this->Internal->Strategies[i]->Lookup(uri, vtkstd::min(begin, end), vtkstd::max(begin, end));
+    const vtkStdString mime_type = this->Internal->Strategies[i]->Lookup(uri, std::min(begin, end), std::max(begin, end));
     if(mime_type.size())
       return mime_type;
     }
@@ -143,7 +143,7 @@ vtkStdString vtkMimeTypes::Lookup(const vtkStdString& uri, const vtkTypeUInt8* b
 
 bool vtkMimeTypes::Match(const vtkStdString& pattern, const vtkStdString& type)
 {
-  vtkstd::vector<vtkstd::string> pattern_parts;
+  std::vector<std::string> pattern_parts;
   boost::algorithm::split(pattern_parts, pattern, boost::algorithm::is_any_of("/"));
   if(pattern_parts.size() != 2)
     {
@@ -151,7 +151,7 @@ bool vtkMimeTypes::Match(const vtkStdString& pattern, const vtkStdString& type)
     return false;
     }
 
-  vtkstd::vector<vtkstd::string> type_parts;
+  std::vector<std::string> type_parts;
   // Special-case: we treat an empty string as-if it were "<empty>/</empty>"
   if(type.empty())
     {

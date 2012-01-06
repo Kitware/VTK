@@ -24,7 +24,7 @@
 
 #include <vtksys/ios/sstream>
 #include <cassert>
-#include <vtkstd/vector>
+#include <vector>
 
 //#define ENCODEASSTRING 1
 
@@ -45,7 +45,7 @@ struct NodeInfo
 };
 
 /*======================================================================== */
-typedef vtkstd::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
+typedef std::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
 class vtkX3DExporterFINodeInfoStack : 
   public vtkX3DExporterFINodeInfoStackBase
 {
@@ -68,7 +68,7 @@ public:
   int OpenStream();
 
   // Puts a bitstring to the current byte bit by bit
-  void PutBits(const vtkstd::string &bitstring);
+  void PutBits(const std::string &bitstring);
   // Puts the integer value to the stream using count bits
   // for encoding
   void PutBits(unsigned int value, unsigned char count);
@@ -230,9 +230,9 @@ void vtkX3DExporterFIByteWriter::PutBits(unsigned int value, unsigned char count
 
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIByteWriter::PutBits(const vtkstd::string &bitstring)
+void vtkX3DExporterFIByteWriter::PutBits(const std::string &bitstring)
 {
-  vtkstd::string::const_iterator I = bitstring.begin();
+  std::string::const_iterator I = bitstring.begin();
   while(I != bitstring.end())
     {
     this->PutBit((*I) == '1');
@@ -273,7 +273,7 @@ void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkX3DExporterFIWriter::OpenFile(const char* file)
 {
-  vtkstd::string t(file);
+  std::string t(file);
   this->CloseFile();
 
   // Delegate to vtkX3DExporterFIByteWriter
@@ -512,7 +512,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
   vtksys_ios::ostringstream ss;
-  vtkstd::vector<double> values;
+  std::vector<double> values;
 
   this->StartAttribute(attributeID, true, false);
 
@@ -605,7 +605,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtksys_ios::ostringstream ss;
-  vtkstd::vector<int> values;
+  std::vector<int> values;
 
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
@@ -699,18 +699,18 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, const char* value,
   bool vtkNotUsed(mfstring))
 {
   this->StartAttribute(attributeID, true, true);
-  vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, vtkstd::string(value));
+  vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, std::string(value));
 }
 
 //----------------------------------------------------------------------------
-/*void vtkX3DExporterFIWriter::SetField(int attributeID, const vtkstd::string &value)
+/*void vtkX3DExporterFIWriter::SetField(int attributeID, const std::string &value)
   {
   this->StartAttribute(attributeID, true, true);
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, value);
   }*/
 
 //----------------------------------------------------------------------------
-/*void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkstd::string value)
+/*void vtkX3DExporterFIWriter::SetField(int attributeID, int type, std::string value)
   {
   assert(type == MFSTRING);
   type++;

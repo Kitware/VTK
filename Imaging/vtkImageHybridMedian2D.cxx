@@ -19,9 +19,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
-#include <vtkstd/numeric>
+#include <vector>
+#include <algorithm>
+#include <numeric>
 
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
@@ -53,7 +53,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
   T *inPtr0, *inPtr1, *inPtrC;
   T *outPtr0, *outPtr1, *outPtrC, *ptr;
   T median1, median2, temp;
-  vtkstd::vector<T> array;
+  std::vector<T> array;
   unsigned long count = 0;
   unsigned long target;
 
@@ -151,7 +151,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             array.push_back( *ptr );
             }
 
-          vtkstd::sort(array.begin(),array.end());
+          std::sort(array.begin(),array.end());
           median1 = array[static_cast<unsigned int>(0.5*array.size())];
 
           // compute median of x neighborhood
@@ -209,7 +209,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             array.push_back( *ptr );
             }
 
-          vtkstd::sort(array.begin(),array.end());
+          std::sort(array.begin(),array.end());
           median2 = array[static_cast<unsigned int>(0.5*array.size())];
 
           // Compute the median of the three. (med1, med2 and center)

@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)
 static int splitString(const vtkStdString& input, 
-                       vtkstd::vector<vtkStdString>& results);
+                       std::vector<vtkStdString>& results);
 
 //---------------------------------------------------------------------------
 class vtkGroupLeafVerticesCompare
@@ -214,7 +214,7 @@ int vtkGroupLeafVertices::RequestData(
       {
       for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
         {
-        vtkstd::vector<vtkStdString> tokens;
+        std::vector<vtkStdString> tokens;
         vtkVariant v = pedigreeIdArr->GetVariantValue(i);
         splitString(v.ToString(), tokens);
         vtkVariant last = tokens[tokens.size()-1];
@@ -387,7 +387,7 @@ int vtkGroupLeafVertices::RequestData(
 
 static int 
 splitString(const vtkStdString& input, 
-            vtkstd::vector<vtkStdString>& results)
+            std::vector<vtkStdString>& results)
 {
   if (input.size() == 0)
     {
@@ -397,7 +397,7 @@ splitString(const vtkStdString& input,
   char thisCharacter = 0;
   char lastCharacter = 0;
 
-  vtkstd::string currentField;
+  std::string currentField;
 
   for (unsigned int i = 0; i < input.size(); ++i)
     {

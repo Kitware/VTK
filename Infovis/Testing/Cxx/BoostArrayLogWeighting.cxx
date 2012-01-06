@@ -32,7 +32,7 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    throw vtkstd::runtime_error("Expression failed: " #expression); \
+    throw std::runtime_error("Expression failed: " #expression); \
 }
 
 static bool close_enough(const double lhs, const double rhs)
@@ -51,7 +51,7 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     source->SetDiagonal(3.0);
     source->SetSubDiagonal(7.0);
 
-    cout << vtkstd::fixed << setprecision(1);
+    cout << std::fixed << setprecision(1);
     cout << "sparse diagonal source:\n";
     source->Update();
     vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
@@ -61,7 +61,7 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     log_weighting->Update();
     vtkTypedArray<double>* weighted = vtkTypedArray<double>::SafeDownCast(log_weighting->GetOutput()->GetArray(0));
-    cout << vtkstd::fixed << setprecision(17);
+    cout << std::fixed << setprecision(17);
     cout << "sparse weighted:\n";
     vtkPrintMatrixFormat(cout, weighted);
 
@@ -80,14 +80,14 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 2)), 1.38629436111989057));
 
     source->SetArrayType(vtkDiagonalMatrixSource::DENSE);
-    cout << vtkstd::fixed << setprecision(1);
+    cout << std::fixed << setprecision(1);
     cout << "dense diagonal source:\n";
     source->Update();
     vtkPrintMatrixFormat(cout, vtkTypedArray<double>::SafeDownCast(source->GetOutput()->GetArray(0)));
 
     log_weighting->Update();
     weighted = vtkTypedArray<double>::SafeDownCast(log_weighting->GetOutput()->GetArray(0));
-    cout << vtkstd::fixed << setprecision(17);
+    cout << std::fixed << setprecision(17);
     cout << "dense weighted:\n";
     vtkPrintMatrixFormat(cout, weighted);
 
@@ -106,7 +106,7 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

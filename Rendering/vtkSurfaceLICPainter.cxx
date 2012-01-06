@@ -47,7 +47,7 @@
 
 #include <assert.h>
 #include "vtkgl.h"
-#include <vtkstd/string>
+#include <string>
 
 #define vtkGetIndex(r,c)    (c*4+r)
 extern const char* vtkSurfaceLICPainter_fs1;
@@ -82,7 +82,7 @@ public:
 
   int FieldAssociation;
   int FieldAttributeType;
-  vtkstd::string FieldName;
+  std::string FieldName;
   bool FieldNameSet;
 
   // Some internal flags.
@@ -204,7 +204,7 @@ void vtkSurfaceLICPainter::ReleaseGraphicsResources(vtkWindow* win)
 
 static vtkImageData* vtkGetNoiseResource()
 {
-  vtkstd::string base64string;
+  std::string base64string;
   for (unsigned int cc=0; cc < file_noise200x200_vtk_nb_sections; cc++)
     {
       base64string += reinterpret_cast<const char*>(file_noise200x200_vtk_sections[cc]);

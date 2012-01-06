@@ -15,7 +15,7 @@
 #include "vtkGenericEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkGenericEdgeTable);
@@ -41,8 +41,8 @@ vtkGenericEdgeTable::PointEntry::PointEntry(int size)
 class vtkEdgeTablePoints
 {
 public:
-  typedef vtkstd::vector<vtkGenericEdgeTable::PointEntry> VectorPointTableType;
-  typedef vtkstd::vector<VectorPointTableType> PointTableType;
+  typedef std::vector<vtkGenericEdgeTable::PointEntry> VectorPointTableType;
+  typedef std::vector<VectorPointTableType> PointTableType;
 
   void Resize(vtkIdType size);
   void LoadFactor();
@@ -111,8 +111,8 @@ void vtkEdgeTablePoints::DumpPoints()
 class vtkEdgeTableEdge
 {
 public:
-  typedef vtkstd::vector<vtkGenericEdgeTable::EdgeEntry> VectorEdgeTableType;
-  typedef vtkstd::vector<VectorEdgeTableType> EdgeTableType;
+  typedef std::vector<vtkGenericEdgeTable::EdgeEntry> VectorEdgeTableType;
+  typedef std::vector<VectorEdgeTableType> EdgeTableType;
 
   void Resize(vtkIdType size);
   void LoadFactor();

@@ -16,21 +16,21 @@ public:
   typedef typename O_::allocator_type octree_allocator_type;
   typedef typename O_::octree_node_reference octree_node_reference;
   typedef typename O_::octree_node_pointer octree_node_pointer;
-  typedef typename vtkstd::vector<octree_node_pointer>::size_type size_type;
+  typedef typename std::vector<octree_node_pointer>::size_type size_type;
 
   typedef octree_path< T_, T_&, T_*, O_, O_*, d_ > path;
   typedef octree_path< T_, const T_&, const T_*, O_, const O_*, d_ > const_path;
   typedef octree_path< T_, R_, P_, O_, OP_, d_ > self_path;
 
   octree_node_pointer _M_root;                    // The root of the octree we are iterating over
-  vtkstd::vector<octree_node_pointer> _M_parents; // List of parent nodes
-  vtkstd::vector<int> _M_indices;                 // List of parent child indices
+  std::vector<octree_node_pointer> _M_parents; // List of parent nodes
+  std::vector<int> _M_indices;                 // List of parent child indices
   octree_node_pointer _M_current_node;            // Current path head
 
   octree_path();
   octree_path( octree_pointer otree );
   octree_path( octree_node_pointer oroot );
-  octree_path( octree_node_pointer oroot, vtkstd::vector<int>& children );
+  octree_path( octree_node_pointer oroot, std::vector<int>& children );
   virtual ~octree_path();
 
   octree_node_reference operator * () const { return *_M_current_node; }

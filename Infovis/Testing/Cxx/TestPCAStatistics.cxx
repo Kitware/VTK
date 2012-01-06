@@ -23,7 +23,7 @@
 // Perform a fuzzy compare of floats/doubles
 template<class A>
 bool fuzzyCompare(A a, A b) {
-//  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+//  return fabs(a - b) < std::numeric_limits<A>::epsilon();
   return fabs(a - b) < .0001;
 }
 

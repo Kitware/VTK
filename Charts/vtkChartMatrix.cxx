@@ -138,6 +138,15 @@ void vtkChartMatrix::SetSize(const vtkVector2i &size)
     }
 }
 
+void vtkChartMatrix::SetBorders(int left, int bottom, int right, int top)
+{
+  this->Borders[vtkAxis::LEFT] = left;
+  this->Borders[vtkAxis::BOTTOM] = bottom;
+  this->Borders[vtkAxis::RIGHT] = right;
+  this->Borders[vtkAxis::TOP] = top;
+  this->LayoutIsDirty = true;
+}
+
 void vtkChartMatrix::SetGutter(const vtkVector2f &gutter)
 {
   this->Gutter = gutter;

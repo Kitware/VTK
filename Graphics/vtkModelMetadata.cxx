@@ -34,15 +34,15 @@
 
 vtkStandardNewMacro(vtkModelMetadata);
 
-#include <vtkstd/set>
-#include <vtkstd/map>
-#include <vtkstd/algorithm>
+#include <set>
+#include <map>
+#include <algorithm>
 
 class vtkModelMetadataSTLCloak
 {
 public:
-  vtkstd::set<int> IntSet;
-  vtkstd::map<int, int> IntMap; 
+  std::set<int> IntSet;
+  std::map<int, int> IntMap;
 };
 
 
@@ -482,7 +482,7 @@ int vtkModelMetadata::GetBlockLocalIndex(int id)
      this->BlockIdIndex = new vtkModelMetadataSTLCloak;
      }
 
-  vtkstd::map<int, int> blockIdIndex = this->BlockIdIndex->IntMap;
+  std::map<int, int> blockIdIndex = this->BlockIdIndex->IntMap;
 
   if (blockIdIndex.size() == 0)
     {
@@ -490,11 +490,11 @@ int vtkModelMetadata::GetBlockLocalIndex(int id)
       {
       int gid = this->BlockIds[i];
 
-      blockIdIndex.insert(vtkstd::map<int,int>::value_type(gid, i));
+      blockIdIndex.insert(std::map<int,int>::value_type(gid, i));
       }
     }
 
-  vtkstd::map<int,int>::iterator mapit = blockIdIndex.find(id);
+  std::map<int,int>::iterator mapit = blockIdIndex.find(id);
 
   int retVal = -1;
 
@@ -2582,7 +2582,7 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
       // Make a set of the ids we've just written.  We only want to add
       // ids from list 2 if they did not exist in list 1.
   
-      vtkstd::set<int> idSet;
+      std::set<int> idSet;
   
       for (id=0; id < numids; id++)
         {
@@ -2604,7 +2604,7 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
   
       for (id=0; id < numids; id++)
         {
-        vtkstd::pair<vtkstd::set<int>::iterator, bool> inserted =
+        std::pair<std::set<int>::iterator, bool> inserted =
   
           idSet.insert(ids[id]);
   
@@ -3306,7 +3306,7 @@ void vtkModelMetadata::ExtractCellsFromBlockData(vtkModelMetadataSTLCloak *idset
 
     for (j=0; j<blockSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->IntSet.find(eltIds[ii]);
+      std::set<int>::iterator it = idset->IntSet.find(eltIds[ii]);
 
       if (it == idset->IntSet.end())
         {
@@ -3407,7 +3407,7 @@ void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkModelMetadataSTLCloak *ids
 
     for (j=0; j<nsSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->IntSet.find(nsIds[ii]);
+      std::set<int>::iterator it = idset->IntSet.find(nsIds[ii]);
 
       if (it == idset->IntSet.end())
         {
@@ -3517,7 +3517,7 @@ void vtkModelMetadata::ExtractSidesFromSideSetData(vtkModelMetadataSTLCloak *ids
 
     for (j=0; j<ssSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->IntSet.find(ssElts[ii]);
+      std::set<int>::iterator it = idset->IntSet.find(ssElts[ii]);
 
       if (it == idset->IntSet.end())
         {
@@ -3659,7 +3659,7 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
 
   for (vtkIdType c = 0; c<gridCells; c++)
     {
-    vtkstd::set<int>::iterator it = cellIds->IntSet.find(gcids[c]);
+    std::set<int>::iterator it = cellIds->IntSet.find(gcids[c]);
 
     if (it != cellIds->IntSet.end())
       {

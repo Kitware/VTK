@@ -54,8 +54,8 @@ vtkStandardNewMacro(vtkODBCDatabase);
 // Registration of ODBC dynamically with the vtkSQLDatabase factory method.
 vtkSQLDatabase * ODBCCreateFunction(const char* URL)
 {
-  vtkstd::string urlstr(URL ? URL : "");
-  vtkstd::string protocol, unused;
+  std::string urlstr(URL ? URL : "");
+  std::string protocol, unused;
   vtkODBCDatabase *db = 0;
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
@@ -719,13 +719,13 @@ vtkStdString vtkODBCDatabase::GetURL()
 // ----------------------------------------------------------------------------
 bool vtkODBCDatabase::ParseURL(const char *URL)
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string unused;
-  vtkstd::string dsname;
-  vtkstd::string dataport;
-  vtkstd::string database;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string username;
+  std::string unused;
+  std::string dsname;
+  std::string dataport;
+  std::string database;
 
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL(

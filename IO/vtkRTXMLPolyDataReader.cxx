@@ -15,16 +15,16 @@
 #include "vtkRTXMLPolyDataReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkDirectory.h"
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 
 class vtkRTXMLPolyDataReaderInternals
 {
 public:
-  vtkstd::vector<vtkstd::string> AvailableDataFileList;
-  vtkstd::vector<vtkstd::string> ProcessedFileList;
+  std::vector<std::string> AvailableDataFileList;
+  std::vector<std::string> ProcessedFileList;
 };
 
 //----------------------------------------------------------------------------

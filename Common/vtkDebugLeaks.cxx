@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-#include <vtkstd/string>
+#include <string>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
   0
@@ -64,7 +64,7 @@ public:
       this->Key = 0;
       this->Next =0;
     }
-  void Print(vtkstd::string& os)
+  void Print(std::string& os)
     {
       if(this->Count)
         {
@@ -99,7 +99,7 @@ public:
   void IncrementCount(const char *name);
   unsigned int GetCount(const char *name);
   int DecrementCount(const char* name);
-  void PrintTable(vtkstd::string &os);
+  void PrintTable(std::string &os);
   int IsEmpty();
   ~vtkDebugLeaksHashTable()
     {
@@ -244,7 +244,7 @@ int vtkDebugLeaksHashTable::DecrementCount(const char *key)
 }
 
 //----------------------------------------------------------------------------
-void vtkDebugLeaksHashTable::PrintTable(vtkstd::string &os)
+void vtkDebugLeaksHashTable::PrintTable(std::string &os)
 {
   for(int i =0; i < 64; i++)
     {
@@ -316,7 +316,7 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 
   // we must not use stringstream ior strstream due to problems with
   // finalizers in MSVC
-  vtkstd::string leaks;
+  std::string leaks;
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
 #ifdef _WIN32
   fprintf(stderr,"%s",leaks.c_str());
@@ -328,13 +328,13 @@ int vtkDebugLeaks::PrintCurrentLeaks()
     // Skip dialogs when running on dashboard.
     return 1;
     }
-  vtkstd::string::size_type myPos = 0;
+  std::string::size_type myPos = 0;
   int count = 0;
-  vtkstd::string msg;
+  std::string msg;
   msg = "vtkDebugLeaks has detected LEAKS!\n";
   while(!cancel && myPos != leaks.npos)
     {  
-    vtkstd::string::size_type newPos = leaks.find('\n',myPos);
+    std::string::size_type newPos = leaks.find('\n',myPos);
     if (newPos != leaks.npos)
       {
       msg += leaks.substr(myPos,newPos-myPos);

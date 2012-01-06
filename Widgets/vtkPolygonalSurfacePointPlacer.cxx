@@ -30,13 +30,13 @@
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
 
-#include "vtkstd/vector"
+#include <vector>
 
 class vtkPolygonalSurfacePointPlacerInternals
 {
 
 public:
-  typedef vtkstd::vector<
+  typedef std::vector<
     vtkPolygonalSurfacePointPlacerNode * > NodesContainerType;
 
   NodesContainerType Nodes;

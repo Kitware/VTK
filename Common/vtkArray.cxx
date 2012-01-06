@@ -24,7 +24,7 @@
 #include "vtkSparseArray.h"
 #include <vtkVariant.h>
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 //
 // Standard functions
@@ -227,8 +227,8 @@ void vtkArray::SetName(const vtkStdString& raw_name)
 {
   // Don't allow newlines in array names ...
   vtkStdString name(raw_name);
-  name.erase(vtkstd::remove(name.begin(), name.end(), '\r'), name.end());
-  name.erase(vtkstd::remove(name.begin(), name.end(), '\n'), name.end());
+  name.erase(std::remove(name.begin(), name.end(), '\r'), name.end());
+  name.erase(std::remove(name.begin(), name.end(), '\n'), name.end());
 
   this->Name = name;
 }
@@ -248,8 +248,8 @@ void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 
   // Don't allow newlines in dimension labels ...
   vtkStdString label(raw_label);
-  label.erase(vtkstd::remove(label.begin(), label.end(), '\r'), label.end());
-  label.erase(vtkstd::remove(label.begin(), label.end(), '\n'), label.end());
+  label.erase(std::remove(label.begin(), label.end(), '\r'), label.end());
+  label.erase(std::remove(label.begin(), label.end(), '\n'), label.end());
 
   this->InternalSetDimensionLabel(i, label);
 }

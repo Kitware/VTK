@@ -29,7 +29,7 @@
 #include "vtkCamera.h"
 #include "vtkLight.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 
 
@@ -105,7 +105,7 @@ vtkActor* makeActor( const char* type, const char* material )
 
 }
 
-void gridLayoutActors( vtkstd::vector<vtkActor*> actors )
+void gridLayoutActors( std::vector<vtkActor*> actors )
 {
   if( (int)actors.size() <= 1 )
     {
@@ -114,8 +114,8 @@ void gridLayoutActors( vtkstd::vector<vtkActor*> actors )
 
   double bounds[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-  vtkstd::vector<vtkActor*>::iterator it = actors.begin();
-  vtkstd::vector<vtkActor*>::iterator itEnd = actors.end();
+  std::vector<vtkActor*>::iterator it = actors.begin();
+  std::vector<vtkActor*>::iterator itEnd = actors.end();
   while( it != itEnd )
     {
     // move to the origin
@@ -201,8 +201,8 @@ int main(int argc, char* argv[])
   cout << "Syntax: MaterialObjects material0 material1 ... materialn" << endl;
   cout << "Apply the nth material to the nth sphere, 0 <= n <= 7" << endl;
 
-  vtkstd::vector<int> geom;
-  vtkstd::vector<int> mat;
+  std::vector<int> geom;
+  std::vector<int> mat;
   int numActors = 0;
   int count=0;
   int i = 0;
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
       }
     }
 
-  vtkstd::vector<vtkActor*> actors;
+  std::vector<vtkActor*> actors;
   i = 0;
   for( i=0; i<numActors; i++ )
     {
@@ -251,8 +251,8 @@ int main(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   // Add the actors to the renderer, set the background and size.
-  vtkstd::vector<vtkActor*>::iterator it = actors.begin();
-  vtkstd::vector<vtkActor*>::iterator itEnd = actors.end();
+  std::vector<vtkActor*>::iterator it = actors.begin();
+  std::vector<vtkActor*>::iterator itEnd = actors.end();
   while( it != itEnd )
     {
     ren1->AddActor(*it);

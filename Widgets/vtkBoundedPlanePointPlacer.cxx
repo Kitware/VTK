@@ -23,8 +23,8 @@
 #include "vtkLine.h"
 #include "vtkCamera.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkBoundedPlanePointPlacer);
 

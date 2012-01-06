@@ -1,0 +1,23 @@
+netcdfcpp.h	the C++ interface
+
+netcdf.cpp	the implementation of the interface, on top of the current
+                C library interface
+
+nctst.cpp	a test program for the interface that creates a netCDF file
+                and then dumps out its contents in ASCII form to stdout.
+                This example may also be helpful in understanding how the
+                interface is intended to be used.
+
+example.c	example of C code needed to create a small netCDF file
+
+example.cpp	analogous example of C++ code needed to do the same thing
+
+Makefile	makefile for building nctst
+
+ncvalues.cpp	interface for auxilliary classes of typed arrays needed by
+                netCDF interface; fairly simple
+
+ncvalues.cpp	implementation of auxilliary classes of typed arrays needed by
+                netCDF interface
+
+README		this file

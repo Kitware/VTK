@@ -19,10 +19,13 @@ TARGET_LINK_LIBRARIES(BandedContours vtkHybrid)
 ######## Regression Testing ########
 SET(KIT VisualizationAlgorithmsExamples)
 SET(MyTests
-    TestTubesWithVaryingRadiusAndColors.cxx
     TestFilledContours.cxx
     TestBandedContours.cxx
 )
+
+IF (VTK_DATA_ROOT)
+  SET(MyTests ${MyTests} TestTubesWithVaryingRadiusAndColors.cxx)
+ENDIF (VTK_DATA_ROOT)
 
 INCLUDE(vtkTestingObjectFactory)
 ADD_EXECUTABLE(${KIT}CxxTests ${KIT}CxxTests.cxx

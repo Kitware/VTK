@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
 
-#include <vtkstd/map>
+#include <map>
 #include <cstring> // for strlen()
 
 vtkStandardNewMacro(vtkTDxMacDevice);
@@ -44,7 +44,7 @@ public:
 // It would be better to have the following variables as member of variable
 // but the message handle registration through the 3DConnexion SDK is a piece
 // of crap: it only takes a callback pointer but no callback data!
-vtkstd::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID> vtkClientIDToDeviceObject;
+std::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID> vtkClientIDToDeviceObject;
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -110,7 +110,7 @@ void vtkTDxMacDevice::Initialize()
   
   delete[] pString;
   
-  vtkClientIDToDeviceObject.insert(vtkstd::pair<const UInt16,vtkTDxMacDevice *>(this->ClientID,this));
+  vtkClientIDToDeviceObject.insert(std::pair<const UInt16,vtkTDxMacDevice *>(this->ClientID,this));
 }
 
 // ----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void vtkTDxMacDevice::Close()
   UnregisterConnexionClient(this->ClientID);
   
   // remove it from map
-  vtkstd::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it=
+  std::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it=
     vtkClientIDToDeviceObject.find(this->ClientID);
   
   if(it==vtkClientIDToDeviceObject.end())
@@ -307,7 +307,7 @@ void vtkTDxMacDeviceMessageHandler(io_connect_t connection,
                                    void *messageArgument)
 { 
   ConnexionDeviceState *s;
-  vtkstd::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it;
+  std::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it;
   vtkTDxMacDevice *device;
   
   switch(messageType)

@@ -24,8 +24,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
-#include <vtkstd/stack>
-using vtkstd::stack;
+#include <stack>
+using std::stack;
 
 struct vtkTreeDFSIteratorPosition
 {

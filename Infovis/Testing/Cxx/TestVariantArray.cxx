@@ -29,8 +29,8 @@
 #include "vtkSmartPointer.h"
 
 #include <time.h>
-#include <vtkstd/vector>
-using vtkstd::vector;
+#include <vector>
+using std::vector;
 
 void PrintArrays(vector<double> vec, vtkVariantArray* arr)
 {

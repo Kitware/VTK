@@ -1,17 +1,17 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkAxisActor.h
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
-  Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore Nat'l Laboratory
+Program:   Visualization Toolkit
+Module:    vtkAxisActor.h
+Language:  C++
+Date:      $Date$
+Version:   $Revision$
+Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore Nat'l Laboratory
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 // .NAME vtkAxisActor - Create an axis with tick marks and labels
 // .SECTION Description
@@ -83,7 +83,7 @@ class vtkVectorText;
 
 class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
 {
-public:
+ public:
   vtkTypeMacro(vtkAxisActor,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -95,7 +95,7 @@ public:
   // Specify the position of the first point defining the axis.
   virtual vtkCoordinate *GetPoint1Coordinate();
   virtual void SetPoint1(double x[3])
-    { this->SetPoint1(x[0], x[1], x[2]); }
+  { this->SetPoint1(x[0], x[1], x[2]); }
   virtual void SetPoint1(double x, double y, double z);
   virtual double *GetPoint1();
 
@@ -103,7 +103,7 @@ public:
   // Specify the position of the second point defining the axis.
   virtual vtkCoordinate *GetPoint2Coordinate();
   virtual void SetPoint2(double x[3])
-    { this->SetPoint2(x[0], x[1], x[2]); }
+  { this->SetPoint2(x[0], x[1], x[2]); }
   virtual void SetPoint2(double x, double y, double z);
   virtual double *GetPoint2();
 
@@ -153,11 +153,11 @@ public:
   vtkGetMacro(TickLocation, int);
 
   void SetTickLocationToInside(void)
-    { this->SetTickLocation(VTK_TICKS_INSIDE); };
+  { this->SetTickLocation(VTK_TICKS_INSIDE); };
   void SetTickLocationToOutside(void)
-    { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
+  { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
   void SetTickLocationToBoth(void)
-    { this->SetTickLocation(VTK_TICKS_BOTH); };
+  { this->SetTickLocation(VTK_TICKS_BOTH); };
 
   // Description:
   // Set/Get visibility of the axis line.
@@ -259,13 +259,13 @@ public:
   vtkGetMacro(AxisPosition, int);
 
   void SetAxisPositionToMinMin(void)
-      { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); };
+  { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); };
   void SetAxisPositionToMinMax(void)
-      { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); };
+  { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); };
   void SetAxisPositionToMaxMax(void)
-      { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); };
+  { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); };
   void SetAxisPositionToMaxMin(void)
-      { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); };
+  { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); };
 
   // Description:
   // Set/Get the camera for this axis.  The camera is used by the
@@ -349,29 +349,41 @@ public:
   // this count does not change.
   vtkGetMacro(NumberOfLabelsBuilt, int);
 
-  // Description
+  // Description:
   // Set/Get flag whether to calculate title offset.
   // Default is true.
   vtkSetMacro(CalculateTitleOffset, int);
   vtkGetMacro(CalculateTitleOffset, int);
   vtkBooleanMacro(CalculateTitleOffset, int);
 
-  // Description
+  // Description:
   // Set/Get flag whether to calculate label offset.
   // Default is true.
   vtkSetMacro(CalculateLabelOffset, int);
   vtkGetMacro(CalculateLabelOffset, int);
   vtkBooleanMacro(CalculateLabelOffset, int);
 
- // Set/Get the 2D mode (2D/3D)
- vtkSetMacro(Use2DMode, int);
- vtkGetMacro(Use2DMode, int);
+  // Description:
+  // Set/Get the 2D mode
+  vtkSetMacro(Use2DMode, int);
+  vtkGetMacro(Use2DMode, int);
 
- // Set/Get the saving positions tag (2D/3D)
- vtkSetMacro(SaveTitlePosition, int);
- vtkGetMacro(SaveTitlePosition, int);
-
-protected:
+  // Description:
+  // Set/Get the 2D mode the vertical offset for X title in 2D mode
+  vtkSetMacro(VerticalOffsetXTitle2D, double);
+  vtkGetMacro(VerticalOffsetXTitle2D, double);
+  
+  // Description:
+  // Set/Get the 2D mode the horizontal offset for Y title in 2D mode
+  vtkSetMacro(HorizontalOffsetYTitle2D, double);
+  vtkGetMacro(HorizontalOffsetYTitle2D, double);
+  
+  // Description:
+  // Set/Get whether title position must be saved in 2D mode
+  vtkSetMacro(SaveTitlePosition, int);
+  vtkGetMacro(SaveTitlePosition, int);
+  
+ protected:
   vtkAxisActor();
   ~vtkAxisActor();
 
@@ -406,7 +418,7 @@ protected:
   int    AxisPosition;
   double  Bounds[6];
 
-private:
+ private:
   vtkAxisActor(const vtkAxisActor&); // Not implemented
   void operator=(const vtkAxisActor&); // Not implemented
 
@@ -502,14 +514,24 @@ private:
   int                 Use2DMode;
 
   // Description:
-  // Save title position (for 2D mode):
+  // Vertical offset in display coordinates for X axis title (used in 2D mode only)
+  // Default: -40
+  double              VerticalOffsetXTitle2D;
+
+  // Description:
+  // Vertical offset in display coordinates for X axis title (used in 2D mode only)
+  // Default: -50
+  double              HorizontalOffsetYTitle2D;
+
+  // Description:
+  // Save title position (used in 2D mode only):
   // val = 0 : no need to save position (doesn't stick actors in a position)
   // val = 1 : positions have to be saved during the next render pass
-  // val = 2 : positions are saved -> used them
+  // val = 2 : positions are saved; use them
   int		      SaveTitlePosition;
 
   // Description:
-  // Constant position for the title (for 2D mode)
+  // Constant position for the title (used in 2D mode only)
   double	      TitleConstantPosition[2];
 
   // Description:

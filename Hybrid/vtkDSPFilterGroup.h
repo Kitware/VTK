@@ -65,19 +65,19 @@ public:
 
   vtkDSPFilterDefinition *GetFilter(int a_whichFilter);
 
-  vtkDSPFilterGroupVectorDefinitionSTLCloak * /*vtkstd::vector<vtkDSPFilterDefinition *>*/ FilterDefinitions;
+  vtkDSPFilterGroupVectorDefinitionSTLCloak * /*std::vector<vtkDSPFilterDefinition *>*/ FilterDefinitions;
 
 protected:
   vtkDSPFilterGroup();
   ~vtkDSPFilterGroup();
 
 
-  vtkDSPFilterGroupVectorArraySTLCloak * /*vtkstd::vector<vtkFloatArray *>*/ CachedInputs;
-  vtkDSPFilterGroupVectorStringSTLCloak * /*vtkstd::vector<vtkstd::string>*/ CachedInputNames;
-  vtkDSPFilterGroupVectorIntSTLCloak * /*vtkstd::vector<int>*/ CachedInputTimesteps;
+  vtkDSPFilterGroupVectorArraySTLCloak * /*std::vector<vtkFloatArray *>*/ CachedInputs;
+  vtkDSPFilterGroupVectorStringSTLCloak * /*std::vector<std::string>*/ CachedInputNames;
+  vtkDSPFilterGroupVectorIntSTLCloak * /*std::vector<int>*/ CachedInputTimesteps;
 
-  vtkDSPFilterGroupVectorVectorArraySTLCloak * /*vtkstd::vector< vtkstd::vector<vtkFloatArray *> >*/ CachedOutputs;
-  vtkDSPFilterGroupVectorVectorIntSTLCloak * /*vtkstd::vector< vtkstd::vector<int> >*/ CachedOutputTimesteps;
+  vtkDSPFilterGroupVectorVectorArraySTLCloak * /*std::vector< std::vector<vtkFloatArray *> >*/ CachedOutputs;
+  vtkDSPFilterGroupVectorVectorIntSTLCloak * /*std::vector< std::vector<int> >*/ CachedOutputTimesteps;
 
 private:
   vtkDSPFilterGroup(const vtkDSPFilterGroup&); // Not implemented

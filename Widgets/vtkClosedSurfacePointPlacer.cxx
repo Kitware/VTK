@@ -23,8 +23,8 @@
 #include "vtkLine.h"
 #include "vtkCamera.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
+#include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes,vtkPlaneCollection);
@@ -210,7 +210,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   // necessary instead of a simple two point intersection test because of
   // tolerances in vtkPlane::EvaluatePosition when the handle was very close
   // to an edge.
-  vtkstd::vector< vtkClosedSurfacePointPlacerNode > intersections;
+  std::vector< vtkClosedSurfacePointPlacerNode > intersections;
 
   const int nPlanes = pc->GetNumberOfItems();
 
@@ -238,7 +238,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
       }
     }
 
-  vtkstd::sort( intersections.begin(), 
+  std::sort( intersections.begin(),
                 intersections.end(), 
                 vtkClosedSurfacePointPlacerNode::Sort);
   
@@ -246,7 +246,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   // with the object. If we have fewer than 2 in the queue, or if the 
   // top candidate is outsude, we have failed to intersect the object.
   
-  vtkstd::vector< vtkClosedSurfacePointPlacerNode >
+  std::vector< vtkClosedSurfacePointPlacerNode >
               ::const_iterator it = intersections.begin();
   if ( intersections.size() < 2 || 
          it ->Distance < (-1.0 * this->WorldTolerance) ||

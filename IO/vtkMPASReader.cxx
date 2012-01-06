@@ -575,13 +575,17 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
 
   // Collect the time step requested
   double* requestedTimeSteps = NULL;
+#ifndef NDEBUG
   int numRequestedTimeSteps = 0;
+#endif
   vtkInformationDoubleVectorKey* timeKey =
     static_cast<vtkInformationDoubleVectorKey*>
     (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
   if (outInfo->Has(timeKey))
     {
+#ifndef NDEBUG
     numRequestedTimeSteps = outInfo->Length(timeKey);
+#endif
     requestedTimeSteps = outInfo->Get(timeKey);
     }
 

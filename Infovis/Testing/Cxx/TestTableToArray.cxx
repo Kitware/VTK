@@ -36,7 +36,7 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    throw vtkstd::runtime_error("Expression failed: " #expression); \
+    throw std::runtime_error("Expression failed: " #expression); \
 }
 
 int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -96,7 +96,7 @@ int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

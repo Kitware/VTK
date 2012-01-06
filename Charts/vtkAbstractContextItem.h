@@ -215,7 +215,7 @@ protected:
   // Description:
   // This structure provides a list of children, along with convenience
   // functions to paint the children etc. It is derived from
-  // vtkstd::vector<vtkAbstractContextItem>, defined in a private header.
+  // std::vector<vtkAbstractContextItem>, defined in a private header.
   vtkContextScenePrivate* Children;
 
   // Description: Store the visibility of the item (default is true).

@@ -120,6 +120,8 @@ class vtkCellPointTraversal
     unsigned int    m_stack[CELLTREE_MAX_DEPTH];
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
+    vtkCellPointTraversal(const vtkCellPointTraversal&); // Not implemented
+    void operator=(vtkCellPointTraversal&); // Not implemented
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;
@@ -350,8 +352,8 @@ class vtkCellTreeBuilder
         }
 
       float cost = std::numeric_limits<float>::max();
-      float plane;
-      unsigned int dim;
+      float plane = VTK_FLOAT_MIN; // bad value in case it doesn't get setx
+      unsigned int dim = VTK_INT_MAX; // bad value in case it doesn't get set
 
       for( unsigned int d=0; d<3; ++d )
         {
@@ -731,7 +733,6 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   double    ctmin, ctmax, tmin, tmax, _tmin, _tmax, tDist;
   double    ray_vec[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
 
-  double *boundsPtr;
   double cellBounds[6];
 
   this->BuildLocatorIfNeeded();
@@ -739,7 +740,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
   // Does ray pass through root BBox
   tmin = 0; tmax = 1;
 
-  if (!RayMinMaxT(p1, ray_vec, tmin, tmax)) // 0 for root node
+  if (!this->RayMinMaxT(p1, ray_vec, tmin, tmax)) // 0 for root node
     {
     return false;
     }
@@ -821,7 +822,7 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
       vtkIdType cell_ID = this->Tree->Leaves[node->Start()+i];
       //
 
-      boundsPtr = cellBounds;
+      double* boundsPtr = cellBounds;
       if (this->CellBounds)
         {
         boundsPtr = this->CellBounds[cell_ID];
@@ -830,13 +831,13 @@ int vtkCellTreeLocator::IntersectWithLine(double p1[3], double p2[3], double tol
         {
         this->DataSet->GetCellBounds(cell_ID, cellBounds);
         }
-      if (_getMinDist(p1, ray_vec, cellBounds) > closest_intersection)
+      if (_getMinDist(p1, ray_vec, boundsPtr) > closest_intersection)
         {
         break;
         }
       //
       ctmin = _tmin; ctmax = _tmax;
-      if (RayMinMaxT(cellBounds, p1, ray_vec, ctmin, ctmax))
+      if (this->RayMinMaxT(boundsPtr, p1, ray_vec, ctmin, ctmax))
         {
         if (this->IntersectCellInternal(cell_ID, p1, p2, tol, t_hit, ipt, pcoords, subId))
           {

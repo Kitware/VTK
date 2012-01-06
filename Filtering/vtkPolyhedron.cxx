@@ -39,24 +39,24 @@
 #include "vtkDataArray.h"
 #include "vtkType.h"
 
-#include <vtkstd/map>
-#include <vtkstd/vector>
-#include <vtkstd/set>
-#include <vtkstd/list>
+#include <map>
+#include <vector>
+#include <set>
+#include <list>
 #include <limits>
 
 vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef
-typedef vtkstd::vector<vtkIdType>                 vtkIdVectorType;
-class vtkPointIdMap : public vtkstd::map<vtkIdType,vtkIdType>{};
-class vtkIdToIdMapType : public vtkstd::map<vtkIdType, vtkIdType>{};
-class vtkIdToIdVectorMapType : public vtkstd::map<vtkIdType, vtkIdVectorType>{};
-typedef vtkstd::map<vtkIdType,vtkIdType*>::iterator PointIdMapIterator;
+typedef std::vector<vtkIdType>                 vtkIdVectorType;
+class vtkPointIdMap : public std::map<vtkIdType,vtkIdType>{};
+class vtkIdToIdMapType : public std::map<vtkIdType, vtkIdType>{};
+class vtkIdToIdVectorMapType : public std::map<vtkIdType, vtkIdVectorType>{};
+typedef std::map<vtkIdType,vtkIdType*>::iterator PointIdMapIterator;
 typedef vtkIdToIdVectorMapType::iterator          vtkIdToIdVectorMapIteratorType;
-typedef vtkstd::pair<vtkIdType, vtkIdVectorType>  vtkIdToIdVectorPairType;
-typedef vtkstd::pair<vtkIdType, vtkIdType>        vtkIdToIdPairType;
-typedef vtkstd::set<vtkIdType>                    vtkIdSetType;
+typedef std::pair<vtkIdType, vtkIdVectorType>  vtkIdToIdVectorPairType;
+typedef std::pair<vtkIdType, vtkIdType>        vtkIdToIdPairType;
+typedef std::set<vtkIdType>                    vtkIdSetType;
 
 // Special class for iterating through polyhedron faces
 //----------------------------------------------------------------------------
@@ -1220,7 +1220,7 @@ int OrderDisconnectedContourPoints(vtkIdSetType & cpSet,
     }
   
   // now loop over contour points to order them. 
-  vtkstd::vector<double> angles;
+  std::vector<double> angles;
   angles.push_back(0.0);
   
   // choose to start from the first point
@@ -2585,7 +2585,7 @@ int vtkPolyhedron::InternalContour(double value,
   // Here we use the order of the edges. Specifically, when a contour point 
   // is visited, we will choose the outgoing edge to be the edge previous to the 
   // incoming edge in the ceBackupMap. 
-  vtkstd::vector<vtkIdVectorType> polygonVector;
+  std::vector<vtkIdVectorType> polygonVector;
   vtkIdToIdVectorMapType::iterator ceMapIt, ceBackupMapIt;
   vtkIdSetType::iterator cpSetIt;
   vtkIdVectorType::iterator cpVectorIt;
@@ -3025,7 +3025,7 @@ void vtkPolyhedron::Clip(double value,
   // keep the original face and add it into the result polyhedron. For case (2),
   // we will subdivide the original face, and add the subface that includes 
   // positive points into the result polyhedron.
-  vtkstd::vector<vtkIdVectorType> faces;
+  std::vector<vtkIdVectorType> faces;
   vtkIdToIdVectorMapIteratorType pfMapIt, fpMapIt;
   for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); pid++)
     {

@@ -435,71 +435,68 @@ M_Read(void)
       {
       ContourControlPnt* pnt = new ContourControlPnt(m_NDims);
 
-      char* num = new char[sizeof(int)];
-      for(k=0;k<sizeof(int);k++)
         {
-        num[k] = _data[i+k];
+        int id;
+        char * const num = (char *)(&id);
+        for(k=0;k<sizeof(int);k++)
+          {
+          num[k] = _data[i+k];
+          }
+        MET_SwapByteIfSystemMSB(&id,MET_INT);
+        i+=sizeof(int);
+        pnt->m_Id = id;
         }
-      int id = (int)((int*)num)[0];
-      MET_SwapByteIfSystemMSB(&id,MET_INT);
-      i+=sizeof(int);
-      pnt->m_Id = id;
-      delete [] num;
 
       for(d=0; d<m_NDims; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_X[d] = td;
-        delete [] num;
         }
 
       for(d=0; d<m_NDims; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_XPicked[d] = td;
-        delete [] num;
         }
 
       for(d=0; d<m_NDims; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_V[d] = td;
-        delete [] num;
         }
 
       for(d=0; d<4; d++)
         {
-        num = new char[sizeof(float)];
+        float td;
+        char * const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_Color[d] = td;
-        delete [] num;
         }
       m_ControlPointsList.push_back(pnt);
       }
@@ -634,43 +631,42 @@ M_Read(void)
         {
         ContourInterpolatedPnt* pnt = new ContourInterpolatedPnt(m_NDims);
 
-        char* num = new char[sizeof(int)];
-        for(k=0;k<sizeof(int);k++)
           {
-          num[k] = _data[i+k];
+          int id;
+          char * const num = (char *)(&id);
+          for(k=0;k<sizeof(int);k++)
+            {
+            num[k] = _data[i+k];
+            }
+          MET_SwapByteIfSystemMSB(&id,MET_INT);
+          i+=sizeof(int);
+          pnt->m_Id = id;
           }
-        int id = (int)((int*)num)[0];
-        MET_SwapByteIfSystemMSB(&id,MET_INT);
-        i+=sizeof(int);
-        pnt->m_Id = id;
-        delete [] num;
 
         for(d=0; d<m_NDims; d++)
           {
-          num = new char[sizeof(float)];
+          float x;
+          char * const num = (char *)(&x);
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
             }
-          float x = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
           i+=sizeof(float);
           pnt->m_X[d] = x;
-          delete [] num;
           }
 
         for(d=0; d<4; d++)
           {
-          num = new char[sizeof(float)];
+          float x;
+          char * const num = (char *)(&x);
           for(k=0;k<sizeof(float);k++)
             {
             num[k] = _data[i+k];
             }
-          float x = (float)((float*)num)[0];
           MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
           i+=sizeof(float);
           pnt->m_Color[d] = x;
-          delete [] num;
           }
         m_InterpolatedPointsList.push_back(pnt);
         }

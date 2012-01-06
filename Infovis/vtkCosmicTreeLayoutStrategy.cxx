@@ -10,8 +10,8 @@
 
 #include "vtksys/ios/sstream"
 
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <algorithm>
 
 #include <math.h>
 
@@ -125,10 +125,10 @@ public:
   * @param[out] Re The radius of the enclosing circle.
   */
 int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
-  vtkIdType N, vtkstd::vector<vtkCosmicTreeEntry>& circles, double& Re )
+  vtkIdType N, std::vector<vtkCosmicTreeEntry>& circles, double& Re )
 {
   int i;
-  vtkstd::sort( circles.begin(), circles.end() );
+  std::sort( circles.begin(), circles.end() );
   if ( N <= 0 )
     {
     return 0;
@@ -161,8 +161,8 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
     // with equal slices (independent of radius).
     double Rtot = 0.;
     const double twopi = 2. * vtkMath::DoublePi();
-    vtkstd::vector<double> ang;
-    vtkstd::vector<double> angp;
+    std::vector<double> ang;
+    std::vector<double> angp;
     ang.resize( N );
     angp.resize( N );
     for ( i = 0; i < N; ++ i )
@@ -264,10 +264,10 @@ int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
   * @param[out] Re The radius of the enclosing circle.
   */
 int vtkCosmicTreeLayoutStrategyComputeCentersWell(
-  vtkIdType N, vtkstd::vector<vtkCosmicTreeEntry>& circles, double& Re )
+  vtkIdType N, std::vector<vtkCosmicTreeEntry>& circles, double& Re )
 {
   int i;
-  vtkstd::sort( circles.begin(), circles.end() );
+  std::sort( circles.begin(), circles.end() );
   if ( N <= 0 )
     {
     return 0;
@@ -531,7 +531,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(
 
   // State for the layout:
   double Rext; // The size of a circle that encloses the children (or the scaling factor when mode==ALL).
-  vtkstd::vector<vtkCosmicTreeEntry> circles;
+  std::vector<vtkCosmicTreeEntry> circles;
   // I. Compute radii of children as required:
   switch ( mode )
     {
@@ -568,7 +568,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(
   else
     {
     vtkCosmicTreeLayoutStrategyComputeCentersQuick( numberOfChildren, circles, Rext );
-    vtkstd::vector<vtkCosmicTreeEntry>::iterator cit;
+    std::vector<vtkCosmicTreeEntry>::iterator cit;
     for ( cit = circles.begin(); cit != circles.end(); ++ cit )
       {
       pts->SetPoint( cit->Id, cit->Center );

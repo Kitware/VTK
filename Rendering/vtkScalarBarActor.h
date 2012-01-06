@@ -221,13 +221,6 @@ public:
   virtual void SetFrameProperty(vtkProperty2D *p);
   vtkGetObjectMacro(FrameProperty,vtkProperty2D);
     
-  // Description:
-  // Set/Get whether enhanced mode is on.
-  // Default is off.
-  vtkSetMacro( EnhancedMode, int );
-  vtkGetMacro( EnhancedMode, int );
-  vtkBooleanMacro( EnhancedMode, int );
-
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
@@ -283,8 +276,6 @@ protected:
   vtkPolyData         *Frame;
   vtkPolyDataMapper2D *FrameMapper;
   vtkActor2D          *FrameActor;
-
-  int EnhancedMode;
 
 private:
   vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.

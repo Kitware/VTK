@@ -37,18 +37,18 @@
 #include <stdlib.h>
 #include <vtksys/ios/sstream>
 
-#include <vtkstd/map>
+#include <map>
 #include <vtksys/SystemTools.hxx>
 
 class vtkPropertyInternals
 {
 public:
   // key==texture unit, value==texture
-  typedef vtkstd::map<int, vtkSmartPointer<vtkTexture> > MapOfTextures;
+  typedef std::map<int, vtkSmartPointer<vtkTexture> > MapOfTextures;
   MapOfTextures Textures;
 
   // key==texture name, value==texture-unit.
-  typedef vtkstd::map<vtkStdString, int> MapOfTextureNames;
+  typedef std::map<vtkStdString, int> MapOfTextureNames;
   MapOfTextureNames TextureNames;
 };
 

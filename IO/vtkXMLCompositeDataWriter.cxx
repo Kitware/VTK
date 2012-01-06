@@ -49,19 +49,19 @@
 #include "vtkCompositeDataIterator.h"
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 //----------------------------------------------------------------------------
 
 class vtkXMLCompositeDataWriterInternals
 {
 public:
-  vtkstd::vector< vtkSmartPointer<vtkXMLWriter> > Writers;
-  vtkstd::string FilePath;
-  vtkstd::string FilePrefix;
+  std::vector< vtkSmartPointer<vtkXMLWriter> > Writers;
+  std::string FilePath;
+  std::string FilePrefix;
   vtkSmartPointer<vtkXMLDataElement> Root;
-  vtkstd::vector<int> DataTypes;
+  std::vector<int> DataTypes;
 };
 
 //----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
   this->GetProgressRange(progressRange);
   
   // Create the subdirectory for the internal files.
-  vtkstd::string subdir = this->Internal->FilePath;
+  std::string subdir = this->Internal->FilePath;
   subdir += this->Internal->FilePrefix;
   this->MakeDirectory(subdir.c_str());
  
@@ -264,7 +264,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   // this->SetProgressRange(progressRange, myWriterIndex,
   //                       GetNumberOfInputConnections(0)+writeCollection);
 
-  vtkstd::string full = this->Internal->FilePath;
+  std::string full = this->Internal->FilePath;
   full += fileName;
 
   writer->SetFileName(full.c_str());
@@ -511,11 +511,11 @@ vtkXMLWriter* vtkXMLCompositeDataWriter::GetWriter(int index)
 //----------------------------------------------------------------------------
 void vtkXMLCompositeDataWriter::SplitFileName()
 {
-  vtkstd::string fileName = this->FileName;
-  vtkstd::string name;
+  std::string fileName = this->FileName;
+  std::string name;
   
   // Split the file name and extension from the path.
-  vtkstd::string::size_type pos = fileName.find_last_of("/\\");
+  std::string::size_type pos = fileName.find_last_of("/\\");
   if(pos != fileName.npos)
     {
     // Keep the slash in the file path.
@@ -586,7 +586,7 @@ void vtkXMLCompositeDataWriter::ProgressCallback(vtkAlgorithm* w)
 vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
   int piece)
 {
-  vtkstd::string fname;
+  std::string fname;
   if(this->Internal->DataTypes[piece] < 0)
     {
     return fname;

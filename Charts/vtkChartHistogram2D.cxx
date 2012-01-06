@@ -95,10 +95,11 @@ bool vtkChartHistogram2D::UpdateLayout(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 bool vtkChartHistogram2D::Hit(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.ScreenPos[0] > this->Point1[0]-10 &&
-      mouse.ScreenPos[0] < this->Point2[0]+10 &&
-      mouse.ScreenPos[1] > this->Point1[1] &&
-      mouse.ScreenPos[1] < this->Point2[1])
+  vtkVector2i pos(mouse.GetScreenPos());
+  if (pos[0] > this->Point1[0] - 10 &&
+      pos[0] < this->Point2[0] + 10 &&
+      pos[1] > this->Point1[1] &&
+      pos[1] < this->Point2[1])
     {
     return true;
     }

@@ -88,7 +88,7 @@ public:
 
 private:
   //BTX
-  vtkstd::vector<vtkArrayExtents> Storage;
+  std::vector<vtkArrayExtents> Storage;
   //ETX
 };
 

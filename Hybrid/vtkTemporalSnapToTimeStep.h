@@ -32,7 +32,7 @@
 #include "vtkTemporalDataSetAlgorithm.h"
 
 //BTX
-#include <vtkstd/vector> // used because I am a bad boy. So there.
+#include <vector> // used because I am a bad boy. So there.
 //ETX
 
 class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
@@ -71,7 +71,7 @@ protected:
                           vtkInformationVector *);
 
 //BTX
-    vtkstd::vector<double>  InputTimeValues;
+    std::vector<double>  InputTimeValues;
     int HasDiscrete;
     int SnapMode;
 //ETX

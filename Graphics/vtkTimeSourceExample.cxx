@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkTimeSourceExample);
 

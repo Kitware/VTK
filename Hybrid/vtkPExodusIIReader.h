@@ -39,7 +39,7 @@
 
 #include "vtkExodusIIReader.h"
 
-#include <vtkstd/vector> // Required for vector
+#include <vector> // Required for vector
 
 class vtkTimerLog;
 class vtkMultiProcessController;
@@ -157,9 +157,9 @@ protected:
   char **FileNames;
   int NumberOfFileNames;
 //BTX
-  vtkstd::vector<vtkExodusIIReader*> ReaderList;
-  vtkstd::vector<int> NumberOfPointsPerFile;
-  vtkstd::vector<int> NumberOfCellsPerFile;
+  std::vector<vtkExodusIIReader*> ReaderList;
+  std::vector<int> NumberOfPointsPerFile;
+  std::vector<int> NumberOfCellsPerFile;
 //ETX
 
   int LastCommonTimeStep;

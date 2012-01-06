@@ -27,7 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
@@ -53,18 +53,18 @@ public:
 //PIMPL STL encapsulation
 //
 // Maps input point ids to owning mesh triangle
-class vtkGreedyTerrainDecimationTerrainInfoType : public vtkstd::vector<vtkTerrainInfo> 
+class vtkGreedyTerrainDecimationTerrainInfoType : public std::vector<vtkTerrainInfo>
 {
 public:
-  typedef vtkstd::vector<vtkTerrainInfo> Superclass;
+  typedef std::vector<vtkTerrainInfo> Superclass;
   typedef Superclass::size_type size_type;
   vtkGreedyTerrainDecimationTerrainInfoType(size_type n, const vtkTerrainInfo& value):
-    vtkstd::vector<vtkTerrainInfo>(n,value) {}
+    std::vector<vtkTerrainInfo>(n,value) {}
 };
 
 //----------------------------------------------------------------------
 // Maps mesh point id to input point id
-class vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
+class vtkGreedyTerrainDecimationPointInfoType : public std::vector<vtkIdType> {};
 
 
 // Begin vtkGreedyTerrainDecimation class implementation-----------------------------------------

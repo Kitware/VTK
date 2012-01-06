@@ -765,9 +765,9 @@ vtkGraphLayoutStrategy* vtkRenderedGraphRepresentation::GetLayoutStrategy()
 
 void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
 {
-  vtkstd::string str = name;
+  std::string str = name;
   vtksys_stl::transform(str.begin(), str.end(), str.begin(), tolower);
-  str.erase(vtkstd::remove(str.begin(), str.end(), ' '), str.end());
+  str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
   vtkSmartPointer<vtkGraphLayoutStrategy> strategy =
     vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();
   if (str == "random")
@@ -818,8 +818,8 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
     {
     vtkErrorMacro("Unknown layout strategy: \"" << name << "\"");
     }
-  vtkstd::string type1 = strategy->GetClassName();
-  vtkstd::string type2 = this->GetLayoutStrategy()->GetClassName();
+  std::string type1 = strategy->GetClassName();
+  std::string type2 = this->GetLayoutStrategy()->GetClassName();
   if (type1 != type2)
     {
     this->SetLayoutStrategy(strategy);
@@ -917,9 +917,9 @@ vtkEdgeLayoutStrategy* vtkRenderedGraphRepresentation::GetEdgeLayoutStrategy()
 
 void vtkRenderedGraphRepresentation::SetEdgeLayoutStrategy(const char* name)
 {
-  vtkstd::string str = name;
-  vtkstd::transform(str.begin(), str.end(), str.begin(), tolower);
-  str.erase(vtkstd::remove(str.begin(), str.end(), ' '), str.end());
+  std::string str = name;
+  std::transform(str.begin(), str.end(), str.begin(), tolower);
+  str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
   vtkSmartPointer<vtkEdgeLayoutStrategy> strategy =
     vtkSmartPointer<vtkPassThroughEdgeStrategy>::New();
   if (str == "arcparallel")
@@ -934,8 +934,8 @@ void vtkRenderedGraphRepresentation::SetEdgeLayoutStrategy(const char* name)
     {
     vtkErrorMacro("Unknown layout strategy: \"" << name << "\"");
     }
-  vtkstd::string type1 = strategy->GetClassName();
-  vtkstd::string type2 = this->GetEdgeLayoutStrategy()->GetClassName();
+  std::string type1 = strategy->GetClassName();
+  std::string type2 = this->GetEdgeLayoutStrategy()->GetClassName();
   if (type1 != type2)
     {
     this->SetEdgeLayoutStrategy(strategy);

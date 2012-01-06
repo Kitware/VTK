@@ -74,6 +74,10 @@ public:
   vtkGetVector6Macro(CroppingRegion, int);
 
   // Description:
+  // Override Update to handle some tricky details.
+  virtual void Update();
+
+  // Description:
   // This should only be called by the renderer.
   virtual void Render(vtkRenderer *renderer, vtkImageSlice *prop);
 
@@ -164,6 +168,7 @@ protected:
   int ExactPixelMatch;
   int PassColorData;
   vtkPoints *Points;
+  vtkTimeStamp UpdateTime;
 
 private:
   vtkImageSliceMapper(const vtkImageSliceMapper&);  // Not implemented.

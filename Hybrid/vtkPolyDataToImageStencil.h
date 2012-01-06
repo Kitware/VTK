@@ -93,9 +93,12 @@ protected:
                        int extent[6], int threadId);
 
   static void PolyDataCutter(vtkPolyData *input, vtkPolyData *output,
-                             double z, double thickness,
-                             vtkMergePoints *locator);
-  
+                             double z, vtkMergePoints *locator);
+
+  static void PolyDataSelector(vtkPolyData *input, vtkPolyData *output,
+                               double z, double thickness,
+                               vtkMergePoints *locator);
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
