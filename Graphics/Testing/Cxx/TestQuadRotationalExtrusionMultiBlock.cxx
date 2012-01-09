@@ -59,7 +59,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create 3/4 of a cylinder by rotational extrusion
   vtkNew<vtkQuadRotationalExtrusionFilter> sweeper;
   sweeper->SetResolution( 18 );
-  sweeper->SetInput( inMesh.GetPointer() );
+  sweeper->SetInputData( inMesh.GetPointer() );
   sweeper->SetAxisToX();
   sweeper->SetDefaultAngle( 270 );
   sweeper->AddPerBlockAngle( 1, 90. );
@@ -94,7 +94,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   
   // Create mapper for wireframe representation of block 0
   vtkNew<vtkPolyDataMapper> outBlockMapper0;
-  outBlockMapper0->SetInput( outMesh0 );
+  outBlockMapper0->SetInputData( outMesh0 );
   outBlockMapper0->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper0->SetResolveCoincidentTopologyToPolygonOffset();
 
@@ -109,7 +109,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
 
   // Create mapper for wireframe representation of block 1
   vtkNew<vtkPolyDataMapper> outBlockMapper1;
-  outBlockMapper1->SetInput( outMesh1 );
+  outBlockMapper1->SetInputData( outMesh1 );
   outBlockMapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper1->SetResolveCoincidentTopologyToPolygonOffset();
 

@@ -82,8 +82,8 @@ int TestBSplineWarp(int argc, char *argv[])
 
   vtkSmartPointer<vtkImageBlend> blend =
     vtkSmartPointer<vtkImageBlend>::New();
-  blend->AddInput(map1->GetOutput());
-  blend->AddInput(map2->GetOutput());
+  blend->AddInputConnection(map1->GetOutputPort());
+  blend->AddInputConnection(map2->GetOutputPort());
 
   // next, create a ThinPlateSpline transform, which
   // will then be used to create the B-spline transform

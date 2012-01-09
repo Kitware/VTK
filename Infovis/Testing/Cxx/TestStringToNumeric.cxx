@@ -150,7 +150,7 @@ int WhitespaceAndEmptyCellsTest()
   numeric->SetDefaultIntegerValue(defaultIntValue);
   numeric->SetDefaultDoubleValue(vtkMath::Nan());
   numeric->SetTrimWhitespacePriorToNumericConversion(true);
-  numeric->SetInput(inputTable.GetPointer());
+  numeric->SetInputData(inputTable.GetPointer());
   numeric->Update();
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
   table->Dump();
