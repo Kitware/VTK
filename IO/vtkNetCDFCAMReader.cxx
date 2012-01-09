@@ -218,8 +218,6 @@ int vtkNetCDFCAMReader::RequestInformation(
     return 0;
     }
   this->NumberOfTimeSteps = timeDimension->size();
-  cerr << this->NumberOfTimeSteps << " is the number of time steps in this file\n";
-
   vtkInformation* info = outputVector->GetInformationObject(0);
 
   if (this->NumberOfTimeSteps > 0)
