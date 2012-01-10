@@ -97,6 +97,10 @@ public:
   int Size();
 
   // Description:
+  // Returns true iff the stream is empty.
+  bool Empty();
+
+  // Description:
   // Serialization methods used to save/restore the stream to/from raw data.
   // Note: The 1st byte of the raw data buffer consists of the endian type.
   void GetRawData(std::vector<unsigned char>& data) const;

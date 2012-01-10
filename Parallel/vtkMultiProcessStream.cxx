@@ -168,6 +168,12 @@ int vtkMultiProcessStream::Size()
 }
 
 //----------------------------------------------------------------------------
+bool vtkMultiProcessStream::Empty()
+{
+ return( this->Internals->Data.empty() );
+}
+
+//----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(double array[], unsigned int size)
 {
   assert( "pre: array is NULL!" && (array != NULL) );
