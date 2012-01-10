@@ -1462,7 +1462,7 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
 
         ijk[0]=i; ijk[1]=j; ijk[2]=k;
 
-        // Compute the source index to the registered neighbord data
+        // Compute the source index to the registered neighbor data
         vtkIdType srcIdx =
             vtkStructuredData::ComputePointIdForExtent(
                 NeighborExtent, ijk, this->DataDescription);
