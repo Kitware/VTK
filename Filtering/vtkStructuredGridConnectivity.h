@@ -439,7 +439,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // This method transfers the fields (point data and cell data) to the
     // ghost extents from the neighboring grids of the grid corresponding
     // to the given gridID.
-    void TransferGhostDataFromNeighbors( const int gridID );
+    virtual void TransferGhostDataFromNeighbors( const int gridID );
 
     // Description:
     // This method transfers the fields
