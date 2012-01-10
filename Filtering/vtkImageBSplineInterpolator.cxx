@@ -256,21 +256,6 @@ void vtkBSplineInterpWeights(T *kernel, F *fX, F fx, int m)
 #endif
 
 //----------------------------------------------------------------------------
-// For b-spline, use a mirror with range-1 instead of with range,
-// because this is what vtkImageBSplineCoefficients does.
-inline int vtkImageBSplineInterpolatorMirror(int a, int b, int c)
-{
-  int range1 = c - b;
-  int ifzero = (range1 == 0);
-  int range2 = 2*range1 + ifzero;
-  a -= b;
-  if (a < 0) { a = -a; }
-  a %= range2;
-  if (a > range1) { a = range2 - a; }
-  return a;
-}
-
-//----------------------------------------------------------------------------
 template<class F, class T>
 struct vtkImageBSplineInterpolate
 {
@@ -357,9 +342,9 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
       int mm = m;
       do
         {
-        factX[l] = vtkImageBSplineInterpolatorMirror(xi, minX, maxX)*inIncX;
-        factY[l] = vtkImageBSplineInterpolatorMirror(yi, minY, maxY)*inIncY;
-        factZ[l] = vtkImageBSplineInterpolatorMirror(zi, minZ, maxZ)*inIncZ;
+        factX[l] = vtkInterpolationMath::Mirror(xi, minX, maxX)*inIncX;
+        factY[l] = vtkInterpolationMath::Mirror(yi, minY, maxY)*inIncY;
+        factZ[l] = vtkInterpolationMath::Mirror(zi, minZ, maxZ)*inIncZ;
         l++; xi++; yi++; zi++;
         }
       while (--mm);
@@ -684,7 +669,7 @@ void vtkImageBSplineInterpolatorPrecomputeWeights(
         case VTK_IMAGE_BORDER_MIRROR:
           do
             {
-            inId[l] = vtkImageBSplineInterpolatorMirror(idx++, minExt, maxExt);
+            inId[l] = vtkInterpolationMath::Mirror(idx++, minExt, maxExt);
             }
           while (++l < lmax);
           break;

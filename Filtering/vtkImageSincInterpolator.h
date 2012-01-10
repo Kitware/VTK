@@ -32,11 +32,16 @@
 #include "vtkAbstractImageInterpolator.h"
 
 #define VTK_LANCZOS_WINDOW 0
-#define VTK_COSINE_WINDOW  1
-#define VTK_HANN_WINDOW    2
-#define VTK_HAMMING_WINDOW 3
-#define VTK_BLACKMAN_WINDOW 4
-#define VTK_KAISER_WINDOW 5
+#define VTK_KAISER_WINDOW  1
+#define VTK_COSINE_WINDOW  2
+#define VTK_HANN_WINDOW    3
+#define VTK_HAMMING_WINDOW 4
+#define VTK_BLACKMAN_WINDOW 5
+#define VTK_BLACKMAN_HARRIS3 6
+#define VTK_BLACKMAN_HARRIS4 7
+#define VTK_NUTTALL_WINDOW 8
+#define VTK_BLACKMAN_NUTTALL3 9
+#define VTK_BLACKMAN_NUTTALL4 10
 #define VTK_SINC_KERNEL_SIZE_MAX 32
 
 class vtkImageData;
@@ -52,13 +57,16 @@ public:
 
   // Description:
   // The window function to use.  The default is Lanczos, which is very
-  // popular and performs well with a kernel width of 6.  The Cosine,
-  // Hann, and Hamming window functions are traditional window functions.
-  // The Blackman and Kaiser functions are the best choices when a large
-  // window width is used.
+  // popular and performs well with a kernel width of 6.  The Cosine
+  // window is included for historical reasons.  All other windows are
+  // described in AH Nuttall, "Some windows with very good sidelobe
+  // behavior," IEEE Transactions on Acoustics, Speech, and Signal
+  // Processing 29:84-91, 1981.
   virtual void SetWindowFunction(int mode);
   void SetWindowFunctionToLanczos() {
     this->SetWindowFunction(VTK_LANCZOS_WINDOW); }
+  void SetWindowFunctionToKaiser() {
+    this->SetWindowFunction(VTK_KAISER_WINDOW); }
   void SetWindowFunctionToCosine() {
     this->SetWindowFunction(VTK_COSINE_WINDOW); }
   void SetWindowFunctionToHann() {
@@ -67,16 +75,25 @@ public:
     this->SetWindowFunction(VTK_HAMMING_WINDOW); }
   void SetWindowFunctionToBlackman() {
     this->SetWindowFunction(VTK_BLACKMAN_WINDOW); }
-  void SetWindowFunctionToKaiser() {
-    this->SetWindowFunction(VTK_KAISER_WINDOW); }
+  void SetWindowFunctionToBlackmanHarris3() {
+    this->SetWindowFunction(VTK_BLACKMAN_HARRIS3); }
+  void SetWindowFunctionToBlackmanHarris4() {
+    this->SetWindowFunction(VTK_BLACKMAN_HARRIS4); }
+  void SetWindowFunctionToNuttall() {
+    this->SetWindowFunction(VTK_NUTTALL_WINDOW); }
+  void SetWindowFunctionToBlackmanNuttall3() {
+    this->SetWindowFunction(VTK_BLACKMAN_NUTTALL3); }
+  void SetWindowFunctionToBlackmanNuttall4() {
+    this->SetWindowFunction(VTK_BLACKMAN_NUTTALL4); }
   int GetWindowFunction() { return this->WindowFunction; }
   virtual const char *GetWindowFunctionAsString();
 
   // Description:
-  // Set the window half-width, this must be an integer between 1 and 16.
-  // The kernel size will be twice this value if no blur factors are
-  // applied. The total number of sinc lobes will be one less than twice
-  // the half-width, so if the half-width is 3 there will be 5 sinc lobes.
+  // Set the window half-width, this must be an integer between 1 and 16,
+  // with a default value of 3.  The kernel size will be twice this value
+  // if no blur factors are applied. The total number of sinc lobes will
+  // be one less than twice the half-width, so if the half-width is 3 then
+  // the kernel size will be 6 and there will be 5 sinc lobes.
   void SetWindowHalfWidth(int n);
   int GetWindowHalfWidth() { return this->WindowHalfWidth; }
 
@@ -90,9 +107,8 @@ public:
 
   // Description:
   // Set a window function parameter.  The way this parameter is used
-  // will depend on the window function.  The tunable windows are the
-  // Hann window (default value 0.5), the Blackman window (default
-  // value 0.16), and the Kaiser window (default value 3*n where n is
+  // will depend on the window function, for now it is only used by
+  // the Kaiser window (which by default uses the value 3*n where n is
   // the window half-width).  This parameter will be ignored unless
   // UseWindowParameter is On.
   void SetWindowParameter(double parm);
@@ -134,6 +150,17 @@ public:
   void AntialiasingOn() { this->SetAntialiasing(1); }
   void AntialiasingOff() { this->SetAntialiasing(0); }
   int GetAntialiasing() { return this->Antialiasing; }
+
+  // Description:
+  // Turn off renomalization.  Most of the sinc windows provide kernels
+  // for which the weights do not sum to one, and for which the sum depends
+  // on the offset.  Ths results in small ripple artifacts in the output.
+  // By default, the vtkImageSincInterpolator will renormalize these kernels.
+  // This method allows the renormalization to be turned off.
+  void SetRenormalization(int antialiasing);
+  void RenormalizationOn() { this->SetRenormalization(1); }
+  void RenormalizationOff() { this->SetRenormalization(0); }
+  int GetRenormalization() { return this->Renormalization; }
 
   // Description:
   // Returns true if the interpolator supports weight precomputation.
@@ -203,6 +230,7 @@ protected:
   float *KernelLookupTable[3];
   int KernelSize[3];
   int Antialiasing;
+  int Renormalization;
   double BlurFactors[3];
   double LastBlurFactors[3];
   double WindowParameter;
