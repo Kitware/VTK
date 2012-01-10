@@ -735,6 +735,7 @@ void vtkRenormalizeKernel(T *kernel, int m, int n)
   if ((m & 1) == 0)
     {
     w = 0;
+    kernel++;
     kernel2 = kernel;
     k = km;
     do
@@ -1397,7 +1398,20 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
 
     if (this->Renormalization)
       {
-      vtkRenormalizeKernel(kernel[i], VTK_SINC_KERNEL_TABLE_DIVISIONS, 2*n);
+      vtkRenormalizeKernel(kernel[i], VTK_SINC_KERNEL_TABLE_DIVISIONS, m);
+      }
+    else if (b > 1.0)
+      {
+      // if kernel stretched to create blur, divide by stretch factor
+      float *ktmp = kernel[i];
+      float bf = 1.0/b;
+      int j = size;
+      do
+        {
+        *ktmp *= bf;
+        ktmp++;
+        }
+      while (--j);
       }
     }
 
