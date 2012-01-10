@@ -61,8 +61,8 @@ int TestConcatenateArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     b_data->AddArray(b);
 
     vtkSmartPointer<vtkConcatenateArray> concatenate = vtkSmartPointer<vtkConcatenateArray>::New();
-    concatenate->SetInputConnection(0, a_data->GetProducerPort());
-    concatenate->SetInputConnection(1, b_data->GetProducerPort());
+    concatenate->SetInputData(0, a_data);
+    concatenate->SetInputData(1, b_data);
     concatenate->Update();
     vtkSparseArray<double>* const array = vtkSparseArray<double>::SafeDownCast(concatenate->GetOutput()->GetArray(0));
   

@@ -79,7 +79,7 @@ int TestSelectArraySlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     array_data->AddArray(array);
 
     vtkSmartPointer<vtkSelectArraySlices> select_slices = vtkSmartPointer<vtkSelectArraySlices>::New();
-    select_slices->SetInputConnection(0, array_data->GetProducerPort());
+    select_slices->SetInputData(0, array_data);
     select_slices->SetSliceDimension(1);
 
     select_slices->SetMinimumCount(1);

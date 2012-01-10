@@ -70,7 +70,7 @@ int TestAssignMimeType(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Make it happen ...
     vtkSmartPointer<vtkAssignMimeType> assign_mime_type = vtkSmartPointer<vtkAssignMimeType>::New();
-    assign_mime_type->SetInputConnection(0, documents->GetProducerPort());
+    assign_mime_type->SetInputData(0, documents);
 
     assign_mime_type->Update();
     assign_mime_type->GetOutput()->Dump(20);
