@@ -218,9 +218,9 @@ int TestTableToGraph(int argc, char* argv[])
 
   // Merge the two tables
   VTK_CREATE(vtkMergeTables, merge);
-  merge->SetInput(0, personTable);
+  merge->SetInputData(0, personTable);
   merge->SetFirstTablePrefix("person.");
-  merge->SetInput(1, orgTable);
+  merge->SetInputData(1, orgTable);
   merge->SetSecondTablePrefix("organization.");
   merge->MergeColumnsByNameOff();
   merge->PrefixAllButMergedOn();
