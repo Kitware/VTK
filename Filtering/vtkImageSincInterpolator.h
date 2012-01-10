@@ -152,7 +152,7 @@ public:
   int GetAntialiasing() { return this->Antialiasing; }
 
   // Description:
-  // Turn off renomalization.  Most of the sinc windows provide kernels
+  // Turn off renormalization.  Most of the sinc windows provide kernels
   // for which the weights do not sum to one, and for which the sum depends
   // on the offset.  Ths results in small ripple artifacts in the output.
   // By default, the vtkImageSincInterpolator will renormalize these kernels.
