@@ -169,13 +169,45 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
       {
       this->InitializeGhostedFieldData( i );
       this->TransferRegisteredDataToGhostedData( i );
-      // TODO: transfer neighbor data
+      this->TransferGhostDataFromNeighbors( i );
       }
 
     } // END for all grids
 
   // STEP 5: Synchronize
   this->Controller->Barrier();
+}
+
+//------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::TransferRemoteNeighborData(
+    const int gridIdx, const vtkStructuredNeighbor& Neighbor )
+{
+  // TODO: implement this
+}
+
+//------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::TransferGhostDataFromNeighbors(
+    const int gridID)
+{
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids) ) );
+  assert( "pre: Neighbors are not properly allocated" &&
+          (this->NumberOfGrids==this->Neighbors.size() ) );
+  assert( "pre: grid must be local!" && this->IsGridLocal(gridID) );
+
+  int NumNeis = this->Neighbors[ gridID ].size();
+  for( int nei=0; nei < NumNeis; ++nei )
+    {
+    int neiGridIdx = this->Neighbors[gridID][nei].NeighborID;
+    if( this->IsGridLocal(neiGridIdx) )
+      {
+      this->TransferLocalNeighborData( gridID,this->Neighbors[gridID][nei] );
+      }
+    else
+      {
+      this->TransferRemoteNeighborData( gridID,this->Neighbors[gridID][nei]);
+      }
+    } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------

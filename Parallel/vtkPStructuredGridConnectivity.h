@@ -120,6 +120,17 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     void RegisterRemoteGrid( const int gridID, int extents[6], int process );
 
     // Description:
+    //
+    void TransferRemoteNeighborData(
+        const int gridIdx, const vtkStructuredNeighbor& Neighbor );
+
+    // Description:
+    // This method transfers the fields (point data and cell data) to the ghost
+    // extents from the neighboring grids of the grid corresponding to the given
+    // gridID.
+    virtual void TransferGhostDataFromNeighbors(const int gridID);
+
+    // Description:
     // Exchanges ghost data of the grids owned by this process
     void ExchangeGhostData();
 
