@@ -154,6 +154,38 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
         const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
 
     // Description:
+    // Helper method to de-serialize the ghost points received from a remote
+    // process. Called from DeserializeGhostData.
+    void DeserializeGhostPoints(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to deserialize the data array from a bytestream.
+    void DeserializeDataArray(
+        vtkDataArray *dataArray,const int dataType,
+        const int numberOfTuples, const int numberOfComponents,
+        vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to de-serialize field data. Called from
+    // DeserializeGhostPointData and DeserializeGhostCellData.
+    void DeserializeFieldData(
+        int ext[6], vtkFieldData *fieldData,
+        vtkMultiProcessStream &bytestream );
+
+    // Description:
+    // Helper method to de-serialize the ghost point data received from a
+    // remote process. Called from DeserializeGhostData.
+    void DeserializeGhostPointData(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to de-serialize the ghost cell data received from a remote
+    // process. Called from DeserializeGhostCellData.
+    void DeserializeGhostCellData(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
     // Given a grid ID and the corresponding send extent, this method serializes
     // the grid and data within the given extent. Upon return, the buffer is
     // allocated and contains the data in raw form, ready to be sent.
