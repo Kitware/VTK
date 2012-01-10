@@ -37,6 +37,7 @@
 
 // Forward declarations
 class vtkMultiProcessController;
+class vtkMultiProcessStream;
 
 class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
   public vtkStructuredGridConnectivity
@@ -105,10 +106,12 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     bool Initialized;
 
     // BTX
-    std::vector< int > GridRanks;
-    std::vector< int > GridIds;
-    std::vector< vtkPointData* > SendData;
-    std::vector< vtkCellData* >  RcvData;
+    std::vector< int > GridRanks; // Corresponding rank for each grid
+    std::vector< int > GridIds;   // List of GridIds, owned by this process
+
+    std::vector< vtkPoints* >    RemotePoints;
+    std::vector< vtkPointData* > RemotePointData;
+    std::vector< vtkCellData* >  RemoteCellData;
     // ETX
 
     // Description:
@@ -121,12 +124,56 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     void ExchangeGhostData();
 
     // Description:
+    // Helper method to serialize the ghost points to send to a remote process.
+    // Called from SerializeGhostData.
+    void SerializeGhostPoints(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Serializes the data array into a bytestream.
+    void SerializeDataArray(
+        vtkDataArray *dataArray, vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to serialize field data. Called from
+    // SerializeGhostPointData and SerializeGhostCellData.
+    void SerializeFieldData(
+        int sourceExtent[6], int targetExtent[6], vtkFieldData *fieldData,
+        vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to serialize ghost point data. Called from
+    // SerializeGhostData.
+    void SerializeGhostPointData(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Helper method to serialize ghost cell data. Called from
+    // SerializeGhostData.
+    void SerializeGhostCellData(
+        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+
+    // Description:
+    // Given a grid ID and the corresponding send extent, this method serializes
+    // the grid and data within the given extent. Upon return, the buffer is
+    // allocated and contains the data in raw form, ready to be sent.
+    void SerializeGhostData(
+        const int sndGridID, const int rcvGrid, int sndext[6],
+        unsigned char*& buffer, unsigned int &size);
+
+    // Description:
+    // Given the raw buffer consisting of ghost data, this method deserializes
+    // the object and returns the gridID and rcvext of the grid.
+    void DeserializeGhostData(
+        unsigned char *buffer, unsigned int size, int &gridID, int rcvext[6] );
+
+    // Description:
     // Exchanges the grid extents among all processes and fully populates the
     // GridExtents vector.
     void ExchangeGridExtents();
 
     // Description:
-    // Serializes the grid extentts and information in a buffer to send over MPI
+    // Serializes the grid extents and information in a buffer to send over MPI
     // The data is serialized as follows: ID imin imax jmin jmax kmin kmax
     void SerializeGridExtents( int *&sndbuffer, vtkIdType &N );
 
