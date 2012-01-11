@@ -123,7 +123,8 @@ public:
     FRUSTUM,
     LOCATIONS,
     THRESHOLDS,
-    BLOCKS       // used to select blocks within a composite dataset.
+    BLOCKS,       // used to select blocks within a composite dataset.
+    QUERY
   };
 //ETX
 
@@ -156,6 +157,11 @@ public:
   // This is the same as setting the FIELD_TYPE() key on the property.
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
+
+  // Description:
+  // Set/Get the query expression string.
+  vtkSetStringMacro(QueryString);
+  vtkGetStringMacro(QueryString);
 
   // Description:
   // For location selection of points, if distance is greater than this reject.
@@ -242,6 +248,7 @@ protected:
 
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;
+  char* QueryString;
 
 private:
   vtkSelectionNode(const vtkSelectionNode&);  // Not implemented.

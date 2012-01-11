@@ -122,6 +122,12 @@ public:
   vtkGetMacro(HierarchicalLevel, int);
   vtkSetMacro(HierarchicalIndex, int);
   vtkGetMacro(HierarchicalIndex, int);
+
+  // Description:
+  // Set/Get the query expression string.
+  vtkSetStringMacro(QueryString);
+  vtkGetStringMacro(QueryString);
+
 protected:
   vtkSelectionSource();
   ~vtkSelectionSource();
@@ -146,6 +152,7 @@ protected:
   int HierarchicalIndex;
   char *ArrayName;
   int ArrayComponent;
+  char *QueryString;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.
