@@ -1247,7 +1247,7 @@ void vtkStructuredGridConnectivity::AllocateCellData(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::InitializeGhostedFieldData(const int gridID)
+void vtkStructuredGridConnectivity::InitializeGhostData(const int gridID)
 {
   // Sanity check
   assert( "pre: gridID is out-of-bounds!" &&
@@ -1273,7 +1273,21 @@ void vtkStructuredGridConnectivity::InitializeGhostedFieldData(const int gridID)
       vtkStructuredData::GetNumberOfCells(
           GhostedGridExtent, this->DataDescription );
 
-  // STEP 2: Allocate point & cell data
+  // STEP 2: Allocate coordinates if the grid
+  if( this->GridPoints[gridID] != NULL )
+    {
+
+    if( this->GhostedGridPoints[gridID] != NULL )
+      {
+      this->GhostedGridPoints[gridID]->Delete();
+      }
+
+    this->GhostedGridPoints[gridID]= vtkPoints::New();
+    this->GhostedGridPoints[gridID]->SetDataTypeToDouble();
+    this->GhostedGridPoints[gridID]->SetNumberOfPoints( numNodes );
+    }
+
+  // STEP 3: Allocate point & cell data
   this->GhostedGridPointData[ gridID ] = vtkPointData::New();
   this->GhostedGridCellData[ gridID ]  = vtkCellData::New();
 
@@ -1546,7 +1560,7 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
     this->ComputeNeighborSendAndRcvExtent( i, N );
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
-    this->InitializeGhostedFieldData( i );
+    this->InitializeGhostData( i );
     this->TransferRegisteredDataToGhostedData( i );
     this->TransferGhostDataFromNeighbors( i );
     } // END for all grids

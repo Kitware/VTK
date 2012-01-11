@@ -167,11 +167,10 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
     this->CreateGhostedMaskArrays( i );
     if( this->IsGridLocal( i )  )
       {
-      this->InitializeGhostedFieldData( i );
+      this->InitializeGhostData( i );
       this->TransferRegisteredDataToGhostedData( i );
       this->TransferGhostDataFromNeighbors( i );
       }
-
     } // END for all grids
 
   // STEP 5: Synchronize
