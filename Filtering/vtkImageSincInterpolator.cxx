@@ -1336,11 +1336,9 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
     int size = m/2*VTK_SINC_KERNEL_TABLE_DIVISIONS;
     double p = 1.0/(b*n*VTK_SINC_KERNEL_TABLE_DIVISIONS);
 
-    // add a small safety buffer that will be filled with zeros
-    size += 4;
-
     // allocate and compute the kernel lookup table
-    kernel[i] = new float[size];
+    // (add a small safety buffer that will be filled with zeros)
+    kernel[i] = new float[size + 4];
 
     // the tunable parameter, set to -1 to use default
     double a = (this->UseWindowParameter ? this->WindowParameter : -1.0);
@@ -1396,6 +1394,13 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
         break;
       }
 
+    // add a tail of zeros for when table is interpolated
+    kernel[i][size] = 0;
+    kernel[i][size+1] = 0;
+    kernel[i][size+2] = 0;
+    kernel[i][size+3] = 0;
+
+    // renormalize the table if requested
     if (this->Renormalization)
       {
       vtkRenormalizeKernel(kernel[i], VTK_SINC_KERNEL_TABLE_DIVISIONS, m);
