@@ -1298,6 +1298,20 @@ void vtkStructuredGridConnectivity::InitializeGhostData(const int gridID)
 }
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridConnectivity::CopyCoordinates(
+    vtkPoints *source, vtkIdType sourceIdx,
+    vtkPoints *target, vtkIdType targetIdx )
+{
+  assert( "pre: source points is NULL" && (source != NULL) );
+  assert( "pre: target points is NULL" && (target != NULL) );
+  assert( "pre: source index is out-of-bounds!" &&
+          (sourceIdx >= 0) && (sourceIdx < source->GetNumberOfPoints()));
+  assert( "pre: target index is out-of-bounds!" &&
+          (targetIdx >= 0) && (targetIdx < target->GetNumberOfPoints()));
+  target->SetPoint( targetIdx, source->GetPoint( sourceIdx ) );
+}
+
+//------------------------------------------------------------------------------
 void vtkStructuredGridConnectivity::CopyFieldData(
     vtkFieldData *source, vtkIdType sourceIdx,
     vtkFieldData *target, vtkIdType targetIdx )
@@ -1380,6 +1394,13 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
         vtkIdType targetIdx =
             vtkStructuredData::ComputePointIdForExtent(
                 GhostedGridExtent, ijk, this->DataDescription );
+
+        if( this->GridPoints[gridID] != NULL )
+          {
+          this->CopyCoordinates(
+              this->GridPoints[gridID], sourceIdx,
+              this->GhostedGridPoints[gridID], targetIdx );
+          } // END if grid points is not NULL
 
         // Transfer node data from the registered grid to the ghosted grid
         this->CopyFieldData(
@@ -1485,6 +1506,13 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
         vtkIdType targetIdx =
             vtkStructuredData::ComputePointIdForExtent(
                 GhostedGridExtent, ijk, this->DataDescription );
+
+        if( this->GridPoints[Neighbor.NeighborID] != NULL )
+          {
+          this->CopyCoordinates(
+              this->GridPoints[Neighbor.NeighborID], srcIdx,
+              this->GhostedGridPoints[gridID], targetIdx );
+          }// END if this
 
         // Transfer node data from the registered grid to the ghosted grid
         this->CopyFieldData(

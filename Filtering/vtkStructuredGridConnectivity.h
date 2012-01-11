@@ -450,6 +450,12 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         const int gridID, const vtkStructuredNeighbor& Neighor);
 
     // Description:
+    // Copies the coordinates from the source points to the target points.
+    void CopyCoordinates(
+        vtkPoints *source, vtkIdType sourceIdx,
+        vtkPoints *target, vtkIdType targetIdx );
+
+    // Description:
     // Loops through all arrays in the source and for each array, it copies the
     // tuples from sourceIdx to the target at targetIdx. This method assumes
     // that the source and target have a one-to-one array correspondance, that
