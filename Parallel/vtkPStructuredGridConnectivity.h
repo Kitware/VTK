@@ -31,12 +31,15 @@
 
 // VTK include directives
 #include "vtkStructuredGridConnectivity.h"
+#include "vtkMPICommunicator.h" // Needed for vtkMPICommunicator::Request
 
 // C++ include directives
 #include <vector> // For STL vector
 
 // Forward declarations
+class vtkMPICommunicator::Request;
 class vtkMultiProcessController;
+class vtkMPIController;
 class vtkMultiProcessStream;
 
 class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
@@ -78,6 +81,10 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     int GetGridRank( const int gridID );
 
     // Description:
+    // Returns true iff the grid is remote, otherwise false.
+    bool IsGridRemote( const int gridID );
+
+    // Description:
     // Returns true iff the grid corresponding to the given gridID is local.
     bool IsGridLocal( const int gridID );
 
@@ -109,10 +116,34 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     std::vector< int > GridRanks; // Corresponding rank for each grid
     std::vector< int > GridIds;   // List of GridIds, owned by this process
 
-    std::vector< vtkPoints* >    RemotePoints;
-    std::vector< vtkPointData* > RemotePointData;
-    std::vector< vtkCellData* >  RemoteCellData;
+    std::vector< std::vector< vtkPoints* > >    RemotePoints;
+    std::vector< std::vector< vtkPointData* > > RemotePointData;
+    std::vector< std::vector< vtkCellData* > >  RemoteCellData;
+
+    // Data structures to store the send/receive buffer sizes and corresponding
+    // buffers. The first index is the global grid index. The second index is
+    // the neighbor index for the given grid.
+    std::vector< std::vector< int > > SendBufferSizes;
+    std::vector< std::vector< int > > RcvBufferSizes;
+    std::vector< std::vector< unsigned char* > > SendBuffers;
+    std::vector< std::vector< unsigned char* > > RcvBuffers;
+
+    int TotalNumberOfSends;
+    int TotalNumberOfRcvs;
+    int TotalNumberOfMsgs;
+
+    // Array of MPI requests
+    vtkMPICommunicator::Request *MPIRequests;
     // ETX
+
+    // Description:
+    // Clears all internal VTK data-structures that are used to store the remote
+    // ghost data.
+    void ClearRemoteData();
+
+    // Description:
+    // Clears all raw send/rcv buffers
+    void ClearRawBuffers();
 
     // Description:
     // Registers a remote grid with the given grid Id, structured extents and
@@ -120,7 +151,8 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     void RegisterRemoteGrid( const int gridID, int extents[6], int process );
 
     // Description:
-    //
+    // This method transfers all the remote neighbor data to the ghosted grid
+    // instance of the grid corresponding to the given grid index.
     void TransferRemoteNeighborData(
         const int gridIdx, const vtkStructuredNeighbor& Neighbor );
 
@@ -131,7 +163,39 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     virtual void TransferGhostDataFromNeighbors(const int gridID);
 
     // Description:
-    // Exchanges ghost data of the grids owned by this process
+    // Helper method to pack all the ghost data into send buffers.
+    void PackGhostData();
+
+    // Description:
+    // Helper method to unpack the raw ghost data from the receive buffers in
+    // to the VTK remote point data-structures.
+    void UnpackGhostData();
+
+    // Description:
+    // Helper method to exchange buffer sizes.Each process sends the send buffer
+    // size of each grid to each of its neighbors.
+    void ExchangeBufferSizes();
+
+    // Description:
+    // Helper method for exchanging ghost data. It loops through all the grids,
+    // and for each neighbor it constructs the corresponding send buffer.
+    // size and posts a non-blocking receive.
+    void ExchangeGhostDataInit();
+
+    // Description:
+    // Helper method for exchanging ghost data. It loops through all the grids
+    // and for each neighbor of each grid it serializes the data in the send
+    // extent and posts a non-blocking send.
+    void CommunicateGhostData();
+
+    // Description:
+    // Helper method for exchanging ghost data. It blocks until all requests
+    // are complete (via a waitAll) and then de-serializes the receive buffers
+    // to form the corresponding remote data-structures.
+    void ExchangeGhostDataPost();
+
+    // Description:
+    // Exchanges ghost data of the grids owned by this process.
     void ExchangeGhostData();
 
     // Description:
@@ -235,6 +299,94 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 //  INLINE METHODS
 //=============================================================================
 
+//------------------------------------------------------------------------------
+inline void vtkPStructuredGridConnectivity::ClearRawBuffers()
+{
+  this->SendBufferSizes.clear();
+  this->RcvBufferSizes.clear();
+
+  // STEP 0: Clear send buffers
+  for( unsigned int i=0; i < this->SendBuffers.size(); ++i )
+    {
+    for( unsigned int j=0; j < this->SendBuffers[i].size(); ++j )
+      {
+      if( this->SendBuffers[i][j] != NULL )
+        {
+        delete [] this->SendBuffers[i][j];
+        }
+      } // END for all neighbors
+    this->SendBuffers[i].clear();
+    } // END for all grids
+  this->SendBuffers.clear();
+
+  // STEP 1: Clear rcv buffers
+  for( unsigned int i=0; i < this->RcvBuffers.size(); ++i )
+    {
+    for( unsigned int j=0; j < this->RcvBuffers[i].size(); ++j )
+      {
+      if( this->RcvBuffers[i][j] != NULL )
+        {
+        delete [] this->RcvBuffers[i][j];
+        }
+      } // END for all neighbors
+    this->RcvBuffers[i].clear();
+    } // END for all grids
+  this->RcvBuffers.clear();
+}
+
+//------------------------------------------------------------------------------
+inline void vtkPStructuredGridConnectivity::ClearRemoteData()
+{
+  // STEP 0: Clear remote points
+  for( unsigned int i=0; i < this->RemotePoints.size(); ++i )
+    {
+    for( unsigned int j=0; j < this->RemotePoints[i].size(); ++j )
+      {
+      if( this->RemotePoints[ i ][ j ] != NULL )
+        {
+        this->RemotePoints[ i ][ j ]->Delete();
+        }
+      } // END for all j
+    this->RemotePoints[ i ].clear();
+    } // END for all i
+  this->RemotePoints.clear();
+
+  // STEP 1: Clear remote point data
+  for( unsigned int i=0; i < this->RemotePointData.size(); ++i )
+    {
+    for( unsigned int j=0; j < this->RemotePointData[i].size(); ++j )
+      {
+      if( this->RemotePointData[ i ][ j ] != NULL )
+        {
+        this->RemotePointData[ i ][ j ]->Delete();
+        }
+      } // END for all j
+    this->RemotePointData[ i ].clear();
+    } // END for all i
+  this->RemotePointData.clear();
+
+  // STEP 2: Clear remote cell data
+  for( unsigned int i=0; i < this->RemoteCellData.size(); ++i )
+    {
+    for( unsigned int j=0; j < this->RemoteCellData[i].size(); ++j )
+      {
+      if( this->RemoteCellData[ i ][ j ] != NULL )
+        {
+        this->RemoteCellData[ i ][ j ]->Delete();
+        }
+      } // END for all j
+    this->RemoteCellData[ i ].clear();
+    }
+  this->RemoteCellData.clear();
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkPStructuredGridConnectivity::IsGridRemote(const int gridID )
+{
+  return( !this->IsGridLocal(gridID) );
+}
+
+//------------------------------------------------------------------------------
 inline bool vtkPStructuredGridConnectivity::IsGridLocal(const int gridID)
 {
   assert( "pre: Instance has not been intialized!" && this->Initialized );
