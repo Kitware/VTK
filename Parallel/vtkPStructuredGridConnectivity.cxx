@@ -182,7 +182,90 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
 void vtkPStructuredGridConnectivity::TransferRemoteNeighborData(
     const int gridIdx, const vtkStructuredNeighbor& Neighbor )
 {
-  // TODO: implement this
+  // Sanity check
+  assert( "pre: gridID is out-of-bounds!" &&
+          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: Neighbor grid ID is out-of-bounds!" &&
+          (Neighbor.NeighborID >= 0) &&
+          (Neighbor.NeighborID < static_cast<int>(this->NumberOfGrids)));
+  assert( "pre: RemotePoints has not been properly allocated!" &&
+          this->RemotePoints.size() == this->NumberOfGrids );
+  assert( "pre: RemotePointData has not been properly allocated!" &&
+          this->RemotePointData.size() == this->NumberOfGrids );
+  assert( "pre: RemoteCellData has not been properly allocated!" &&
+          this->RemoteCellData.size() == this->NumberOfGrids );
+
+
+  // STEP 0: Get the ghosted grid (node) extent and cell extent
+  int GhostedGridExtent[6];
+  this->GetGhostedGridExtent( gridIdx, GhostedGridExtent );
+
+  int GhostedGridCellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      GhostedGridExtent, GhostedGridCellExtent );
+
+  // STEP 1: Get Neighboring cell extent
+  int RcvCellExtent[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent(
+      const_cast<int*>(Neighbor.RcvExtent), RcvCellExtent);
+
+  // STEP 2: Transfer the data
+  int ijk[3];
+  for( int i=Neighbor.RcvExtent[0]; i <= Neighbor.RcvExtent[1]; ++i )
+    {
+    for( int j=Neighbor.RcvExtent[2]; j <= Neighbor.RcvExtent[3]; ++j )
+      {
+      for( int k=Neighbor.RcvExtent[4]; k <= Neighbor.RcvExtent[5]; ++k )
+        {
+        assert( "pre: RcvExtent is outside of the GhostExtent!" &&
+                this->IsNodeWithinExtent(i,j,k,GhostedGridExtent) );
+
+        ijk[0]=i; ijk[1]=j; ijk[2]=k;
+
+        if( this->RemotePointData[Neighbor.NeighborID] != NULL )
+          {
+          // Compute the source (node) index into the remote neighbor data
+          vtkIdType srcIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  const_cast<int*>(Neighbor.RcvExtent),ijk);
+
+          // Compute the target (node) index into the ghost data
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridExtent, ijk, this->DataDescription );
+
+          // Transfer node data from remote to the ghosted grid data
+          this->CopyFieldData(
+              this->RemotePointData[Neighbor.NeighborID],srcIdx,
+              this->GhostedGridPointData[gridIdx],targetIdx);
+          } // END if has remote point data
+
+        if( (this->RemoteCellData[Neighbor.NeighborID] != NULL) &&
+             this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
+          {
+          // Compute the source cell index, Note, since we are passing a cell
+          // extent to ComputePointIdForExtent, the result will be a cell ID
+          // and not a point ID.
+          vtkIdType sourceCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  RcvCellExtent, ijk );
+
+          // Compute the target cell index. Note, since we are passing a cell
+          // extent to ComputePointIdForExtent, the result will be a cell ID
+          // and not a point ID.
+          vtkIdType targetCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridCellExtent, ijk, this->DataDescription);
+
+          // Transfer the cell data
+          this->CopyFieldData(
+              this->RemoteCellData[Neighbor.NeighborID], sourceCellIdx,
+              this->GhostedGridCellData[gridIdx], targetCellIdx );
+          }// END if has remote cell data && is within the cell extent
+
+        } // END for all k
+      } // END for all j
+    } // END for all i
 }
 
 //------------------------------------------------------------------------------
