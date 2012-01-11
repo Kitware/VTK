@@ -221,6 +221,23 @@ void vtkPStructuredGridConnectivity::TransferRemoteNeighborData(
 
         ijk[0]=i; ijk[1]=j; ijk[2]=k;
 
+        if( this->GridPoints[gridIdx] != NULL )
+          {
+          // Compute the source (node) index into the remote neighbor data
+          vtkIdType srcIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  const_cast<int*>(Neighbor.RcvExtent),ijk);
+
+          // Compute the target (node) index into the ghost data
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridExtent, ijk, this->DataDescription );
+
+          this->CopyCoordinates(
+              this->RemotePoints[Neighbor.NeighborID], srcIdx,
+              this->GhostedGridPoints[gridIdx], targetIdx );
+          } // END if there are grid points registered
+
         if( this->RemotePointData[Neighbor.NeighborID] != NULL )
           {
           // Compute the source (node) index into the remote neighbor data
