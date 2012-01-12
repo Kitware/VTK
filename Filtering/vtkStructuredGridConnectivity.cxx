@@ -500,7 +500,8 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
 
   // STEP 4: Get the data dimension
   int dim = vtkStructuredData::GetDataDimension( dataDescription );
-  assert( "pre: data dimensions must be 1, 2 or 3" );
+  assert( "pre: data dimensions must be 1, 2 or 3" &&
+          (dim >=1) && (dim <=3) );
 
   // STEP 5: Get the grid dimensions from the given extent.
   int dims[3];
