@@ -37,7 +37,6 @@
 #include <vector> // For STL vector
 
 // Forward declarations
-class vtkMPICommunicator::Request;
 class vtkMultiProcessController;
 class vtkMPIController;
 class vtkMultiProcessStream;
@@ -95,7 +94,8 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     void Initialize();
 
     // Description:
-    // Computes the neighboring topology of a distributed structured grid dataset.
+    // Computes the neighboring topology of a distributed structured grid
+    // data-set.
     // See vtkStructuredGridConnectivity::ComputeNeighbors
     void ComputeNeighbors();
 
@@ -116,15 +116,18 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     std::vector< int > GridRanks; // Corresponding rank for each grid
     std::vector< int > GridIds;   // List of GridIds, owned by this process
 
+    // Data structures to store the remote ghost data of each grid for each one
+    // of its neighbors. The first index is the global grid index. The second
+    // is the neighbor index.
     std::vector< std::vector< vtkPoints* > >    RemotePoints;
     std::vector< std::vector< vtkPointData* > > RemotePointData;
     std::vector< std::vector< vtkCellData* > >  RemoteCellData;
 
     // Data structures to store the send/receive buffer sizes and corresponding
-    // buffers. The first index is the global grid index. The second index is
-    // the neighbor index for the given grid.
-    std::vector< std::vector< int > > SendBufferSizes;
-    std::vector< std::vector< int > > RcvBufferSizes;
+    // persistent buffers. The first index is the global grid index. The second
+    // index is the neighbor index for the given grid.
+    std::vector< std::vector< unsigned int > > SendBufferSizes;
+    std::vector< std::vector< unsigned int > > RcvBufferSizes;
     std::vector< std::vector< unsigned char* > > SendBuffers;
     std::vector< std::vector< unsigned char* > > RcvBuffers;
 
@@ -135,6 +138,10 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Array of MPI requests
     vtkMPICommunicator::Request *MPIRequests;
     // ETX
+
+    // Description:
+    // Sets all message counters to 0.
+    void InitializeMessageCounters();
 
     // Description:
     // Clears all internal VTK data-structures that are used to store the remote
@@ -181,6 +188,16 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // and for each neighbor it constructs the corresponding send buffer.
     // size and posts a non-blocking receive.
     void ExchangeGhostDataInit();
+
+    // Description:
+    // Helper method to communicate ghost data. Loops through all the neighbors
+    // and for every remote neighbor posts a non-blocking receive.
+    void PostReceives();
+
+    // Description:
+    // Helper method to communicate ghost data. Loops through the neighbors and
+    // for every remote neighbor posts a non-blocking send.
+    void PostSends();
 
     // Description:
     // Helper method for exchanging ghost data. It loops through all the grids
@@ -263,7 +280,8 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Description:
     // Given a grid ID and the corresponding send extent, this method serializes
     // the grid and data within the given extent. Upon return, the buffer is
-    // allocated and contains the data in raw form, ready to be sent.
+    // allocated and contains the data in raw form, ready to be sent. Called
+    // from vtkPStructuredGridConnectivity::PackGhostData().
     void SerializeGhostData(
         const int sndGridID, const int rcvGrid, int sndext[6],
         unsigned char*& buffer, unsigned int &size);
@@ -272,7 +290,9 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Given the raw buffer consisting of ghost data, this method deserializes
     // the object and returns the gridID and rcvext of the grid.
     void DeserializeGhostData(
-        unsigned char *buffer, unsigned int size, int &gridID, int rcvext[6] );
+        const int gridID, const int neiGridID,
+        const int neiGridIdx, int rcvext[6],
+        unsigned char *buffer, unsigned int size );
 
     // Description:
     // Exchanges the grid extents among all processes and fully populates the
@@ -298,6 +318,12 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 //=============================================================================
 //  INLINE METHODS
 //=============================================================================
+
+//------------------------------------------------------------------------------
+inline void vtkPStructuredGridConnectivity::InitializeMessageCounters()
+{
+  this->TotalNumberOfMsgs=this->TotalNumberOfRcvs=this->TotalNumberOfSends=0;
+}
 
 //------------------------------------------------------------------------------
 inline void vtkPStructuredGridConnectivity::ClearRawBuffers()

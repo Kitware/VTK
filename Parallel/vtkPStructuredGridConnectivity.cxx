@@ -303,10 +303,10 @@ void vtkPStructuredGridConnectivity::TransferGhostDataFromNeighbors(
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::PackGhostData()
 {
-  assert( "pre: SendBuffers is not properly allocated!" &&
-           this->SendBuffers.size()==this->NumberOfGrids );
-  assert( "pre: RcvBuffers is not properly allocated!" &&
-           this->RcvBuffers.size()==this->NumberOfGrids );
+  assert("pre: SendBuffers is not properly allocated!" &&
+         this->SendBuffers.size()==this->NumberOfGrids );
+  assert("pre: RcvBuffers is not properly allocated!" &&
+         this->RcvBuffers.size()==this->NumberOfGrids );
 
   for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
     {
@@ -360,7 +360,39 @@ void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::UnpackGhostData()
 {
-  // TODO: implement this
+  assert("pre: RcvBuffers is not properly allocated!" &&
+         this->RcvBuffers.size()==this->NumberOfGrids );
+
+  for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
+    {
+    int gridIdx = this->GridIds[ idx ];
+    assert("ERROR: grid index is out-of-bounds!" &&
+           (gridIdx >= 0) &&
+           (gridIdx < static_cast<int>(this->NumberOfGrids)));
+
+    int NumNeis = this->GetNumberOfNeighbors( gridIdx );
+    assert("ERROR: rcv buffers for grid are not properly allocated" &&
+           (static_cast<int>(this->RcvBuffers[gridIdx].size())==NumNeis));
+
+    for( int nei=0; nei < NumNeis; ++nei )
+      {
+      // Get the global grid index of the neighboring grid
+      int neiGridIdx = this->Neighbors[ gridIdx ][ nei ].NeighborID;
+      assert( "ERROR: neighbor grid index is out-of-bounds" &&
+                    (neiGridIdx >= 0) &&
+                    (neiGridIdx < static_cast<int>(this->NumberOfGrids) ) );
+
+      int neiListIndex = this->GetNeighborIndex( gridIdx, neiGridIdx );
+      assert("ERROR: neiListIndex mismatch!" && (neiListIndex==nei) );
+
+      if( this->IsGridRemote(neiGridIdx) )
+        {
+        this->DeserializeGhostData(
+            this->Rc);
+        } // END if the grid is remote
+
+      } // END for all neighbors
+    } // END for all local grids
 }
 
 //------------------------------------------------------------------------------
@@ -372,26 +404,162 @@ void vtkPStructuredGridConnectivity::ExchangeGhostDataInit()
   // STEP 1: Exchange buffer size
   this->ExchangeBufferSizes();
 
-  // STEP 2: Allocate Rcv buffer sizes
-  this->AllocateRcvBufferSizes();
+  // STEP 2: Synchronize
+  this->Controller->Barrier();
 }
 
 //------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::AllocateRcvBufferSizes()
+void vtkPStructuredGridConnectivity::PostReceives()
 {
-  // TODO: implement this
+  // STEP 0: Acquire MPI controller from supplied Multi-Process controller
+  vtkMPIController *myMPIController =
+        vtkMPIController::SafeDownCast(this->Controller);
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+
+  // STEP 1: Loop through all local grids and post receives
+  int rqstIdx = 0;
+  for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
+    {
+    int gridIdx = this->GridIds[ idx ];
+    assert("ERROR: grid index is out-of-bounds" &&
+           (gridIdx >= 0) &&
+           (gridIdx < static_cast<int>(this->NumberOfGrids) ) );
+    assert("ERROR: grid must be local" && this->IsGridLocal( gridIdx ) );
+    assert("ERROR: grid rcv buffers must be 1-to-1 with the grid neighbors" &&
+           this->Neighbors[gridIdx].size()==this->RcvBuffers[gridIdx].size() );
+    assert("ERROR: grid rcv buffers must be 1-to-1 with the rcv buffer sizes" &&
+      this->RcvBufferSizes[gridIdx].size()==this->RcvBuffers[gridIdx].size() );
+
+    int NumNeis = this->Neighbors[ gridIdx ].size();
+    for( int nei=0; nei < NumNeis; ++nei )
+      {
+      int neiGridIdx = this->Neighbors[gridIdx][nei].NeighborID;
+      assert("ERROR: Neighbor grid index is out-of-bounds!" &&
+             (neiGridIdx >= 0) &&
+             (neiGridIdx < static_cast<int>(this->NumberOfGrids) ) );
+      if( this->IsGridLocal( neiGridIdx ) )
+        {
+        // The neighboring grid is local, thus, the ghost data are transfered
+        // directly using vtkStructuredGrid::TransferLocalNeighborData().
+        // Consequently, there is no need for any communication.
+        continue;
+        }
+
+      int NeighborRank = this->GetGridRank( neiGridIdx );
+
+      assert("pre: RcvBuffer must be NULL!" &&
+             (this->RcvBuffers[gridIdx][nei] == NULL));
+
+      this->RcvBuffers[gridIdx][nei] =
+           new unsigned char[ this->RcvBufferSizes[gridIdx][nei]  ];
+      assert("ERROR: Could not allocate RcvBuffer!" &&
+             this->RcvBuffers[gridIdx][nei] );
+      assert("pre: RequestIndex is out-of-bounds!" &&
+             (rqstIdx >= 0) && (rqstIdx < this->TotalNumberOfMsgs) );
+
+      unsigned char *bufferPtr = this->RcvBuffers[gridIdx][nei];
+      int length               = this->RcvBufferSizes[ gridIdx][nei];
+      myMPIController->NoBlockReceive(
+          bufferPtr,length,NeighborRank,gridIdx,this->MPIRequests[rqstIdx]);
+      ++rqstIdx;
+      } // END for all neis
+    } // END for all local grids
+}
+
+//------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::PostSends()
+{
+  // STEP 0: Acquire MPI controller from supplied Multi-Process controller
+  vtkMPIController *myMPIController =
+        vtkMPIController::SafeDownCast(this->Controller);
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+
+  // STEP 1: Loop through all local grids and post receives
+  int rqstIdx = this->TotalNumberOfRcvs;
+  for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
+    {
+    int gridIdx = this->GridIds[ idx ];
+    assert("ERROR: grid index is out-of-bounds" &&
+           (gridIdx >= 0) &&
+           (gridIdx < static_cast<int>(this->NumberOfGrids) ) );
+    assert("ERROR: grid must be local" && this->IsGridLocal(gridIdx) );
+    assert("ERROR: grid rcv buffers must be 1-to-1 with the grid neighbors" &&
+           this->Neighbors[gridIdx].size()==this->SendBuffers[gridIdx].size() );
+    assert("ERROR: grid rcv buffers must be 1-to-1 with the rcv buffer sizes" &&
+      this->SendBufferSizes[gridIdx].size()==this->SendBuffers[gridIdx].size() );
+
+    int NumNeis = this->Neighbors[gridIdx].size();
+    for( int nei=0; nei < NumNeis; ++nei )
+      {
+      int neiGridIdx = this->Neighbors[gridIdx][nei].NeighborID;
+      assert("ERROR: Neighbor grid index is out-of-bounds!" &&
+             (neiGridIdx >= 0) &&
+             (neiGridIdx < static_cast<int>(this->NumberOfGrids) ) );
+      if( this->IsGridLocal( neiGridIdx ) )
+        {
+        // The neighboring grid is local, thus, the ghost data are transfered
+        // directly using vtkStructuredGrid::TransferLocalNeighborData().
+        // Consequently, there is no need for any communication.
+        continue;
+        }
+
+      int NeighborRank = this->GetGridRank( neiGridIdx );
+
+      assert("pre: RcvBuffer must be NULL!" &&
+             (this->SendBuffers[gridIdx][nei] != NULL));
+      assert("pre: RequestIndex is out-of-bounds!" &&
+             (rqstIdx >= 0) && (rqstIdx < this->TotalNumberOfMsgs) );
+      unsigned char *bufferPtr = this->SendBuffers[gridIdx][nei];
+      int length               = this->SendBufferSizes[gridIdx][nei];
+      myMPIController->NoBlockSend(
+          bufferPtr,length,NeighborRank,gridIdx,this->MPIRequests[rqstIdx]);
+      ++rqstIdx;
+      } // END for all neis
+    } // END for all local grids
 }
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::CommunicateGhostData()
 {
-  // TODO: implement this
+  // STEP 0: Sanity Checks!
+  assert("pre: Instance has not been initialized!" && this->Initialized );
+  assert("pre: RcvBuffers is not properly allocated" &&
+         (this->RcvBuffers.size() == this->NumberOfGrids) );
+  assert("pre: RcvBufferSizes is not properly allocated" &&
+         (this->RcvBufferSizes.size() == this->NumberOfGrids ) );
+  assert("pre: Neighbors have not been computed!" &&
+          this->Neighbors.size() == this->NumberOfGrids );
+  assert("pre: MPI requests array must be NULL!" &&
+         (this->MPIRequests==NULL));
+
+  // STEP 1: Allocate the MPI requests array
+  this->MPIRequests = new vtkMPICommunicator::Request[this->TotalNumberOfMsgs];
+  assert("pre:Could not alloc MPI requests array" && (this->MPIRequests!=NULL));
+
+  // STEP 2: Allocate receive buffers and post receives
+  this->PostReceives();
+  this->Controller->Barrier();
+
+  // STEP 3: Post sends
+  this->PostSends();
+  this->Controller->Barrier();
 }
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::ExchangeGhostDataPost()
 {
-  // TODO: implement this
+  vtkMPIController *myMPIController =
+      vtkMPIController::SafeDownCast(this->Controller);
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+
+  // STEP 0: Block until all communication is completed
+  myMPIController->WaitAll(this->TotalNumberOfMsgs,this->MPIRequests);
+
+  // STEP 1: Process receive buffers
+  this->UnpackGhostData();
+
+  // STEP 2: De-allocate receive buffers
+  this->ClearRawBuffers();
 }
 
 //------------------------------------------------------------------------------
@@ -399,26 +567,30 @@ void vtkPStructuredGridConnectivity::ExchangeGhostData()
 {
   assert( "pre: Instance has not been intialized!" && this->Initialized );
 
-  // STEP 0: Allocate internal data-structures
+  // STEP 0:
+  this->InitializeMessageCounters();
+
+  // STEP 1: Allocate internal data-structures
   this->RemotePoints.resize( this->NumberOfGrids);
   this->RemotePointData.resize( this->NumberOfGrids);
   this->RemoteCellData.resize( this->NumberOfGrids);
+
   this->SendBuffers.resize(this->NumberOfGrids);
   this->RcvBuffers.resize(this->NumberOfGrids);
-  this->SendBufferSizes.resize(this->NumberOfGrids,0);
-  this->RcvBufferSizes.resize(this->NumberOfGrids,0);
+  this->SendBufferSizes.resize(this->NumberOfGrids);
+  this->RcvBufferSizes.resize(this->NumberOfGrids);
 
-  // STEP 1: Posts the receives
+  // STEP 2: Serialize the ghost data and exchange buffer sizes
   this->ExchangeGhostDataInit();
 
-  // STEP 2: Posts the sends
+  // STEP 3: Allocate rcv buffers and perform non-blocking communication
   this->CommunicateGhostData();
 
-  // STEP 3: Waits for the communication to complete and
-  // deserializes the remote data
+  // STEP 4: Block until communication is complete and raw rcv buffers are
+  // de-serialized into the VTK data-structures.
   this->ExchangeGhostDataPost();
 
-  // STEP 4: Synchronize
+  // STEP 5: Synchronize with all processes
   this->Controller->Barrier();
 }
 
@@ -525,14 +697,15 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
   assert("pre: points array is not of the expected size!" &&
          (static_cast<int>(size) == 3*N) );
 
-  this->RemotePoints[ gridIdx ] = vtkPoints::New();
-  this->RemotePoints[ gridIdx ]->SetDataTypeToDouble();
-  this->RemotePoints[ gridIdx ]->SetNumberOfPoints( N );
-  for( int i=0; i < N ; ++i )
-    {
-    this->RemotePoints[ gridIdx ]->SetPoint(
-        i, pnts[i*3], pnts[i*3+1], pnts[i*3+2] );
-    }
+// TODO: FIX THIS
+//  this->RemotePoints[ gridIdx ] = vtkPoints::New();
+//  this->RemotePoints[ gridIdx ]->SetDataTypeToDouble();
+//  this->RemotePoints[ gridIdx ]->SetNumberOfPoints( N );
+//  for( int i=0; i < N ; ++i )
+//    {
+//    this->RemotePoints[ gridIdx ]->SetPoint(
+//        i, pnts[i*3], pnts[i*3+1], pnts[i*3+2] );
+//    }
 
   delete [] pnts;
 }
@@ -822,8 +995,9 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
     }
 
   // STEP 1: De-serialize the point data
-  this->RemotePointData[gridIdx] = vtkPointData::New();
-  this->DeserializeFieldData(ext,this->RemotePointData[gridIdx],bytestream);
+// TODO: Fix THIS
+//  this->RemotePointData[gridIdx] = vtkPointData::New();
+//  this->DeserializeFieldData(ext,this->RemotePointData[gridIdx],bytestream);
 }
 
 //------------------------------------------------------------------------------
@@ -875,10 +1049,11 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
     }
 
   // STEP 1: De-serialize the cell data
-  this->RemoteCellData[gridIdx] = vtkCellData::New();
-  int cellext[6];
-  vtkStructuredData::GetCellExtentFromNodeExtent( ext, cellext );
-  this->DeserializeFieldData(cellext,this->RemoteCellData[gridIdx],bytestream);
+// TODO: FIX THIS
+//  this->RemoteCellData[gridIdx] = vtkCellData::New();
+//  int cellext[6];
+//  vtkStructuredData::GetCellExtentFromNodeExtent( ext, cellext );
+//  this->DeserializeFieldData(cellext,this->RemoteCellData[gridIdx],bytestream);
 }
 
 //------------------------------------------------------------------------------
@@ -921,46 +1096,48 @@ void vtkPStructuredGridConnectivity::SerializeGhostData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostData(
-    unsigned char *buffer, unsigned int size, int &gridID, int rcvext[6] )
+    const int gridID, const int neiGridID, const int neiGridIdx,
+    int rcvext[6],unsigned char *buffer, unsigned int size )
 {
   assert("pre: raw buffer is NULL!" && (buffer != NULL) );
   assert("pre: raw buffer size > 0" && (size > 0) );
 
-  // STEP 0: Constructs the bytestream object with raw data
+  // STEP 0: Constructs the byte-stream object with raw data
   vtkMultiProcessStream bytestream;
   bytestream.SetRawData( buffer, size );
 
-  // STEP 1: Extract the header
-  int remoteGrid;
-  bytestream >> remoteGrid >> gridID;
-  assert("pre: Remote grid is out-of-bounds" &&
-         (remoteGrid >= 0) &&
-         (remoteGrid < static_cast<int>(this->NumberOfGrids) ) );
-  assert("pre: Rcv grid must be local!" &&
-         this->IsGridLocal(gridID) );
-
-  int *tmpext = NULL;
-  unsigned int s = 0;
-  bytestream.Pop(tmpext,s);
-  assert("ERROR: extent parsed from bytestream is not of expected size" &&
-          (s==6));
-  for( int i=0; i < 6; ++i )
-    {
-    rcvext[ i ] = tmpext[ i ];
-    }
-  delete [] tmpext;
-
-  // STEP 2: De-serialize the grid points
-  this->DeserializeGhostPoints(gridID, rcvext, bytestream);
-
-  // STEP 3: De-serialize the ghost point data
-  this->DeserializeGhostPointData(gridID, rcvext, bytestream);
-
-  // STEP 4: De-serialize the ghost cell data
-  this->DeserializeGhostCellData(gridID, rcvext, bytestream);
-
-  assert("post: gridID is out-of-bounds" &&
-         (gridID >= 0) && gridID < static_cast<int>(this->NumberOfGrids) );
+//  // STEP 1: Extract the header
+//  int remoteGrid;
+//  int rcvGrid;
+//  bytestream >> remoteGrid >> rcvGrid;
+//  assert("pre: Remote grid is out-of-bounds" &&
+//         (remoteGrid >= 0) &&
+//         (remoteGrid < static_cast<int>(this->NumberOfGrids) ) );
+//  assert("pre: Rcv grid must be local!" &&
+//         this->IsGridLocal(gridID) );
+//
+//  int *tmpext = NULL;
+//  unsigned int s = 0;
+//  bytestream.Pop(tmpext,s);
+//  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
+//          (s==6));
+//  for( int i=0; i < 6; ++i )
+//    {
+//    rcvext[ i ] = tmpext[ i ];
+//    }
+//  delete [] tmpext;
+//
+//  // STEP 2: De-serialize the grid points
+//  this->DeserializeGhostPoints(gridID, rcvext, bytestream);
+//
+//  // STEP 3: De-serialize the ghost point data
+//  this->DeserializeGhostPointData(gridID, rcvext, bytestream);
+//
+//  // STEP 4: De-serialize the ghost cell data
+//  this->DeserializeGhostCellData(gridID, rcvext, bytestream);
+//
+//  assert("post: gridID is out-of-bounds" &&
+//         (gridID >= 0) && gridID < static_cast<int>(this->NumberOfGrids) );
 }
 
 //------------------------------------------------------------------------------
