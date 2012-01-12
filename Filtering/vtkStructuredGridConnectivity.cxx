@@ -23,11 +23,6 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
-// C++ STL library includes
-#include <set>
-#include <vector>
-#include <algorithm>
-
 #define NO_OVERLAP      0
 #define NODE_OVERLAP    1
 #define EDGE_OVERLAP    2
@@ -65,6 +60,7 @@ vtkStructuredGridConnectivity::vtkStructuredGridConnectivity()
 vtkStructuredGridConnectivity::~vtkStructuredGridConnectivity()
 {
   this->GridExtents.clear();
+  this->NeighborPair2NeighborListIndex.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -883,8 +879,23 @@ void vtkStructuredGridConnectivity::SetNeighbors(
   vtkStructuredNeighbor Ni2j( j, overlapExtent, i2jOrientation );
   vtkStructuredNeighbor Nj2i( i, overlapExtent, j2iOrientation );
 
+  // STEP 0: Setup i-to-j
   this->Neighbors[ i ].push_back( Ni2j );
+  int i2jNeiIdx = this->Neighbors[ i ].size()-1;
+  std::pair<int,int> i2jPair = std::make_pair(i,j);
+  assert("ERROR: Duplicate neighboring pair!" &&
+         this->NeighborPair2NeighborListIndex.find(i2jPair)==
+             this->NeighborPair2NeighborListIndex.end() );
+  this->NeighborPair2NeighborListIndex[ i2jPair ] = i2jNeiIdx;
+
+  // STEP 1: Setup j-to-i
   this->Neighbors[ j ].push_back( Nj2i );
+  int j2iNeiIdx = this->Neighbors[ j ].size()-1;
+  std::pair<int,int> j2iPair = std::make_pair(j,i);
+  assert("ERROR: Duplicate neighboring pair!" &&
+           this->NeighborPair2NeighborListIndex.find(j2iPair)==
+               this->NeighborPair2NeighborListIndex.end() );
+  this->NeighborPair2NeighborListIndex[ j2iPair ] = j2iNeiIdx;
 }
 
 //------------------------------------------------------------------------------

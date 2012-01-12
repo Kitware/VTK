@@ -35,6 +35,8 @@
 // C++ include directives
 #include <iostream> // For cout
 #include <vector>   // For STL vector
+#include <map>      // For STL map
+#include <utility>  // For STL pair and overloaded relational operators
 #include <cassert>  // For assert()
 
 // Forward Declarations
@@ -465,16 +467,26 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
         vtkFieldData *target, vtkIdType targetIdx );
 
     // Description:
+    // Given a global grid ID and the neighbor grid ID, this method returns the
+    // neighbor index w.r.t. the Neighbors list of the grid with grid ID
+    // gridIdx.
+    int GetNeighborIndex( const int gridIdx, const int NeighborGridIdx );
+
+    // Description:
     // Prints the extent, used for debugging
     void PrintExtent( int extent[6] );
 
     int DataDimension;
     int DataDescription;
     int WholeExtent[6];
+
+    // BTX
     std::vector< int > GridExtents;
     std::vector< int > GhostedExtents;
     std::vector< unsigned char  > BlockTopology;
     std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
+    std::map< std::pair< int,int >, int > NeighborPair2NeighborListIndex;
+    // ETX
 
   private:
     vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ); // Not implemented
@@ -485,6 +497,25 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
 //  INLINE METHODS
 //=============================================================================
 
+//------------------------------------------------------------------------------
+inline int vtkStructuredGridConnectivity::GetNeighborIndex(
+    const int gridIdx, const int NeighborGridIdx )
+{
+  assert("pre: Grid index is out-of-bounds!" &&
+         (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+  assert("pre: Neighbor grid index is out-of-bounds!" &&
+         (NeighborGridIdx >= 0) &&
+         (NeighborGridIdx < static_cast<int>(this->NumberOfGrids) ) );
+
+  std::pair<int,int> gridPair = std::make_pair(gridIdx,NeighborGridIdx);
+  assert("pre: Neighboring grid pair does not exist in hash!" &&
+         (this->NeighborPair2NeighborListIndex.find(gridPair) !=
+             this->NeighborPair2NeighborListIndex.end() ) );
+
+  return(this->NeighborPair2NeighborListIndex[gridPair]);
+}
+
+//------------------------------------------------------------------------------
 inline void vtkStructuredGridConnectivity::GetGhostedExtent(
     int *ghostedExtent, int GridExtent[6],
     const int minIdx, const int maxIdx, const int N )
