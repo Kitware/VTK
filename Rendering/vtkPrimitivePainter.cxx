@@ -226,14 +226,11 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (c)
     {
     idx |= VTK_PDM_COLORS;
-    if (!fieldScalars && c->GetName())
+    if (!c->GetName())
       {
-      // In the future, I will look at the number of components.
-      // All paths will have to handle 3 component colors.
-      // When using field colors, the c->GetName() condition is not valid,
-      // since field data arrays always have names. In that case we
-      // forfeit the speed improvement gained by using RGB colors instead
-      // or RGBA.
+      // If the array has a name (hence directly coming with MAP_SCALARS),
+      // it means that it has 4 components and we should use the alpha.
+      // Otherwise, we know that alpha is constant so we ignore it.
       idx |= VTK_PDM_OPAQUE_COLORS;
       }
     if (cellScalars)

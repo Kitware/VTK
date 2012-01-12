@@ -391,6 +391,31 @@ void vtkPainterPolyDataMapper::ComputeBounds()
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPainterPolyDataMapper::GetIsOpaque()
+{
+  if (this->ScalarVisibility &&
+    this->ColorMode == VTK_COLOR_MODE_DEFAULT)
+    {
+    vtkPolyData* input =
+      vtkPolyData::SafeDownCast(this->GetInputDataObject(0, 0));
+    if (input)
+      {
+      int cellFlag;
+      vtkDataArray* scalars = this->GetScalars(input,
+        this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+        this->ArrayName, cellFlag);
+      if (scalars && scalars->IsA("vtkUnsignedCharArray") &&
+        (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
+         scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
+        {
+        return false;
+        }
+      }
+    }
+  return this->Superclass::GetIsOpaque();
+}
+
+//-----------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
