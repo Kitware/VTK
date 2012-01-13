@@ -161,7 +161,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // This method transfers all the remote neighbor data to the ghosted grid
     // instance of the grid corresponding to the given grid index.
     void TransferRemoteNeighborData(
-        const int gridIdx, const vtkStructuredNeighbor& Neighbor );
+        const int gridIdx,const int nei,const vtkStructuredNeighbor& Neighbor );
 
     // Description:
     // This method transfers the fields (point data and cell data) to the ghost
@@ -177,6 +177,16 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Helper method to unpack the raw ghost data from the receive buffers in
     // to the VTK remote point data-structures.
     void UnpackGhostData();
+
+    // Description:
+    // TODO: enter description here
+    void DeserializeBufferSizesForProcess(
+        int *buffersizes, vtkIdType &N, const int processId );
+
+    // Description:
+    // Helper method to serialize the buffer sizes for the grids of this process
+    // to neighboring grids.
+    void SerializeBufferSizes(int *&sizesbuf, vtkIdType &N);
 
     // Description:
     // Helper method to exchange buffer sizes.Each process sends the send buffer
@@ -249,7 +259,8 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Helper method to de-serialize the ghost points received from a remote
     // process. Called from DeserializeGhostData.
     void DeserializeGhostPoints(
-        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+        const int gridIdx, const int nei,
+        int ext[6], vtkMultiProcessStream& bytestream );
 
     // Description:
     // Helper method to deserialize the data array from a bytestream.
@@ -269,13 +280,15 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Helper method to de-serialize the ghost point data received from a
     // remote process. Called from DeserializeGhostData.
     void DeserializeGhostPointData(
-        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+        const int gridIdx, const int nei,
+        int ext[6], vtkMultiProcessStream& bytestream );
 
     // Description:
     // Helper method to de-serialize the ghost cell data received from a remote
     // process. Called from DeserializeGhostCellData.
     void DeserializeGhostCellData(
-        const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream );
+        const int gridIdx, const int nei,
+        int ext[6], vtkMultiProcessStream& bytestream );
 
     // Description:
     // Given a grid ID and the corresponding send extent, this method serializes
@@ -290,7 +303,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Given the raw buffer consisting of ghost data, this method deserializes
     // the object and returns the gridID and rcvext of the grid.
     void DeserializeGhostData(
-        const int gridID, const int neiGridID,
+        const int gridID, const int neiListID,
         const int neiGridIdx, int rcvext[6],
         unsigned char *buffer, unsigned int size );
 

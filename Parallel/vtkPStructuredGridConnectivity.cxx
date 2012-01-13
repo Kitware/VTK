@@ -167,7 +167,7 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::TransferRemoteNeighborData(
-    const int gridIdx, const vtkStructuredNeighbor& Neighbor )
+    const int gridIdx, const int nei, const vtkStructuredNeighbor& Neighbor )
 {
   // Sanity check
   assert( "pre: gridID is out-of-bounds!" &&
@@ -221,54 +221,51 @@ void vtkPStructuredGridConnectivity::TransferRemoteNeighborData(
               vtkStructuredData::ComputePointIdForExtent(
                   GhostedGridExtent, ijk, this->DataDescription );
 
-// TODO: FIX THIS
-//          this->CopyCoordinates(
-//              this->RemotePoints[Neighbor.NeighborID], srcIdx,
-//              this->GhostedGridPoints[gridIdx], targetIdx );
+          this->CopyCoordinates(
+              this->RemotePoints[gridIdx][nei], srcIdx,
+              this->GhostedGridPoints[gridIdx], targetIdx );
           } // END if there are grid points registered
 
-//        if( this->RemotePointData[Neighbor.NeighborID] != NULL )
-//          {
-//          // Compute the source (node) index into the remote neighbor data
-//          vtkIdType srcIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  const_cast<int*>(Neighbor.RcvExtent),ijk);
-//
-//          // Compute the target (node) index into the ghost data
-//          vtkIdType targetIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  GhostedGridExtent, ijk, this->DataDescription );
-//
-//          // Transfer node data from remote to the ghosted grid data
-// TODO: FIX THIS
-//          this->CopyFieldData(
-//              this->RemotePointData[Neighbor.NeighborID],srcIdx,
-//              this->GhostedGridPointData[gridIdx],targetIdx);
-//          } // END if has remote point data
+        if( this->RemotePointData[gridIdx][nei] != NULL )
+          {
+          // Compute the source (node) index into the remote neighbor data
+          vtkIdType srcIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  const_cast<int*>(Neighbor.RcvExtent),ijk);
 
-//        if( (this->RemoteCellData[Neighbor.NeighborID] != NULL) &&
-//             this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
-//          {
-//          // Compute the source cell index, Note, since we are passing a cell
-//          // extent to ComputePointIdForExtent, the result will be a cell ID
-//          // and not a point ID.
-//          vtkIdType sourceCellIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  RcvCellExtent, ijk );
-//
-//          // Compute the target cell index. Note, since we are passing a cell
-//          // extent to ComputePointIdForExtent, the result will be a cell ID
-//          // and not a point ID.
-//          vtkIdType targetCellIdx =
-//              vtkStructuredData::ComputePointIdForExtent(
-//                  GhostedGridCellExtent, ijk, this->DataDescription);
-//
-//          // Transfer the cell data
-// TODO: FIX THIS
-//          this->CopyFieldData(
-//              this->RemoteCellData[Neighbor.NeighborID], sourceCellIdx,
-//              this->GhostedGridCellData[gridIdx], targetCellIdx );
-//          }// END if has remote cell data && is within the cell extent
+          // Compute the target (node) index into the ghost data
+          vtkIdType targetIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridExtent, ijk, this->DataDescription );
+
+          // Transfer node data from remote to the ghosted grid data
+          this->CopyFieldData(
+              this->RemotePointData[gridIdx][nei],srcIdx,
+              this->GhostedGridPointData[gridIdx],targetIdx);
+          } // END if has remote point data
+
+        if( (this->RemoteCellData[gridIdx][nei] != NULL) &&
+             this->IsNodeWithinExtent(i,j,k,RcvCellExtent) )
+          {
+          // Compute the source cell index, Note, since we are passing a cell
+          // extent to ComputePointIdForExtent, the result will be a cell ID
+          // and not a point ID.
+          vtkIdType sourceCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  RcvCellExtent, ijk );
+
+          // Compute the target cell index. Note, since we are passing a cell
+          // extent to ComputePointIdForExtent, the result will be a cell ID
+          // and not a point ID.
+          vtkIdType targetCellIdx =
+              vtkStructuredData::ComputePointIdForExtent(
+                  GhostedGridCellExtent, ijk, this->DataDescription);
+
+          // Transfer the cell data
+          this->CopyFieldData(
+              this->RemoteCellData[gridIdx][nei], sourceCellIdx,
+              this->GhostedGridCellData[gridIdx], targetCellIdx );
+          } // END if has remote cell data && is within the cell extent
 
         } // END for all k
       } // END for all j
@@ -295,7 +292,8 @@ void vtkPStructuredGridConnectivity::TransferGhostDataFromNeighbors(
       }
     else
       {
-      this->TransferRemoteNeighborData( gridID,this->Neighbors[gridID][nei]);
+      this->TransferRemoteNeighborData(
+          gridID, nei, this->Neighbors[gridID][nei]);
       }
     } // END for all neighbors
 }
@@ -347,14 +345,93 @@ void vtkPStructuredGridConnectivity::PackGhostData()
 }
 
 //------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::SerializeBufferSizes(
+    int *&sizesbuf, vtkIdType &N)
+{
+  assert("pre: sizes buffer must be NULL" && (sizesbuf==NULL) );
+  assert("pre: Number of sends should be at least 1" &&
+         (this->TotalNumberOfSends >= 1) );
+
+  N        = 3*this->TotalNumberOfSends;
+  sizesbuf = new int[ N ];
+  assert("pre: Cannot allocate sizes buffer" && (sizesbuf != NULL) );
+
+  int bidx = 0; // index to the buffer
+  for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
+    {
+    int gridIdx = this->GridIds[ idx ];
+    assert("pre: grid index is out-of-bounds" &&
+           (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+
+    int NumNeis = this->GetNumberOfNeighbors( gridIdx );
+    for( int nei=0; nei < NumNeis; ++nei )
+      {
+      // Sender grid
+      sizesbuf[bidx] = gridIdx;
+      ++bidx;
+
+      // Receiver grid
+      sizesbuf[bidx] = this->Neighbors[gridIdx][nei].NeighborID;
+      ++bidx;
+
+      // Buffer size
+      sizesbuf[bidx] = this->SendBufferSizes[gridIdx][nei];
+      ++bidx;
+      } // END for all neighbors
+    } // END for all local grids
+}
+
+//------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
 {
-  // TODO: implement this
-  // For each grid, we will send
-  int *serializedBufferSizes = new int[ 3*this->TotalNumberOfSends ];
+  vtkIdType N      = 0;
+  int *sizesbuffer = NULL;
+  this->SerializeBufferSizes( sizesbuffer, N );
+  assert("ERROR: sizesbuffer is NULL!" && (sizesbuffer != NULL));
+  assert("ERROR: N > 0" && (N > 0));
 
+  // STEP 1: Get the number of ints each process will send with an all gather
+  vtkIdType numRanks   = this->Controller->GetNumberOfProcesses();
+  vtkIdType *rcvcounts = new vtkIdType[ numRanks ];
+  this->Controller->AllGather( &N, rcvcounts, 1);
 
-  delete [] serializedBufferSizes;
+  // STEP 2: Calculate the receive buffer size & Allocate
+  vtkIdType rcvBufferSize = rcvcounts[0];
+  for( int i=1; i < numRanks; ++i )
+    {
+    rcvBufferSize += rcvcounts[i];
+    }
+  int *rcvbuffer = new int[ rcvBufferSize ];
+  assert( "pre: receive buffer should not be NULL" && (rcvbuffer != NULL) );
+
+  // STEP 3: Calculate offset to the rcvbuffer for each rank
+  vtkIdType *offSet = new vtkIdType[ numRanks ];
+  offSet[0]   = 0;
+  for( int i=1; i < numRanks; ++i )
+    {
+    offSet[ i ] = offSet[ i-1 ] + rcvcounts[ i-1 ];
+    }
+
+  // STEP 4: AllGatherv of all the remote buffer size information
+  this->Controller->AllGatherV( sizesbuffer, rcvbuffer, N, rcvcounts, offSet );
+
+  // STEP 5: Deserialize Grid Extent(s) for each remote process
+  for( int i=0; i < numRanks; ++i )
+    {
+    if( i != this->Rank )
+      {
+//      this->DeserializeGridExtentForProcess(rcvbuffer+offSet[i],rcvcounts[i],i);
+      }// END if remote rank
+    } // END for all ranks
+
+  // STEP 6: Deallocate
+  delete [] sizesbuffer;
+  delete [] rcvcounts;
+  delete [] rcvbuffer;
+  delete [] offSet;
+
+  // STEP 7: Synch processes
+  this->Controller->Barrier();
 }
 
 //------------------------------------------------------------------------------
@@ -388,10 +465,13 @@ void vtkPStructuredGridConnectivity::UnpackGhostData()
       if( this->IsGridRemote(neiGridIdx) )
         {
         this->DeserializeGhostData(
-            this->Rc);
+            gridIdx, nei, neiGridIdx,
+            this->Neighbors[ gridIdx ][ nei ].RcvExtent,
+            this->RcvBuffers[ gridIdx ][ nei ],
+            this->RcvBufferSizes[ gridIdx ][ nei ] );
         } // END if the grid is remote
-
       } // END for all neighbors
+
     } // END for all local grids
 }
 
@@ -671,9 +751,19 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
-       const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream )
+       const int gridIdx, const int nei,
+       int ext[6], vtkMultiProcessStream& bytestream )
 {
-  assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
+  assert("pre:Cannot deserialize an empty bytestream" && !bytestream.Empty());
+  assert("pre:Grid index is out-of-bounds" &&
+         (gridIdx >= 0 ) &&
+         (gridIdx < static_cast<int>(this->GetNumberOfGrids())));
+  assert("pre:Neighbor list index is out-of-bounds" &&
+         (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
+  assert("pre:Remote points is not properly allocated!" &&
+          this->RemotePoints.size() == this->NumberOfGrids );
+  assert("pre:Remote points for grid is not properly allocated!" &&
+     (this->GetNumberOfNeighbors(gridIdx)==this->RemotePoints[gridIdx].size()));
 
   // STEP 0: Check if there are serialized points in the bytestream
   int hasPoints;
@@ -697,15 +787,14 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
   assert("pre: points array is not of the expected size!" &&
          (static_cast<int>(size) == 3*N) );
 
-// TODO: FIX THIS
-//  this->RemotePoints[ gridIdx ] = vtkPoints::New();
-//  this->RemotePoints[ gridIdx ]->SetDataTypeToDouble();
-//  this->RemotePoints[ gridIdx ]->SetNumberOfPoints( N );
-//  for( int i=0; i < N ; ++i )
-//    {
-//    this->RemotePoints[ gridIdx ]->SetPoint(
-//        i, pnts[i*3], pnts[i*3+1], pnts[i*3+2] );
-//    }
+  this->RemotePoints[ gridIdx ][ nei ] = vtkPoints::New();
+  this->RemotePoints[ gridIdx ][ nei ]->SetDataTypeToDouble();
+  this->RemotePoints[ gridIdx ][ nei ]->SetNumberOfPoints( N );
+  for( int i=0; i < N ; ++i )
+    {
+    this->RemotePoints[ gridIdx ][ nei ]->SetPoint(
+        i, pnts[i*3], pnts[i*3+1], pnts[i*3+2] );
+    }
 
   delete [] pnts;
 }
@@ -980,11 +1069,22 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
-    const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream )
+    const int gridIdx, const int nei,int ext[6],
+    vtkMultiProcessStream& bytestream )
 {
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
+  assert("pre:Grid index is out-of-bounds" &&
+          (gridIdx >= 0 ) &&
+          (gridIdx < static_cast<int>(this->GetNumberOfGrids())));
   assert("pre: Grid to be serialized must be local" &&
          this->IsGridLocal(gridIdx) );
+  assert("pre:Neighbor list index is out-of-bounds" &&
+         (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
+  assert("pre:Remote point data is not properly allocated!" &&
+         this->RemotePointData.size() == this->NumberOfGrids );
+  assert("pre:Remote point data for grid is not properly allocated!" &&
+      (this->GetNumberOfNeighbors(gridIdx)==
+       this->RemotePointData[gridIdx].size()));
 
   // STEP 0: Check if there are point data in the byte-stream
   int hasPointData;
@@ -995,9 +1095,8 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
     }
 
   // STEP 1: De-serialize the point data
-// TODO: Fix THIS
-//  this->RemotePointData[gridIdx] = vtkPointData::New();
-//  this->DeserializeFieldData(ext,this->RemotePointData[gridIdx],bytestream);
+  this->RemotePointData[gridIdx][nei] = vtkPointData::New();
+  this->DeserializeFieldData(ext,this->RemotePointData[gridIdx][nei],bytestream);
 }
 
 //------------------------------------------------------------------------------
@@ -1037,9 +1136,23 @@ void vtkPStructuredGridConnectivity::SerializeGhostCellData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
-    const int gridIdx, int ext[6], vtkMultiProcessStream& bytestream )
+    const int gridIdx, const int nei, int ext[6],
+    vtkMultiProcessStream& bytestream )
 {
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
+  assert("pre:Grid index is out-of-bounds" &&
+          (gridIdx >= 0 ) &&
+          (gridIdx < static_cast<int>(this->GetNumberOfGrids())));
+  assert("pre: Grid to be serialized must be local" &&
+         this->IsGridLocal(gridIdx) );
+  assert("pre:Neighbor list index is out-of-bounds" &&
+         (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
+  assert("pre:Remote point data is not properly allocated!" &&
+         this->RemoteCellData.size() == this->NumberOfGrids );
+  assert("pre:Remote point data for grid is not properly allocated!" &&
+      (this->GetNumberOfNeighbors(gridIdx)==
+       this->RemoteCellData[gridIdx].size()));
+
   // STEP 0: Check if there are cell data in the byte-stream
   int hasCellData;
   bytestream >> hasCellData;
@@ -1049,11 +1162,11 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
     }
 
   // STEP 1: De-serialize the cell data
-// TODO: FIX THIS
-//  this->RemoteCellData[gridIdx] = vtkCellData::New();
-//  int cellext[6];
-//  vtkStructuredData::GetCellExtentFromNodeExtent( ext, cellext );
-//  this->DeserializeFieldData(cellext,this->RemoteCellData[gridIdx],bytestream);
+  this->RemoteCellData[gridIdx][nei] = vtkCellData::New();
+  int cellext[6];
+  vtkStructuredData::GetCellExtentFromNodeExtent( ext, cellext );
+  this->DeserializeFieldData(
+      cellext,this->RemoteCellData[gridIdx][nei],bytestream);
 }
 
 //------------------------------------------------------------------------------
@@ -1106,38 +1219,35 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
   vtkMultiProcessStream bytestream;
   bytestream.SetRawData( buffer, size );
 
-//  // STEP 1: Extract the header
-//  int remoteGrid;
-//  int rcvGrid;
-//  bytestream >> remoteGrid >> rcvGrid;
-//  assert("pre: Remote grid is out-of-bounds" &&
-//         (remoteGrid >= 0) &&
-//         (remoteGrid < static_cast<int>(this->NumberOfGrids) ) );
-//  assert("pre: Rcv grid must be local!" &&
-//         this->IsGridLocal(gridID) );
-//
-//  int *tmpext = NULL;
-//  unsigned int s = 0;
-//  bytestream.Pop(tmpext,s);
-//  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
-//          (s==6));
-//  for( int i=0; i < 6; ++i )
-//    {
-//    rcvext[ i ] = tmpext[ i ];
-//    }
-//  delete [] tmpext;
-//
-//  // STEP 2: De-serialize the grid points
-//  this->DeserializeGhostPoints(gridID, rcvext, bytestream);
-//
-//  // STEP 3: De-serialize the ghost point data
-//  this->DeserializeGhostPointData(gridID, rcvext, bytestream);
-//
-//  // STEP 4: De-serialize the ghost cell data
-//  this->DeserializeGhostCellData(gridID, rcvext, bytestream);
-//
-//  assert("post: gridID is out-of-bounds" &&
-//         (gridID >= 0) && gridID < static_cast<int>(this->NumberOfGrids) );
+  // STEP 1: Extract the header
+  int remoteGrid;
+  int rcvGrid;
+  bytestream >> remoteGrid >> rcvGrid;
+  assert("pre: Remote grid must match the Neighbor grid index" &&
+         (neiGridIdx==remoteGrid) );
+  assert("pre: Serialized receiver grid must match this grid instance" &&
+         (rcvGrid == gridID) );
+
+  // STEP 2: Extract the rcv extent
+  int *ext = NULL;
+  unsigned int s = 0;
+  bytestream.Pop(ext,s);
+  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
+         (s==6));
+  for( int i=0; i < 6; ++i )
+    {
+    assert("pre: Serialize send extent must match receive extent" &&
+           ext[i] == rcvext[i] );
+    }
+
+  // STEP 2: De-serialize the grid points
+  this->DeserializeGhostPoints(gridID, neiGridID, rcvext, bytestream);
+
+  // STEP 3: De-serialize the ghost point data
+  this->DeserializeGhostPointData(gridID, neiGridID, rcvext, bytestream);
+
+  // STEP 4: De-serialize the ghost cell data
+  this->DeserializeGhostCellData(gridID, neiGridID, rcvext, bytestream);
 }
 
 //------------------------------------------------------------------------------
@@ -1161,7 +1271,9 @@ void vtkPStructuredGridConnectivity::ExchangeGridExtents()
   // STEP 2: Calculate the receive buffer size & Allocate
   vtkIdType rcvBufferSize = rcvcounts[0];
   for( int i=1; i < numRanks; ++i )
+    {
     rcvBufferSize += rcvcounts[i];
+    }
   int *rcvbuffer = new int[ rcvBufferSize ];
   assert( "pre: receive buffer should not be NULL" && (rcvbuffer != NULL) );
 
@@ -1169,11 +1281,12 @@ void vtkPStructuredGridConnectivity::ExchangeGridExtents()
   vtkIdType *offSet = new vtkIdType[ numRanks ];
   offSet[0]   = 0;
   for( int i=1; i < numRanks; ++i )
+    {
     offSet[ i ] = offSet[ i-1 ] + rcvcounts[ i-1 ];
+    }
 
   // STEP 4: AllGatherv of all the extent information
   this->Controller->AllGatherV( buffer, rcvbuffer, N, rcvcounts, offSet );
-
 
   // STEP 5: Deserialize Grid Extent(s) for each remote process
   for( int i=0; i < numRanks; ++i )
