@@ -163,6 +163,7 @@ vtkWindBladeReader::vtkWindBladeReader()
 
   // Variables need to be divided by density
   this->NumberOfTimeSteps = 1;
+  this->TimeSteps = NULL;
   this->NumberOfVariables = 0;
   this->DivideVariables = vtkStringArray::New();
   this->DivideVariables->InsertNextValue("UVW");
@@ -254,6 +255,11 @@ vtkWindBladeReader::~vtkWindBladeReader()
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
   this->MPIController = NULL;
+  if(this->TimeSteps)
+    {
+    delete [] this->TimeSteps;
+    this->TimeSteps = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -408,7 +414,11 @@ int vtkWindBladeReader::RequestInformation(
     this->CreateCoordinates();
 
     // Collect temporal information and attach to both output ports
-    this->TimeSteps = NULL;
+    if(this->TimeSteps)
+      {
+      delete [] this->TimeSteps;
+      this->TimeSteps = NULL;
+      }
 
     if (this->NumberOfTimeSteps > 0)
       {
