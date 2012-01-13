@@ -226,11 +226,10 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (c)
     {
     idx |= VTK_PDM_COLORS;
-    if (!c->GetName())
+    if (c->GetNumberOfComponents() == 4 && c->GetValueRange(3)[0] == 255)
       {
-      // If the array has a name (hence directly coming with MAP_SCALARS),
-      // it means that it has 4 components and we should use the alpha.
-      // Otherwise, we know that alpha is constant so we ignore it.
+      // If the opacity is 255, don't bother send the opacity values to OpenGL.
+      // Treat the colors are opaque colors (which they are).
       idx |= VTK_PDM_OPAQUE_COLORS;
       }
     if (cellScalars)
