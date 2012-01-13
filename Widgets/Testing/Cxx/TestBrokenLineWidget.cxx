@@ -7,7 +7,7 @@
 #include "vtkDataSetMapper.h"
 #include "vtkExtractSelection.h"
 #include "vtkInformation.h"
-#include "vtkLinearExtractor.h"
+#include "vtkLinearSelector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -54,7 +54,7 @@ public:
   }
 vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
   vtkPolyData* Poly;
-  vtkLinearExtractor* Selector; 
+  vtkLinearSelector* Selector; 
   vtkExtractSelection* Extractor;
   vtkDataSetMapper* Mapper;
   vtkTextActor* Text;
@@ -145,7 +145,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   ren2->AddActor( lineActor );
 
   // Create selection along broken line defined by list of points
-  vtkSmartPointer<vtkLinearExtractor> selector = vtkSmartPointer<vtkLinearExtractor>::New();
+  vtkSmartPointer<vtkLinearSelector> selector = vtkSmartPointer<vtkLinearSelector>::New();
   selector->SetInput( meshMB );
   selector->SetPoints( points );
   selector->IncludeVerticesOff();

@@ -2,8 +2,8 @@ SET(KIT Filtering)
 # Add tests that require data
 IF (VTK_DATA_ROOT)
   SET(DataBasedTests
-      TestLinearExtractor2D.cxx
-      TestLinearExtractor3D.cxx
+      TestLinearSelector2D.cxx
+      TestLinearSelector3D.cxx
       )
 ENDIF (VTK_DATA_ROOT)
 #

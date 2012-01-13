@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinearExtractor2D.cxx
+  Module:    TestLinearSelector2D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkLinearExtractor.h"
+#include "vtkLinearSelector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
@@ -34,7 +34,7 @@
 #include <vtksys/ios/sstream>
 
 // Reference value
-vtkIdType cardSelectionLinearExtractor2D  = 20; 
+vtkIdType cardSelectionLinearSelector2D  = 20; 
 
 // ------------------------------------------------------------------------------------------------
 static int CheckExtractedUGrid( vtkExtractSelection* extract, 
@@ -72,12 +72,12 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
        << " cells."
        << endl;
   
-  if ( nCells != cardSelectionLinearExtractor2D )
+  if ( nCells != cardSelectionLinearSelector2D )
     {
     vtkGenericWarningMacro( "Incorrect cardinality: "
                            << nCells
                            << " != "
-                           <<  cardSelectionLinearExtractor2D );
+                           <<  cardSelectionLinearSelector2D );
     testStatus = 1;
     }
 
@@ -112,7 +112,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 }
 
 //----------------------------------------------------------------------------
-int TestLinearExtractor2D( int argc, char * argv [] )
+int TestLinearSelector2D( int argc, char * argv [] )
 {
   // Initialize test value
   int testIntValue = 0;
@@ -124,7 +124,7 @@ int TestLinearExtractor2D( int argc, char * argv [] )
   reader->Update();
   delete [] fileName;
 
-  // Create multi-block mesh for linear extractor
+  // Create multi-block mesh for linear selector
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   mesh->SetNumberOfBlocks( 1 );
   mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
@@ -135,17 +135,17 @@ int TestLinearExtractor2D( int argc, char * argv [] )
   // *****************************************************************************
 
   // Create selection along one line segment
-  vtkSmartPointer<vtkLinearExtractor> le = vtkSmartPointer<vtkLinearExtractor>::New();
-  le->SetInput( mesh );
-  le->SetStartPoint( 35.84, .0, .0 );
-  le->SetEndPoint( 36.9, .03, .0 );
-  le->IncludeVerticesOff();
-  le->SetVertexEliminationTolerance( 1.e-12 );
+  vtkSmartPointer<vtkLinearSelector> ls = vtkSmartPointer<vtkLinearSelector>::New();
+  ls->SetInput( mesh );
+  ls->SetStartPoint( 35.84, .0, .0 );
+  ls->SetEndPoint( 36.9, .03, .0 );
+  ls->IncludeVerticesOff();
+  ls->SetVertexEliminationTolerance( 1.e-12 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es =  vtkSmartPointer<vtkExtractSelection>::New();
   es->SetInput( 0, mesh );
-  es->SetInputConnection( 1, le->GetOutputPort() );
+  es->SetInputConnection( 1, ls->GetOutputPort() );
   es->Update();
 
   if ( 0 )
