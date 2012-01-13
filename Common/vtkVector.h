@@ -25,19 +25,19 @@
 #ifndef __vtkVector_h
 #define __vtkVector_h
 
-#include "vtkVectorBase.h"
+#include "vtkTuple.h"
 
 #include <cmath>   // For math functions
 
 template<typename T, int Size>
-class vtkVector : public vtkVectorBase<T, Size>
+class vtkVector : public vtkTuple<T, Size>
 {
 public:
   vtkVector()
   {
   }
 
-  vtkVector(const T* init) : vtkVectorBase<T, Size>(init)
+  vtkVector(const T* init) : vtkTuple<T, Size>(init)
   {
   }
 
