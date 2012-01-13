@@ -132,6 +132,10 @@ int vtkActor::GetIsOpaque()
     if(this->Mapper!=0 && this->Mapper->GetLookupTable()!=0)
       {
       result=this->Mapper->GetLookupTable()->IsOpaque();
+      if (result)
+        {
+        result = this->Mapper->GetIsOpaque()? 1: 0;
+        }
       }
     }
   return result;

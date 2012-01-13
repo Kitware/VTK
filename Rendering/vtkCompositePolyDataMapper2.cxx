@@ -30,6 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
@@ -95,6 +96,37 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   iter->Delete();
   bbox.GetBounds(this->Bounds);
 //  this->BoundsMTime.Modified();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkCompositePolyDataMapper2::GetIsOpaque()
+{
+  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+    this->GetInputDataObject(0, 0));
+  if (this->ScalarVisibility &&
+    this->ColorMode == VTK_COLOR_MODE_DEFAULT && input)
+    {
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(input->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+      if (pd)
+        {
+        int cellFlag;
+        vtkDataArray* scalars = this->GetScalars(pd,
+          this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+          this->ArrayName, cellFlag);
+        if (scalars && scalars->IsA("vtkUnsignedCharArray") &&
+          (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
+           scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
+          {
+          return false;
+          }
+        }
+      }
+    }
+  return this->Superclass::GetIsOpaque();
 }
 
 //----------------------------------------------------------------------------
