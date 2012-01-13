@@ -682,6 +682,8 @@ void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ConnectivityFileName: " <<
     (this->ConnectivityFileName ? this->ConnectivityFileName : "(NULL)")
      << endl;
+  os << indent << "SingleLevel: " << this->SingleLevel << endl;
+  os << indent << "CellLayerRight: " << this->CellLayerRight << endl;
   if(this->PointsFile)
     {
     os << indent << "PointsFile: " << this->PointsFile << endl;
