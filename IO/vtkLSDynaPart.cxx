@@ -540,8 +540,10 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
     this->ThresholdGrid->Delete();
     }
   this->ThresholdGrid = vtkUnstructuredGrid::New();
-  vtkPoints* newPoints = vtkPoints::New();
+  this->ThresholdGrid->Allocate(this->NumberOfCells);
 
+  //copy field data
+  this->ThresholdGrid->SetFieldData(this->Grid->GetFieldData());
 
   vtkPointData *oldPd = this->Grid->GetPointData();
   vtkPointData* pd = this->ThresholdGrid->GetPointData();
@@ -553,8 +555,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
   cd->CopyGlobalIdsOn();
   cd->CopyAllocate(oldCd);
 
-  this->ThresholdGrid->Allocate(this->NumberOfCells);
-  
+  vtkPoints* newPoints = vtkPoints::New();
   if(this->DoubleBased)
     {
     newPoints->SetDataTypeToDouble();
