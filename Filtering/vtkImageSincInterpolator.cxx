@@ -1332,6 +1332,12 @@ void vtkImageSincInterpolator::BuildKernelLookupTable()
       m = VTK_SINC_KERNEL_SIZE_MAX;
       }
 
+    // blur factor must be restricted to half the max kernel size
+    if (b > 0.5*VTK_SINC_KERNEL_SIZE_MAX)
+      {
+      b = 0.5*VTK_SINC_KERNEL_SIZE_MAX;
+      }
+
     // compute lookup table size and step size
     int size = m/2*VTK_SINC_KERNEL_TABLE_DIVISIONS;
     double p = 1.0/(b*n*VTK_SINC_KERNEL_TABLE_DIVISIONS);
