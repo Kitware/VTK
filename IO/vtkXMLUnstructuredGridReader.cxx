@@ -282,8 +282,14 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     {
     // this set the startLoc to point to the location in the cellArray where the
     // cell for this piece will start writing.
-    startLoc = locations->GetValue(this->StartCell-1) +
-      cellArrayData->GetValue(locations->GetValue(this->StartCell-1));
+
+    // Id for last written cell:
+    vtkIdType lastWrittenCell = this->StartCell - 1;
+    vtkIdType locationOfLastWrittenCell = locations->GetValue(lastWrittenCell);
+    startLoc = locationOfLastWrittenCell + 1 +
+      cellArrayData->GetValue(locationOfLastWrittenCell);
+    // startLoc = location-of-last-written-cell + 1 (for put the count for items in the cell)
+    //            + (number of items in the cell).
     }
   vtkIdType* begin = output->GetCells()->GetData()->GetPointer(startLoc);
   vtkIdType* cur = begin;
