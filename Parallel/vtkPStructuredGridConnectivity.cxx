@@ -20,6 +20,8 @@
 #include "vtkMultiProcessStream.h"
 
 #include <cassert>
+#include <fstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkPStructuredGridConnectivity);
 
@@ -316,6 +318,8 @@ void vtkPStructuredGridConnectivity::PackGhostData()
     int NumNeis = this->GetNumberOfNeighbors( gridIdx );
     this->SendBuffers[gridIdx].resize( NumNeis, NULL );
     this->RcvBuffers[gridIdx].resize( NumNeis, NULL);
+    this->RcvBufferSizes[gridIdx].resize( NumNeis, 0 );
+    this->SendBufferSizes[gridIdx].resize( NumNeis, 0 );
 
     for(int nei=0; nei < NumNeis; ++nei )
       {
@@ -382,6 +386,43 @@ void vtkPStructuredGridConnectivity::SerializeBufferSizes(
 }
 
 //------------------------------------------------------------------------------
+void vtkPStructuredGridConnectivity::DeserializeBufferSizesForProcess(
+    int *buffersizes, vtkIdType N, const int processId )
+{
+  assert("pre: Controller should not be NULL" && (this->Controller != NULL) );
+  assert("pre: Cannot deserialize empty buffer size" && (buffersizes != NULL) );
+  assert("pre: Buffer size should not be empty!" && (N > 0) );
+  assert("pre: Process ID is out-of-bounds!" &&
+          (processId >= 0) &&
+          (processId < this->Controller->GetNumberOfProcesses() ) );
+  assert("pre: Buffer size must be a multiple of 3" && ( (N%3)==0) );
+  assert("pre: RcvBuffersizes is not properly allocated!" &&
+          this->RcvBufferSizes.size() == this->NumberOfGrids);
+
+  int NumTuples = N/3;
+  for( int i=0; i < NumTuples; ++i )
+    {
+    int senderGrid = buffersizes[ i*3 ];
+    int rcvGrid    = buffersizes[ i*3+1 ];
+    int size       = buffersizes[ i*3+2 ];
+
+    if( this->IsGridLocal( rcvGrid ) )
+      {
+      int neiIndex = this->GetNeighborIndex(rcvGrid,senderGrid);
+      assert("ERROR: rcver grid is out-of-bounds!" &&
+             (rcvGrid >= 0) &&
+             (rcvGrid < static_cast<int>(this->NumberOfGrids)));
+      assert("ERROR: neighbor index is out-of-bounds!" &&
+        (neiIndex >= 0) &&
+        (neiIndex < static_cast<int>(this->RcvBufferSizes[rcvGrid].size())));
+
+      this->RcvBufferSizes[ rcvGrid ][ neiIndex ] = size;
+      } // END if the grid is local
+    } // END for all tuples
+
+}
+
+//------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
 {
   vtkIdType N      = 0;
@@ -420,7 +461,8 @@ void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
     {
     if( i != this->Rank )
       {
-//      this->DeserializeGridExtentForProcess(rcvbuffer+offSet[i],rcvcounts[i],i);
+      this->DeserializeBufferSizesForProcess(
+          rcvbuffer+offSet[i], rcvcounts[i], i);
       }// END if remote rank
     } // END for all ranks
 
@@ -540,10 +582,12 @@ void vtkPStructuredGridConnectivity::PostReceives()
       unsigned char *bufferPtr = this->RcvBuffers[gridIdx][nei];
       int length               = this->RcvBufferSizes[ gridIdx][nei];
       myMPIController->NoBlockReceive(
-          bufferPtr,length,NeighborRank,gridIdx,this->MPIRequests[rqstIdx]);
+          bufferPtr,length,NeighborRank,neiGridIdx,this->MPIRequests[rqstIdx]);
       ++rqstIdx;
       } // END for all neis
     } // END for all local grids
+
+    assert(this->TotalNumberOfRcvs  == rqstIdx);
 }
 
 //------------------------------------------------------------------------------
@@ -596,6 +640,8 @@ void vtkPStructuredGridConnectivity::PostSends()
       ++rqstIdx;
       } // END for all neis
     } // END for all local grids
+
+  assert(rqstIdx == this->TotalNumberOfMsgs);
 }
 
 //------------------------------------------------------------------------------
@@ -691,6 +737,9 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
     return;
     }
 
+  std::cout << "Serialize points!\n";
+  std::cout.flush();
+
   // STEP 1: Otherwise, put a "1" in the bytestream to indicate that the are
   // points included in the bytestream
   bytestream << 1;
@@ -702,7 +751,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
   // STEP 3: Compute the number of nodes in the send extent
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
   int N = vtkStructuredData::GetNumberOfNodes(ext, dataDescription );
-  bytestream << N;
+//  bytestream << N;
 
   // STEP 4: Allocate and store points in a temporary array
   double *pnts = new double[ 3*N ];
@@ -762,8 +811,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
          (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
   assert("pre:Remote points is not properly allocated!" &&
           this->RemotePoints.size() == this->NumberOfGrids );
-  assert("pre:Remote points for grid is not properly allocated!" &&
-     (this->GetNumberOfNeighbors(gridIdx)==this->RemotePoints[gridIdx].size()));
+
 
   // STEP 0: Check if there are serialized points in the bytestream
   int hasPoints;
@@ -773,6 +821,13 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
     {
     return;
     }
+
+  std::cout << "Has points!\n";
+  std::cout.flush();
+
+  assert("pre:Remote points for grid is not properly allocated!" &&
+     (this->GetNumberOfNeighbors(gridIdx)==
+         static_cast<int>(this->RemotePoints[gridIdx].size())));
 
   // STEP 1: If there are points, deserialize them
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
@@ -1057,6 +1112,9 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
     return;
     }
 
+  std::cout << "Serialize point data!\n";
+  std::cout.flush();
+
   // STEP 0: Get the grid's node extent
   int GridExtent[6];
   this->GetGridExtent( gridIdx, GridExtent );
@@ -1082,9 +1140,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
          (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
   assert("pre:Remote point data is not properly allocated!" &&
          this->RemotePointData.size() == this->NumberOfGrids );
-  assert("pre:Remote point data for grid is not properly allocated!" &&
-      (this->GetNumberOfNeighbors(gridIdx)==
-       this->RemotePointData[gridIdx].size()));
 
   // STEP 0: Check if there are point data in the byte-stream
   int hasPointData;
@@ -1093,6 +1148,12 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
     {
     return;
     }
+  std::cout << "Has PointData!\n";
+  std::cout.flush();
+
+  assert("pre:Remote point data for grid is not properly allocated!" &&
+      (this->GetNumberOfNeighbors(gridIdx)==
+       static_cast<int>(this->RemotePointData[gridIdx].size())));
 
   // STEP 1: De-serialize the point data
   this->RemotePointData[gridIdx][nei] = vtkPointData::New();
@@ -1116,6 +1177,9 @@ void vtkPStructuredGridConnectivity::SerializeGhostCellData(
     bytestream << 0;
     return;
     }
+
+  std::cout << "SerializeGhostCellData !\n";
+  std::cout.flush();
 
   // STEP 0: Get the grid node/cell extent
   int GridExtent[6];
@@ -1149,9 +1213,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
          (nei >=0) && (nei < this->GetNumberOfNeighbors(gridIdx)));
   assert("pre:Remote point data is not properly allocated!" &&
          this->RemoteCellData.size() == this->NumberOfGrids );
-  assert("pre:Remote point data for grid is not properly allocated!" &&
-      (this->GetNumberOfNeighbors(gridIdx)==
-       this->RemoteCellData[gridIdx].size()));
 
   // STEP 0: Check if there are cell data in the byte-stream
   int hasCellData;
@@ -1160,6 +1221,13 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
     {
     return;
     }
+
+  std::cout << "Has CellData!\n";
+  std::cout.flush();
+
+  assert("pre:Remote cell data for grid is not properly allocated!" &&
+      (this->GetNumberOfNeighbors(gridIdx)==
+       static_cast<int>(this->RemoteCellData[gridIdx].size())));
 
   // STEP 1: De-serialize the cell data
   this->RemoteCellData[gridIdx][nei] = vtkCellData::New();
@@ -1190,17 +1258,30 @@ void vtkPStructuredGridConnectivity::SerializeGhostData(
   bytestream << sendGridID << rcvGrid;
   bytestream.Push( sndext, 6 );
 
-  // STEP 1: Serialize the points
-  this->SerializeGhostPoints( sendGridID, sndext, bytestream );
+   // STEP 1: Serialize the points
+//  this->SerializeGhostPoints( sendGridID, sndext, bytestream );
 
   // STEP 2: Serialize point data (if any)
-  this->SerializeGhostPointData(sendGridID, sndext, bytestream );
+//  this->SerializeGhostPointData(sendGridID, sndext, bytestream );
 
   // STEP 3: Serialize cell data (if any)
-  this->SerializeGhostCellData( sendGridID, sndext, bytestream );
+//  this->SerializeGhostCellData( sendGridID, sndext, bytestream );
 
   // STEP 4: Get the raw data buffer
   bytestream.GetRawData( buffer, size );
+
+  std::ostringstream oss;
+  oss << "SendLog_" << this->Rank << ".txt";
+  std::ofstream ofs;
+  ofs.open( oss.str().c_str() );
+  ofs << "SEND MESSAGE SIZE: " << size << "\n";
+  ofs << sendGridID << " " << rcvGrid << std::endl;
+  for( int i=0; i < 6; ++i )
+    {
+    ofs << sndext[ i ] << " ";
+    }
+  ofs << std::endl;
+  ofs.close();
 
   // Post-conditions
   assert("post: buffer should not be NULL!" && (buffer != NULL) );
@@ -1232,22 +1313,37 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
   int *ext = NULL;
   unsigned int s = 0;
   bytestream.Pop(ext,s);
-  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
-         (s==6));
+
+  std::ostringstream oss;
+  oss << "RcvLog_" << this->Rank << ".txt";
+  std::ofstream ofs;
+  ofs.open( oss.str().c_str() );
+  ofs << "RCV MESSAGE SIZE: " << size << "\n";
+  ofs <<  remoteGrid << " " << rcvGrid << std::endl;
   for( int i=0; i < 6; ++i )
     {
-    assert("pre: Serialize send extent must match receive extent" &&
-           ext[i] == rcvext[i] );
+    ofs << ext[ i ] << " ";
     }
+  ofs << std::endl;
+  ofs.close();
 
+  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
+         (s==6));
+//  for( int i=0; i < 6; ++i )
+//    {
+//    assert("ERROR: Serialize send extent must match receive extent" &&
+//           ext[i] == rcvext[i] );
+//    }
+
+  delete [] ext;
   // STEP 2: De-serialize the grid points
-  this->DeserializeGhostPoints(gridID, neiGridID, rcvext, bytestream);
+  //this->DeserializeGhostPoints(gridID, neiGridID, rcvext, bytestream);
 
   // STEP 3: De-serialize the ghost point data
-  this->DeserializeGhostPointData(gridID, neiGridID, rcvext, bytestream);
+  //this->DeserializeGhostPointData(gridID, neiGridID, rcvext, bytestream);
 
   // STEP 4: De-serialize the ghost cell data
-  this->DeserializeGhostCellData(gridID, neiGridID, rcvext, bytestream);
+  //this->DeserializeGhostCellData(gridID, neiGridID, rcvext, bytestream);
 }
 
 //------------------------------------------------------------------------------

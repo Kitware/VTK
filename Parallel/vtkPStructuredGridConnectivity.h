@@ -179,9 +179,10 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     void UnpackGhostData();
 
     // Description:
-    // TODO: enter description here
+    // Helper method to deserialize the buffer sizes coming from the given
+    // process.
     void DeserializeBufferSizesForProcess(
-        int *buffersizes, vtkIdType &N, const int processId );
+        int *buffersizes, vtkIdType N, const int processId );
 
     // Description:
     // Helper method to serialize the buffer sizes for the grids of this process

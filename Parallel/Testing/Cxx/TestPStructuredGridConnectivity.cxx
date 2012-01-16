@@ -266,6 +266,7 @@ int TestPStructuredGridConnectivity( const int factor )
   gridConnectivity->SetController( Controller );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
   gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
   RegisterGrids( mbds, gridConnectivity );
@@ -276,8 +277,8 @@ int TestPStructuredGridConnectivity( const int factor )
   Controller->Barrier();
 
   // STEP 5: Fill Visibility arrays
-  FillVisibilityArrays( mbds, gridConnectivity );
-  Controller->Barrier();
+//  FillVisibilityArrays( mbds, gridConnectivity );
+//  Controller->Barrier();
 
   // STEP 6: Total global count of the nodes
   int count = GetTotalNumberOfNodes( mbds );
@@ -383,6 +384,7 @@ int TestAverage( const int factor )
   gridConnectivity->SetController( Controller );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
   gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
   RegisterGrids( mbds, gridConnectivity );
@@ -393,8 +395,8 @@ int TestAverage( const int factor )
   Controller->Barrier();
 
   // STEP 5: Fill Visibility arrays
-  FillVisibilityArrays( mbds, gridConnectivity );
-  Controller->Barrier();
+//  FillVisibilityArrays( mbds, gridConnectivity );
+//  Controller->Barrier();
 
   // STEP 6: Total global count of the nodes
   int count = GetTotalNumberOfNodes( mbds );
@@ -447,6 +449,46 @@ int TestAverage( const int factor )
 }
 
 //------------------------------------------------------------------------------
+int TestGhostLayerCreation( int factor, int ng )
+{
+  // STEP 1: Calculation number of partitions as factor of the number of
+  // processes.
+  assert( "pre: factor >= 1" && (factor >= 1) );
+  int numPartitions = factor * NumberOfProcessors;
+
+  // STEP 2: Acquire the distributed structured grid for this process.
+  // Each process has the same number of blocks, but not all entries are
+  // poplulated. A NULL entry indicates that the block belongs to a different
+  // process.
+  vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
+  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: numBlocks mismatch" &&
+           (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
+
+  // STEP 2: Setup the grid connectivity
+  vtkPStructuredGridConnectivity *gridConnectivity =
+      vtkPStructuredGridConnectivity::New();
+  gridConnectivity->SetController( Controller );
+  gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
+  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->Initialize();
+
+  // STEP 3: Register the grids
+  RegisterGrids( mbds, gridConnectivity );
+  Controller->Barrier();
+
+  // STEP 4: Compute neighbors
+  gridConnectivity->ComputeNeighbors();
+  Controller->Barrier();
+
+  // STEP 5: Create ghost layers
+  gridConnectivity->CreateGhostLayers( ng );
+  Controller->Barrier();
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 // Program main
 int main( int argc, char **argv )
 {
@@ -487,6 +529,9 @@ int main( int argc, char **argv )
   LogMessage("Calculating average with double the number of partitions");
   rc += TestAverage( 2 );
   Controller->Barrier();
+
+  LogMessage( "Creating ghost-layers" );
+  rc += TestGhostLayerCreation( 1, 1 );
 
   // STEP 3: Deallocate controller and exit
   LogMessage( "Finalizing..." );
