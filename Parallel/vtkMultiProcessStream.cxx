@@ -738,7 +738,7 @@ void vtkMultiProcessStream::GetRawData(
     delete [] data;
     }
 
-  size = this->Size();
+  size = this->Size()+1;
   data = new unsigned char[ size+1 ];
   assert( "pre: cannot allocate raw data buffer" && (data != NULL) );
 

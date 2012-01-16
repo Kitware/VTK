@@ -76,7 +76,7 @@ public:
   void Push(vtkTypeUInt64 array[], unsigned int size );
 
   // Description:
-  // Remove-array-to-stream methods. Removes from the end of the stream.
+  // Remove-array-to-stream methods. Removes from the head of the stream.
   // Note: the user must call delete on the array after processing it.
   void Pop(double*& array, unsigned int& size);
   void Pop(float*& array, unsigned int& size);
