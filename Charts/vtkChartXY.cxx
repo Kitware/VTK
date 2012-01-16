@@ -1384,7 +1384,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 namespace {
 void BuildSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection,
-                    bool add)
+                    bool add, bool toggle)
 {
   // Add all unique array indices to create a new combined array.
   if (add)
@@ -1408,6 +1408,50 @@ void BuildSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection,
          ++i, ++ptrSelection)
       {
       *ptrSelection = *i;
+      }
+    }
+  else if (toggle)
+    {
+    // We rely on the selection id arrays being sorted.
+    std::vector<vtkIdType> output;
+    vtkIdType *ptrSelection =
+        static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+    vtkIdType *ptrOldSelection =
+        static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+    vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+    vtkIdType size = selection->GetNumberOfTuples();
+    vtkIdType i = 0;
+    vtkIdType iOld = 0;
+    while (i < size && iOld < oldSize)
+      {
+      if (ptrSelection[i] > ptrOldSelection[iOld]) // Retain the value.
+        {
+        output.push_back(ptrOldSelection[iOld++]);
+        }
+      else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - toggle.
+        {
+        ++i;
+        ++iOld;
+        }
+      else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+        {
+        output.push_back(ptrSelection[i++]);
+        }
+      }
+    while (i < size)
+      {
+      output.push_back(ptrSelection[i++]);
+      }
+    while (iOld < oldSize)
+      {
+      output.push_back(ptrOldSelection[iOld++]);
+      }
+    selection->SetNumberOfTuples(output.size());
+    ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+    for (std::vector<vtkIdType>::iterator it = output.begin();
+         it != output.end(); ++it, ++ptrSelection)
+      {
+      *ptrSelection = *it;
       }
     }
 }
@@ -1458,6 +1502,8 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     // Add to the selection if the shift key was pressed.
     bool addToSelection =
           (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER) != 0;
+    bool toggleSelection =
+          (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER) != 0;
     if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
@@ -1518,7 +1564,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
               node->SetContentType(vtkSelectionNode::INDICES);
               node->SetFieldType(vtkSelectionNode::POINT);
               BuildSelection(plot->GetSelection(), oldSelection.GetPointer(),
-                             addToSelection);
+                             addToSelection, toggleSelection);
               node->SetSelectionList(plot->GetSelection());
               this->AnnotationLink->SetCurrentSelection(selection);
               node->Delete();
