@@ -105,10 +105,10 @@ table.SetSaturationRange(0,0)
 mapToColors = vtk.vtkImageMapToColors()
 mapToColors.SetInputConnection(reader.GetOutputPort())
 mapToColors.SetLookupTable(table)
-mapToColors.GetOutput().Update()
+mapToColors.Update()
 
 imageActor = vtk.vtkImageActor()
-imageActor.SetInput(mapToColors.GetOutput())
+imageActor.GetMapper().SetInputConnection(mapToColors.GetOutputPort())
 imageActor.SetDisplayExtent(32,32,0,63,0,92)
 
 #---------------------------------------------------------
