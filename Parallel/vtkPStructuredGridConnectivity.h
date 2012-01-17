@@ -140,6 +140,18 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // ETX
 
     // Description:
+    // Returns true iff the grid corresponding to the given ID has point data.
+    bool HasPointData(const int gridIdx);
+
+    // Description:
+    // Returns true iff the grid corresponding to the given ID has cell data.
+    bool HasCellData(const int gridIdx);
+
+    // Description:
+    // Returns true iff the grid corresponding to the given ID has points.
+    bool HasPoints(const int gridIdx);
+
+    // Description:
     // Sets all message counters to 0.
     void InitializeMessageCounters();
 
@@ -332,6 +344,49 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 //=============================================================================
 //  INLINE METHODS
 //=============================================================================
+
+inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
+{
+  // Sanity check
+  assert("pre: grid index is out-of-bounds!" &&
+         (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+
+  if( (this->GridPointData[gridIdx] != NULL) &&
+      (this->GridPointData[gridIdx]->GetNumberOfArrays() > 0) )
+    {
+    return true;
+    }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
+{
+  // Sanity check
+  assert("pre: grid index is out-of-bounds!" &&
+         (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+
+  if( (this->GridCellData[gridIdx] != NULL) &&
+      (this->GridCellData[gridIdx]->GetNumberOfArrays( ) > 0) )
+    {
+    return true;
+    }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+inline bool vtkPStructuredGridConnectivity::HasPoints(const int gridIdx)
+{
+  // Sanity check
+  assert("pre: grid index is out-of-bounds!" &&
+         (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+
+  if( this->GridPoints[gridIdx] != NULL )
+    {
+    return true;
+    }
+  return false;
+}
 
 //------------------------------------------------------------------------------
 inline void vtkPStructuredGridConnectivity::InitializeMessageCounters()
