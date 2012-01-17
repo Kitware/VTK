@@ -13,7 +13,7 @@ vtkImageReader reader
   reader SetDataMask 0x7fff
 
 reader Update
-scan [[reader GetOutput] GetWholeExtent] "%d %d %d %d %d %d" \
+scan [[reader GetExecutive] GetWholeExtent [reader GetOutputInformation 0]] "%d %d %d %d %d %d" \
         xMin xMax yMin yMax zMin zMax
 
 # Magnify the image
@@ -68,7 +68,7 @@ set hist [vtkHistogramWidget .top.f1.r2 512 192]
 
 set slice_number [viewer2 GetZSlice]
 
-HistogramWidgetSetInput $hist [reader GetOutput]
+HistogramWidgetSetInput $hist [reader GetOutputPort]
 HistogramWidgetSetExtent $hist $xMin $xMax $yMin $yMax $slice_number $slice_number
 
 HistogramWidgetBind .top.f1.r2
