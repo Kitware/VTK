@@ -23,7 +23,7 @@ vtkPolyData profile
 # Perform a 2D Delaunay triangulation on them.
 #
 vtkDelaunay2D del
-    del SetInput profile
+    del SetInputData profile
     del SetTolerance 0.001
 vtkPolyDataMapper mapMesh
     mapMesh SetInputConnection [del GetOutputPort]
