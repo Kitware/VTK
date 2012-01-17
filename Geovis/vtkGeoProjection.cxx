@@ -23,6 +23,9 @@
 #include "vtkObjectFactory.h"
 
 #include <vtksys/ios/sstream>
+#include <string>
+#include <map>
+#include <vector>
 
 #include "vtk_libproj4.h"
 
@@ -30,6 +33,48 @@ vtkStandardNewMacro(vtkGeoProjection);
 
 static int vtkGeoProjectionNumProj = -1;
 
+//-----------------------------------------------------------------------------
+class vtkGeoProjection::vtkInternals
+{
+public:
+  const char* GetKeyAt(int index)
+  {
+    if (static_cast<int>(this->OptionalParameters.size()) > index)
+      {
+      std::map< std::string, std::string >::iterator iter =
+          this->OptionalParameters.begin();
+      int nbIter = index;
+      while(nbIter > 0)
+        {
+        nbIter--;
+        iter++;
+        }
+      return iter->first.c_str();
+      }
+    return NULL;
+  }
+
+  const char* GetValueAt(int index)
+  {
+    if (static_cast<int>(this->OptionalParameters.size()) > index)
+      {
+      std::map< std::string, std::string >::iterator iter =
+          this->OptionalParameters.begin();
+      int nbIter = index;
+      while(nbIter > 0)
+        {
+        nbIter--;
+        iter++;
+        }
+      return iter->second.c_str();
+      }
+    return NULL;
+  }
+
+  std::map< std::string, std::string > OptionalParameters;
+};
+
+//-----------------------------------------------------------------------------
 int vtkGeoProjection::GetNumberOfProjections()
 {
   if ( vtkGeoProjectionNumProj < 0 )
@@ -40,7 +85,7 @@ int vtkGeoProjection::GetNumberOfProjections()
     }
   return vtkGeoProjectionNumProj;
 }
-
+//-----------------------------------------------------------------------------
 const char* vtkGeoProjection::GetProjectionName( int projection )
 {
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
@@ -48,7 +93,7 @@ const char* vtkGeoProjection::GetProjectionName( int projection )
 
   return proj_list[projection].id;
 }
-
+//-----------------------------------------------------------------------------
 const char* vtkGeoProjection::GetProjectionDescription( int projection )
 {
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
@@ -56,15 +101,16 @@ const char* vtkGeoProjection::GetProjectionDescription( int projection )
 
   return proj_list[projection].descr[0];
 }
-
+//-----------------------------------------------------------------------------
 vtkGeoProjection::vtkGeoProjection()
 {
   this->Name = 0;
   this->SetName( "latlong" );
   this->CentralMeridian = 0.;
   this->Projection = 0;
+  this->Internals = new vtkInternals();
 }
-
+//-----------------------------------------------------------------------------
 vtkGeoProjection::~vtkGeoProjection()
 {
   this->SetName( 0 );
@@ -72,16 +118,24 @@ vtkGeoProjection::~vtkGeoProjection()
     {
     proj_free( this->Projection );
     }
+  delete this->Internals;
+  this->Internals = NULL;
 }
-
+//-----------------------------------------------------------------------------
 void vtkGeoProjection::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Name: " << this->Name << "\n";
   os << indent << "CentralMeridian: " << this->CentralMeridian << "\n";
   os << indent << "Projection: " << this->Projection << "\n";
+  os << indent << "Optional parameters:\n";
+  for(int i=0;i<this->GetNumberOfOptionalParameters();i++)
+    {
+    os << indent << " - " << this->GetOptionalParameterKey(i) << " = "
+       << this->GetOptionalParameterValue(i) << "\n";
+    }
 }
-
+//-----------------------------------------------------------------------------
 int vtkGeoProjection::GetIndex()
 {
   this->UpdateProjection();
@@ -97,7 +151,7 @@ int vtkGeoProjection::GetIndex()
     }
   return -1;
 }
-
+//-----------------------------------------------------------------------------
 const char* vtkGeoProjection::GetDescription()
 {
   this->UpdateProjection();
@@ -107,14 +161,14 @@ const char* vtkGeoProjection::GetDescription()
     }
   return this->Projection->descr;
 }
-
+//-----------------------------------------------------------------------------
 PROJ* vtkGeoProjection::GetProjection()
 {
   this->UpdateProjection();
   return this->Projection;
 }
 
-
+//-----------------------------------------------------------------------------
 int vtkGeoProjection::UpdateProjection()
 {
   if ( this->GetMTime() <= this->ProjectionMTime )
@@ -139,7 +193,8 @@ int vtkGeoProjection::UpdateProjection()
     return 1;
     }
 
-  const char* pjArgs[3];
+  int argSize = 3 + this->GetNumberOfOptionalParameters();
+  const char** pjArgs = new const char*[argSize];
   std::string projSpec( "+proj=" );
   projSpec += this->Name;
   std::string ellpsSpec( "+ellps=clrk66" );
@@ -151,7 +206,19 @@ int vtkGeoProjection::UpdateProjection()
   pjArgs[1] = ellpsSpec.c_str();
   pjArgs[2] = meridSpec.c_str();
 
-  this->Projection = proj_init( 3, const_cast<char**>( pjArgs ) );
+  // Add optional parameters
+  std::vector<std::string> stringHolder; // Keep string ref in memory
+  for(int i=0; i < this->GetNumberOfOptionalParameters(); i++)
+    {
+    vtksys_ios::ostringstream param;
+    param << "+" << this->GetOptionalParameterKey(i);
+    param << "=" << this->GetOptionalParameterValue(i);
+    stringHolder.push_back(param.str());
+    pjArgs[3+i] = stringHolder[i].c_str();
+    }
+
+  this->Projection = proj_init( argSize, const_cast<char**>( pjArgs ) );
+  delete[] pjArgs;
   if ( this->Projection )
     {
     return 1;
@@ -159,3 +226,43 @@ int vtkGeoProjection::UpdateProjection()
   return 0;
 }
 
+//-----------------------------------------------------------------------------
+void vtkGeoProjection::SetOptionalParameter(const char* key, const char* value)
+{
+  if(key != NULL && value != NULL)
+    {
+    this->Internals->OptionalParameters[key] = value;
+    }
+  else
+    {
+    vtkErrorMacro("Invalid Optional Parameter Key/Value pair. None can be NULL");
+    }
+  this->UpdateProjection();
+}
+//-----------------------------------------------------------------------------
+void vtkGeoProjection::RemoveOptionalParameter(const char* key)
+{
+  this->Internals->OptionalParameters.erase(key);
+  this->UpdateProjection();
+}
+//-----------------------------------------------------------------------------
+int vtkGeoProjection::GetNumberOfOptionalParameters()
+{
+  return static_cast<int>(this->Internals->OptionalParameters.size());
+}
+//-----------------------------------------------------------------------------
+const char* vtkGeoProjection::GetOptionalParameterKey(int index)
+{
+  return this->Internals->GetKeyAt(index);
+}
+//-----------------------------------------------------------------------------
+const char* vtkGeoProjection::GetOptionalParameterValue(int index)
+{
+  return this->Internals->GetValueAt(index);
+}
+//-----------------------------------------------------------------------------
+void vtkGeoProjection::ClearOptionalParameters()
+{
+  this->Internals->OptionalParameters.clear();
+  this->UpdateProjection();
+}
