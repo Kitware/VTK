@@ -43,7 +43,7 @@ vtkElevationFilter elevation
   elevation ReleaseDataFlagOn
 
 vtkPolyDataNormals normals
-  normals SetInput [elevation GetPolyDataOutput]
+  normals SetInputConnection [elevation GetOutputPort]
   normals SetFeatureAngle 60
   normals ConsistencyOff
   normals SplittingOff

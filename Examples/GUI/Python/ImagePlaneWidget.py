@@ -32,7 +32,7 @@ v16.SetImageRange(1, 93)
 v16.SetDataSpacing(3.2, 3.2, 1.5)
 v16.Update()
 
-xMin, xMax, yMin, yMax, zMin, zMax = v16.GetOutput().GetWholeExtent()
+xMin, xMax, yMin, yMax, zMin, zMax = v16.GetExecutive().GetWholeExtent(v16.GetOutputInformation(0))
 
 spacing = v16.GetOutput().GetSpacing()
 sx, sy, sz = spacing
