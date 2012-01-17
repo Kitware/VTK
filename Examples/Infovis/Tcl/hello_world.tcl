@@ -5,10 +5,8 @@ vtkRandomGraphSource src
 
 vtkGraphLayoutView view
 view AddRepresentationFromInputConnection [src GetOutputPort]
-
-vtkRenderWindow window
-view SetupRenderWindow window
-[window GetInteractor] Start
-
+view ResetCamera
+set window [view GetRenderWindow]
+[$window GetInteractor] Start
 wm withdraw .
 

@@ -69,7 +69,7 @@ public class Focus extends JFrame {
     this.thresh.InsertNextValue(1);
     node.SetSelectionList(this.thresh);
     select.AddNode(node);
-    this.extract.SetInput(1, select);
+    this.extract.SetInputData(1, select);
 
     this.mainRep.SetInputConnection(this.bfs.GetOutputPort());
     this.focusRep.SetInputConnection(this.extract.GetOutputPort());

@@ -48,7 +48,7 @@ cube.SetZLength(0.3)
 
 glyph = vtkGlyph3D()
 glyph.SetInputConnection(vertex_geom.GetOutputPort())
-glyph.SetSource(cube.GetOutput())
+glyph.SetSourceConnection(0, cube.GetOutputPort())
 
 gmap = vtkPolyDataMapper()
 gmap.SetInputConnection(glyph.GetOutputPort())

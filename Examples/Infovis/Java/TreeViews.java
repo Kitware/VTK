@@ -54,7 +54,7 @@ public class TreeViews extends JFrame {
     
     vtkTree tree = new vtkTree();
     tree.ShallowCopy(g);
-    levels.SetInput(tree);
+    levels.SetInputData(tree);
 
     // Create the selection link.
     // This is shared among all views in order to link the selection.

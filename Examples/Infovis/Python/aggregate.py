@@ -67,7 +67,7 @@ print
 
 # Calculate derived model for whole ensemble
 print "# Now calculating derived statistics for whole ensemble:"
-ds.SetInput( 2, aggregated )
+ds.SetInputData( 2, aggregated )
 ds.SetLearnOption( 0 )
 ds.SetDeriveOption( 1 )
 ds.SetAssessOption( 0 )
