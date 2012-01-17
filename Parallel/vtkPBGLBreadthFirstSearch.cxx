@@ -152,7 +152,7 @@ vtkPBGLBreadthFirstSearch::~vtkPBGLBreadthFirstSearch()
 
 void vtkPBGLBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 {
-  this->SetOriginSelectionConnection(s->GetProducerPort());
+  this->SetInputData(s);
 }
 
 // Description:
