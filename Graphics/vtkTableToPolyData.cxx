@@ -200,6 +200,8 @@ void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZComponent: " << this->ZComponent << endl;
   os << indent << "ZColumnIndex: " << this->ZColumnIndex << endl;
   os << indent << "Create2DPoints: " << (this->Create2DPoints ? "true" : "false") << endl;
+  os << indent << "PreserveCoordinateColumnsAsDataArrays: "
+     << (this->PreserveCoordinateColumnsAsDataArrays ? "true" : "false") << endl;
 }
 
 
