@@ -17,7 +17,7 @@ sphereActor.SetMapper(sphereMapper)
 # Set the text, font, justification, and properties (bold, italics,
 # etc.).
 textActor = vtk.vtkTextActor()
-textActor.ScaledTextOn()
+textActor.SetTextScaleModeToProp()
 textActor.SetDisplayPosition(90, 50)
 textActor.SetInput("This is a sphere")
 
