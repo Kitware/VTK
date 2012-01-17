@@ -1589,12 +1589,6 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
   this->AllocateInternalDataStructures();
   this->GhostedExtents.resize(this->NumberOfGrids*6,-1);
 
-//  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
-//    {
-//    this->ComputeNeighborSendAndRcvExtent( i, N );
-//    }
-//  this->Print( std::cout );
-
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
     this->ComputeNeighborSendAndRcvExtent( i, N );
