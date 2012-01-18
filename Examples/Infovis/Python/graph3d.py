@@ -1,7 +1,9 @@
 from vtk import *
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 reader = vtkXGMLReader()
-reader.SetFileName("fsm.gml")
+reader.SetFileName(VTK_DATA_ROOT + "/Data/Infovis/fsm.gml")
 reader.Update()
 
 strategy   = vtkSpanTreeLayoutStrategy()
