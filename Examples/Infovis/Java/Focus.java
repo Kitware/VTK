@@ -49,9 +49,7 @@ public class Focus extends JFrame {
     // when the selection in one view changes.
     ViewChangedObserver obs = new ViewChangedObserver();
     this.link.AddObserver("SelectionChangedEvent", obs, "SelectionChanged");
-    
-    //this.reader.SetFileName("../../../../VTKData/Data/Infovis/classes.csv");
-    this.reader.SetFileName("C:/Users/Jeff/Work/VTKData/Data/Infovis/classes.csv");
+    this.reader.SetFileName("../../../../VTKData/Data/Infovis/classes.csv");
     this.tableToGraph.SetInputConnection(this.reader.GetOutputPort());
     this.tableToGraph.AddLinkEdge("Field 0", "Field 1");
     vtkSimple2DLayoutStrategy strategy = new vtkSimple2DLayoutStrategy();
