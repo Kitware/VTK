@@ -51,7 +51,7 @@ vtkWarpScalar warp
 
 # Create the contour bands.
 vtkBandedPolyDataContourFilter bcf
-  bcf SetInput [warp GetPolyDataOutput]
+  bcf SetInputConnection [warp GetOutputPort]
   eval bcf GenerateValues 15 [[demModel GetOutput] GetScalarRange]
   bcf SetScalarModeToIndex
   bcf GenerateContourEdgesOn
@@ -74,7 +74,7 @@ vtkLODActor demActor
 
 ## Create contour edges
 vtkPolyDataMapper edgeMapper
-  edgeMapper SetInput [bcf GetContourEdgesOutput]
+  edgeMapper SetInputConnection [bcf GetOutputPort]
   edgeMapper SetResolveCoincidentTopologyToPolygonOffset 
 vtkActor edgeActor
   edgeActor SetMapper edgeMapper
@@ -83,7 +83,7 @@ vtkActor edgeActor
 ## Test clipping
 # Create the contour bands.
 vtkBandedPolyDataContourFilter bcf2
-  bcf2 SetInput [warp GetPolyDataOutput]
+  bcf2 SetInputConnection [warp GetOutputPort]
   bcf2 ClippingOn
   eval bcf2 GenerateValues 10 1000 2000
   bcf2 SetScalarModeToValue

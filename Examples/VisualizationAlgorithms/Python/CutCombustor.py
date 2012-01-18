@@ -8,32 +8,33 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # The cutter uses an implicit function to perform the cutting.
 # Here we define a plane, specifying its center and normal.
 # Then we assign the plane to the cutter.
 plane = vtk.vtkPlane()
-plane.SetOrigin(pl3d.GetOutput().GetCenter())
+plane.SetOrigin(pl3d_output.GetCenter())
 plane.SetNormal(-0.287, 0, 0.9579)
 planeCut = vtk.vtkCutter()
-planeCut.SetInputConnection(pl3d.GetOutputPort())
+planeCut.SetInputData(pl3d_output)
 planeCut.SetCutFunction(plane)
 cutMapper = vtk.vtkPolyDataMapper()
 cutMapper.SetInputConnection(planeCut.GetOutputPort())
-cutMapper.SetScalarRange(pl3d.GetOutput().GetPointData().GetScalars().GetRange())
+cutMapper.SetScalarRange(pl3d_output.GetPointData().GetScalars().GetRange())
 cutActor = vtk.vtkActor()
 cutActor.SetMapper(cutMapper)
 
 # Here we extract a computational plane from the structured grid.
 # We render it as wireframe.
 compPlane = vtk.vtkStructuredGridGeometryFilter()
-compPlane.SetInputConnection(pl3d.GetOutputPort())
+compPlane.SetInputData(pl3d_output)
 compPlane.SetExtent(0, 100, 0, 100, 9, 9)
 planeMapper = vtk.vtkPolyDataMapper()
 planeMapper.SetInputConnection(compPlane.GetOutputPort())
@@ -45,7 +46,7 @@ planeActor.GetProperty().SetColor(0, 0, 0)
 
 # The outline of the data puts the data in context.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

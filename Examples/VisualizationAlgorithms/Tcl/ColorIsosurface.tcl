@@ -10,7 +10,7 @@ package require vtkinteraction
 # "Velocity Magnitude").Later this data array will be used to color the
 # isosurface.  
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
@@ -18,13 +18,15 @@ vtkPLOT3DReader pl3d
     pl3d AddFunction 153
     pl3d Update
     pl3d DebugOn
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0 ]
     
 # The contoru filter uses the labeled scalar (function number 100
 # above to generate the contour surface; all other data is interpolated
 # during the contouring process.
 #
 vtkContourFilter iso
-    iso SetInputConnection [pl3d GetOutputPort]
+    iso SetInputData $pl3dOutput
     iso SetValue 0 .24
 
 vtkPolyDataNormals normals
@@ -46,7 +48,7 @@ vtkLODActor isoActor
     isoActor SetNumberOfCloudPoints 1000
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

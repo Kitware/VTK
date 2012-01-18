@@ -6,33 +6,35 @@ package require vtk
 package require vtkinteraction
 
 # Read some data.
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 
+set pl3dOutput [[pl3d GetOutput] GetBlock 0 ]
+
 # The cutter uses an implicit function to perform the cutting.
 # Here we define a plane, specifying its center and normal.
 # Then we assign the plane to the cutter.
 vtkPlane plane
-    eval plane SetOrigin [[pl3d GetOutput] GetCenter]
+    eval plane SetOrigin [$pl3dOutput GetCenter]
     plane SetNormal -0.287 0 0.9579
 vtkCutter planeCut
-    planeCut SetInputConnection [pl3d GetOutputPort]
+    planeCut SetInputData $pl3dOutput
     planeCut SetCutFunction plane
 vtkPolyDataMapper cutMapper
     cutMapper SetInputConnection [planeCut GetOutputPort]
     eval cutMapper SetScalarRange \
-      [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
+      [[[$pl3dOutput GetPointData] GetScalars] GetRange]
 vtkActor cutActor
     cutActor SetMapper cutMapper
 
 # Here we extract a computational plane from the structured grid.
 # We render it as wireframe.
 vtkStructuredGridGeometryFilter compPlane
-    compPlane SetInputConnection [pl3d GetOutputPort]
+    compPlane SetInputData $pl3dOutput
     compPlane SetExtent 0 100 0 100 9 9
 vtkPolyDataMapper planeMapper
     planeMapper SetInputConnection [compPlane GetOutputPort]
@@ -44,7 +46,7 @@ vtkActor planeActor
 
 # The outline of the data puts the data in context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
