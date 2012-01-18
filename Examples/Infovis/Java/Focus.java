@@ -213,17 +213,16 @@ public class Focus extends JFrame {
     }
   }
 
-  // In the static constructor we load in the native code.
-  // The libraries must be in your path to work.
+  // Load VTK library and print which library was not properly loaded
   static {
-    System.loadLibrary("vtkCommonJava");
-    System.loadLibrary("vtkFilteringJava");
-    System.loadLibrary("vtkIOJava");
-    System.loadLibrary("vtkImagingJava");
-    System.loadLibrary("vtkGraphicsJava");
-    System.loadLibrary("vtkRenderingJava");
-    System.loadLibrary("vtkInfovisJava");
-    System.loadLibrary("vtkViewsJava");
+    if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
+      for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
+         if (!lib.IsLoaded()) {
+            System.out.println(lib.GetLibraryName() + " not loaded");
+         }
+      }
+    }
+        vtkNativeLibrary.DisableOutputWindow(null);
   }
 
   public static void main(String args[]) {
@@ -236,14 +235,6 @@ public class Focus extends JFrame {
         app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         app.pack();
         app.setVisible(true);
-        app.addWindowListener(new WindowAdapter() {
-          @Override
-          public void windowClosing(WindowEvent e) {
-            // Calling vtkGlobalJavaHash.DeleteAll() will clean up
-            // VTK references before the Java program exits.
-            vtkGlobalJavaHash.DeleteAll();
-          }
-        });
         app.update();
       }});
   }
