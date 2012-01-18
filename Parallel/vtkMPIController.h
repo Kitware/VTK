@@ -46,6 +46,8 @@
 // reference.
 #include "vtkMPICommunicator.h" // Needed for direct access to communicator
 
+class vtkIntArray;
+
 class VTK_PARALLEL_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 
@@ -231,17 +233,42 @@ public:
   // Given the request objects of a set of non-blocking operations
   // (send and/or receive) this method blocks until all requests are complete.
   // Note: This method delegates to the communicator
-  void WaitAll(const int count, vtkMPICommunicator::Request requests[])
-  {((vtkMPICommunicator*)this->Communicator)->WaitAll(count,requests);};
+  int WaitAll(const int count, vtkMPICommunicator::Request requests[])
+  { return ((vtkMPICommunicator*)this->Communicator)->WaitAll(count,requests);}
 
   // Description:
-  // Blocks until any of the specified requests in the given request array
+  // Blocks until *one* of the specified requests in the given request array
   // completes. Upon return, the index in the array of the completed request
-  // object is returned.
+  // object is returned through the argument list.
   // Note: this method delegates to the communicator
-  int WaitAny(const int count, vtkMPICommunicator::Request requests[])
-  {return ((vtkMPICommunicator*)this->Communicator)->WaitAny(count,requests);};
+  int WaitAny(const int count,vtkMPICommunicator::Request requests[], int& idx)
+  {return ((vtkMPICommunicator*)this->Communicator)->WaitAny(count,requests,idx);}
 
+  // Description:
+  // Blocks until *one or more* of the specified requests in the given request
+  // request array completes. Upon return, the list of handles that have
+  // completed is stored in the completed vtkIntArray.
+  int WaitSome(
+      const int count, vtkMPICommunicator::Request requests[],
+      vtkIntArray *completed );
+
+  // Description:
+  // Returns true iff *all* of the communication request objects are complete.
+  bool TestAll(const int count, vtkMPICommunicator::Request requests[] );
+
+  // Description:
+  // Returns true iff at least *one* of the communication request objects is
+  // complete. The index of the completed request, w.r.t. the requests array, is
+  // reflected in the out parameter idx. Otherwise, if none of the communication
+  // requests are complete false is returned.
+  bool TestAny(const int count,vtkMPICommunicator::Request requests[],int &idx);
+
+  // Description:
+  // Return true iff *one or more* of the communicator request objects is
+  // complete. The indices of the completed requests, w.r.t. the requests array,
+  // are given in the completed user-supplied vtkIntArray.
+  bool TestSome(const int count,vtkMPICommunicator::Request requests[],
+                vtkIntArray *completed );
 //ETX
   static const char* GetProcessorName();
 

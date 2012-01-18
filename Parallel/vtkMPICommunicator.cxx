@@ -1504,29 +1504,10 @@ int vtkMPICommunicator::AllReduceVoidArray(
 }
 
 //-----------------------------------------------------------------------------
-void vtkMPICommunicator::WaitAll(const int count, Request requests[])
+int vtkMPICommunicator::WaitAll(const int count, Request requests[])
 {
   if( count < 1 )
     {
-    return;
-    }
-
-  MPI_Request *r = new MPI_Request[count];
-  for( int i=0; i < count; ++i )
-    {
-    r[ i ] = requests[ i ].Req->Handle;
-    }
-
-  MPI_Waitall( count, r, MPI_STATUSES_IGNORE);
-  delete [] r;
-}
-
-//-----------------------------------------------------------------------------
-int vtkMPICommunicator::WaitAny(const int count, Request requests[] )
-{
-  if( count < 1 )
-    {
-    vtkErrorMacro("WaitAny must be called with at least one macro" );
     return -1;
     }
 
@@ -1536,12 +1517,115 @@ int vtkMPICommunicator::WaitAny(const int count, Request requests[] )
     r[ i ] = requests[ i ].Req->Handle;
     }
 
-  int idx = -1;
-  MPI_Waitany( count, r, &idx, MPI_STATUS_IGNORE );
+  int rc = CheckForMPIError( MPI_Waitall( count, r, MPI_STATUSES_IGNORE) );
+  delete [] r;
+  return rc;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::WaitAny(const int count, Request requests[], int& idx )
+{
+  if( count < 1 )
+    {
+    return 0;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int rc = CheckForMPIError( MPI_Waitany( count, r, &idx, MPI_STATUS_IGNORE ) );
   assert( "post: index from MPI_Waitany is out-of-bounds!" &&
           (idx >= 0) && (idx < count) );
   delete [] r;
-  return( idx );
+  return( rc );
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::WaitSome(
+      const int count, Request requests[], int &NCompleted, int *completed )
+{
+  if( count < 1 )
+    {
+    return 0;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int rc = CheckForMPIError(
+      MPI_Waitsome(count,r,&NCompleted,completed,MPI_STATUSES_IGNORE) );
+  delete [] r;
+  return( rc );
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::TestAll(
+    const int count, vtkMPICommunicator::Request requests[], int& flag )
+{
+  if( count < 1 )
+    {
+    flag = 0;
+    return 0;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int rc = CheckForMPIError(MPI_Testall(count, r, &flag, MPI_STATUSES_IGNORE));
+  delete [] r;
+  return( rc );
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::TestAny(
+    const int count, vtkMPICommunicator::Request requests[],int &idx,int &flag)
+{
+  if( count < 1 )
+    {
+    flag = 0;
+    return 0;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int rc = CheckForMPIError(MPI_Testany(count,r,&idx,&flag,MPI_STATUS_IGNORE));
+  delete [] r;
+  return( rc );
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPICommunicator::TestSome( const int count, Request requests[],
+                                  int& NCompleted, int *completed )
+{
+  if( count < 1 )
+    {
+    NCompleted = 0;
+    return 0;
+    }
+
+  MPI_Request *r = new MPI_Request[count];
+  for( int i=0; i < count; ++i )
+    {
+    r[ i ] = requests[ i ].Req->Handle;
+    }
+
+  int rc = CheckForMPIError(
+      MPI_Testsome(count,r,&NCompleted,completed,MPI_STATUSES_IGNORE) );
+  delete [] r;
+  return( rc );
 }
 
 //-----------------------------------------------------------------------------

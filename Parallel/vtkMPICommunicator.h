@@ -198,14 +198,38 @@ public:
   // Description:
   // Given the request objects of a set of non-blocking operations
   // (send and/or receive) this method blocks until all requests are complete.
-  void WaitAll(const int count, Request requests[]);
+  int WaitAll(const int count, Request requests[]);
 
   // Description:
-  // Blocks until any of the specified requests in the given request array
+  // Blocks until *one* of the specified requests in the given request array
   // completes. Upon return, the index in the array of the completed request
-  // object is returned.
-  int WaitAny(const int count, Request requests[]);
+  // object is returned through the argument list.
+  int WaitAny(const int count, Request requests[], int& idx);
 
+  // Description:
+  // Blocks until *one or more* of the specified requests in the given request
+  // request array completes. Upon return, the list of handles that have
+  // completed is stored in the completed vtkIntArray.
+  int WaitSome(
+      const int count, Request requests[], int &NCompleted, int *completed );
+
+  // Description:
+  // Checks if the given communication request objects are complete. Upon
+  // return, flag evaluates to true iff *all* of the communication request
+  // objects are complete.
+  int TestAll( const int count, Request requests[], int& flag );
+
+  // Description:
+  // Check if at least *one* of the specified requests has completed.
+  int TestAny(const int count, Request requests[], int &idx, int &flag );
+
+  // Description:
+  // Checks the status of *all* the given request communication object handles.
+  // Upon return, NCompleted holds the count of requests that have completed
+  // and the indices of the completed requests, w.r.t. the requests array is
+  // given the by the pre-allocated completed array.
+  int TestSome(const int count,Request requests[],
+               int& NCompleted,int *completed);
 //BTX
 
   friend class vtkMPIController;
