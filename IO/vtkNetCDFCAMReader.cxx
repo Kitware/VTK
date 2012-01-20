@@ -23,6 +23,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
@@ -30,15 +31,37 @@
 #include <map>
 #include <vtk_netcdfcpp.h>
 
+namespace
+{
+// determine if this is a cell that wraps from 360 to 0 (i.e. if it's
+// a cell that wraps from the right side of the domain to the left side)
+  bool IsCellInverted(double points[4][3])
+  {
+    double normal[3];
+    vtkPolygon::ComputeNormal(4, points[0], normal);
+    if(normal[2] > 0)
+      {
+      return true;
+      }
+    return false;
+  }
+}
+
 vtkStandardNewMacro(vtkNetCDFCAMReader);
 
 //----------------------------------------------------------------------------
 vtkNetCDFCAMReader::vtkNetCDFCAMReader()
 {
   this->FileName = NULL;
+  this->CurrentFileName = NULL;
   this->ConnectivityFileName = NULL;
+  this->CurrentConnectivityFileName = NULL;
   this->PointsFile = NULL;
   this->ConnectivityFile = NULL;
+  this->SingleLevel = 0;
+  this->CellLayerRight = 1;
+  this->TimeSteps = NULL;
+  this->NumberOfTimeSteps = 0;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -47,7 +70,9 @@ vtkNetCDFCAMReader::vtkNetCDFCAMReader()
 vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
 {
   this->SetFileName(NULL);
+  this->SetCurrentFileName(NULL);
   this->SetConnectivityFileName(NULL);
+  this->SetCurrentConnectivityFileName(NULL);
   if(this->PointsFile)
     {
     delete this->PointsFile;
@@ -57,6 +82,11 @@ vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
     {
     delete this->ConnectivityFile;
     this->ConnectivityFile = NULL;
+    }
+  if(this->TimeSteps)
+    {
+    delete []this->TimeSteps;
+    this->TimeSteps = NULL;
     }
 }
 
@@ -87,6 +117,7 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
   if (this->FileName)
     {
     delete [] this->FileName;
+    this->FileName = NULL;
     }
   if (fileName)
     {
@@ -150,6 +181,74 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
 }
 
 //----------------------------------------------------------------------------
+int vtkNetCDFCAMReader::RequestInformation(
+  vtkInformation* vtkNotUsed(reqInfo),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
+{
+  if(this->FileName == NULL)
+    {
+    vtkWarningMacro("Missing a file name.");
+    return 0;
+    }
+
+  if(this->CurrentFileName != NULL &&
+     strcmp(this->CurrentFileName, this->FileName) != 0)
+    {
+    delete this->PointsFile;
+    this->PointsFile = NULL;
+    this->SetCurrentFileName(NULL);
+    }
+  if(this->PointsFile == NULL)
+    {
+    this->PointsFile = new NcFile(this->FileName, NcFile::ReadOnly);
+    if(this->PointsFile->is_valid() == 0)
+      {
+      vtkErrorMacro(<< "Can't read file " << this->FileName);
+      delete this->PointsFile;
+      this->PointsFile = NULL;
+      return 0;
+      }
+    this->SetCurrentFileName(this->FileName);
+    }
+  NcDim* timeDimension = this->PointsFile->get_dim("time");
+  if(timeDimension == NULL)
+    {
+    vtkErrorMacro("Cannot find the number of time steps (time dimension).");
+    return 0;
+    }
+  this->NumberOfTimeSteps = timeDimension->size();
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  if (this->NumberOfTimeSteps > 0)
+    {
+    if(this->TimeSteps)
+      {
+      delete []this->TimeSteps;
+      }
+    this->TimeSteps = new double[this->NumberOfTimeSteps];
+    NcVar* timeVar = this->PointsFile->get_var("time");
+    timeVar->get(this->TimeSteps, this->NumberOfTimeSteps);
+
+    // Tell the pipeline what steps are available
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
+              this->TimeSteps, this->NumberOfTimeSteps);
+
+    // Range is required to get GUI to show things
+    double tRange[2] = {this->TimeSteps[0],
+                        this->TimeSteps[this->NumberOfTimeSteps - 1]};
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
+    }
+  else
+    {
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkNetCDFCAMReader::RequestUpdateExtent(
   vtkInformation *,
   vtkInformationVector **,
@@ -198,16 +297,12 @@ int vtkNetCDFCAMReader::RequestData(
 
   vtkDebugMacro(<<"Reading NetCDF CAM file.");
   this->SetProgress(0);
-  if(this->PointsFile == NULL)
+  if(this->CurrentConnectivityFileName != NULL &&
+     strcmp(this->CurrentConnectivityFileName, this->ConnectivityFileName) != 0)
     {
-    this->PointsFile = new NcFile(this->FileName, NcFile::ReadOnly);
-    if(this->PointsFile->is_valid() == 0)
-      {
-      vtkErrorMacro(<< "Can't read file " << this->FileName);
-      delete this->PointsFile;
-      this->PointsFile = NULL;
-      return 0;
-      }
+    delete this->ConnectivityFile;
+    this->ConnectivityFile = NULL;
+    this->SetCurrentConnectivityFileName(NULL);
     }
   if(this->ConnectivityFile == NULL)
     {
@@ -220,6 +315,7 @@ int vtkNetCDFCAMReader::RequestData(
       this->ConnectivityFile = NULL;
       return 0;
       }
+    this->SetCurrentConnectivityFileName(this->ConnectivityFileName);
     }
 
   // Set the NetCDF error handler to not kill the application.
@@ -246,6 +342,10 @@ int vtkNetCDFCAMReader::RequestData(
     {
     vtkErrorMacro("The lev variable is not consistent.");
     return 0;
+    }
+  if(this->SingleLevel != 0)
+    {
+    numLevels = 1;
     }
   NcDim* dimension = this->PointsFile->get_dim("ncol");
   if(dimension == NULL)
@@ -298,7 +398,6 @@ int vtkNetCDFCAMReader::RequestData(
       points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
       }
     }
-
   this->SetProgress(.25);  // educated guess for progress
 
   // now read in the cell connectivity.  note that this is a periodic
@@ -306,6 +405,8 @@ int vtkNetCDFCAMReader::RequestData(
   // the points file.  if a cell uses a point that is on the left
   // boundary and it should be on the right boundary we will have
   // to create that point.  that's what boundaryPoints is used for.
+  // note that if this->CellLayerRight is false then we do the opposite
+  // and make the 'connecting' cell on the left side of the domain
   // we don't actually build the cells yet though.
   std::map<vtkIdType, vtkIdType> boundaryPoints;
   dimension = this->ConnectivityFile->get_dim("ncells");
@@ -324,46 +425,52 @@ int vtkNetCDFCAMReader::RequestData(
   long numCells = dimension->size();
   std::vector<int> cellConnectivity(4*numCells);
   connectivity->get(&(cellConnectivity[0]), 4, numCells);
-  double bounds[6];
-  points->GetBounds(bounds);
-  double leftSide = bounds[0] + .25*(bounds[1]-bounds[0]);
-  double rightSide = bounds[0] + .75*(bounds[1]-bounds[0]);
+  double leftSide = 1.;
+  double rightSide = 359.;
   for(long i=0;i<numCells;i++)
     {
     vtkIdType pointIds[4];
-    bool nearRightBoundary = false;
-    bool nearLeftBoundary = false;
-    double point[3];
+    double coords[4][3]; // assume quads here
     for(int j=0;j<4;j++)
       {
       pointIds[j] = cellConnectivity[i+j*numCells]-1;
-      points->GetPoint(pointIds[j], point);
-      if(point[0] > rightSide)
-        {
-        nearRightBoundary = true;
-        }
-      else if(point[0] < leftSide)
-        {
-        nearLeftBoundary = true;
-        }
+      points->GetPoint(pointIds[j], coords[j]);
       }
-    if(nearLeftBoundary == true && nearRightBoundary == true)
+    if(IsCellInverted(coords) == true)
       {
       for(int j=0;j<4;j++)
         {
-        points->GetPoint(pointIds[j], point);
-        if(point[0] < leftSide)
+        if(this->CellLayerRight && coords[j][0] < leftSide)
           {
           std::map<vtkIdType, vtkIdType>::iterator otherPoint =
             boundaryPoints.find(pointIds[j]);
           if(otherPoint != boundaryPoints.end())
             { // already made point on the right boundary
-            pointIds[j] = otherPoint->second;
+            cellConnectivity[i+j*numCells] = otherPoint->second + 1;
             }
           else
             { // need to make point on the right boundary
-            pointIds[j] = boundaryPoints[pointIds[j]] =
-              points->InsertNextPoint(point[0]+360., point[1], point[2]);
+            vtkIdType index =
+              points->InsertNextPoint(coords[j][0]+360., coords[j][1], coords[j][2]);
+            cellConnectivity[i+j*numCells] = index+1;
+            boundaryPoints[pointIds[j]] = index;
+            //cerr << "making a copy of point " << pointIds[j] << " to " << index << endl;
+            }
+          }
+        else if(this->CellLayerRight == 0 && coords[j][0] > rightSide)
+          {
+          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
+            boundaryPoints.find(pointIds[j]);
+          if(otherPoint != boundaryPoints.end())
+            { // already made point on the right boundary
+            cellConnectivity[i+j*numCells] = otherPoint->second+1;
+            }
+          else
+            { // need to make point on the right boundary
+            vtkIdType index =
+              points->InsertNextPoint(coords[j][0]-360., coords[j][1], coords[j][2]);
+            cellConnectivity[i+j*numCells] = index+1;
+            boundaryPoints[pointIds[j]] = index;
             }
           }
         }
@@ -373,22 +480,48 @@ int vtkNetCDFCAMReader::RequestData(
   // we now have all of the points at a single level.  build them up
   // for the rest of the levels before creating the cells.
   vtkIdType numPointsPerLevel = points->GetNumberOfPoints();
-  // a hacky way to resize the points array without resetting the data
-  points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
-  for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
+  if(numLevels > 1)
     {
-    double point[3];
-    points->GetPoint(pt, point);
-    for(long lev=1;lev<numLevels;lev++)
+    // a hacky way to resize the points array without resetting the data
+    points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
+    for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
       {
-      point[2] = numLevels - lev;
-      points->SetPoint(pt+lev*numPointsPerLevel, point);
+      double point[3];
+      points->GetPoint(pt, point);
+      for(long lev=1;lev<numLevels;lev++)
+        {
+        point[2] = numLevels - lev;
+        points->SetPoint(pt+lev*numPointsPerLevel, point);
+        }
       }
     }
   points->Modified();
   output->SetPoints(points);
 
   this->SetProgress(.5);  // educated guess for progress
+
+  // Collect the time step requested
+  vtkInformationDoubleVectorKey* timeKey =
+    static_cast<vtkInformationDoubleVectorKey*>
+    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+
+  double dTime = 0.0;
+  if (outInfo->Has(timeKey))
+    {
+    double* requestedTimeSteps = outInfo->Get(timeKey);
+    dTime = requestedTimeSteps[0];
+    }
+
+  // Actual time for the time step
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+
+  // Index of the time step to request
+  int timeStep = 0;
+  while (timeStep < this->NumberOfTimeSteps &&
+         this->TimeSteps[timeStep] < dTime)
+    {
+    timeStep++;
+    }
 
   // now that we have the full set of points, read in any point
   // data with dimensions (time, lev, ncol) but read them in
@@ -397,13 +530,20 @@ int vtkNetCDFCAMReader::RequestData(
   for(int i=0;i<this->PointsFile->num_vars();i++)
     {
     NcVar* variable = this->PointsFile->get_var(i);
-    if(variable->num_dims() != 3 ||
-       strcmp(variable->get_dim(0)->name(), "time") != 0 ||
-       strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
-       strcmp(variable->get_dim(2)->name(), "ncol") != 0)
-      { // not a field variable
+    if(numLevels > 1 && (variable->num_dims() != 3 ||
+                         strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                         strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
+                         strcmp(variable->get_dim(2)->name(), "ncol") != 0) )
+      { // not a 3D field variable
       continue;
       }
+    else if(numLevels == 1 && ((variable->num_dims() != 2 ||
+                                strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                                strcmp(variable->get_dim(1)->name(), "ncol") != 0) ) )
+      { // not a 2D field variable
+      continue;
+      }
+
     vtkDoubleArray* doubleArray = NULL;
     vtkFloatArray* floatArray = NULL;
     if(variable->type() == ncDouble)
@@ -422,22 +562,47 @@ int vtkNetCDFCAMReader::RequestData(
       output->GetPointData()->AddArray(floatArray);
       floatArray->Delete();
       }
-    for(long lev=0;lev<numLevels;lev++)
+    if(numLevels > 1)
       {
-      variable->set_cur(0, lev, 0);
+      for(long lev=0;lev<numLevels;lev++)
+        {
+        variable->set_cur(timeStep, lev, 0);
+        if(doubleArray)
+          {
+          if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
+                            1, 1, numFilePoints))
+            {
+            vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
+            return 0;
+            }
+          }
+        else
+          {
+          if(!variable->get(floatArray->GetPointer(0)+lev*numPointsPerLevel,
+                            1, 1, numFilePoints))
+            {
+            vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
+            return 0;
+            }
+          }
+        }
+      }
+    else if(numLevels == 1)
+      {
+      variable->set_cur(timeStep, 0);
       if(doubleArray)
         {
-        if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
-                          1, 1, numFilePoints))
+        if(!variable->get(doubleArray->GetPointer(0), 1, numFilePoints))
           {
+          vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
           return 0;
           }
         }
       else
         {
-        if(!variable->get(floatArray->GetPointer(0)+lev*numPointsPerLevel,
-                          1, 1, numFilePoints))
+        if(!variable->get(floatArray->GetPointer(0), 1, numFilePoints))
           {
+          vtkErrorMacro("Problem getting NetCDF variable " << variable->name());
           return 0;
           }
         }
@@ -479,42 +644,26 @@ int vtkNetCDFCAMReader::RequestData(
   for(long i=0;i<numCells;i++)
     {
     vtkIdType pointIds[4];
-    bool nearRightBoundary = false;
-    bool nearLeftBoundary = false;
-    double point[3];
     for(int j=0;j<4;j++)
       {
       pointIds[j] = cellConnectivity[i+j*numCells]-1;
-      output->GetPoint(pointIds[j], point);
-      if(point[0] > rightSide)
-        {
-        nearRightBoundary = true;
-        }
-      else if(point[0] < leftSide)
-        {
-        nearLeftBoundary = true;
-        }
       }
-    if(nearLeftBoundary == true && nearRightBoundary == true)
-      {
-      for(int j=0;j<4;j++)
+    if(numLevels > 1)
+      { // volumetric grid
+      for(size_t lev=0;lev<levelData.size()-1;lev++)
         {
-        output->GetPoint(pointIds[j], point);
-        if(point[0] < leftSide)
+        vtkIdType hexIds[8];
+        for(int j=0;j<4;j++)
           {
-          pointIds[j] = boundaryPoints[pointIds[j]];
+          hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
+          hexIds[j+4] = pointIds[j]+(1+lev)*numPointsPerLevel;
           }
+        output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
         }
       }
-    for(size_t lev=0;lev<levelData.size()-1;lev++)
-      {
-      vtkIdType hexIds[8];
-      for(int j=0;j<4;j++)
-        {
-        hexIds[j] = pointIds[j]+lev*numPointsPerLevel;
-        hexIds[j+4] = pointIds[j]+(1+lev)*numPointsPerLevel;
-        }
-      output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
+    else if(numLevels == 1)
+      { // surface grid
+      output->InsertNextCell(VTK_QUAD, 4, pointIds);
       }
     }
 
