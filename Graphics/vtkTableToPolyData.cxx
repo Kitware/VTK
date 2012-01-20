@@ -37,6 +37,7 @@ vtkTableToPolyData::vtkTableToPolyData()
   this->YComponent = 0;
   this->ZComponent = 0;
   this->Create2DPoints = 0;
+  this->PreserveCoordinateColumnsAsDataArrays = false;
 }
 
 //----------------------------------------------------------------------------
@@ -170,7 +171,11 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   for (int cc=0; cc < input->GetNumberOfColumns(); cc++)
     {
     vtkAbstractArray* arr = input->GetColumn(cc);
-    if (arr != xarray && arr != yarray && arr != zarray)
+    if(this->PreserveCoordinateColumnsAsDataArrays)
+      {
+      output->GetPointData()->AddArray(arr);
+      }
+    else if (arr != xarray && arr != yarray && arr != zarray)
       {
       output->GetPointData()->AddArray(arr);
       }
@@ -195,6 +200,8 @@ void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZComponent: " << this->ZComponent << endl;
   os << indent << "ZColumnIndex: " << this->ZColumnIndex << endl;
   os << indent << "Create2DPoints: " << (this->Create2DPoints ? "true" : "false") << endl;
+  os << indent << "PreserveCoordinateColumnsAsDataArrays: "
+     << (this->PreserveCoordinateColumnsAsDataArrays ? "true" : "false") << endl;
 }
 
 
