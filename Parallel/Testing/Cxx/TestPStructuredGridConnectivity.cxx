@@ -43,6 +43,7 @@
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMathUtilities.h"
+#include "vtkXMLPMultiBlockDataWriter.h"
 
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
@@ -50,6 +51,23 @@
 vtkMultiProcessController *Controller;
 int Rank;
 int NumberOfProcessors;
+
+//------------------------------------------------------------------------------
+void WriteDistributedDataSet(
+    std::string prefix, vtkMultiBlockDataSet *dataset)
+{
+  vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
+  std::ostringstream oss;
+  oss << prefix << "." << writer->GetDefaultFileExtension();
+  writer->SetFileName( oss.str().c_str() );
+  writer->SetInput(dataset);
+  if( Controller->GetLocalProcessId() == 0 )
+    {
+    writer->SetWriteMetaFile(1);
+    }
+  writer->Update();
+  writer->Delete();
+}
 
 //------------------------------------------------------------------------------
 void LogMessage( const std::string &msg)
@@ -99,35 +117,6 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
   Controller->AllReduce(&numNodes,&totalSum,1,vtkCommunicator::SUM_OP);
 
   return( totalSum );
-}
-
-
-//------------------------------------------------------------------------------
-void FillVisibilityArrays(
-    vtkMultiBlockDataSet *mbds, vtkPStructuredGridConnectivity *connectivity )
-{
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
-
-  for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
-    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    if( grid != NULL )
-      {
-      vtkUnsignedCharArray *nodes = vtkUnsignedCharArray::New();
-      nodes->SetNumberOfValues( grid->GetNumberOfPoints() );
-
-      vtkUnsignedCharArray *cells = vtkUnsignedCharArray::New();
-      cells->SetNumberOfValues( grid->GetNumberOfCells() );
-
-      connectivity->FillGhostArrays( block, nodes, cells  );
-
-      grid->SetPointVisibilityArray( nodes );
-      nodes->Delete();
-      grid->SetCellVisibilityArray( cells );
-      cells->Delete();
-      } // END if grid != NULL
-    } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -256,6 +245,7 @@ int TestPStructuredGridConnectivity( const int factor )
   // poplulated. A NULL entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
+  Controller->Barrier();
   assert( "pre: mbds != NULL" && (mbds != NULL) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
@@ -275,10 +265,6 @@ int TestPStructuredGridConnectivity( const int factor )
   // STEP 4: Compute neighbors
   gridConnectivity->ComputeNeighbors();
   Controller->Barrier();
-
-  // STEP 5: Fill Visibility arrays
-//  FillVisibilityArrays( mbds, gridConnectivity );
-//  Controller->Barrier();
 
   // STEP 6: Total global count of the nodes
   int count = GetTotalNumberOfNodes( mbds );
@@ -394,10 +380,6 @@ int TestAverage( const int factor )
   gridConnectivity->ComputeNeighbors();
   Controller->Barrier();
 
-  // STEP 5: Fill Visibility arrays
-//  FillVisibilityArrays( mbds, gridConnectivity );
-//  Controller->Barrier();
-
   // STEP 6: Total global count of the nodes
   int count = GetTotalNumberOfNodes( mbds );
   Controller->Barrier();
@@ -461,6 +443,7 @@ int TestGhostLayerCreation( int factor, int ng )
   // poplulated. A NULL entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
+  WriteDistributedDataSet( "PINITIAL", mbds );
   assert( "pre: mbds != NULL" && (mbds != NULL) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
@@ -485,7 +468,9 @@ int TestGhostLayerCreation( int factor, int ng )
   gridConnectivity->CreateGhostLayers( ng );
   Controller->Barrier();
 
-  return 1;
+  mbds->Delete();
+  gridConnectivity->Delete();
+  return 0;
 }
 
 //------------------------------------------------------------------------------
