@@ -27,6 +27,7 @@
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiThreader.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartVolumeMapper.h"
@@ -51,7 +52,15 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
   this->NumberOfSamples[2] = 128;
   this->RequestedResamplingMode = 0; // Frustrum Mode
   this->FreezeFocalPoint = false;
-
+  this->LastFocalPointPosition[0] =
+    this->LastFocalPointPosition[1] =
+    this->LastFocalPointPosition[2] = 0.0;
+  // Set the camera position to focal point distance to
+  // something that would indicate an initial update is needed
+  this->LastPostionFPDistance = -1.0;
+  this->ResamplerUpdateTolerance = 10e-8;
+  this->GridNeedsToBeUpdated = true;
+  this->UseDefaultThreading = false;
   vtkMath::UninitializeBounds(this->Bounds);
 }
 
@@ -89,6 +98,11 @@ void vtkAMRVolumeMapper::SetInput(vtkHierarchicalBoxDataSet *hdata)
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input)
 {
+  if ((this->Resampler->GetNumberOfInputConnections(0) > 0) 
+      && (this->Resampler->GetInputConnection(port,0) == input))
+    {
+    return;
+    }
   this->Resampler->SetInputConnection(port, input);
   this->vtkVolumeMapper::SetInputConnection(port, input);
   if (this->Grid)
@@ -274,61 +288,100 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
       // processing request information
       this->UpdateResampler(ren, NULL);
       }
-    this->UpdateGrid();
-    }
-  if (this->Grid == NULL) 
-    {
-    // Could not create a grid
-    return;
-    }
-  this->InternalMapper->SetInput(this->Grid);
-  this->InternalMapper->Render(ren, vol);
-}
+    if (this->GridNeedsToBeUpdated)
+      {
+      this->UpdateGrid();
+      }
 
+    if (this->Grid == NULL) 
+      {
+      // Could not create a grid
+      return;
+      }
+
+    this->InternalMapper->SetInput(this->Grid);
+    }
+  // Enable threading for the internal volume renderer and the reset the
+  // original value when done - need when running inside of ParaView
+  if (this->UseDefaultThreading)
+    {
+    int maxNumThreads = vtkMultiThreader::GetGlobalMaximumNumberOfThreads();
+    vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
+    this->InternalMapper->Render(ren, vol);
+    vtkMultiThreader::SetGlobalMaximumNumberOfThreads(maxNumThreads);
+    }
+  else
+    {
+    this->InternalMapper->Render(ren, vol);
+    }
+}
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr)
 {
   // Set the bias of the resample filter to be the projection direction
   double bvec[3];
-  ren->GetActiveCamera()->GetDirectionOfProjection(bvec);
+  vtkCamera *cam = ren->GetActiveCamera();
+  double d, d2, fp[3], pd, gb[6];
+  d = cam->GetDistance();
+  cam->GetFocalPoint(fp);
+
+  if (this->Grid)
+    {
+    // Compare distances with the grid's bounds
+    this->Grid->GetBounds(gb);
+    vtkBoundingBox bbox(gb);
+    double maxL = bbox.GetMaxLength();
+    // If the grid's max length is 0 then we need to update
+    if (maxL > 0.0)
+      {
+      pd = fabs(d - this->LastPostionFPDistance) / this->LastPostionFPDistance;
+      if ((this->LastPostionFPDistance > 0.0) && (pd <= this->ResamplerUpdateTolerance))
+        {
+        // Lets see if the focal point has not moved enough to cause an update
+        d2 = vtkMath::Distance2BetweenPoints(fp, this->LastFocalPointPosition)/(maxL*maxL);
+        if (d2 <= (this->ResamplerUpdateTolerance * this->ResamplerUpdateTolerance))
+          {
+          // nothing needs to be updated 
+          return;
+          }
+        else
+          {
+          int oops = 1;
+          }
+        }
+      }
+    }
+  cam->GetDirectionOfProjection(bvec);
   this->Resampler->SetBiasVector(bvec);
   this->Resampler->SetUseBiasVector(true);
+  this->LastPostionFPDistance = d;
+  this->LastFocalPointPosition[0] = fp[0];
+  this->LastFocalPointPosition[1] = fp[1];
+  this->LastFocalPointPosition[2] = fp[2];
+
   if (this->RequestedResamplingMode == 0)
     {
     this->UpdateResamplerFrustrumMethod(ren, amr);
     }
   else
     {
-    this->UpdateResamplerFocalPointMethod(ren);
+    // This is the focal point approach where we 
+    // center the grid on the focal point and set its length
+    // to be the distance between the camera and its focal point
+    double p[3];
+    p[0] = fp[0] - d;
+    p[1] = fp[1] - d;
+    p[2] = fp[2] - d;
+    // Now set the min/max of the resample filter
+    this->Resampler->SetMin(p);
+    p[0] = fp[0] + d;
+    p[1] = fp[1] + d;
+    p[2] = fp[2] + d;
+    this->Resampler->SetMax(p);
+    this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
     }
-}
-//----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::UpdateResamplerFocalPointMethod(vtkRenderer *ren)
-{
-  vtkCamera *cam = ren->GetActiveCamera();
-  double va = cam->GetViewAngle() * 0.5;
-  double d = cam->GetDistance(), l;
-  double fp[3], var, p[3];
-  cam->GetFocalPoint(fp);
-  // var = vtkMath::DoublePi() * va / 180.0;
-  // l = d * tan(var);
-  // p[0] = fp[0] - l;
-  // p[1] = fp[1] - l;
-  // p[2] = fp[2] - l;
-  p[0] = fp[0] - d;
-  p[1] = fp[1] - d;
-  p[2] = fp[2] - d;
-  // Now set the min/max of the resample filter
-  this->Resampler->SetMin(p);
-  // p[0] = fp[0] + l;
-  // p[1] = fp[1] + l;
-  // p[2] = fp[2] + l;
-  p[0] = fp[0] + d;
-  p[1] = fp[1] + d;
-  p[2] = fp[2] + d;
-  this->Resampler->SetMax(p);
-
-  this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
+  // The grid may have changed
+  this->GridNeedsToBeUpdated = true;
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren, 
@@ -500,6 +553,7 @@ void vtkAMRVolumeMapper::UpdateGrid()
     }
   this->Grid = vtkUniformGrid::SafeDownCast(mb->GetBlock(0));
   this->Grid->Register(0);
+  this->GridNeedsToBeUpdated = false;
 #if PRINTSTATS
   this->Grid->GetDimensions(gridDim);
   this->Grid->GetOrigin(gridOrigin);

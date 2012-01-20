@@ -235,7 +235,6 @@ public:
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
   void UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
-  void UpdateResamplerFocalPointMethod(vtkRenderer *ren);
   void UpdateResamplerFrustrumMethod(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
 //ETX
 
@@ -246,6 +245,18 @@ public:
   vtkSetMacro(FreezeFocalPoint, bool);
   vtkGetMacro(FreezeFocalPoint, bool);
 
+  // Description:
+  //Sets/Gets the tolerance used to determine if the resampler needs
+  // to be updated. Default is 10e-8
+  vtkSetMacro(ResamplerUpdateTolerance, double);
+  vtkGetMacro(ResamplerUpdateTolerance, double);
+
+  // Description:
+  //Sets/Gets a flag that indicates the internal volume mapper
+  // should use the  default number of threads.  This is useful in applications
+  // such as ParaView that will turn off multiple threads by default. Default is false
+  vtkSetMacro(UseDefaultThreading, bool);
+  vtkGetMacro(UseDefaultThreading, bool);
 protected:
   vtkAMRVolumeMapper();
   ~vtkAMRVolumeMapper();
@@ -264,7 +275,18 @@ protected:
   bool HasMetaData;
   int RequestedResamplingMode;
   bool FreezeFocalPoint;
-  
+  // Cached values for camera focal point and
+  // the distance between the camera position and
+  // focal point
+  double LastFocalPointPosition[3];
+  double LastPostionFPDistance;
+  // This is used when determing if 
+  // either the camera or focal point has
+  // move enough to cause the resampler to update
+  double ResamplerUpdateTolerance;
+  bool GridNeedsToBeUpdated;
+  bool UseDefaultThreading;
+
 private:
   vtkAMRVolumeMapper(const vtkAMRVolumeMapper&);  // Not implemented.
   void operator=(const vtkAMRVolumeMapper&);  // Not implemented.
