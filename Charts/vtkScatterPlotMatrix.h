@@ -227,6 +227,13 @@ public:
   // Update charts based on settings given the plot type
   void UpdateChartSettings(int plotType);
 
+  // Description:
+  // Set/get the Selection Mode that will be used by the chart while doing
+  // selection. The only valid enums are vtkContextScene::SELECTION_NONE,
+  // SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
+  virtual void SetSelectionMode(int);
+  vtkGetMacro(SelectionMode, int);
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -263,6 +270,9 @@ protected:
   // The title of the scatter plot matrix.
   vtkStdString Title;
   vtkSmartPointer<vtkTextProperty> TitleProperties;
+
+  // The mode when the chart is doing selection.
+  int SelectionMode;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

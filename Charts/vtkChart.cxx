@@ -62,6 +62,7 @@ vtkChart::vtkChart()
   this->RenderEmpty = false;
   this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
   this->BackgroundBrush->SetColorF(1, 1, 1, 0);
+  this->SelectionMode = vtkContextScene::SELECTION_NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -345,6 +346,7 @@ void vtkChart::PrintSelf(ostream &os, vtkIndent indent)
      << endl;
   os << indent << "Width: " << this->Geometry[0] << endl
      << indent << "Height: " << this->Geometry[1] << endl;
+  os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }
 //-----------------------------------------------------------------------------
 void vtkChart::AttachAxisRangeListener(vtkAxis* axis)
@@ -361,4 +363,27 @@ void vtkChart::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
     this->GetAxis(i)->GetRange(&fullAxisRange[i*2]);
     }
   this->InvokeEvent(vtkChart::UpdateRange, fullAxisRange);
+}
+
+//-----------------------------------------------------------------------------
+void vtkChart::SetSelectionMode(int selMode)
+  {
+  if (this->SelectionMode == selMode ||
+    selMode < vtkContextScene::SELECTION_NONE ||
+    selMode > vtkContextScene::SELECTION_TOGGLE)
+    {
+    return;
+    }
+  this->SelectionMode = selMode;
+  /*
+  // TODO: Should change the chart's mouse button behavior
+  // by SetActionToButton()
+  if(this->SelectionMode == SELECTION_NONE)
+    {
+    }
+  else
+    {
+    }
+  */
+  this->Modified();
 }

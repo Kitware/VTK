@@ -33,6 +33,7 @@
 #include "vtkPlotPoints.h"
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
+#include "vtkContextScene.h"
 
 // STL includes
 #include <map>
@@ -237,6 +238,7 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix() : NumberOfBins(10)
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
+  this->SelectionMode = vtkContextScene::SELECTION_NONE;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -1039,6 +1041,28 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
     }
 
 }
+//-----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
+  {
+  if (this->SelectionMode == selMode ||
+    selMode < vtkContextScene::SELECTION_NONE ||
+     selMode > vtkContextScene::SELECTION_TOGGLE)
+    {
+    return;
+    }
+  this->SelectionMode = selMode;
+  /*
+  // TODO: Should change the chart's mouse button behavior
+  // by SetActionToButton()
+  if(this->SelectionMode == SELECTION_NONE)
+    {
+    }
+  else
+    {
+    }
+  */
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::UpdateSettings()
@@ -1130,4 +1154,8 @@ vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+
+  os << indent << "NumberOfBins: " << this->NumberOfBins << endl;
+  os << indent << "Title: " << this->Title << endl;
+  os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }
