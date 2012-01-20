@@ -40,6 +40,7 @@
 class vtkMultiProcessController;
 class vtkMPIController;
 class vtkMultiProcessStream;
+class vtkMPICommunicator::Request;
 
 class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
   public vtkStructuredGridConnectivity
@@ -138,6 +139,10 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Array of MPI requests
     vtkMPICommunicator::Request *MPIRequests;
     // ETX
+
+    // Description:
+    // Returns true if the two extents are equal, otherwise false.
+    bool GridExtentsAreEqual( int rhs[6], int lhs[6] );
 
     // Description:
     // Returns true iff the grid corresponding to the given ID has point data.
@@ -345,6 +350,21 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
 //  INLINE METHODS
 //=============================================================================
 
+
+inline bool vtkPStructuredGridConnectivity::GridExtentsAreEqual(
+    int rhs[6], int lhs[6] )
+{
+  for( int i=0; i < 6; ++i )
+    {
+    if( rhs[i] != lhs[i] )
+      {
+      return false;
+      }
+    }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
 {
   // Sanity check

@@ -142,8 +142,20 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
   // STEP 0: Compute neighbor send and receive extent
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
+    this->CreateGhostedExtent( i, N );
     this->ComputeNeighborSendAndRcvExtent( i, N );
     }
+
+// BEGIN DEBUG
+//  std::ostringstream oss;
+//  oss << "Process" << this->Rank << "-neis.log";
+//  std::ofstream ofs;
+//  ofs.open( oss.str().c_str() );
+//  assert("ERROR: cannot write log file" && ofs.is_open() );
+//  this->Print( ofs );
+//  ofs.close();
+// END DEBUG
+
   this->Controller->Barrier();
 
   // STEP 1: Exchange ghost-data
@@ -155,7 +167,6 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers( const int N )
     {
     if( this->IsGridLocal( i )  )
       {
-      this->CreateGhostedExtent( i, N );
       this->CreateGhostedMaskArrays( i );
       this->InitializeGhostData( i );
       this->TransferRegisteredDataToGhostedData( i );
@@ -507,8 +518,7 @@ void vtkPStructuredGridConnectivity::UnpackGhostData()
       if( this->IsGridRemote(neiGridIdx) )
         {
         this->DeserializeGhostData(
-            gridIdx, nei, neiGridIdx,
-            this->Neighbors[ gridIdx ][ nei ].RcvExtent,
+            gridIdx,nei,neiGridIdx,this->Neighbors[ gridIdx ][ nei ].RcvExtent,
             this->RcvBuffers[ gridIdx ][ nei ],
             this->RcvBufferSizes[ gridIdx ][ nei ] );
         } // END if the grid is remote
@@ -821,9 +831,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
     {
     return;
     }
-
-  std::cout << "Has points!\n";
-  std::cout.flush();
 
   assert("pre:Remote points for grid is not properly allocated!" &&
      (this->GetNumberOfNeighbors(gridIdx)==
@@ -1148,8 +1155,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
     {
     return;
     }
-  std::cout << "Has PointData!\n";
-  std::cout.flush();
 
   assert("pre:Remote point data for grid is not properly allocated!" &&
       (this->GetNumberOfNeighbors(gridIdx)==
@@ -1221,9 +1226,6 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
     {
     return;
     }
-
-  std::cout << "Has CellData!\n";
-  std::cout.flush();
 
   assert("pre:Remote cell data for grid is not properly allocated!" &&
       (this->GetNumberOfNeighbors(gridIdx)==
@@ -1331,14 +1333,34 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
 //  ofs.close();
 // END DEBUG
 
-  assert("ERROR: extent parsed from byte-stream is not of expected size" &&
-         (s==6));
-  for( int i=0; i < 6; ++i )
-    {
-    assert("ERROR: Serialize send extent must match receive extent" &&
-           ext[i] == rcvext[i] );
-    }
+  assert("ERROR: parsed extent is not of expected size" && (s==6));
+  assert("ERROR: parsed extent does not matched expected receive extent" &&
+          this->GridExtentsAreEqual(ext,rcvext) );
 
+//  std::ostringstream oss;
+//  oss << "Extents-" << this->Rank << "-" << neiGridIdx << ".txt";
+//  std::ofstream ofs;
+//  ofs.open( oss.str().c_str() );
+//  assert( ofs.is_open() );
+//
+//  ofs << "GRID " << gridID << std::endl;
+//  bool error = false;
+//  for( int i=0; i < 6; ++i )
+//    {
+//    ofs << i << " ";
+//    if( ext[i] == rcvext[i] )
+//      {
+//      ofs << ext[i] << "==" << rcvext[i] << "!\n";
+//      }
+//    else
+//      {
+//      ofs << ext[i] << "!=" << rcvext[i] << "!!!\n";
+//      error = true;
+//      }
+//    }
+//
+//  ofs.close();
+//  assert("ERROR: Serialize send extent must match receive extent" && !error );
   delete [] ext;
 
   // STEP 2: De-serialize the grid points

@@ -1568,10 +1568,20 @@ void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
   assert( "pre: Neigbors is not propertly allocated" &&
           (this->NumberOfGrids==this->Neighbors.size() ) );
 
+  int myRealGridExtent[6];
+      this->GetGridExtent( gridID, myRealGridExtent );
+
+  int myGhostedGridExtent[6];
+  this->GetGhostedGridExtent( gridID, myGhostedGridExtent );
+
   int NumNeis = this->Neighbors[ gridID ].size();
   for( int nei=0; nei < NumNeis; ++nei )
     {
+    int neiRealExtent[6];
+    this->GetGridExtent(this->Neighbors[gridID][nei].NeighborID,neiRealExtent);
+
     this->Neighbors[gridID][nei].ComputeSendAndReceiveExtent(
+        myRealGridExtent, myGhostedGridExtent, neiRealExtent,
         this->WholeExtent, N );
     }
 }
@@ -1591,9 +1601,9 @@ void vtkStructuredGridConnectivity::CreateGhostLayers( const int N )
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
     {
-    this->ComputeNeighborSendAndRcvExtent( i, N );
     this->CreateGhostedExtent( i, N );
     this->CreateGhostedMaskArrays( i );
+    this->ComputeNeighborSendAndRcvExtent( i, N );
     this->InitializeGhostData( i );
     this->TransferRegisteredDataToGhostedData( i );
     this->TransferGhostDataFromNeighbors( i );
