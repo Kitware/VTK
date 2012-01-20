@@ -94,7 +94,9 @@ class VTK_FILTERING_EXPORT vtkStructuredNeighbor
     // assumes that the overlap extent and orientation are already computed.
     // Using this information, the method grows the overlap extent to form the
     // Send and Rcv Extents for this neighbor instance.
-    void ComputeSendAndReceiveExtent( int WholeExtent[6], const int N);
+    void ComputeSendAndReceiveExtent(
+        int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
+        int WholeExtent[6], const int N);
 };
 
 //=============================================================================

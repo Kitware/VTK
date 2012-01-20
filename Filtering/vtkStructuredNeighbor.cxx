@@ -69,6 +69,7 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor()
 
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
+      int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N)
 {
 
@@ -76,6 +77,10 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
     {
     switch( this->Orientation[i] )
       {
+      case vtkStructuredNeighbor::SUPERSET:
+        this->SendExtent[i*2]   -= N;
+        this->SendExtent[i*2+1] += N;
+        break;
       case vtkStructuredNeighbor::SUBSET_HI:
       case vtkStructuredNeighbor::HI:
         this->RcvExtent[i*2+1] += N;
@@ -96,6 +101,9 @@ void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
         ; /* NO OP */
       }
 
+    // Hmm...restricting receive extent to the real extent of the neighbor
+    vtkStructuredExtent::Clamp( this->RcvExtent, neiRealExtent );
+    vtkStructuredExtent::Clamp( this->SendExtent, gridRealExtent );
     vtkStructuredExtent::Clamp( this->RcvExtent, WholeExtent );
     vtkStructuredExtent::Clamp( this->SendExtent, WholeExtent );
 
