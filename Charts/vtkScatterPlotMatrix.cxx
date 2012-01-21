@@ -1038,6 +1038,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
       vtkAxis::RIGHT), this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->UpdateChart(this->Private->BigChart,
       this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->BigChart->SetSelectionMode(this->SelectionMode);
     }
 
 }
@@ -1051,16 +1052,8 @@ void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
     return;
     }
   this->SelectionMode = selMode;
-  /*
-  // TODO: Should change the chart's mouse button behavior
-  // by SetActionToButton()
-  if(this->SelectionMode == SELECTION_NONE)
-    {
-    }
-  else
-    {
-    }
-  */
+  this->Private->BigChart->SetSelectionMode(selMode);
+
   this->Modified();
 }
 

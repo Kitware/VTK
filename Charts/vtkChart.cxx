@@ -375,15 +375,14 @@ void vtkChart::SetSelectionMode(int selMode)
     return;
     }
   this->SelectionMode = selMode;
-  /*
-  // TODO: Should change the chart's mouse button behavior
-  // by SetActionToButton()
-  if(this->SelectionMode == SELECTION_NONE)
+  if(this->SelectionMode == vtkContextScene::SELECTION_NONE)
     {
+    this->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::LEFT_BUTTON);
+    this->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::RIGHT_BUTTON);
     }
   else
     {
+    this->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::LEFT_BUTTON);
     }
-  */
   this->Modified();
 }
