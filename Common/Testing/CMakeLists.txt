@@ -107,7 +107,7 @@ IF(PYTHON_EXECUTABLE)
     vtkVariantExtract.h
     vtkVariantInlineOperators.h
     vtkVector.h
-    vtkVectorBase.h
+    vtkTuple.h
     vtkVectorIterator.h
     vtkVectorOperators.h
     vtkVersion.h

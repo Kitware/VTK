@@ -196,7 +196,7 @@ vtkUnsignedShortArray.cxx
 vtkVariant.cxx
 vtkVariantArray.cxx
 vtkVector.h
-vtkVectorBase.h
+vtkTuple.h
 vtkVersion.cxx
 vtkVoidArray.cxx
 vtkWarpTransform.cxx
@@ -401,7 +401,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkMathUtilities
   vtkRect
   vtkVector
-  vtkVectorBase
+  vtkTuple
   HEADER_FILE_ONLY
 )
 
@@ -432,7 +432,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
   vtkVector.h
-  vtkVectorBase.h
+  vtkTuple.h
 
   WRAP_EXCLUDE
 )
@@ -443,7 +443,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkTimeStamp.cxx
   vtkVariant.cxx
   vtkVector.h
-  vtkVectorBase.h
+  vtkTuple.h
 
   PROPERTIES WRAP_SPECIAL 1
 )
