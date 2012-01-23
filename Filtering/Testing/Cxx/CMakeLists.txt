@@ -46,6 +46,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestTriangle.cxx
   TestImageDataInterpolation.cxx
   TestImageDataToStructuredGrid.cxx
+  TestUniformGridGhostDataGenerator.cxx
   ${DataBasedTests}
   ${AMRTests}
   EXTRA_INCLUDE vtkTestDriver.h

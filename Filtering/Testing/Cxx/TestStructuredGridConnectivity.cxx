@@ -844,7 +844,7 @@ int SimpleTest( int argc, char **argv )
 
   std::cout << "Creating/Extending ghost layers...";
   std::cout.flush();
-  vtkMultiBlockDataSet *gmbds = GetGhostedDataSet( mbds, gridConnectivity, nng );
+  vtkMultiBlockDataSet *gmbds = GetGhostedDataSet( mbds,gridConnectivity,nng );
   std::cout << "[DONE]\n";
   std::cout.flush();
 

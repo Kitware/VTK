@@ -61,6 +61,14 @@ vtkDataSetAlgorithm.cxx
 vtkDataSetAttributes.cxx
 vtkDataSetCollection.cxx
 vtkDataSet.cxx
+vtkDataSetGhostGenerator.cxx
+vtkDataSetSource.cxx
+vtkDataSetToDataSetFilter.cxx
+vtkDataSetToImageFilter.cxx
+vtkDataSetToPolyDataFilter.cxx
+vtkDataSetToStructuredGridFilter.cxx
+vtkDataSetToStructuredPointsFilter.cxx
+vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
 vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
@@ -234,6 +242,7 @@ vtkTrivialProducer.cxx
 vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
+vtkUniformGridGhostDataGenerator.cxx
 vtkUniformGridPartitioner.cxx
 vtkUnstructuredGridAlgorithm.cxx
 vtkUniformGridAMR.cxx
@@ -261,6 +270,14 @@ vtkCell3D
 vtkCompositeDataIterator
 vtkCompositeDataSet
 vtkDataSet
+vtkDataSetGhostGenerator
+vtkDataSetSource
+vtkDataSetToDataSetFilter
+vtkDataSetToImageFilter
+vtkDataSetToPolyDataFilter
+vtkDataSetToStructuredGridFilter
+vtkDataSetToStructuredPointsFilter
+vtkDataSetToUnstructuredGridFilter
 vtkDistributedGraphHelper
 vtkExecutive
 vtkExplicitCell
