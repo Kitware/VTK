@@ -12,10 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME TestUniformGridGhostDataGenerator.cxx -- {Enter documentation here!}
+// .NAME TestUniformGridGhostDataGenerator.cxx -- Serial test for ghost data
 //
 // .SECTION Description
-//  TODO: Enter documentation here!
+//  Serial tests for 2-D and 3-D ghost data generation of multi-block uniform
+//  grid datasets. The tests apply an XYZ field to the nodes and cells of the
+//  domain and ensure that the created ghost data have the correct fields.
 
 // C++ includes
 #include <iostream>
@@ -84,7 +86,7 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
 {
   assert("pre: grid should not be NULL" && (grid != NULL) );
   assert("pre: grid should have a NODE-XYZ array" &&
-          grid->GetPointData()->HasArray("CELL-XYZ") );
+          grid->GetCellData()->HasArray("CELL-XYZ") );
 
   double centroid[3];
   double xyz[3];
@@ -119,13 +121,49 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
     for( int i=0; i < 3; ++i )
       {
       if( !vtkMathUtilities::FuzzyCompare(
-          centroid[3],array->GetComponent(cellIdx,i)) )
+          centroid[i],array->GetComponent(cellIdx,i)) )
         {
         return false;
         } // END if fuzz-compare
       } // END for all components
     } // END for all cells
   return true;
+}
+
+//------------------------------------------------------------------------------
+int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
+{
+  assert("pre: input multi-block is NULL" && (mbds != NULL) );
+
+  if( !hasNodeData && !hasCellData )
+    {
+    return 0;
+    }
+
+  for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
+    {
+    vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
+    assert("pre: grid is not NULL" && (grid != NULL) );
+
+    if( hasNodeData )
+      {
+      if( !CheckNodeFieldsForGrid( grid ) )
+        {
+        return 1;
+        }
+      }
+
+    if( hasCellData )
+      {
+      if( !CheckCellFieldsForGrid( grid ) )
+        {
+        return 1;
+        }
+      }
+
+    } // END for all blocks
+
+  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -282,25 +320,67 @@ vtkMultiBlockDataSet* GetDataSet(
 //------------------------------------------------------------------------------
 // Description:
 // Tests UniformGridGhostDataGenerator
-int Test2D(const bool hasNodeData, const bool hasCellData)
+int Test2D(
+    const bool hasNodeData,const bool hasCellData,
+    const int numPartitions, const int numGhosts)
 {
   int rc = 0;
 
-  int numberOfPartitions[] = {2, 4, 8, 16, 32, 64, 128, 256};
+  int WholeExtent[6] = {0,49,0,49,0,0};
+  double h[3] = {0.5,0.5,0.5};
+  double p[3] = {0.0,0.0,0.0};
 
-  for( int i=0; i < 8; ++i )
-    {
+  vtkMultiBlockDataSet *mbds = GetDataSet(p,WholeExtent,h,
+      numPartitions,numGhosts,hasNodeData,hasCellData);
+//  WriteMultiBlock( mbds, "INITIAL");
 
-    } // END for all number of partitions
+  vtkUniformGridGhostDataGenerator *ghostDataGenerator =
+      vtkUniformGridGhostDataGenerator::New();
+
+  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetNumberOfGhostLayers( 1 );
+  ghostDataGenerator->Update();
+
+  vtkMultiBlockDataSet *ghostedDataSet = ghostDataGenerator->GetOutput();
+//  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
+
+
+  rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
+  mbds->Delete();
+  ghostDataGenerator->Delete();
   return rc;
 }
 
 //------------------------------------------------------------------------------
 // Description:
 // Tests UniformGridGhostDataGenerator
-int Test3D()
+int Test3D(
+    const bool hasNodeData, const bool hasCellData,
+    const int numPartitions, const int numGhosts )
 {
   int rc = 0;
+  int WholeExtent[6] = {0,49,0,49,0,49};
+  double h[3] = {0.5,0.5,0.5};
+  double p[3] = {0.0,0.0,0.0};
+
+  vtkMultiBlockDataSet *mbds = GetDataSet(p,WholeExtent,h,
+      numPartitions,numGhosts,hasNodeData,hasCellData);
+//  WriteMultiBlock( mbds, "INITIAL");
+
+  vtkUniformGridGhostDataGenerator *ghostDataGenerator =
+      vtkUniformGridGhostDataGenerator::New();
+
+  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetNumberOfGhostLayers( 1 );
+  ghostDataGenerator->Update();
+
+  vtkMultiBlockDataSet *ghostedDataSet = ghostDataGenerator->GetOutput();
+//  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
+
+
+  rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
+  mbds->Delete();
+  ghostDataGenerator->Delete();
   return rc;
 }
 
@@ -311,7 +391,8 @@ int TestUniformGridGhostDataGenerator(int, char *[])
 {
   int rc = 0;
 
-  rc += Test2D(true,false);
-  rc += Test3D();
+  rc += Test2D(true,false,4,0);
+  rc += Test2D(true,true,16,0);
+  rc += Test3D(false,true,8,0);
   return( rc );
 }
