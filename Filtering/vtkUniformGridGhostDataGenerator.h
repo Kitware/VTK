@@ -92,6 +92,10 @@ class VTK_FILTERING_EXPORT vtkUniformGridGhostDataGenerator :
     double GlobalSpacing[3];
     double GlobalOrigin[3];
     vtkStructuredGridConnectivity *GridConnectivity;
+
+  private:
+    vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&); // Not implemented
+    void operator=(const vtkUniformGridGhostDataGenerator&); // Not implemented
 };
 
 #endif /* VTKUNIFORMGRIDGHOSTDATAGENERATOR_H_ */
