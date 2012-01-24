@@ -80,6 +80,7 @@ vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkPStructuredGridConnectivity.cxx
 vtkPTableToStructuredGrid.cxx
+vtkPUniformGridGhostDataGenerator.cxx
 vtkPYoungsMaterialInterface.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
