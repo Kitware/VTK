@@ -63,6 +63,10 @@ class VTK_PARALLEL_EXPORT vtkPDataSetGhostGenerator :
     int Rank;
     bool Initialized;
     vtkMultiProcessController *Controller;
+
+  private:
+    vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&); // Not implemented
+    void operator=(const vtkPDataSetGhostGenerator&); // Not implemented
 };
 
 #endif /* VTKPDATASETGHOSTGENERATOR_H_ */

@@ -54,6 +54,7 @@ vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
 vtkPCosmoHaloFinder.cxx
 vtkPCosmoReader.cxx
+vtkPDataSetGhostGenerator.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
@@ -133,6 +134,7 @@ vtkAMRUtilities
 vtkCommunicator 
 vtkMultiProcessController
 vtkMultiProcessStream
+vtkPDataSetGhostGenerator
 vtkPStreamTracer
 vtkProcess
 ABSTRACT

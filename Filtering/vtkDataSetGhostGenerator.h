@@ -67,6 +67,11 @@ class VTK_FILTERING_EXPORT vtkDataSetGhostGenerator:
 
 
     int NumberOfGhostLayers;
+
+  private:
+    vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&); // Not implemented
+    void operator=(const vtkDataSetGhostGenerator&); // Not implemented
+
 };
 
 #endif /* VTKDATASETGHOSTGENERATOR_H_ */

@@ -14,6 +14,11 @@
  =========================================================================*/
 #include "vtkPDataSetGhostGenerator.h"
 
+#include "vtkMultiProcessController.h"
+#include "vtkMultiBlockDataSet.h"
+
+#include <cassert>
+
 vtkPDataSetGhostGenerator::vtkPDataSetGhostGenerator()
 {
   this->Initialized = false;
@@ -23,6 +28,12 @@ vtkPDataSetGhostGenerator::vtkPDataSetGhostGenerator()
 //------------------------------------------------------------------------------
 vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator()
 {
+}
+
+//------------------------------------------------------------------------------
+void vtkPDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //------------------------------------------------------------------------------
