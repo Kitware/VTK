@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkBoundingBox_h
 #define __vtkBoundingBox_h
 #include "vtkSystemIncludes.h"
-
+ 
 class VTK_COMMON_EXPORT vtkBoundingBox 
 {
 public:
@@ -94,6 +94,14 @@ public:
   // Description:
   // Returns 1 if the boxes intersect else returns 0
   int Intersects(const vtkBoundingBox &bbox) const;
+
+
+  // Desciption:
+  // Intersect this box with the half space defined by plane. 
+   //Returns true if there is intersection---which implies that the box has been modified
+  // Returns false otherwise
+  bool IntersectPlane(double origin[3],double normal[3]);
+
 
   // Description:
   // Returns 1 if the min and max points of bbox are contained 

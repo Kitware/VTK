@@ -13,8 +13,23 @@
 
 =========================================================================*/
 #include "vtkBoundingBox.h"
+#include <vtkMath.h>
+#include <vtkPlane.h>
 #include <assert.h>
 #include <math.h>
+
+// ---------------------------------------------------------------------------
+namespace
+{
+  inline double Sign(const double& a)
+  {
+    return a>0.0?  1.0 : ( a<0? -1.0 : 0.0);
+  }
+  inline bool OppSign(const double& a, const double& b)
+  {
+    return (a<=0 && b>=0) || (a>=0 && b<=0);
+  }
+};
 
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::AddPoint(double px, double py, double pz)
@@ -369,4 +384,93 @@ void vtkBoundingBox::Scale(double sx,
 void vtkBoundingBox::Scale(double s[3])
 {
   this->Scale(s[0],s[1],s[2]);
+}
+
+
+// ---------------------------------------------------------------------------
+// Desciption:
+// Intersect this box with the half space defined by plane. 
+ //Returns 1 if there is intersection---which implies that the box has been modified
+// Returns 0 otherwise
+// The algorithm:  
+//   Because the change can only happens in one axis aligned direction,
+//    we first figure out which direction it is (stored in dir), then
+//    update the bounding interval in that direction based on intersection 
+//    of the plane with the four edges
+
+bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3]) 
+{ 
+  double* bounds[2] = {this->MinPnt,this->MaxPnt}; 
+  assert(this->IsValid());
+
+  //Index[0..2] represents the order of traversing the corners of a cube
+  //  in (x,y,z), (y,x,z) and (z,x,y) ordering, respectively  
+  static const char Index[3][8] =
+    {  {0, 1, 2, 3, 4, 5, 6, 7},
+       {0, 1, 4, 5, 2, 3, 6, 7}, 
+       {0, 2, 4, 6, 1, 3, 5, 7}};
+      
+ 
+  double d[8]={0,0,0,0,0,0,0,0}; //stores the signed distance to a plane                                
+    {
+    int index(-1);
+    for(int ix = 0; ix<=1; ix++)
+      {
+      for(int iy = 0; iy<=1; iy++)
+        {
+        for(int iz = 0; iz<=1; iz++)
+          {
+          double x[3]={bounds[ix][0],bounds[iy][1],bounds[iz][2]};
+          d[++index] = vtkPlane::Evaluate(normal,origin,x);
+          }
+        }
+      }
+    } 
+
+  int dir(-1);
+  for(dir=2;dir>=0; dir--)
+    {
+    //in each direction, we test if the vertices of two orthogonal faces
+    //are on either side of the plane
+    if( OppSign(d[Index[dir][0]], d[Index[dir][4]])  &&
+        OppSign(d[Index[dir][1]], d[Index[dir][5]])  &&
+        OppSign(d[Index[dir][2]], d[Index[dir][6]])  &&
+        OppSign(d[Index[dir][3]], d[Index[dir][7]]) )
+      {
+      break;
+      }
+    } 
+  if(dir<0)
+    {
+      return false;
+    }
+
+  double sign = Sign(normal[dir]);
+  double size = fabs((bounds[1][dir] - bounds[0][dir])*normal[dir]);
+  double t = sign>0? 1 : 0;
+  for(int i=0; i<4; i++)
+    {
+      if(size==0) continue;  //shouldn't happen
+      double ti = fabs(d[Index[dir][i]])/ size;
+      if(sign>0 && ti<t )
+        {
+        t = ti;
+        }
+      if(sign<0 && ti>t)
+        {
+        t = ti;
+        }
+    }
+  double bound = (1.0-t)*bounds[0][dir] + t*bounds[1][dir];
+
+  if(sign>0)
+    {
+    bounds[0][dir] = bound;
+    }
+  else
+    {
+    bounds[1][dir] = bound;
+    }
+ 
+  return true;
 }
