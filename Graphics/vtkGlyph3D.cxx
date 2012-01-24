@@ -409,6 +409,9 @@ int vtkGlyph3D::RequestData(
     
     if ( haveVectors )
       {
+      v[0] = 0;
+      v[1] = 0;
+      v[2] = 0;
       if ( this->VectorMode == VTK_USE_NORMAL )
         {
         inNormals->GetTuple(inPtId, v);
