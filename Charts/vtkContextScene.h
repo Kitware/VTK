@@ -172,6 +172,16 @@ public:
   // Check whether the scene has a transform.
   bool HasTransform() { return this->Transform != 0; }
 
+  // Description:
+  // Enum of valid selection modes for charts in the scene
+  enum {
+    SELECTION_NONE = 0,
+    SELECTION_DEFAULT,
+    SELECTION_ADDITION,
+    SELECTION_SUBTRACTION,
+    SELECTION_TOGGLE
+    };
+
 protected:
   vtkContextScene();
   ~vtkContextScene();

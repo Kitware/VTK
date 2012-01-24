@@ -33,6 +33,7 @@
 #include "vtkPlotPoints.h"
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
+#include "vtkContextScene.h"
 
 // STL includes
 #include <map>
@@ -237,6 +238,7 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix() : NumberOfBins(10)
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
+  this->SelectionMode = vtkContextScene::SELECTION_NONE;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -1036,8 +1038,23 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
       vtkAxis::RIGHT), this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->UpdateChart(this->Private->BigChart,
       this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->BigChart->SetSelectionMode(this->SelectionMode);
     }
 
+}
+//-----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
+  {
+  if (this->SelectionMode == selMode ||
+    selMode < vtkContextScene::SELECTION_NONE ||
+     selMode > vtkContextScene::SELECTION_TOGGLE)
+    {
+    return;
+    }
+  this->SelectionMode = selMode;
+  this->Private->BigChart->SetSelectionMode(selMode);
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1130,4 +1147,8 @@ vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+
+  os << indent << "NumberOfBins: " << this->NumberOfBins << endl;
+  os << indent << "Title: " << this->Title << endl;
+  os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }

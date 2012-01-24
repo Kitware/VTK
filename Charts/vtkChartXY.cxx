@@ -1383,6 +1383,49 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 
 //-----------------------------------------------------------------------------
 namespace {
+void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
+{
+  // We rely on the selection id arrays being sorted.
+  std::vector<vtkIdType> output;
+  vtkIdType *ptrSelection =
+      static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  vtkIdType *ptrOldSelection =
+      static_cast<vtkIdType *>(oldSelection->GetVoidPointer(0));
+  vtkIdType oldSize = oldSelection->GetNumberOfTuples();
+  vtkIdType size = selection->GetNumberOfTuples();
+  vtkIdType i = 0;
+  vtkIdType iOld = 0;
+
+  while (i < size && iOld < oldSize)
+    {
+    if (ptrSelection[i] > ptrOldSelection[iOld]) // Skip the value.
+      {
+      output.push_back(ptrOldSelection[iOld++]);
+      }
+    else if (ptrSelection[i] == ptrOldSelection[iOld]) // Match - remove.
+      {
+      ++i;
+      ++iOld;
+      }
+    else if (ptrSelection[i] < ptrOldSelection[iOld]) // Add the new value.
+      {
+      ++i;
+      }
+    }
+  while (iOld < oldSize)
+    {
+    output.push_back(ptrOldSelection[iOld++]);
+    }
+  selection->SetNumberOfTuples(output.size());
+  ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
+  for (std::vector<vtkIdType>::iterator it = output.begin();
+       it != output.end(); ++it, ++ptrSelection)
+    {
+    *ptrSelection = *it;
+    }
+  }
+}
+
 void BuildSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection,
                     bool add, bool toggle)
 {
@@ -1455,7 +1498,6 @@ void BuildSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection,
       }
     }
 }
-}
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
@@ -1502,8 +1544,16 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     // Add to the selection if the shift key was pressed.
     bool addToSelection =
           (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER) != 0;
+    if (this->SelectionMode == vtkContextScene::SELECTION_ADDITION)
+      {
+      addToSelection = true;
+      }
     bool toggleSelection =
           (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER) != 0;
+    if (this->SelectionMode == vtkContextScene::SELECTION_TOGGLE)
+      {
+      toggleSelection = true;
+      }
     if (fabs(this->MouseBox.Width()) < 0.5 || fabs(this->MouseBox.Height()) < 0.5)
       {
       // Invalid box size - do nothing
@@ -1563,8 +1613,15 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
               selection->AddNode(node);
               node->SetContentType(vtkSelectionNode::INDICES);
               node->SetFieldType(vtkSelectionNode::POINT);
-              BuildSelection(plot->GetSelection(), oldSelection.GetPointer(),
-                             addToSelection, toggleSelection);
+              if (addToSelection || toggleSelection)
+                {
+                BuildSelection(plot->GetSelection(), oldSelection.GetPointer(),
+                               addToSelection, toggleSelection);
+                }
+              else if (this->SelectionMode == vtkContextScene::SELECTION_SUBTRACTION)
+                {
+                MinusSelection(plot->GetSelection(), oldSelection.GetPointer());
+                }
               node->SetSelectionList(plot->GetSelection());
               this->AnnotationLink->SetCurrentSelection(selection);
               node->Delete();
