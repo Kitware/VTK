@@ -112,6 +112,20 @@ public:
   vtkGetMacro(ActiveComponent,int);
 
   // Description:
+  // The radius of the neighborhood that must be within the threshold
+  // values in order for the voxel to be included in the mask.  The
+  // default radius is zero (one single voxel).  The radius is measured
+  // in voxels.
+  vtkSetVector3Macro(NeighborhoodRadius, double);
+  vtkGetVector3Macro(NeighborhoodRadius, double);
+
+  // Description:
+  // The fraction of the neighborhood that must be within the thresholds.
+  // The default value is 0.5.
+  vtkSetClampMacro(NeighborhoodFraction, double, 0.0, 1.0);
+  vtkGetMacro(NeighborhoodFraction, double);
+
+  // Description:
   // Override the MTime to account for the seed points.
   unsigned long GetMTime();
 
@@ -126,10 +140,13 @@ protected:
 
   double UpperThreshold;
   double LowerThreshold;
-  int ReplaceIn;
   double InValue;
-  int ReplaceOut;
   double OutValue;
+  int ReplaceIn;
+  int ReplaceOut;
+
+  double NeighborhoodRadius[3];
+  double NeighborhoodFraction;
 
   vtkPoints *SeedPoints;
 
