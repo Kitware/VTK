@@ -87,6 +87,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
                           vtkCommon 
                           vtkParallel 
                           ${MPI_LIBRARIES})
+                          
+    ADD_EXECUTABLE(TestPUniformGridGhostDataGenerator
+                   TestPUniformGridGhostDataGenerator.cxx)
+    TARGET_LINK_LIBRARIES(TestPUniformGridGhostDataGenerator
+                          vtkCommon
+                          vtkParallel
+                          ${MPI_LIBRARIES})
     
     ADD_EXECUTABLE(TestMPIController MPIController.cxx
       ExerciseMultiProcessController.cxx)
@@ -148,11 +155,13 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
 
     IF (VTK_MPIRUN_EXE)
       ADD_TEST(MPIController
-        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} 
+        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
         ${VTK_MPI_PREFLAGS}
         ${CXX_TEST_PATH}${CXX_TEST_CONFIG}/TestMPIController
         ${VTK_MPI_POSTFLAGS}
         )
+        
       ADD_TEST(TestProcess
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}${CXX_TEST_CONFIG}/TestProcess
@@ -162,7 +171,22 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
             ${CXX_TEST_PATH}/TestAMRUtilities
             ${VTK_MPI_POSTFLAGS} )
+      
+      ADD_TEST(PStructuredGridConnectivity 
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} 
+        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestPStructuredGridConnectivity
+        ${VTK_MPI_POSTFLAGS}
+        )
 
+     ADD_TEST(PUniformGridGhostDataGenerator
+        ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} 
+        ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+        ${VTK_MPI_PREFLAGS}
+        ${CXX_TEST_PATH}/${CXX_TEST_CONFIG}/TestPUniformGridGhostDataGenerator
+        ${VTK_MPI_POSTFLAGS}
+        )
     ENDIF (VTK_MPIRUN_EXE)
 
     # This definition looks wrong in multiple respects:

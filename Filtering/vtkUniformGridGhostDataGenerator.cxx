@@ -28,10 +28,12 @@ vtkUniformGridGhostDataGenerator::vtkUniformGridGhostDataGenerator()
   this->GridConnectivity = vtkStructuredGridConnectivity::New();
 
   this->GlobalOrigin[0] =
-  this->GlobalOrigin[1] = this->GlobalOrigin[2] = VTK_DOUBLE_MAX;
+  this->GlobalOrigin[1] =
+  this->GlobalOrigin[2] = VTK_DOUBLE_MAX;
 
   this->GlobalSpacing[0] =
-  this->GlobalSpacing[1] = this->GlobalSpacing[2] = VTK_DOUBLE_MIN;
+  this->GlobalSpacing[1] =
+  this->GlobalSpacing[2] = VTK_DOUBLE_MIN;
 }
 
 //------------------------------------------------------------------------------
@@ -93,7 +95,7 @@ void vtkUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
   assert("pre: Multi-block dataset is NULL" && (in != NULL) );
 
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
-  this->GridConnectivity->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
+  this->GridConnectivity->SetNumberOfGhostLayers( 0 );
   this->GridConnectivity->SetWholeExtent( in->GetWholeExtent() );
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
@@ -173,11 +175,11 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
 void vtkUniformGridGhostDataGenerator::GenerateGhostLayers(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out )
 {
-  assert( "pre: Number of ghost-layers must be greater than 0!" &&
-          (this->NumberOfGhostLayers > 0) );
-  assert( "pre: Input dataset is NULL!" && (in != NULL));
-  assert( "pre: Output dataset is NULL!" && (out != NULL) );
-  assert( "pre: GridConnectivity is NULL!" && (this->GridConnectivity != NULL));
+  assert("pre: Number of ghost-layers must be greater than 0!" &&
+         (this->NumberOfGhostLayers > 0) );
+  assert("pre: Input dataset is NULL!" && (in != NULL));
+  assert("pre: Output dataset is NULL!" && (out != NULL) );
+  assert("pre: GridConnectivity is NULL!" && (this->GridConnectivity != NULL));
 
   // STEP 0: Register grids & compute global grid parameters
   this->RegisterGrids( in );
