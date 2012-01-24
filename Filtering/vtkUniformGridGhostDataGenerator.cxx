@@ -142,18 +142,23 @@ void vtkUniformGridGhostDataGenerator::CreateGhostedDataSet(
     vtkUniformGrid *ghostedGrid = vtkUniformGrid::New();
     assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != NULL));
 
-    // STEP 3: Set ghosted uniform grid attributes
+    // STEP 3: Get ghosted grid origin
+    origin[0] = this->GlobalOrigin[0]+ghostedExtent[0]*this->GlobalSpacing[0];
+    origin[1] = this->GlobalOrigin[1]+ghostedExtent[2]*this->GlobalSpacing[1];
+    origin[2] = this->GlobalOrigin[2]+ghostedExtent[4]*this->GlobalSpacing[2];
+
+    // STEP 4: Set ghosted uniform grid attributes
     ghostedGrid->SetOrigin( origin );
     ghostedGrid->SetDimensions( dims );
     ghostedGrid->SetSpacing( this->GlobalSpacing );
 
-    // STEP 4: Copy the node/cell data
+    // STEP 5: Copy the node/cell data
     ghostedGrid->GetPointData()->DeepCopy(
         this->GridConnectivity->GetGhostedGridPointData(i) );
     ghostedGrid->GetCellData()->DeepCopy(
         this->GridConnectivity->GetGhostedGridCellData(i) );
 
-    // STEP 5: Copy the ghost arrays
+    // STEP 6: Copy the ghost arrays
     ghostedGrid->SetPointVisibilityArray(
         this->GridConnectivity->GetGhostedPointGhostArray( i ) );
     ghostedGrid->SetCellVisibilityArray(
