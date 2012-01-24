@@ -53,6 +53,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 )
 
 ADD_EXECUTABLE(TestStructuredGridConnectivity TestStructuredGridConnectivity.cxx)
+ADD_TEST(StructuredGridConnectivityTest ${CXX_TEST_PATH}/TestStructuredGridConnectivity)
 TARGET_LINK_LIBRARIES(TestStructuredGridConnectivity vtkCommon vtkFiltering vtkIO)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
