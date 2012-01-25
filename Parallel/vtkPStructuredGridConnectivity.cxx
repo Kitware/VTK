@@ -367,7 +367,12 @@ void vtkPStructuredGridConnectivity::SerializeBufferSizes(
   assert("pre: Number of sends should be at least 1" &&
          (this->TotalNumberOfSends >= 1) );
 
-  N        = 3*this->TotalNumberOfSends;
+  int k = 0;
+  for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
+    {
+    k += this->GetNumberOfNeighbors( this->GridIds[idx] );
+    }
+  N        = 3*k;
   sizesbuf = new int[ N ];
   assert("pre: Cannot allocate sizes buffer" && (sizesbuf != NULL) );
 
@@ -1126,16 +1131,6 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
   // STEP 0: Get the grid's node extent
   int GridExtent[6];
   this->GetGridExtent( gridIdx, GridExtent );
-
-  std::cout << "GridExtent: ";
-  this->PrintExtent(GridExtent);
-  std::cout << std::endl;
-  std::cout.flush();
-
-  std::cout << "Extent: ";
-  this->PrintExtent( ext );
-  std::cout << std::endl;
-  std::cout.flush();
 
   // STEP 1: Serialize the node data
   bytestream << 1;
