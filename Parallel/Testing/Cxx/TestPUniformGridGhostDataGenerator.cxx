@@ -247,7 +247,10 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
     {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is not NULL" && (grid != NULL) );
+    if( grid == NULL )
+      {
+      continue;
+      }
 
     if( hasNodeData )
       {
@@ -389,7 +392,7 @@ int Test2D(
     {
     AddCellCenteredXYZField( mbds );
     }
-  WriteDistributedDataSet( "P2DInitial", mbds );
+//  WriteDistributedDataSet( "P2DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -401,7 +404,7 @@ int Test2D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
+//  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
@@ -431,7 +434,7 @@ int Test3D(
     {
     AddCellCenteredXYZField( mbds );
     }
-  WriteDistributedDataSet("P3DInitial", mbds );
+//  WriteDistributedDataSet("P3DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -443,7 +446,7 @@ int Test3D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
+//  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
@@ -466,37 +469,44 @@ int main(int argc, char **argv)
   assert( "pre: Rank is out-of-bounds" && (Rank >= 0) );
 
   // 2-D tests
-//  Logger::Print( "Testing 2-D dataset with no field data..." );
-//  rc += Test2D( false,false,1,1);
-//  assert( rc == 0);
-//  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 2-D data-set with node-centered data..." );
-  rc += Test2D( true, false, 1, 2 );
+  Logger::Print( "Testing 2-D dataset with no field data..." );
+  rc += Test2D( false,false,1,1);
   assert( rc == 0);
   Logger::Println( "[DONE]" );
 
-//
-//  Logger::Print( "Testing 2-D data-set with cell-centered data..." );
-//  rc += Test2D( false, true, 1,1 );
-//  assert( rc == 0);
-//  Logger::Println( "[DONE]" );
-//
-//  Logger::Print( "Testing 2-D data-set with both node/cell centered data..." );
-//  rc += Test2D( true, true, 1, 1 );
-//  assert( rc == 0);
-//  Logger::Println( "[DONE]" );
-//
-//  Logger::Print( "Testing 2-D data-set with 3 layers of ghost data..." );
-//  rc += Test2D( true, true, 1, 3 );
-//  assert( rc == 0);
-//  Logger::Println( "[DONE]" );
-//
-//  // 3-D Tests
-//  Logger::Print( "Testing 3-D data-set..." );
-//  rc += Test3D( true, false, 1, 1 );
-//  Logger::Println( "[DONE]" );
+  Logger::Print( "Testing 2-D data-set with node-centered data..." );
+  rc += Test2D( true, false, 1, 1 );
+  assert( rc == 0);
+  Logger::Println( "[DONE]" );
 
+  Logger::Print( "Testing 2-D data-set with cell-centered data..." );
+  rc += Test2D( false, true, 1,1 );
+  assert( rc == 0);
+  Logger::Println( "[DONE]" );
+
+  Logger::Print( "Testing 2-D data-set with both node/cell centered data..." );
+  rc += Test2D( true, true, 1, 1 );
+  assert( rc == 0);
+  Logger::Println( "[DONE]" );
+
+  Logger::Print( "Testing 2-D data-set with 3 layers of ghost data..." );
+  rc += Test2D( true, true, 1, 3 );
+  assert( rc == 0);
+  Logger::Println( "[DONE]" );
+
+  // 3-D Tests
+  Logger::Print( "Testing 3-D data-set..." );
+  rc += Test3D( true, false, 1, 1 );
+  Logger::Println( "[DONE]" );
+
+  Logger::Print( "Testing 3-D data-set..." );
+  rc += Test3D( true, true, 1, 4 );
+  Logger::Println( "[DONE]" );
+
+  Logger::Print(
+     "Testing 3-D data-set where each process has more than one blocks...");
+  rc += Test3D( true, true, 2, 4 );
+  Logger::Println( "[DONE]" );
   Controller->Finalize();
   Controller->Delete();
   return( rc );
