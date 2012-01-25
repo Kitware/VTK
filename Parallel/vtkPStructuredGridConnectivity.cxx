@@ -747,9 +747,6 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
     return;
     }
 
-  std::cout << "Serialize points!\n";
-  std::cout.flush();
-
   // STEP 1: Otherwise, put a "1" in the bytestream to indicate that the are
   // points included in the bytestream
   bytestream << 1;
@@ -1041,7 +1038,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
           // Compute the source index from the grid extent. Note, this could
           // be a cell index if the incoming GridExtent and ext are cell extents.
           vtkIdType sourceIdx =
-              vtkStructuredData::ComputePointIdForExtent(ijk,GridExtent);
+              vtkStructuredData::ComputePointIdForExtent(GridExtent,ijk);
           assert("pre: source index is out-of-bounds!" &&
                  (sourceIdx >=  0) &&
                  (sourceIdx < myArray->GetNumberOfTuples() ) );
@@ -1049,7 +1046,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
           // Compute the target index from the grid extent. Note, this could
           // be a cell index if the incoming GridExtent and ext are cell extents.
           vtkIdType targetIdx =
-              vtkStructuredData::ComputePointIdForExtent(ijk,ext);
+              vtkStructuredData::ComputePointIdForExtent(ext,ijk);
           assert("pre: target index is out-of-bounds!" &&
                  (targetIdx >= 0) &&
                  (targetIdx < ghostArray->GetNumberOfTuples() ) );
@@ -1119,12 +1116,19 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
     return;
     }
 
-  std::cout << "Serialize point data!\n";
-  std::cout.flush();
-
   // STEP 0: Get the grid's node extent
   int GridExtent[6];
   this->GetGridExtent( gridIdx, GridExtent );
+
+  std::cout << "GridExtent: ";
+  this->PrintExtent(GridExtent);
+  std::cout << std::endl;
+  std::cout.flush();
+
+  std::cout << "Extent: ";
+  this->PrintExtent( ext );
+  std::cout << std::endl;
+  std::cout.flush();
 
   // STEP 1: Serialize the node data
   bytestream << 1;
@@ -1182,9 +1186,6 @@ void vtkPStructuredGridConnectivity::SerializeGhostCellData(
     bytestream << 0;
     return;
     }
-
-  std::cout << "SerializeGhostCellData !\n";
-  std::cout.flush();
 
   // STEP 0: Get the grid node/cell extent
   int GridExtent[6];
