@@ -32,7 +32,7 @@ foreach rin $replacein {
         thresh$k SetOutValue 0
         thresh$k $rin
         thresh$k $rout
-        thresh$k SetNeighborhoodRadius 0 0 0
+        thresh$k SetNeighborhoodRadius 2 2 1
         thresh$k SetNeighborhoodFraction 0.5
         thresh$k SetInputConnection [reader GetOutputPort]
         eval thresh$k $t
