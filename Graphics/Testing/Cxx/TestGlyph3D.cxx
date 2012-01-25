@@ -27,9 +27,69 @@
 #include <vtkPointData.h>
 #include <vtkConeSource.h>
 #include <vtkCamera.h>
+#include <vtkCommand.h>
+
+class ErrorObserver
+{
+  bool Error;
+public:
+  ErrorObserver():Error(false)
+  {
+  }
+  bool GetError() const
+  {
+    return this->Error;
+  }
+  void onErrorEvent()
+  {
+    this->Error  = true;
+  }
+};
+static bool TestGlyph3D_WithBadArray()
+{
+  vtkSmartPointer<vtkDoubleArray> vectors = 
+    vtkSmartPointer<vtkDoubleArray>::New();
+  vectors->SetName("Normals"); 
+  vectors->SetNumberOfComponents(4);
+  vectors->InsertNextTuple4(1,1,1,1);
+ 
+  vtkSmartPointer<vtkPoints> points = 
+    vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(0,0,0); 
+  vtkSmartPointer<vtkPolyData> polydata = 
+    vtkSmartPointer<vtkPolyData>::New(); 
+  polydata->SetPoints(points);
+   
+  polydata->GetPointData()->AddArray(vectors); 
+  polydata->Update();
+
+  vtkSmartPointer<vtkPolyData> glyph = 
+    vtkSmartPointer<vtkPolyData>::New();
+ 
+  vtkSmartPointer<vtkConeSource> glyphSource = 
+      vtkSmartPointer<vtkConeSource>::New();
+ 
+  vtkSmartPointer<vtkGlyph3D> glyph3D = 
+    vtkSmartPointer<vtkGlyph3D>::New(); 
+  glyph3D->SetSource(glyphSource->GetOutput());
+  glyph3D->SetInput(polydata);
+  glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
+  glyph3D->SetVectorModeToUseVector(); 
+  ErrorObserver*  errorObserver= new ErrorObserver();
+  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver,&ErrorObserver::onErrorEvent);
+  glyph3D->Update(); 
+  bool res = errorObserver->GetError();
+  delete errorObserver;
+  return res;
+}
 
 int TestGlyph3D(int argc, char* argv[])
 {
+  if(!TestGlyph3D_WithBadArray())
+    {
+    return EXIT_FAILURE;
+    }
+
   vtkSmartPointer<vtkDoubleArray> vectors = 
     vtkSmartPointer<vtkDoubleArray>::New();
   vectors->SetName("Normals"); 
@@ -43,6 +103,7 @@ int TestGlyph3D(int argc, char* argv[])
   points->InsertNextPoint(0,0,0);
   points->InsertNextPoint(1,1,1);
   points->InsertNextPoint(2,2,2);
+
   vtkSmartPointer<vtkPolyData> polydata = 
     vtkSmartPointer<vtkPolyData>::New(); 
   polydata->SetPoints(points);

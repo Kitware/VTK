@@ -412,10 +412,10 @@ int vtkGlyph3D::RequestData(
       vtkDataArray *array3D = this->VectorMode == VTK_USE_NORMAL? inNormals : inVectors;
       if(array3D->GetNumberOfComponents()>3)
         {
-        vtkDebugMacro(<<"vtkDataArray "<<array3D->GetName()<<" has more than 3 components.\n");
+        vtkErrorMacro(<<"vtkDataArray "<<array3D->GetName()<<" has more than 3 components.\n");
         pts->Delete();
         trans->Delete();
-        return 1;
+        return 0;
         }
 
       v[0] = 0;
