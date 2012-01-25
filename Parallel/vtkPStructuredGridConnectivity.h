@@ -283,7 +283,7 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Description:
     // Helper method to deserialize the data array from a bytestream.
     void DeserializeDataArray(
-        vtkDataArray *dataArray,const int dataType,
+        vtkDataArray *&dataArray,const int dataType,
         const int numberOfTuples, const int numberOfComponents,
         vtkMultiProcessStream& bytestream );
 

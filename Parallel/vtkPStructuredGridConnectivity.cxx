@@ -710,6 +710,12 @@ void vtkPStructuredGridConnectivity::ExchangeGhostData()
   this->RemotePoints.resize( this->NumberOfGrids);
   this->RemotePointData.resize( this->NumberOfGrids);
   this->RemoteCellData.resize( this->NumberOfGrids);
+  for( unsigned int i=0; i < this->NumberOfGrids; ++i )
+    {
+    this->RemotePoints[ i ].resize( this->GetNumberOfNeighbors(i),    NULL );
+    this->RemotePointData[ i ].resize( this->GetNumberOfNeighbors(i), NULL );
+    this->RemoteCellData[ i ].resize( this->GetNumberOfNeighbors(i),  NULL );
+    }
 
   this->SendBuffers.resize(this->NumberOfGrids);
   this->RcvBuffers.resize(this->NumberOfGrids);
@@ -895,7 +901,7 @@ void vtkPStructuredGridConnectivity::SerializeDataArray(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeDataArray(
-    vtkDataArray *dataArray,
+    vtkDataArray *&dataArray,
     const int dataType,
     const int numberOfTuples,
     const int numberOfComponents,
@@ -988,6 +994,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
       break;
     default:
       vtkErrorMacro("Cannot de-serialize data array of this type");
+      assert(false);
     }
 }
 
