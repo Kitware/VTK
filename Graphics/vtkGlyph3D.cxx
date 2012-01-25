@@ -409,17 +409,19 @@ int vtkGlyph3D::RequestData(
     
     if ( haveVectors )
       {
+      vtkDataArray *array3D = this->VectorMode == VTK_USE_NORMAL? inNormals : inVectors;
+      if(array3D->GetNumberOfComponents()>3)
+        {
+        vtkDebugMacro(<<"vtkDataArray "<<array3D->GetName()<<" has more than 3 components.\n");
+        pts->Delete();
+        trans->Delete();
+        return 1;
+        }
+
       v[0] = 0;
       v[1] = 0;
       v[2] = 0;
-      if ( this->VectorMode == VTK_USE_NORMAL )
-        {
-        inNormals->GetTuple(inPtId, v);
-        }
-      else
-        {
-        inVectors->GetTuple(inPtId, v);
-        }
+      array3D->GetTuple(inPtId, v);
       vMag = vtkMath::Norm(v);
       if ( this->ScaleMode == VTK_SCALE_BY_VECTORCOMPONENTS )
         {
