@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestClipHyperOctree.cxx
     TestConvertSelection.cxx
     TestDelaunay2D.cxx
+    TestGlyph3D.cxx
     TestExtraction.cxx
     TestExtractSelection.cxx
     TestExtractSurfaceNonLinearSubdivision.cxx
