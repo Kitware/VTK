@@ -200,6 +200,9 @@ vtkQuadraticTriangle.cxx
 vtkQuadraticWedge.cxx
 vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGrid.cxx
+vtkRectilinearGridPartitioner.cxx
+vtkRectilinearGridSource.cxx
+vtkRectilinearGridToPolyDataFilter.cxx
 vtkReebGraph.cxx
 vtkReebGraphSimplificationMetric.cxx
 vtkScalarTree.cxx
@@ -216,6 +219,7 @@ vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGridAlgorithm.cxx
 vtkStructuredGridConnectivity.cxx
 vtkStructuredGrid.cxx
+vtkStructuredGridPartitioner.cxx
 vtkStructuredGridSource.cxx
 vtkStructuredGridToPolyDataFilter.cxx
 vtkStructuredGridToStructuredGridFilter.cxx
