@@ -34,6 +34,7 @@
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
 #include "vtkContextScene.h"
+#include "vtkRenderWindowInteractor.h"
 
 // STL includes
 #include <map>
@@ -56,7 +57,6 @@ public:
     activeplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
     this->ChartSettings[vtkScatterPlotMatrix::ACTIVEPLOT] = activeplotSettings;
     activeplotSettings->MarkerSize = 8.0;
-
     this->SelectedChartBGBrush->SetColor(0, 204, 0, 102);
     this->SelectedRowColumnBGBrush->SetColor(204, 0, 0, 102);
   }
@@ -154,6 +154,7 @@ public:
 
   vtkNew<vtkBrush> SelectedRowColumnBGBrush;
   vtkNew<vtkBrush> SelectedChartBGBrush;
+  std::vector< vtkVector2i > AnimationPath;
 };
 
 namespace
@@ -364,6 +365,69 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
 vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
 {
   return this->ActivePlot;
+}
+
+void vtkScatterPlotMatrix::UpdateAnimationPath(
+  const vtkVector2i& newActivePos)
+{
+  this->Private->AnimationPath.clear();
+  if(newActivePos[0] != this->ActivePlot[0] ||
+    newActivePos[1] != this->ActivePlot[1])
+    {
+    if(newActivePos[1] >= this->ActivePlot[1])
+      {
+      // x direction first
+      if(this->ActivePlot[0]>newActivePos[0])
+        {
+        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, this->ActivePlot[1]));
+        }
+      else
+        {
+        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, this->ActivePlot[1]));
+        }
+      // then y direction
+      for(int c=this->ActivePlot[1]+1; c<=newActivePos[1]; c++)
+        this->Private->AnimationPath.push_back(
+          vtkVector2i(newActivePos[0], c));
+      }
+    else
+      {
+      // y direction first
+      for(int c=this->ActivePlot[1]-1; c>=newActivePos[1]; c--)
+        this->Private->AnimationPath.push_back(
+        vtkVector2i(this->ActivePlot[0], c));       
+      // then x direction
+      if(this->ActivePlot[0]>newActivePos[0])
+        {
+        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, newActivePos[1]));
+        }
+      else
+        {
+        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, newActivePos[1]));
+        }
+      }
+    }
+}
+
+void vtkScatterPlotMatrix::StartAnimation(
+  vtkRenderWindowInteractor* interactor)
+{
+  for(std::vector<vtkVector2i>::iterator iter =
+    this->Private->AnimationPath.begin();
+    iter != this->Private->AnimationPath.end(); iter++)
+    {
+    this->SetActivePlot(*iter);
+    this->GetScene()->SetDirty(true);
+    interactor->Render();
+    }
 }
 
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
@@ -641,7 +705,17 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
       {
       if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
         {
-        this->SetActivePlot(vtkVector2i(i, j));
+        vtkVector2i pos(i, j);
+        this->UpdateAnimationPath(pos);
+        if(this->Private->AnimationPath.size()>0)
+          {
+          this->StartAnimation(mouse.GetInteractor());
+          }
+        else
+          {
+          this->SetActivePlot(pos);
+          }
+
         return true;
         }
       }
