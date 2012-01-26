@@ -56,6 +56,13 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->MemoryHdc = (HDC)0;
   this->CreatingOffScreenWindow = 0;
   this->WindowIdReferenceCount = 0;
+
+  this->ScreenMapped = this->Mapped;
+  this->ScreenWindowSize[0] = this->Size[0];
+  this->ScreenWindowSize[1] = this->Size[1];
+  this->ScreenDeviceContext = this->DeviceContext;
+  this->ScreenDoubleBuffer = this->DoubleBuffer;
+  this->ScreenContextId = this->ContextId;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()

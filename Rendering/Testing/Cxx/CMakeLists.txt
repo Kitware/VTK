@@ -79,6 +79,7 @@ IF(VTK_USE_DISPLAY)
     TestTranslucentLUTDepthPeelingPass.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestTranslucentLUTTextureDepthPeeling.cxx
+    TestWin32OpenGLRenderWindow.cxx
     )
 
   IF(VTK_DATA_ROOT)
