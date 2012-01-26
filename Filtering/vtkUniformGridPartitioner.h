@@ -19,6 +19,9 @@
 //  functionality for partitioning a uniform grid. The partitioning method
 //  that is used is Recursive Coordinate Bisection (RCB) where each time
 //  the longest dimension is split.
+//
+// .SECTION See Also
+// vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
 
 #ifndef VTKUNIFORMGRIDPARTITIONER_H_
 #define VTKUNIFORMGRIDPARTITIONER_H_
