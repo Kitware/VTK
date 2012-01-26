@@ -54,7 +54,8 @@ int vtkRectilinearGridPartitioner::FillInputPortInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkRectilinearGridPartitioner::FillOutputPortInformation()
+int vtkRectilinearGridPartitioner::FillOutputPortInformation(
+    int vtkNotUsed(port), vtkInformation *info )
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
   return 1;

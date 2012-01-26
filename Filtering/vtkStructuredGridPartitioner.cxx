@@ -55,7 +55,8 @@ int vtkStructuredGridPartitioner::FillInputPortInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkStructuredGridPartitioner::FillOutputPortInformation()
+int vtkStructuredGridPartitioner::FillOutputPortInformation(
+    int vtkNotUsed(port), vtkInformation *info )
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
   return 1;

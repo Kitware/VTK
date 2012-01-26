@@ -37,7 +37,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridPartitioner :
 {
   public:
     static vtkStructuredGridPartitioner *New();
-    vtkTypeMacro(vtkStructuredGridPartitiner, vtkMultiBlockDataSetAlgorithm);
+    vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
     void PrintSelf( std::ostream &oss, vtkIndent indent );
 
     // Description:
