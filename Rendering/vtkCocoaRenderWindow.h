@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Set the size of the window in pixels.
-  virtual void SetSize(int*);
+  virtual void SetSize(int a[2]);
   virtual void SetSize(int,int);
 
   // Description:
@@ -91,7 +91,7 @@ public:
 
   // Description:
   // Set the position of the window.
-  virtual void SetPosition(int*);
+  virtual void SetPosition(int a[2]);
   virtual void SetPosition(int,int);
   
   // Description:
