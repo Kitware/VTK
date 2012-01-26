@@ -405,7 +405,7 @@ bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
 
   //Index[0..2] represents the order of traversing the corners of a cube
   //  in (x,y,z), (y,x,z) and (z,x,y) ordering, respectively  
-  static const char Index[3][8] =
+  static const int Index[3][8] =
     {  {0, 1, 2, 3, 4, 5, 6, 7},
        {0, 1, 4, 5, 2, 3, 6, 7}, 
        {0, 2, 4, 6, 1, 3, 5, 7}};
