@@ -98,15 +98,15 @@ vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray)
 vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
 {
   return this->Implementation->InputInternal[
-    vtkstd::pair<int, int>(port, conn)].second.GetPointer();
+    std::pair<int, int>(port, conn)].second.GetPointer();
 }
 
 //----------------------------------------------------------------------------
 void vtkDataRepresentation::SetInternalInput(int port, int conn,
                                              vtkTrivialProducer* producer)
 {
-  this->Implementation->InputInternal[vtkstd::pair<int, int>(port, conn)] =
-    vtkstd::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> >(
+  this->Implementation->InputInternal[std::pair<int, int>(port, conn)] =
+    std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> >(
       producer->GetOutputPort(), producer);
 }
 
