@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinearExtractor3D.cxx
+  Module:    TestLinearSelector3D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,7 +20,7 @@
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkLinearExtractor.h"
+#include "vtkLinearSelector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"
@@ -118,7 +118,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 }
 
 //----------------------------------------------------------------------------
-int TestLinearExtractor3D( int argc, char * argv [] )
+int TestLinearSelector3D( int argc, char * argv [] )
 {
   // Initialize test value
   int testIntValue = 0;
@@ -130,7 +130,7 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   reader->Update();
   delete [] fileName;
 
-  // Create multi-block mesh for linear extractor
+  // Create multi-block mesh for linear selector
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   mesh->SetNumberOfBlocks( 1 );
   mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
@@ -141,17 +141,17 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   // *****************************************************************************
 
   // Create selection along one line segment
-  vtkSmartPointer<vtkLinearExtractor> le0 = vtkSmartPointer<vtkLinearExtractor>::New();
-  le0->SetInput( mesh );
-  le0->SetStartPoint( .0, .0, .0 );
-  le0->SetEndPoint( .23, .04, .04 );
-  le0->IncludeVerticesOff();
-  le0->SetVertexEliminationTolerance( 1.e-12 );
+  vtkSmartPointer<vtkLinearSelector> ls0 = vtkSmartPointer<vtkLinearSelector>::New();
+  ls0->SetInput( mesh );
+  ls0->SetStartPoint( .0, .0, .0 );
+  ls0->SetEndPoint( .23, .04, .04 );
+  ls0->IncludeVerticesOff();
+  ls0->SetVertexEliminationTolerance( 1.e-12 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es0 =  vtkSmartPointer<vtkExtractSelection>::New();
   es0->SetInput( 0, mesh );
-  es0->SetInputConnection( 1, le0->GetOutputPort() );
+  es0->SetInputConnection( 1, ls0->GetOutputPort() );
   es0->Update();
 
   testIntValue += CheckExtractedUGrid( es0, "Selection (0,0,0)-(0.23,0.04,0.04)", 0, true );
@@ -161,17 +161,17 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   // *****************************************************************************
 
   // Create selection along one line segment
-  vtkSmartPointer<vtkLinearExtractor> le1 = vtkSmartPointer<vtkLinearExtractor>::New();
-  le1->SetInput( mesh );
-  le1->SetStartPoint( .0, .0, .0 );
-  le1->SetEndPoint( .23, .0, .0 );
-  le1->IncludeVerticesOff();
-  le1->SetVertexEliminationTolerance( 1.e-12 );
+  vtkSmartPointer<vtkLinearSelector> ls1 = vtkSmartPointer<vtkLinearSelector>::New();
+  ls1->SetInput( mesh );
+  ls1->SetStartPoint( .0, .0, .0 );
+  ls1->SetEndPoint( .23, .0, .0 );
+  ls1->IncludeVerticesOff();
+  ls1->SetVertexEliminationTolerance( 1.e-12 );
   
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es1 =  vtkSmartPointer<vtkExtractSelection>::New();
   es1->SetInput( 0, mesh );
-  es1->SetInputConnection( 1, le1->GetOutputPort() );
+  es1->SetInputConnection( 1, ls1->GetOutputPort() );
   es1->Update();
 
   testIntValue += CheckExtractedUGrid( es1, "Selection (0,0,0)-(0.23,0,0)", 1, true );
@@ -187,16 +187,16 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   points2->InsertNextPoint( .23, .04, .04 );
 
   // Create selection along this broken line
-  vtkSmartPointer<vtkLinearExtractor> le2 = vtkSmartPointer<vtkLinearExtractor>::New();
-  le2->SetInput( mesh );
-  le2->SetPoints( points2 );
-  le2->IncludeVerticesOff();
-  le2->SetVertexEliminationTolerance( 1.e-12 );
+  vtkSmartPointer<vtkLinearSelector> ls2 = vtkSmartPointer<vtkLinearSelector>::New();
+  ls2->SetInput( mesh );
+  ls2->SetPoints( points2 );
+  ls2->IncludeVerticesOff();
+  ls2->SetVertexEliminationTolerance( 1.e-12 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es2 =  vtkSmartPointer<vtkExtractSelection>::New();
   es2->SetInput( 0, mesh );
-  es2->SetInputConnection( 1, le2->GetOutputPort() );
+  es2->SetInputConnection( 1, ls2->GetOutputPort() );
   es2->Update();
 
   testIntValue += CheckExtractedUGrid( es2, "Selection (0.23,0,0)-(0,0,0)-(0.23,0.04,0.04)", 2, true );
@@ -212,16 +212,16 @@ int TestLinearExtractor3D( int argc, char * argv [] )
   points3->InsertNextPoint( .23, .01, .0033 );
 
   // Create selection along this broken line
-  vtkSmartPointer<vtkLinearExtractor> le3 = vtkSmartPointer<vtkLinearExtractor>::New();
-  le3->SetInput( mesh );
-  le3->SetPoints( points3 );
-  le3->IncludeVerticesOff();
-  le3->SetVertexEliminationTolerance( 1.e-12 );
+  vtkSmartPointer<vtkLinearSelector> ls3 = vtkSmartPointer<vtkLinearSelector>::New();
+  ls3->SetInput( mesh );
+  ls3->SetPoints( points3 );
+  ls3->IncludeVerticesOff();
+  ls3->SetVertexEliminationTolerance( 1.e-12 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es3 =  vtkSmartPointer<vtkExtractSelection>::New();
   es3->SetInput( 0, mesh );
-  es3->SetInputConnection( 1, le3->GetOutputPort() );
+  es3->SetInputConnection( 1, ls3->GetOutputPort() );
   es3->Update();
 
   testIntValue += CheckExtractedUGrid( es3, "Selection (0.23,0,0)-(0.1,0,0)-(0.23,0.01,0.0033)", 3, true );

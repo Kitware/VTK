@@ -230,10 +230,8 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
 //-----------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent &mouse)
 {
-  float pos[2];
-  pos[0] = mouse.ScenePos[0];
-  pos[1] = mouse.ScenePos[1];
-  if (this->IsOverHandle(pos)>=0)
+  float pos[2] = { mouse.GetScenePos().X(), mouse.GetScenePos().Y() };
+  if (this->IsOverHandle(pos) >= 0)
     {
     return true;
     }
@@ -278,16 +276,16 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
 //-----------------------------------------------------------------------------
 bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
-  if (mouse.Button == mouse.LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    if(this->MouseOverHandleIndex>=0)
+    if(this->MouseOverHandleIndex >= 0)
       {
       PointHandle* activeHandle =
         &this->Internal->PointHandles[this->MouseOverHandleIndex];
-      float deltaX = mouse.ScenePos[0] - activeHandle->ScenePos[0];
-      float deltaY = mouse.ScenePos[1] - activeHandle->ScenePos[1];
+      float deltaX = mouse.GetScenePos().X() - activeHandle->ScenePos[0];
+      float deltaY = mouse.GetScenePos().Y() - activeHandle->ScenePos[1];
 
-      vtkControlPointsItem* parentControl=vtkControlPointsItem::SafeDownCast(
+      vtkControlPointsItem* parentControl = vtkControlPointsItem::SafeDownCast(
         this->GetParent());
       if(activeHandle->fDistance<=0 || !parentControl ||
         parentControl->GetCurrentPoint()<0 || !this->GetPiecewiseFunction())
@@ -319,11 +317,11 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mou
       return true;
       }
     }
-  else if (mouse.Button == mouse.NO_BUTTON)
+  else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
-    float mspos[2]={mouse.ScenePos.GetX(), mouse.ScenePos.GetY()};
-    int handleIdx=this->IsOverHandle(mspos);
-    if(this->MouseOverHandleIndex != handleIdx)
+    float mspos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
+    int handleIdx = this->IsOverHandle(mspos);
+    if (this->MouseOverHandleIndex != handleIdx)
       {
       this->MouseOverHandleIndex = handleIdx;
       this->GetScene()->SetDirty(true);

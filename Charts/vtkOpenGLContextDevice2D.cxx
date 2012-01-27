@@ -121,6 +121,14 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
       }
     }
 
+  // Enable simple line, point and polygon antialiasing if multisampling is on.
+  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
+    {
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_POLYGON_SMOOTH);
+    }
+
   this->InRender = true;
 }
 
@@ -140,6 +148,14 @@ void vtkOpenGLContextDevice2D::End()
 
   // Restore the GL state that we changed
   this->Storage->RestoreGLState();
+
+  // Disable simple line, point and polygon antialiasing if multisampling is on.
+  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
+    {
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_POINT_SMOOTH);
+    glDisable(GL_POLYGON_SMOOTH);
+    }
 
   this->RenderWindow = NULL;
   this->InRender = false;

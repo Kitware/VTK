@@ -1483,12 +1483,12 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
-  // par defaut, on est en double
+// double by default
 #ifndef REAL_PRECISION
 #define REAL_PRECISION 64
 #endif
 
-  // float = precision la plus basse
+// float = lowest precision
 #if ( REAL_PRECISION == 32 )
 
 #define REAL  float
@@ -2229,7 +2229,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
    ***          Macros                 ***
    ***************************************/
 
-  // assure un alignement maximum des tableaux
+// ensure a maximum alignment of arrays
 #define ROUND_SIZE(n) (n)
   //( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
 
@@ -2442,8 +2442,8 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   REAL quadraticFunctionSolve( REAL3 F, const REAL value, const REAL xmin, const REAL xmax )
   {
-    // resolution analytique de ax²+bx+c=0
-    // (!) numeriquement hazardeux, donc on prefere le newton qui est pourtant BEAUCOUP plus lent
+    // Analytic resolution of ax²+bx+c=0
+    // (!) numerically unsteady, the Newton method is prefered despite being REALLY slower
 
     F.z -= value;
 
@@ -2474,17 +2474,17 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   REAL newtonSearchPolynomialFunc( REAL3 F, REAL2 dF, const REAL value, const REAL xmin, const REAL xmax )
   {
-    // translation de F, car le newton cherche le zero de la derivee
+    // translate F, because newton searches for the 0 of the derivative
     F.z -= value;
 
-    // on demarre du x le plus proche entre xmin, xmilieu et xmax
+    // start with x, the closest of xmin, xmean and xmax
     const REAL ymin = evalPolynomialFunc( F, xmin );
     const REAL ymax = evalPolynomialFunc( F, xmax );
 
     REAL x = ( xmin + xmax ) * REAL_CONST(0.5);
     REAL y = evalPolynomialFunc(F,x);
 
-    // cherche x tel que F(x) = 0
+    // search x where F(x) = 0
 #ifdef __CUDACC__
 #pragma unroll
 #endif
@@ -2498,7 +2498,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       y = evalPolynomialFunc(F,x);
       }
 
-    // on verifie que la solution n'est pas moins bonne que si on prend une des deux bornes
+    // check that the solution is not worse than the 2 bounds
     DBG_MESG("F("<<xmin<<")="<<ymin<<", "<<"F("<<x<<")="<<y<<", "<<"F("<<xmax<<")="<<ymax);
     y = FABS( y );
     if( FABS(ymin) < y ) { x = xmin; }
@@ -2511,17 +2511,17 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   REAL newtonSearchPolynomialFunc( REAL4 F,  REAL3 dF, const REAL value, const REAL xmin, const REAL xmax )
   {
-    // translation de F, car le newton cherche le zero de la derivee
+    // translate F, because newton searches for the 0 of the derivative
     F.w -= value;
 
-    // on demarre du x le plus proche entre xmin, xmilieu et xmax
+    // start with x, the closest of xmin, xmean and xmax
     const REAL ymin = evalPolynomialFunc( F, xmin );
     const REAL ymax = evalPolynomialFunc( F, xmax );
 
     REAL x = ( xmin + xmax ) * REAL_CONST(0.5);
     REAL y = evalPolynomialFunc(F,x);
 
-    // cherche x tel que F(x) = 0
+    // search x where F(x) = 0
 #ifdef __CUDACC__
 #pragma unroll
 #endif
@@ -2535,7 +2535,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       y = evalPolynomialFunc(F,x);
       }
 
-    // on verifie que la solution n'est pas moins bonne que si on prend une des deux bornes
+    // check that the solution is not worse than taking one of the 2 bounds
     DBG_MESG("F("<<xmin<<")="<<ymin<<", "<<"F("<<x<<")="<<y<<", "<<"F("<<xmax<<")="<<ymax);
     y = FABS( y );
     if( FABS(ymin) < y ) { x = xmin; }
@@ -3019,15 +3019,15 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
     // 2. compute
 
-    // surface de l'intersection en p1
+    // Intersection surface in p1
     const REAL surf1 = triangleSurf(
                                     v1,
                                     linearInterp( d0, v0, d2, v2, d1 ),
                                     linearInterp( d0, v0, d3, v3, d1 )
                                     );
 
-    // calcul de la surface d'intersection au milieu de p1 et p2
-    // l'intersection est un quadrangle de sommets a,b,c,d
+    // Compute the intersection surfice in the middle of p1 and p2.
+    // The intersection is a quadric of a,b,c,d
     const REAL d12 = (d1+d2) * REAL_CONST(0.5) ;
     const REAL3 a = linearInterp( d0, v0, d2, v2, d12);
     const REAL3 b = linearInterp( d0, v0, d3, v3, d12);
@@ -3036,24 +3036,24 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
     const REAL surf12 = triangleSurf( a,b,d ) + triangleSurf( b,c,d );
 
-    // surface de l'intersection en p2
+    // intersection  surface in p2
     const REAL surf2 = triangleSurf(
                                     v2,
                                     linearInterp( d0, v0, d3, v3, d2 ) ,
                                     linearInterp( d1, v1, d3, v3, d2 ) );
 
 
-    // construction des fonctions de surface
+    // Construct the surface functions
     REAL coef;
 
-    // recherche S0(x) = coef * (x-d0)²
+    // Search S0(x) = coef * (x-d0)²
     coef = ( d1 > d0 )  ?  ( surf1 / ((d1-d0)*(d1-d0)) ) : REAL_CONST(0.0) ;
     func[0] = coef * make_REAL3( 1 , -2*d0 , d0*d0 ) ;
 
-    // recherche S1(x) = interp quadric de surf1, surf12, surf2 aux points d1, d12, d2
+    // Search S1(x) = quadric interpolation of surf1, surf12, surf2 at the points d1, d12, d2
     func[1] = quadraticInterpFunc( d1, surf1, d12, surf12, d2, surf2 );
 
-    // de la forme S(x) = coef * (d3-x)²
+    // S(x) = coef * (d3-x)²
     coef = ( d3 > d2 )  ?  ( surf2 / ((d3-d2)*(d3-d2)) ) : REAL_CONST(0.0) ;
     func[2] = coef * make_REAL3( 1 , -2*d3 , d3*d3 ) ;
 
@@ -3078,16 +3078,16 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     ALLOC_LOCAL_ARRAY( index, unsigned char, nv );
     ALLOC_LOCAL_ARRAY( derivatives, REAL3, nv-1 );
 
-    // initialisation
+    // initialization
     for(int i = 0;i<nv;i++)
       {
       index[i] = i;
       }
 
-    // tri des sommets dans le sens de la normale
+    // sort vertices in the normal vector direction
     sortVertices( nv,  vertices, normal, index );
 
-    // table d'indirection inverse
+    // reverse indirection table
     for(int i = 0;i<nv;i++)
       {
       rindex[ index[i] ] = i;
@@ -3107,14 +3107,14 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
     REAL volume = 0;
 
-    // construction de la fonction cubique par morceau du volume tronqué
+    // construction of the truncated volume piecewise cubic function
     for(int i = 0;i<nt;i++)
       {
-      // calcul de la surface de l'intersection plan/tetra aux point P1 et P2
+      // area of the interface-tetra intersection at points P1 and P2
       uchar4 tetra = sortTetra( tv[i] , rindex );
       DBG_MESG( "\ntetra "<<i<<" : "<<tv[i].x<<','<<tv[i].y<<','<<tv[i].z<<','<<tv[i].w<<" -> "<<tetra.x<<','<<tetra.y<<','<<tetra.z<<','<<tetra.w );
 
-      // calcul des sous fonctions cubiques du volume derriere le plan en fonction de la distance
+      // compute the volume function derivative pieces
       REAL3 tetraSurfFunc[3];
       volume += tetraPlaneSurfFunc( tetra, vertices, normal, tetraSurfFunc );
 
@@ -3143,11 +3143,11 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
       for(unsigned int j=i2;j<i3;j++) derivatives[j] += tetraSurfFunc[2] ;
       }
 
-    // calcul du volume recherche
+    // target volume fraction we're looking for
     REAL y = volume*fraction;
     DBG_MESG( "volume = "<<volume<<", volume*fraction = "<<y );
 
-    // integration des fonctions de surface en fonctions de volume
+    // integrate area function pieces to obtain volume function pieces
     REAL sum = 0;
     REAL4 volumeFunction = make_REAL4(0,0,0,0);
     REAL xmin = 0;
@@ -3167,16 +3167,16 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
     if( s<0) s=0;
     // F, F' : free derivatives
 
-    // recherche de la portion de fonction qui contient la valeur
+    // search the function range that contains the value
     DBG_MESG( "step="<<s<<", x in ["<<xmin<<';'<<xmax<<']' );
 
-    /* chaque portion de fonction redemarre de 0,
-       on calcul donc le volume recherché dans cette portion de fonction
+    /* each function pieces start from 0,
+       compute the volume in this function piece.
     */
     //y -= sum;
     DBG_MESG( "volume reminder = "<< y );
 
-    // recherche par newton
+    // search by newton
     REAL x = newtonSearchPolynomialFunc( volumeFunction, derivatives[s], y, xmin, xmax );
 
     DBG_MESG( "final x = "<< x );
@@ -3237,7 +3237,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
                                                         int & nInside, int inPoints[],
                                                         int & nOutside, int outPoints[] )
 {
-  // normalisation du vecteur normal si la norme >0
+  // normalize the normal vector if the norm >0
   double nlen2 = normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2];
   if( nlen2 > 0 )
     {
@@ -3322,13 +3322,13 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       }
     }
 
-  // tri des points
+  // sort points
   if(np>3)
     {
-    // calcul du centre du polygone
+    // compute the center of the polygon
     for(int comp=0;comp<3;comp++) { center[comp] /= np; }
 
-    // calcul de la direction dominante, pour retomber sur un cas 2D
+    // compute the main direction to be in a 2D case
     int maxDim = 0;
     if( fabs(normal[1]) > fabs(normal[maxDim]) ) maxDim=1;
     if( fabs(normal[2]) > fabs(normal[maxDim]) ) maxDim=2;
@@ -3340,7 +3340,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       case 2: xd=0; yd=1; break;
       }
 
-    // calcul des angles des points du polygone
+    // compute the angles of the polygon vertices
     vtkYoungsMaterialInterfaceCellCutInternals::CWVertex pts[MAX_CELL_POINTS];
     for(int i = 0;i<np;i++)
       {

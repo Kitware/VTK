@@ -181,7 +181,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
       ++selectionNodeId)
       {
       vtkSmartPointer<vtkPoints> hullPoints = vtkSmartPointer<vtkPoints>::New();
-      vtkIdType aNode;
+
       hullId++;
       vtkSelectionNode* selectionNode = selection->GetNode(selectionNodeId);
       if (selectionNode->GetFieldType() != vtkSelectionNode::VERTEX)
@@ -200,7 +200,6 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
       for (vtkIdType i = 0; i < numberOfNodePoints; ++i)
         {
         hullPoints->InsertNextPoint(inputPoints->GetPoint(vertexIds->GetValue(i)));
-        aNode = vertexIds->GetValue(i);
         }
 
       // Create filled polygon

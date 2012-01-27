@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
-
+ 
 vtkStandardNewMacro(vtkCellTypes);
 
 // This list should contain the cell class names in
@@ -49,12 +49,12 @@ static const char* vtkCellTypesStrings[] = {
   "vtkQuadraticHexahedron",
   "vtkQuadraticWedge",
   "vtkQuadraticPyramid",
-  "vtkBiquadraticQuad",
-  "vtkTriquadraticHexahedron",
+  "vtkBiQuadraticQuad",
+  "vtkTriQuadraticHexahedron",
   "vtkQuadraticLinearQuad",
   "vtkQuadraticLinearWedge",
-  "vtkBiquadraticQuadraticWedge",
-  "vtkBiquadraticQuadraticHexahedron",
+  "vtkBiQuadraticQuadraticWedge",
+  "vtkBiQuadraticQuadraticHexahedron",
   "vtkBiQuadraticTriangle",
   "vtkCubicLine",
   "UnknownClass",
