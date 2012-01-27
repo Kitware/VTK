@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-
+#include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
@@ -410,7 +410,17 @@ void vtkWindowToImageFilter::RequestData(
       // now render the tile and get the data
       if (this->ShouldRerender || num_iterations > 1)
         {
-        this->Input->Render();
+        // if interactor is present, trigger render through interactor. This
+        // allows for custom applications that provide interactors that
+        // customize rendering e.g. ParaView.
+        if (renWin->GetInteractor())
+          {
+          renWin->GetInteractor()->Render();
+          }
+        else
+          {
+          this->Input->Render();
+          }
         }
       this->Input->MakeCurrent();
 
