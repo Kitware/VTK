@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-#include "vtkToolKits.h"
+
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

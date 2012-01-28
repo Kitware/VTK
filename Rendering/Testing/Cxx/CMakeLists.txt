@@ -79,8 +79,14 @@ IF(VTK_USE_DISPLAY)
     TestTranslucentLUTDepthPeelingPass.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestTranslucentLUTTextureDepthPeeling.cxx
-    TestWin32OpenGLRenderWindow.cxx
     )
+
+  IF(WIN32 AND NOT VTK_USE_X)
+    SET(RenderingTestsWithArguments
+      ${RenderingTestsWithArguments}
+      TestWin32OpenGLRenderWindow.cxx
+      )
+  ENDIF(WIN32 AND NOT VTK_USE_X)
 
   IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments
