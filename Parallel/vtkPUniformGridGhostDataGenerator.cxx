@@ -58,7 +58,7 @@ void vtkPUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
 
   this->GridConnectivity->SetController( this->Controller );
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
-  this->GridConnectivity->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
+  this->GridConnectivity->SetNumberOfGhostLayers(0);
   this->GridConnectivity->SetWholeExtent( in->GetWholeExtent() );
   this->GridConnectivity->Initialize();
 
