@@ -13,9 +13,9 @@ reader.SetFileName( VTK_DATA_ROOT + "/Data/UCD/UCD_00005.inp" )
 # Update reader and get cell data
 reader.Update()
 cellData = reader.GetOutput().GetCellData()
-cellData.SetActiveScalars("Material Id")
+cellData.SetActiveScalars("frac_pres[1]")
 
-# Create mapper
+# Create mapper for wireframe rendering of volume fraction #1
 mapper = vtkDataSetMapper()
 mapper.SetInputConnection( reader.GetOutputPort() )
 mapper.SetScalarRange( cellData.GetScalars().GetRange() )
@@ -26,7 +26,7 @@ mapper.ScalarVisibilityOn()
 # Create actor
 actor = vtkActor()
 actor.SetMapper( mapper )
-#actor.GetProperty().SetRepresentationToWireframe()
+actor.GetProperty().SetRepresentationToWireframe()
 
 # Create renderer
 renderer = vtkRenderer()
