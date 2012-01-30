@@ -30,14 +30,16 @@
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
+class vtkDoubleArray;
+class vtkRectilinearGrid;
 
 class VTK_FILTERING_EXPORT vtkRectilinearGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:
     static vtkRectilinearGridPartitioner *New();
-    vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm );
-    void PrintSelf( std::ostream &oss, vtkIndent indent );
+    vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
+    void PrintSelf(std::ostream &oss, vtkIndent indent);
 
     // Description:
     // Set/Get macro for the number of subdivisions.
@@ -52,6 +54,14 @@ class VTK_FILTERING_EXPORT vtkRectilinearGridPartitioner :
   protected:
     vtkRectilinearGridPartitioner();
     virtual ~vtkRectilinearGridPartitioner();
+
+    // Description:
+    // Extracts the coordinates
+    void ExtractGridCoordinates(
+        vtkRectilinearGrid *grd, int subext[6],
+        vtkDoubleArray *xcoords,
+        vtkDoubleArray *ycoords,
+        vtkDoubleArray *zcoords );
 
     // Standard Pipeline methods
     virtual int RequestData(

@@ -31,6 +31,8 @@
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
+class vtkStructuredGrid;
+class vtkPoints;
 
 class VTK_FILTERING_EXPORT vtkStructuredGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
@@ -53,6 +55,10 @@ class VTK_FILTERING_EXPORT vtkStructuredGridPartitioner :
   protected:
     vtkStructuredGridPartitioner();
     virtual ~vtkStructuredGridPartitioner();
+
+    // Description:
+    // Extracts the coordinates of the sub-grid from the whole grid.
+    vtkPoints* ExtractSubGridPoints(vtkStructuredGrid *wholeGrid,int subext[6]);
 
     // Standard Pipeline methods
     virtual int RequestData(
