@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkMultiCorrelativeStatistics - A class for linear correlation
+// .NAME vtkMultiCorrelativeStatistics - A class for multivariate linear correlation
 //
 // .SECTION Description
 // Given a selection of sets of columns of interest, this class provides the
@@ -56,6 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay, Jackson Mayo, and David Thompson of
 // Sandia National Laboratories for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkMultiCorrelativeStatistics_h
 #define __vtkMultiCorrelativeStatistics_h
