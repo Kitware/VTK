@@ -79,6 +79,7 @@ vtkPSLACReader.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
 vtkPStructuredGridConnectivity.cxx
+vtkPStructuredGridGhostDataGenerator.cxx
 vtkPTableToStructuredGrid.cxx
 vtkPUniformGridGhostDataGenerator.cxx
 vtkPYoungsMaterialInterface.cxx
