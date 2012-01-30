@@ -217,8 +217,9 @@ vtkSphere.cxx
 vtkSpline.cxx
 vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGridAlgorithm.cxx
-vtkStructuredGridConnectivity.cxx
 vtkStructuredGrid.cxx
+vtkStructuredGridConnectivity.cxx
+vtkStructuredGridGhostDataGenerator.cxx
 vtkStructuredGridPartitioner.cxx
 vtkStructuredGridSource.cxx
 vtkStructuredGridToPolyDataFilter.cxx
