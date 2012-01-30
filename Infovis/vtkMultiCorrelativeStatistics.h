@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 // Given a selection of sets of columns of interest, this class provides the
-// following functionalities, depending on the execution mode it is executed in:
+// following functionalities, depending on the operation in which it is executed:
 // * Learn: calculates means, unbiased variance and covariance estimators of
 //   column pairs coefficient.
 //   More precisely, Learn calculates the averages and centered
