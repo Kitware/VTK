@@ -128,6 +128,12 @@ public:
   vtkIdType ComputeCellId(int ijk[3]);
 
   // Description:
+  // Given the IJK-coordinates of the point, it returns the corresponding
+  // xyz-coordinates. The xyz coordinates are stored in the user-supplied
+  // array p.
+  void GetPoint(const int i,const int j,const int k,double p[3]);
+
+  // Description:
   // Specify the grid coordinates in the x-direction.
   virtual void SetXCoordinates(vtkDataArray*);
   vtkGetObjectMacro(XCoordinates,vtkDataArray);

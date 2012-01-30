@@ -581,6 +581,19 @@ void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
 }
 
 //----------------------------------------------------------------------------
+void vtkRectilinearGrid::GetPoint(
+    const int i, const int j, const int k, double p[3] )
+{
+  int ijk[3];
+  ijk[0] = i;
+  ijk[1] = j;
+  ijk[2] = k;
+
+  vtkIdType pntIdx = this->ComputePointId( ijk );
+  this->GetPoint( pntIdx, p );
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkRectilinearGrid::FindPoint(double x[3])
 {
   int i, j, loc[3];
