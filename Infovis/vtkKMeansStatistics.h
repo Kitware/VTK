@@ -58,8 +58,8 @@ PURPOSE.  See the above copyright notice for more information.
 // centers and a single run is performed.
 //
 //
-// This class provides the following functionalities, depending on the 
-// mode it is executed in:
+// This class provides the following functionalities, depending on the operation
+// in which it is executed:
 // * Learn: calculates new cluster centers for each run.  The output metadata on 
 //   port OUTPUT_MODEL is a multiblock dataset containing at a minimum
 //   one vtkTable with columns specifying the following for each run:
@@ -68,7 +68,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   to its nearest cluster center), the cardinality of the cluster, and the new
 //   cluster coordinates.
 //
-// *Derive:  An additional vtkTable is stored in the multiblock dataset output on port OUTPUT_MODEL.
+// * Derive:  An additional vtkTable is stored in the multiblock dataset output on port OUTPUT_MODEL.
 //   This table contains columns that store for each run: the runID, number of clusters, 
 //   total error for all clusters in the run, local rank, and global rank.
 //   The local rank is computed by comparing squared Euclidean errors of all runs with
@@ -88,6 +88,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Janine Bennett, David Thompson, and Philippe Pebay of
 // Sandia National Laboratories for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkKMeansStatistics_h
 #define __vtkKMeansStatistics_h

@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
-// .NAME vtkCorrelativeStatistics - A class for linear correlation
+// .NAME vtkCorrelativeStatistics - A class for bivariate linear correlation
 //
 // .SECTION Description
 // Given a selection of pairs of columns of interest, this class provides the
@@ -31,11 +31,12 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set, two means and a 2x2 covariance matrix,
 //   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
 //   distance).
-// * Test: Jarque-Bera-Srivastava test of 2-d normality
+// * Test: Perform Jarque-Bera-Srivastava test of 2-d normality
 //  
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkCorrelativeStatistics_h
 #define __vtkCorrelativeStatistics_h
