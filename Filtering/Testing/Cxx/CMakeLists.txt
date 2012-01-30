@@ -51,6 +51,16 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   ${AMRTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
+                                                    
+ADD_EXECUTABLE(TestStructuredGridGhostDataGenerator TestStructuredGridGhostDataGenerator.cxx)
+ADD_TEST(StructuredGridGhostDataGeneratorTest ${CXX_TEST_PATH}/TestStructuredGridGhostDataGenerator)
+TARGET_LINK_LIBRARIES(TestStructuredGridGhostDataGenerator vtkCommon vtkFiltering vtkIO)
+
+ADD_EXECUTABLE(TestRectilinearGridPartitioner TestRectilinearGridPartitioner.cxx)
+TARGET_LINK_LIBRARIES(TestRectilinearGridPartitioner vtkCommon vtkFiltering vtkIO)
+
+ADD_EXECUTABLE(TestStructuredGridPartitioner TestStructuredGridPartitioner.cxx)
+TARGET_LINK_LIBRARIES(TestStructuredGridPartitioner vtkCommon vtkFiltering vtkIO)
 
 ADD_EXECUTABLE(TestStructuredGridConnectivity TestStructuredGridConnectivity.cxx)
 ADD_TEST(StructuredGridConnectivityTest ${CXX_TEST_PATH}/TestStructuredGridConnectivity)
