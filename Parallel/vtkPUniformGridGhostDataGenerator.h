@@ -17,7 +17,7 @@
 //
 // .SECTION Description
 //  A concrete implementation of vtkPDataSetGhostGenerator for generating ghost
-//  data on partitioned and distributed domain of uniform grids on.
+//  data on a partitioned and distributed domain of uniform grids.
 //
 // .SECTION Caveats
 //  <ol>
@@ -94,8 +94,8 @@ class VTK_PARALLEL_EXPORT vtkPUniformGridGhostDataGenerator:
     vtkPStructuredGridConnectivity *GridConnectivity;
 
   private:
-    vtkPUniformGridGhostDataGenerator(const vtkPUniformGridGhostDataGenerator&);
-    void operator=(const vtkPUniformGridGhostDataGenerator&);
+    vtkPUniformGridGhostDataGenerator(const vtkPUniformGridGhostDataGenerator&); // Not implemented
+    void operator=(const vtkPUniformGridGhostDataGenerator&); // Not implemented
 };
 
 #endif /* VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_ */
