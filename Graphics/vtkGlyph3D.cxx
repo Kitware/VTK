@@ -415,6 +415,14 @@ int vtkGlyph3D::RequestData(
         vtkErrorMacro(<<"vtkDataArray "<<array3D->GetName()<<" has more than 3 components.\n");
         pts->Delete();
         trans->Delete();
+        if(newPts)
+          {
+          newPts->Delete();
+          }
+        if(newVectors)
+          {
+          newVectors->Delete();
+          }
         return 0;
         }
 
