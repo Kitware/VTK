@@ -35,7 +35,7 @@
 //   <li>
 //    The code currently does not handle the following cases:
 //    <ul>
-//      <li>Periodic boundaries</li>
+//      <li>Ghost cells along Periodic boundaries</li>
 //      <li>Growing ghost layers beyond the extents of the neighboring grid</li>
 //    </ul>
 //   </li>
