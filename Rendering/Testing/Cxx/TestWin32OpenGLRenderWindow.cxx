@@ -20,37 +20,31 @@
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkWin32OpenGLRenderWindow.h"
-#include <vtkSmartPointer.h>
 #include <vtkConeSource.h>
 #include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkNew.h>
 
 //This tests if the offscreen rendering works
 static bool TestWin32OpenGLRenderWindowOffScreen(vtkWin32OpenGLRenderWindow* renderWindow)
 {
   //Create a cone
-  vtkSmartPointer<vtkConeSource> coneSource =
-    vtkSmartPointer<vtkConeSource>::New();
+  vtkNew<vtkConeSource> coneSource;
   coneSource->Update();
  
   //Create a mapper and actor
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(coneSource->GetOutputPort());
  
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
-  actor->SetMapper(mapper);
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper.GetPointer());
  
   //Create a renderer, render window, and interactor
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-
-  renderWindow->AddRenderer(renderer);
+  vtkNew<vtkRenderer> renderer;
+  renderWindow->AddRenderer(renderer.GetPointer());
  
   //Add the actors to the scene
-  renderer->AddActor(actor);
+  renderer->AddActor(actor.GetPointer());
   renderer->SetBackground(.3, .2, .1); // Background color dark red
  
   //Render and interact
@@ -63,8 +57,8 @@ int TestWin32OpenGLRenderWindow(int argc, char* argv[])
 {
   vtkWin32OpenGLRenderWindow* renderWindow(NULL);
 
-  vtkSmartPointer<vtkRenderWindow> renderWindowBase = vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow = vtkWin32OpenGLRenderWindow::SafeDownCast(renderWindowBase);
+  vtkNew<vtkRenderWindow> renderWindowBase;
+  renderWindow = vtkWin32OpenGLRenderWindow::SafeDownCast(renderWindowBase.GetPointer());
 
   TestWin32OpenGLRenderWindowOffScreen(renderWindow);
 
