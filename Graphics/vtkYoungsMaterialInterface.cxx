@@ -453,7 +453,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
 {
   int n = this->MaterialBlockMapping->GetNumberOfTuples();
   int curmat = -1;
-  for(int i = 0;i<n;i++)
+  for( int i = 0; i < n; ++ i )
     {
     int b = this->MaterialBlockMapping->GetValue(i);
     vtkDebugMacro(<<"MaterialBlockMapping "<<b<<"\n");
@@ -517,7 +517,8 @@ int vtkYoungsMaterialInterface::RequestData(
   vtkIdType debugStats_NullNormal = 0;
   vtkIdType debugStats_NoInterfaceFound = 0;
 
-  int nmat = static_cast<int> (this->Internals->Materials.size());
+  // Initialize number of materials
+  int nmat = static_cast<int>( this->Internals->Materials.size() );
 
   // alocate composite iterator
   vtkSmartPointer<vtkCompositeDataIterator> inputIterator = vtkSmartPointer<vtkCompositeDataIterator>::New();
@@ -529,17 +530,20 @@ int vtkYoungsMaterialInterface::RequestData(
 
   // first compute number of domains
   int* inputsPerMaterial = new int[nmat];
-  for (int i = 0; i < nmat; i++) { inputsPerMaterial[i] = 0; }
-
-  while (inputIterator->IsDoneWithTraversal() == 0)
+  for ( int i = 0; i < nmat; ++ i ) 
     {
-    vtkDataSet * input = vtkDataSet::SafeDownCast(
-                                                  inputIterator->GetCurrentDataObject());
+    inputsPerMaterial[i] = 0;
+    }
+
+  while ( ! inputIterator->IsDoneWithTraversal() )
+    {
+    vtkDataSet * input 
+      = vtkDataSet::SafeDownCast( inputIterator->GetCurrentDataObject() );
     // Composite indices begin at 1 (0 is the root)
     int composite_index = inputIterator->GetCurrentFlatIndex();
     inputIterator->GoToNextItem();
 
-    if (input != 0 && input->GetNumberOfCells() > 0)
+    if ( input && input->GetNumberOfCells() > 0 )
       {
       int m = 0;
       for (std::vector<vtkYoungsMaterialInterfaceInternals::MaterialDescription>::iterator
@@ -547,15 +551,15 @@ int vtkYoungsMaterialInterface::RequestData(
            it!= this->Internals->Materials.end(); ++it, ++m)
         {
         vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume.c_str());
-        bool materialHasBlock = ((*it).blocks.find(composite_index)!= (*it).blocks.end());
+        bool materialHasBlock = ( (*it).blocks.find(composite_index)!= (*it).blocks.end() );
         if ( fraction && 
-             ( this->UseAllBlocks ||materialHasBlock ) )
+             ( this->UseAllBlocks || materialHasBlock ) )
           {
           double range[2];
           fraction->GetRange(range);
           if (range[1] > this->VolumeFractionRange[0])
             {
-            ++inputsPerMaterial[m];
+            ++ inputsPerMaterial[m];
             }
           }
         }
@@ -616,35 +620,39 @@ int vtkYoungsMaterialInterface::RequestData(
              it = this->Internals->Materials.begin(); it
              != this->Internals->Materials.end(); ++it, ++m)
         {
-        Mats[m].fractionArray = input->GetCellData()->GetArray(
-                                                               (*it).volume.c_str());
-        Mats[m].normalArray = input->GetCellData()->GetArray(
-                                                             (*it).normal.c_str());
-        Mats[m].normalXArray = input->GetCellData()->GetArray(
-                                                              (*it).normalX.c_str());
-        Mats[m].normalYArray = input->GetCellData()->GetArray(
-                                                              (*it).normalY.c_str());
-        Mats[m].normalZArray = input->GetCellData()->GetArray(
-                                                              (*it).normalZ.c_str());
-        Mats[m].orderingArray = input->GetCellData()->GetArray(
-                                                               (*it).ordering.c_str());
+        Mats[m].fractionArray 
+          = input->GetCellData()->GetArray( (*it).volume.c_str() );
+        Mats[m].normalArray 
+          = input->GetCellData()->GetArray( (*it).normal.c_str() );
+        Mats[m].normalXArray 
+          = input->GetCellData()->GetArray( (*it).normalX.c_str() );
+        Mats[m].normalYArray 
+          = input->GetCellData()->GetArray( (*it).normalY.c_str() );
+        Mats[m].normalZArray 
+          = input->GetCellData()->GetArray( (*it).normalZ.c_str() );
+        Mats[m].orderingArray 
+          = input->GetCellData()->GetArray( (*it).ordering.c_str() );
 
-        if (Mats[m].fractionArray == 0)
+        if ( ! Mats[m].fractionArray )
           {
           vtkDebugMacro(<<"Material "<<m<<": volume fraction array '"<<(*it).volume<<"' not found\n");
           }
-        //                      if( Mats[m].orderingArray == 0 )
-        //                      {
-        //                              vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<(*it).ordering<<"' not found\n");
-        //                      }
-        if( Mats[m].normalArray==0 && Mats[m].normalXArray==0 && Mats[m].normalYArray==0 && Mats[m].normalZArray==0 )
+        if( ! Mats[m].orderingArray )
+          {
+          vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<(*it).ordering<<"' not found\n");
+          }
+        if( ! Mats[m].normalArray 
+            && ! Mats[m].normalXArray 
+            && ! Mats[m].normalYArray 
+            && ! Mats[m].normalZArray )
           {
           vtkDebugMacro(<<"Material "<<m<<" normal  array '"<<(*it).normal<<"' not found\n");
           }
 
         bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
-        if( !materialHasBlock )
+        if( ! this->UseAllBlocks && ! materialHasBlock )
           {
+          // FIXME: verify the former condition
           Mats[m].fractionArray = 0; // TODO: we certainly can do better to avoid material calculations
           }
 
@@ -653,7 +661,7 @@ int vtkYoungsMaterialInterface::RequestData(
         Mats[m].cellArrayCount = 0;
 
         Mats[m].outCellArrays = new vtkDataArray* [ nCellData ];
-        for(int i = 0;i<nCellData;i++)
+        for( int i = 0; i < nCellData; ++ i )
           {
           Mats[m].outCellArrays[i] = vtkDataArray::CreateDataArray( inCellArrays[i]->GetDataType() );
           Mats[m].outCellArrays[i]->SetName( inCellArrays[i]->GetName() );
@@ -664,7 +672,7 @@ int vtkYoungsMaterialInterface::RequestData(
         Mats[m].pointCount = 0;
         Mats[m].outPointArrays = new vtkDataArray* [ nPointData ];
 
-        for(int i = 0;i<(nPointData-1);i++)
+        for( int i = 0;i<(nPointData-1);i++)
           {
           Mats[m].outPointArrays[i] = vtkDataArray::CreateDataArray( inPointArrays[i]->GetDataType() );
           Mats[m].outPointArrays[i]->SetName( inPointArrays[i]->GetName() );
@@ -675,7 +683,7 @@ int vtkYoungsMaterialInterface::RequestData(
         Mats[m].outPointArrays[nPointData-1]->SetNumberOfComponents(3);
         }
       }
-
+      
       // --------------- per material number of interfaces estimation ------------
       for(vtkIdType c=0;c<nCells;c++)
         {
