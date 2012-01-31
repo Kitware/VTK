@@ -497,15 +497,18 @@ int main(int argc, char **argv)
   // 3-D Tests
   Logger::Print( "Testing 3-D data-set..." );
   rc += Test3D( true, false, 1, 1 );
+  assert( rc == 0);
   Logger::Println( "[DONE]" );
 
   Logger::Print( "Testing 3-D data-set..." );
   rc += Test3D( true, true, 1, 4 );
+  assert( rc == 0);
   Logger::Println( "[DONE]" );
 
   Logger::Print(
      "Testing 3-D data-set where each process has more than one blocks...");
   rc += Test3D( true, true, 2, 4 );
+  assert( rc == 0 );
   Logger::Println( "[DONE]" );
   Controller->Finalize();
   Controller->Delete();
