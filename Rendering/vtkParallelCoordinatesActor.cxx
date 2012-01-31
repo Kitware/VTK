@@ -173,7 +173,7 @@ void vtkParallelCoordinatesActor::SetInputData(vtkDataObject* dobj)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkParallelCoordinatesActor::GetInput()
 {
-  this->ConnectionHolder->GetInputDataObject(0, 0);
+  return this->ConnectionHolder->GetInputDataObject(0, 0);
 }
 
 //----------------------------------------------------------------------------

@@ -54,7 +54,8 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
   this->CaptionGlyph = vtkConeSource::New();
   this->CaptionGlyph->SetResolution(6);
   this->CaptionGlyph->SetCenter(-0.5,0,0);
-  this->CaptionActor2D->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
+  this->CaptionActor2D->SetLeaderGlyphConnection(
+    this->CaptionGlyph->GetOutputPort());
 
   this->ShowBorder = vtkBorderRepresentation::BORDER_OFF;
   this->FontFactor = 1.0;
@@ -91,7 +92,8 @@ void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D *capActor)
       this->CaptionActor2D->BorderOn();
       this->CaptionActor2D->LeaderOn();
       this->CaptionActor2D->ThreeDimensionalLeaderOn();
-      this->CaptionActor2D->SetLeaderGlyph(this->CaptionGlyph->GetOutput());
+      this->CaptionActor2D->SetLeaderGlyphConnection(
+        this->CaptionGlyph->GetOutputPort());
       }
     this->Modified();
     }
