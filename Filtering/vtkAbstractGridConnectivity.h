@@ -475,6 +475,7 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(
     assert( "pre:GridPoints[gridID] must be NULL" &&
             this->GridPoints[gridID]==NULL );
     this->GridPoints[ gridID ] = vtkPoints::New();
+    this->GridPoints[ gridID ]->SetDataTypeToDouble();
     this->GridPoints[ gridID ]->ShallowCopy( nodes );
     }
   else
