@@ -52,7 +52,7 @@ void vtkPStructuredGridGhostDataGenerator::RegisterGrids(
   assert("pre: grid connectivity is NULL" && (this->GridConnectivity != NULL) );
 
   this->GridConnectivity->SetController( this->Controller );
-  this->GridConnectivity->SetNumberOfGhostLayers( in->GetNumberOfBlocks() );
+  this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
   this->GridConnectivity->SetNumberOfGhostLayers(0);
   this->GridConnectivity->SetWholeExtent( in->GetWholeExtent() );
   this->GridConnectivity->Initialize();
@@ -144,8 +144,10 @@ void vtkPStructuredGridGhostDataGenerator::GenerateGhostLayers(
   // STEP 1: Compute neighboring topology
   this->GridConnectivity->ComputeNeighbors();
 
-  // STEP 2: Create the ghosted data-set
+  // STEP 2: Create ghost layers
+  this->GridConnectivity->CreateGhostLayers( this->NumberOfGhostLayers );
+
+  // STEP 3: Create the ghosted data-set
   this->CreateGhostedDataSet(in,out);
   this->Barrier();
-
 }
