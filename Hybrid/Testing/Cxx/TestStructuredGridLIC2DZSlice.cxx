@@ -24,12 +24,12 @@ int TestStructuredGridLIC2DZSlice(int argc, char* argv[])
   char* fname =  
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/timestep_0_15.vts");
 
-  vtkstd::string filename = fname;
+  std::string filename = fname;
   filename = "--data=" + filename;
   delete [] fname;
 
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/noise.png");
-  vtkstd::string noise = fname;
+  std::string noise = fname;
   noise = "--noise=" + noise;
   delete [] fname;
 

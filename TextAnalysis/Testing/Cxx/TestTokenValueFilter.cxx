@@ -40,9 +40,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -79,7 +79,7 @@ int TestTokenValueFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     content_array->Delete();
     
     vtkSmartPointer<vtkTextExtraction> text_extraction = vtkSmartPointer<vtkTextExtraction>::New();
-    text_extraction->SetInputConnection(0, documents->GetProducerPort());
+    text_extraction->SetInputData(0, documents);
     
     vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();
     tokenizer->SetInputConnection(0, text_extraction->GetOutputPort());
@@ -105,7 +105,7 @@ int TestTokenValueFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

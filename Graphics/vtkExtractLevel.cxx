@@ -21,9 +21,9 @@
 #include "vtkUniformGrid.h"
 #include "vtkAMRBox.h"
 
-#include <vtkstd/set>
+#include <set>
 
-class vtkExtractLevel::vtkSet : public vtkstd::set<unsigned int>
+class vtkExtractLevel::vtkSet : public std::set<unsigned int>
 {
 };
 

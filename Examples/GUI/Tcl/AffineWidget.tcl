@@ -32,7 +32,7 @@ vtkImageShiftScale shifter
 # An actor to display one slice of 3D image data.
 #
 vtkImageActor imageActor
-  imageActor SetInput [shifter GetOutput]
+  [imageActor GetMapper] SetInputConnection [shifter GetOutputPort]
   imageActor VisibilityOn
   imageActor SetDisplayExtent 0 63 0 63 46 46
   imageActor InterpolateOn

@@ -31,8 +31,8 @@
 #include "vtkSmartPointer.h"
 
 #include <sys/stat.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkFacetWriter);
 

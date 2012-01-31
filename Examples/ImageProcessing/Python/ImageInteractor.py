@@ -22,7 +22,7 @@ shiftScale.SetScale(0.07)
 shiftScale.SetOutputScalarTypeToUnsignedChar()
 
 ia = vtk.vtkImageActor()
-ia.SetInput(shiftScale.GetOutput())
+ia.GetMapper().SetInputConnection(shiftScale.GetOutputPort())
 
 # Create the RenderWindow, Renderer and both Actors
 ren = vtk.vtkRenderer()
@@ -58,7 +58,7 @@ pd = vtk.vtkPolyData()
 pd.SetPoints(pts)
 pd.SetLines(lines)
 bboxMapper = vtk.vtkPolyDataMapper2D()
-bboxMapper.SetInput(pd)
+bboxMapper.SetInputData(pd)
 bboxActor = vtk.vtkActor2D()
 bboxActor.SetMapper(bboxMapper)
 bboxActor.GetProperty().SetColor(1, 0, 0)

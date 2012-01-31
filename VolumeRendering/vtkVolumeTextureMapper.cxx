@@ -94,7 +94,7 @@ void vtkVolumeTextureMapper::Update()
   if ( this->GetInput() )
     {
     this->GetInputAlgorithm()->UpdateInformation();
-    this->GetInputAlgorithm()->SetUpdateExtentToWholeExtent();
+    this->SetUpdateExtentToWholeExtent();
     this->GetInputAlgorithm()->Update();
     }
 }

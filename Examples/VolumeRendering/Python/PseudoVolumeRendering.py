@@ -12,17 +12,19 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create pipeline. Read structured grid data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 
+pl3d_output = pl3d.GetOutput().GetBlock(0)
+
 # A convenience, use this filter to limit data for experimentation.
 extract = vtk.vtkExtractGrid()
 extract.SetVOI(1, 55, -1000, 1000, -1000, 1000)
-extract.SetInputConnection(pl3d.GetOutputPort())
+extract.SetInputData(pl3d_output)
 
 # The (implicit) plane is used to do the cutting
 plane = vtk.vtkPlane()
@@ -52,7 +54,7 @@ cut.SetMapper(cutterMapper)
 
 # Add in some surface geometry for interest.
 iso = vtk.vtkContourFilter()
-iso.SetInputConnection(pl3d.GetOutputPort())
+iso.SetInputData(pl3d_output)
 iso.SetValue(0, .22)
 normals = vtk.vtkPolyDataNormals()
 normals.SetInputConnection(iso.GetOutputPort())
@@ -69,7 +71,7 @@ isoActor.GetProperty().SetSpecular(.5)
 isoActor.GetProperty().SetSpecularPower(30)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineTubes = vtk.vtkTubeFilter()
 outlineTubes.SetInputConnection(outline.GetOutputPort())
 outlineTubes.SetRadius(.1)

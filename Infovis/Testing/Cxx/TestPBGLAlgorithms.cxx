@@ -40,8 +40,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-using vtkstd::pair;
-using vtkstd::vector;
+using std::pair;
+using std::vector;
 
 static vtkIdType verticesPerNode = 1000;
 

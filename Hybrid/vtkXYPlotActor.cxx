@@ -2382,6 +2382,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
       else
         {
         newPts[0] = -1;
+        newPts[1] = -1;
         if (x1[0] >= p1[0] && x1[0] <= p2[0] && x1[1] >= p1[1] && x1[1] <= p2[1] )
           {//first point in
           newPts[0] = pointMap[pts[i]];
@@ -2404,7 +2405,10 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
               break;
               }
             }
+          if (newPts[1] >= 0)
+            {
             newLines->InsertNextCell(2,newPts);
+            }
           }
         }
       }

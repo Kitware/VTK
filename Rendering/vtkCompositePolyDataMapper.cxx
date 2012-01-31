@@ -26,14 +26,14 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper);
 
 class vtkCompositePolyDataMapperInternals
 {
 public:
-  vtkstd::vector<vtkPolyDataMapper*> Mappers;
+  std::vector<vtkPolyDataMapper*> Mappers;
 };
 
 vtkCompositePolyDataMapper::vtkCompositePolyDataMapper()

@@ -101,8 +101,8 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
     vtkIdType myLength = col->GetNumberOfTuples();
     vtkIdType totalLength = 0;
-    vtkstd::vector<vtkIdType> recvLengths(numProcesses,0);
-    vtkstd::vector<vtkIdType> recvOffsets(numProcesses,0);
+    std::vector<vtkIdType> recvLengths(numProcesses,0);
+    std::vector<vtkIdType> recvOffsets(numProcesses,0);
 
     // gathers all of the array lengths together
     comm->AllGather(&myLength, &recvLengths[0], 1);

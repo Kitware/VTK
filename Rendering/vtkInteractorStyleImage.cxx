@@ -230,6 +230,14 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
     this->StartRotate();
     }
 
+  // If ctrl is held down in slicing mode, slice the image
+  else if (this->InteractionMode == VTKIS_IMAGE_SLICING &&
+           this->Interactor->GetControlKey())
+    {
+    this->StartSlice();
+    }
+
+
   // The rest of the button + key combinations remain the same
 
   else
@@ -276,7 +284,8 @@ void vtkInteractorStyleImage::OnMiddleButtonDown()
     }
 
   // If shift is held down, change the slice
-  if (this->InteractionMode == VTKIS_IMAGE3D &&
+  if ((this->InteractionMode == VTKIS_IMAGE3D ||
+       this->InteractionMode == VTKIS_IMAGE_SLICING) &&
       this->Interactor->GetShiftKey())
     {
     this->StartSlice();
@@ -333,6 +342,11 @@ void vtkInteractorStyleImage::OnRightButtonDown()
     {
     this->StartSlice();
     }
+  else if (this->InteractionMode == VTKIS_IMAGE_SLICING &&
+           this->Interactor->GetControlKey())
+    {
+    this->StartSpin();
+    }
 
   // The rest of the button + key combinations remain the same
 
@@ -362,6 +376,14 @@ void vtkInteractorStyleImage::OnRightButtonUp()
         this->ReleaseFocus();
         }
       break;
+
+    case VTKIS_SPIN:
+      if ( this->Interactor )
+        {
+        this->EndSpin();
+        }
+      break;
+
     }
 
   // Call parent to handle all other states and perform additional work
@@ -672,8 +694,23 @@ void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
      << this->WindowLevelStartPosition[0] << ", "
      << this->WindowLevelStartPosition[1] << ")\n";
 
-  os << indent << "Interaction Mode: " <<
-     ((this->InteractionMode == VTKIS_IMAGE3D) ? "Image3D\n" : "Image2D\n");
+  os << indent << "Interaction Mode: ";
+  if (this->InteractionMode == VTKIS_IMAGE2D)
+    {
+    os << "Image2D\n";
+    }
+  else if (this->InteractionMode == VTKIS_IMAGE3D)
+    {
+    os << "Image3D\n";
+    }
+  else if (this->InteractionMode == VTKIS_IMAGE_SLICING)
+    {
+    os << "ImageSlicing\n";
+    }
+  else
+    {
+    os << "Unknown\n";
+    }
 
   os << indent << "X View Right Vector: ("
      << this->XViewRightVector[0] << ", "

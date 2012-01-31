@@ -7,43 +7,18 @@ IF(VTK_USE_DISPLAY)
 
 # add tests that do not require data
 SET(MyTests
-  BoxWidget.cxx
-  BoxWidget2.cxx
 #  ScaledBoxWidget2.cxx
   TestAffineWidget.cxx
-  TestAngleWidget2D.cxx
-  TestAngleWidget3D.cxx
 #  TestAxesTransformWidget.cxx
-  TestBalloonWidget.cxx
-  TestBorderWidget.cxx
   TestButtonWidget.cxx
-  TestCameraWidget.cxx
 #  TestCaptionWidget.cxx
-  TestCellCentersPointPlacer.cxx
-  TestCenteredSliderWidget2D.cxx
-  TestCheckerboardWidget.cxx
-  TestContourWidget2.cxx
-  TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
-  TestFixedSizeHandleRepresentation3D.cxx
   TestHandleWidget.cxx
-  TestHandleWidget2D.cxx
-  TestImplicitPlaneWidget.cxx
-  TestImplicitPlaneWidget2.cxx
-  TestImplicitPlaneWidget2b.cxx
   TestLogoWidget.cxx
-  TestOrientationMarkerWidget.cxx
-  TestPlaybackWidget.cxx
   TestProgrammaticPlacement.cxx
   TestRectilinearWipeWidget.cxx
-  TestSeedWidget.cxx
-  TestSliderWidget.cxx
-  TestSliderWidget2D.cxx
-  TestTextWidget.cxx
   TerrainPolylineEditor.cxx
   TestDijkstraGraphGeodesicPath.cxx
-  TestParallelopipedWidget.cxx
-  TestSeedWidgetNonUniformRepresentations.cxx
   TestPolyPlane.cxx
   vtkAngleWidgetTest1.cxx
   vtkBiDimensionalWidgetTest1.cxx
@@ -69,7 +44,6 @@ SET(MyTests
 #  vtkPointHandleRepresentation2DTest1.cxx
 #  vtkPointHandleRepresentation3DTest1.cxx
 #  vtkConstrainedPointHandleRepresentationTest1
-  TestPointHandleRepresentation3D.cxx
 #  vtkSphereHandleRepresentationTest1.cxx
 #  vtkPolygonalHandleRepresentation3DTest1.cxx
 #  vtkOrientedPolygonalHandleRepresentation3DTest1.cxx
@@ -78,32 +52,59 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
+    BoxWidget.cxx
+    BoxWidget2.cxx
     ImagePlaneWidget.cxx
+    TestAngleWidget2D.cxx
+    TestAngleWidget3D.cxx
+    TestBalloonWidget.cxx
     TestBiDimensionalWidget.cxx
-    TestDijkstraImageGeodesicPath.cxx
-    TestImageActorContourWidget.cxx
+    TestBorderWidget.cxx
+    TestBrokenLineWidget.cxx
+    TestCameraWidget.cxx
+    TestCellCentersPointPlacer.cxx
+    TestCenteredSliderWidget2D.cxx
+    TestCheckerboardWidget.cxx
     TestConstrainedHandleWidget.cxx
-    TestSurfaceConstrainedHandleWidget.cxx
-    TestPolygonalRepresentationHandleWidget.cxx
-    TestPolygonalHandleRepresentations.cxx
-    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
-    TestSphereHandleWidget.cxx
+    TestContourWidget2.cxx
+    TestDistanceWidget.cxx
+    TestDijkstraImageGeodesicPath.cxx
+    TestFixedSizeHandleRepresentation3D.cxx
     TestFocalPlaneContour.cxx
-    #TestOrientedGlyphContour.cxx
+    TestHandleWidget2D.cxx
+    TestImageActorContourWidget.cxx
     TestImageTracerWidget.cxx
+    TestImplicitPlaneWidget.cxx
+    TestImplicitPlaneWidget2.cxx
+    TestImplicitPlaneWidget2b.cxx
     TestLineWidget.cxx
     TestLineWidget2.cxx
     TestLogoWidgetAlphaBlending.cxx
     TestLogoWidgetDepthPeeling.cxx
+    TestOrientationMarkerWidget.cxx
     TestOrthoPlanes.cxx
     TestPlaneWidget.cxx
+    TestPlaybackWidget.cxx
+    TestPointHandleRepresentation3D.cxx
     TestPointWidget.cxx
+    TestParallelopipedWidget.cxx
+    TestPolygonalRepresentationHandleWidget.cxx
+    TestPolygonalHandleRepresentations.cxx
+    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
+    TestSeedWidget.cxx
+    TestSeedWidgetNonUniformRepresentations.cxx
+    TestSphereHandleWidget.cxx
+    #TestOrientedGlyphContour.cxx
     TestResliceCursorWidget2.cxx
     TestResliceCursorWidget3.cxx
     TestScalarBarWidget.cxx
     TestSeedWidget2.cxx
+    TestSliderWidget.cxx
+    TestSliderWidget2D.cxx
     TestSplineWidget.cxx
+    TestSurfaceConstrainedHandleWidget.cxx
     TestTensorProbeWidget.cxx
+    TestTextWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 

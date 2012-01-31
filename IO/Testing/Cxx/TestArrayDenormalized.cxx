@@ -32,9 +32,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -52,7 +52,7 @@ int TestArrayDenormalized(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     a1->SetValue(1, 2.221997902944077e-314);
     a1->SetValue(2, 3.0);
 
-    vtkstd::stringstream a_buffer;
+    std::stringstream a_buffer;
     vtkArrayWriter::Write(a1, a_buffer);
 
     std::cerr << a_buffer.str() << std::endl;
@@ -68,7 +68,7 @@ int TestArrayDenormalized(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

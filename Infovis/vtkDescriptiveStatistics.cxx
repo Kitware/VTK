@@ -40,7 +40,7 @@
 
 #include <vtksys/stl/set>
 #include <vtksys/ios/sstream> 
-#include <vtkstd/limits>
+#include <limits>
 
 vtkStandardNewMacro(vtkDescriptiveStatistics);
 

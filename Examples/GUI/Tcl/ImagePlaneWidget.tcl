@@ -23,7 +23,7 @@ vtkVolume16Reader v16
   v16 SetDataSpacing 3.2 3.2 1.5
   v16 Update
 
-scan [[v16 GetOutput] GetWholeExtent] "%d %d %d %d %d %d" \
+scan [[v16 GetExecutive] GetWholeExtent [v16 GetOutputInformation 0]] "%d %d %d %d %d %d" \
         xMin xMax yMin yMax zMin zMax
 
 set spacing [[v16 GetOutput] GetSpacing]

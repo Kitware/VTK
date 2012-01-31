@@ -56,8 +56,8 @@
 #include "vtkDataArrayCollection.h"
 #include "vtkArrayData.h"
 #include "vtkDataObjectCollection.h"
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <algorithm>
 #include <assert.h>
 
 #define VTK_CREATE(classname, varname) vtkSmartPointer<classname> varname = vtkSmartPointer<classname>::New()
@@ -690,8 +690,8 @@ mxArray* vtkMatlabMexAdapter::vtkGraphToMxArray(vtkGraph* ga)
     {
     mwIndex *ir, *jc;
     int index;
-    vtkstd::vector<int> vertlist;
-    vtkstd::vector<int>::iterator vli;
+    std::vector<int> vertlist;
+    std::vector<int>::iterator vli;
 
     if(isDirected)
       output = mxCreateSparse(numvert, numvert, numedges, mxREAL);
@@ -717,7 +717,7 @@ mxArray* vtkMatlabMexAdapter::vtkGraphToMxArray(vtkGraph* ga)
         vertlist.push_back(av->Next());
         }
 
-      vtkstd::sort( vertlist.begin(), vertlist.end() );
+      std::sort( vertlist.begin(), vertlist.end() );
       jc[vid] = index;
 
       if(!vertlist.empty())

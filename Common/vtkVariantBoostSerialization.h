@@ -51,7 +51,7 @@ template<typename Archiver>
 void serialize(Archiver& ar, vtkStdString& str,
                const unsigned int vtkNotUsed(version))
 {
-  ar & boost::serialization::base_object<vtkstd::string>(str);
+  ar & boost::serialization::base_object<std::string>(str);
 }
 
 //----------------------------------------------------------------------------

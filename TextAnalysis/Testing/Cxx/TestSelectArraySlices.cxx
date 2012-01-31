@@ -35,9 +35,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer;                                       \
+    std::ostringstream buffer;                                       \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -79,7 +79,7 @@ int TestSelectArraySlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     array_data->AddArray(array);
 
     vtkSmartPointer<vtkSelectArraySlices> select_slices = vtkSmartPointer<vtkSelectArraySlices>::New();
-    select_slices->SetInputConnection(0, array_data->GetProducerPort());
+    select_slices->SetInputData(0, array_data);
     select_slices->SetSliceDimension(1);
 
     select_slices->SetMinimumCount(1);
@@ -104,7 +104,7 @@ int TestSelectArraySlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

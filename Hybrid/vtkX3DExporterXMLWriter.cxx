@@ -24,7 +24,7 @@
 
 #include <vtksys/ios/sstream>
 #include <vtksys/ios/fstream>
-#include <vtkstd/string>
+#include <string>
 #include <cassert>
 
 using namespace vtkX3D;
@@ -40,7 +40,7 @@ XMLInfo(int _elementId)
   bool endTagWritten;
 };
 
-typedef vtkstd::vector<XMLInfo> vtkX3DExporterXMLNodeInfoStackBase;
+typedef std::vector<XMLInfo> vtkX3DExporterXMLNodeInfoStackBase;
 class vtkX3DExporterXMLNodeInfoStack: public vtkX3DExporterXMLNodeInfoStackBase
 {};
 

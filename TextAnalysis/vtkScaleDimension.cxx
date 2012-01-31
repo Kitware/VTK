@@ -77,32 +77,32 @@ int vtkScaleDimension::RequestData(
     // Enforce our preconditions ...
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_array_data)
-      throw vtkstd::runtime_error("Missing array input.");
+      throw std::runtime_error("Missing array input.");
     if(input_array_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Array input must contain exactly one vtkArray.");
+      throw std::runtime_error("Array input must contain exactly one vtkArray.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(input_array_data->GetArray(0));
     if(!input_array)
-      throw vtkstd::runtime_error("Array input must be a vtkTypedArray<double>.");
+      throw std::runtime_error("Array input must be a vtkTypedArray<double>.");
 
     if(this->Dimension < 0 || this->Dimension >= input_array->GetDimensions())
-      throw vtkstd::runtime_error("Scale dimension out-of-range.");
+      throw std::runtime_error("Scale dimension out-of-range.");
 
     vtkArrayData* const scale_vector_data = vtkArrayData::GetData(inputVector[1]);
     if(!scale_vector_data)
-      throw vtkstd::runtime_error("Missing vector input.");
+      throw std::runtime_error("Missing vector input.");
     if(scale_vector_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("Vector input must contain exactly one vtkArray.");
+      throw std::runtime_error("Vector input must contain exactly one vtkArray.");
     vtkDenseArray<double>* const scale_vector = vtkDenseArray<double>::SafeDownCast(scale_vector_data->GetArray(0));
     if(!scale_vector)
-      throw vtkstd::runtime_error("Vector input must be a vtkDenseArray<double>.");
+      throw std::runtime_error("Vector input must be a vtkDenseArray<double>.");
     if(scale_vector->GetDimensions() != 1)
-      throw vtkstd::runtime_error("Vector input must have exactly one dimension.");
+      throw std::runtime_error("Vector input must have exactly one dimension.");
 
     if(scale_vector->GetExtent(0).GetSize() != input_array->GetExtent(this->Dimension).GetSize())
-      throw vtkstd::runtime_error("Vector extents must match Array extents along the scale dimension.");
+      throw std::runtime_error("Vector extents must match Array extents along the scale dimension.");
 
     // Optionally invert the input vector
-    vtkstd::vector<double> scale(scale_vector->GetStorage(), scale_vector->GetStorage() + scale_vector->GetExtent(0).GetSize());
+    std::vector<double> scale(scale_vector->GetStorage(), scale_vector->GetStorage() + scale_vector->GetExtent(0).GetSize());
     if(this->Invert)
       {
       for(unsigned int i = 0; i != scale.size(); ++i)
@@ -138,7 +138,7 @@ int vtkScaleDimension::RequestData(
 
     return 1;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

@@ -40,7 +40,7 @@ int TestPowerWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkPowerWeighting> powerWeighting =
       vtkSmartPointer<vtkPowerWeighting>::New();
     powerWeighting->SetPower(2);
-    powerWeighting->SetInputConnection(arrayData->GetProducerPort());
+    powerWeighting->SetInputData(arrayData);
     powerWeighting->Update();
 
     vtkSmartPointer<vtkArrayData> outputArrayData = powerWeighting->GetOutput();
@@ -54,7 +54,7 @@ int TestPowerWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return EXIT_SUCCESS;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     }

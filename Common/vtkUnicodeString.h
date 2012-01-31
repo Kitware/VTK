@@ -45,8 +45,8 @@
 #define __vtkUnicodeString_h
 
 #include <vtkSystemIncludes.h>
-#include <vtkstd/string>
-#include <vtkstd/vector>
+#include <string>
+#include <vector>
 
 class vtkUnicodeString;
 
@@ -66,14 +66,14 @@ class VTK_COMMON_EXPORT vtkUnicodeString
 {
 public:
   typedef vtkUnicodeStringValueType value_type;
-  typedef vtkstd::string::size_type size_type;
+  typedef std::string::size_type size_type;
 
   class VTK_COMMON_EXPORT const_iterator
   {
   public:
-    typedef vtkstd::bidirectional_iterator_tag iterator_category;
+    typedef std::bidirectional_iterator_tag iterator_category;
     typedef vtkUnicodeStringValueType value_type;
-    typedef vtkstd::string::difference_type difference_type;
+    typedef std::string::difference_type difference_type;
     typedef value_type* pointer;
     typedef value_type& reference;
   
@@ -88,9 +88,9 @@ public:
     const_iterator operator--(int);
 
   private:
-    const_iterator(vtkstd::string::const_iterator);
+    const_iterator(std::string::const_iterator);
     friend class vtkUnicodeString;
-    vtkstd::string::const_iterator Position;
+    std::string::const_iterator Position;
   };
 
   // Description:
@@ -110,7 +110,7 @@ public:
   // Description:
   // Tests a sequence of bytes, returning true iff they are a valid UTF-8 sequence.
   static bool is_utf8(const char*);
-  static bool is_utf8(const vtkstd::string&);
+  static bool is_utf8(const std::string&);
 
   // Description:
   // Constructs a string from a null-terminated sequence of UTF-8 encoded characters.
@@ -118,7 +118,7 @@ public:
   // Constructs a string from a half-open sequence of UTF-8 encoded characters.
   static vtkUnicodeString from_utf8(const char* begin, const char* end);
   // Constructs a string from a sequence of UTF-8 encoded characters.
-  static vtkUnicodeString from_utf8(const vtkstd::string&);
+  static vtkUnicodeString from_utf8(const std::string&);
   // Description:
   // Constructs a string from a null-terminated sequence of UTF-16 encoded characters.
   static vtkUnicodeString from_utf16(const vtkTypeUInt16*);
@@ -137,7 +137,7 @@ public:
 
   // Description:
   // Returns the Unicode character at the given character offset within the sequence,
-  // or throws vtkstd::out_of_range if the offset is invalid.
+  // or throws std::out_of_range if the offset is invalid.
   value_type at(size_type offset) const;
   // Description:
   // Returns the Unicode character at the given character offset within the sequence.
@@ -150,14 +150,14 @@ public:
   // Description:
   // Inserts the sequence into the supplied storage as a collection of UTF-8 encoded
   // characters.
-  void utf8_str(vtkstd::string& result) const;
+  void utf8_str(std::string& result) const;
   // Description:
   // Returns the sequence as a collection of UTF-16 encoded characters.
-  vtkstd::vector<vtkTypeUInt16> utf16_str() const;
+  std::vector<vtkTypeUInt16> utf16_str() const;
   // Description:
   // Inserts the sequence into the supplied storage as a collection of UTF-16 encoded
   // characters
-  void utf16_str(vtkstd::vector<vtkTypeUInt16>& result) const;
+  void utf16_str(std::vector<vtkTypeUInt16>& result) const;
 
   // Description:
   // Returns the number of bytes (not characters) in the sequence.
@@ -227,7 +227,7 @@ public:
   void swap(vtkUnicodeString&);
 
 private:
-  vtkstd::string Storage;
+  std::string Storage;
   class back_insert_iterator;
 };
 

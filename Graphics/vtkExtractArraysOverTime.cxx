@@ -38,10 +38,10 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "assert.h"
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 #include <vtksys/ios/sstream>
-#include <vtkstd/vector>
+#include <vector>
 
 class vtkExtractArraysOverTime::vtkInternal
 {
@@ -77,13 +77,13 @@ public: // vtkValue is made public due to a bug in VS 6.0
   class vtkValue
     {
   public:
-    vtkstd::string Label;
+    std::string Label;
     vtkSmartPointer<vtkTable> Output;
     vtkSmartPointer<vtkUnsignedCharArray> ValidMaskArray;
     vtkSmartPointer<vtkDoubleArray> PointCoordinatesArray;
     };
 private:
-  typedef vtkstd::map<vtkKey, vtkValue> MapType;
+  typedef std::map<vtkKey, vtkValue> MapType;
   MapType OutputGrids;
   int NumberOfTimeSteps;
   int CurrentTimeIndex;
@@ -126,8 +126,8 @@ private:
   vtkSmartPointer<vtkDoubleArray> TimeArray;
 public:
   // List of ids selected for fast path.
-  vtkstd::vector<vtkIdType> FastPathIDs;
-  vtkstd::vector<unsigned int> FastPathCompositeIDs;
+  std::vector<vtkIdType> FastPathIDs;
+  std::vector<unsigned int> FastPathCompositeIDs;
   unsigned int FastPathIDIndex;
   vtkInternal()
     {
@@ -1028,8 +1028,8 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
 // fast-path.
 static bool vtkUpdateFastPathIDsInternal(
   vtkSelection* selection, int piece,
-  vtkstd::vector<vtkIdType>& ids,
-  vtkstd::vector<unsigned int>& cids)
+  std::vector<vtkIdType>& ids,
+  std::vector<unsigned int>& cids)
 {
   if (!selection)
     {

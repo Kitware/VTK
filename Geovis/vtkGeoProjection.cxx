@@ -140,10 +140,10 @@ int vtkGeoProjection::UpdateProjection()
     }
 
   const char* pjArgs[3];
-  vtkstd::string projSpec( "+proj=" );
+  std::string projSpec( "+proj=" );
   projSpec += this->Name;
-  vtkstd::string ellpsSpec( "+ellps=clrk66" );
-  vtkstd::string meridSpec;
+  std::string ellpsSpec( "+ellps=clrk66" );
+  std::string meridSpec;
   vtksys_ios::ostringstream os;
   os << "+lon_0=" << this->CentralMeridian;
   meridSpec = os.str();

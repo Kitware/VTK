@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkArrayData);
 class vtkArrayData::implementation
 {
 public:
-  vtkstd::vector<vtkArray*> Arrays;
+  std::vector<vtkArray*> Arrays;
 };
 
 //----------------------------------------------------------------------------
@@ -92,10 +92,10 @@ void vtkArrayData::AddArray(vtkArray* array)
   
   int n=0;
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
-  vtkstd::count(this->Implementation->Arrays.begin(),
+  std::count(this->Implementation->Arrays.begin(),
                 this->Implementation->Arrays.end(),array,n);
 #else
-  n=vtkstd::count(this->Implementation->Arrays.begin(),
+  n=std::count(this->Implementation->Arrays.begin(),
                   this->Implementation->Arrays.end(),array);
 #endif
   

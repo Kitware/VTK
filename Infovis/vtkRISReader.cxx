@@ -26,14 +26,14 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 
 vtkStandardNewMacro(vtkRISReader);
 
-// Not all platforms support vtkstd::getline(istream&, vtkstd::string) so
+// Not all platforms support std::getline(istream&, std::string) so
 // we have to provide our own
-static istream& my_getline(istream& input, vtkstd::string& output, char delimiter = '\n');
+static istream& my_getline(istream& input, std::string& output, char delimiter = '\n');
 
 // ----------------------------------------------------------------------
 
@@ -102,11 +102,11 @@ int vtkRISReader::RequestData(
   vtkTable* table = vtkTable::GetData(outputVector);
   
   // Keep a mapping of column-name to column-index for quick lookups ...
-  vtkstd::map<vtkstd::string, vtkIdType> columns;
+  std::map<std::string, vtkIdType> columns;
 
-  vtkstd::string line_buffer;
+  std::string line_buffer;
   
-  const vtkstd::string delimiter(this->Delimiter ? this->Delimiter : "");
+  const std::string delimiter(this->Delimiter ? this->Delimiter : "");
   int record_count = 0;
 
   // For each record in the file ...
@@ -132,25 +132,25 @@ int vtkRISReader::RequestData(
     // For each field in the record ...
     for(; file; )
       {
-      const vtkstd::string tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
+      const std::string tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
         ? line_buffer.substr(0, 2)
-        : vtkstd::string();
+        : std::string();
         
       if(tag_type == "ER")
         break;
 
-      vtkstd::string tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : vtkstd::string();
+      std::string tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : std::string();
 
       // For each line in the field ...
       for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
         {
-        const vtkstd::string next_tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
+        const std::string next_tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
           ? line_buffer.substr(0, 2)
-          : vtkstd::string();
+          : std::string();
 
         if(next_tag_type == tag_type)
           {
-          const vtkstd::string next_tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : vtkstd::string();
+          const std::string next_tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : std::string();
           tag_value += delimiter + next_tag_value;
           }
         else if(next_tag_type.empty())
@@ -183,8 +183,8 @@ int vtkRISReader::RequestData(
     }
 /*  
   // Loop through every line in the file ...
-  vtkstd::string tag;
-  vtkstd::string tag_type;
+  std::string tag;
+  std::string tag_type;
   vtkStdString tag_value;
   bool explicit_tag;
   for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
@@ -261,7 +261,7 @@ int vtkRISReader::RequestData(
 }
 
 // ----------------------------------------------------------------------
-static istream& my_getline(istream& input, vtkstd::string& output, char delimiter)
+static istream& my_getline(istream& input, std::string& output, char delimiter)
 {
   output = "";
   

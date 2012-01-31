@@ -102,6 +102,10 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   this->BoundingBox = vtkBox::New();
 
   this->LabelFormat = NULL;
+
+  this->Tolerance = 1;
+
+  this->InteractionState = Outside;
 }
 
 //----------------------------------------------------------------------

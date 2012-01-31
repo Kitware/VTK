@@ -18,14 +18,14 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
 {
 public:
-  vtkstd::vector<vtkInformation*> Vector;
+  std::vector<vtkInformation*> Vector;
 
   ~vtkInformationVectorInternals();
 };
@@ -34,7 +34,7 @@ public:
 vtkInformationVectorInternals::~vtkInformationVectorInternals()
 {
   // Delete all the information objects.
-  for(vtkstd::vector<vtkInformation*>::iterator i = this->Vector.begin();
+  for(std::vector<vtkInformation*>::iterator i = this->Vector.begin();
       i != this->Vector.end(); ++i)
     {
     if(vtkInformation* info = *i)

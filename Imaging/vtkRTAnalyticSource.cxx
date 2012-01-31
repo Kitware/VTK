@@ -113,6 +113,7 @@ int vtkRTAnalyticSource::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                tmpExt,6);
 
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
   outInfo->Set(vtkDataObject::SPACING(), this->SubsampleRate,
                this->SubsampleRate, this->SubsampleRate);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);

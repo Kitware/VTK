@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
   unsigned int endLabel = atoi(argv[3]);
-  vtkstd::string filePrefix = "Label";
+  std::string filePrefix = "Label";
   unsigned int smoothingIterations = 15;
   double passBand = 0.001;
   double featureAngle = 120.0;

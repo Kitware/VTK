@@ -38,9 +38,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -83,7 +83,7 @@ int TestExtractSelectedSlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     // Setup the pipeline to remove empty columns from the frequency matrix and matching rows from the dictionary ...
     vtkSmartPointer<vtkSelectArraySlices> select_slices = vtkSmartPointer<vtkSelectArraySlices>::New();
-    select_slices->SetInputConnection(0, input_frequency_matrix->GetProducerPort());
+    select_slices->SetInputData(0, input_frequency_matrix);
     select_slices->SetSliceDimension(1);
     select_slices->SetMinimumCount(1);
     select_slices->SetMinimumPercent(0);
@@ -91,11 +91,11 @@ int TestExtractSelectedSlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     select_slices->SetMaximumPercent(1);
 
     vtkSmartPointer<vtkExtractSelectedRows> extract_rows = vtkSmartPointer<vtkExtractSelectedRows>::New();
-    extract_rows->SetInputConnection(0, input_dictionary->GetProducerPort());
+    extract_rows->SetInputData(0, input_dictionary);
     extract_rows->SetInputConnection(1, select_slices->GetOutputPort());
 
     vtkSmartPointer<vtkExtractSelectedSlices> extract_slices = vtkSmartPointer<vtkExtractSelectedSlices>::New();
-    extract_slices->SetInputConnection(0, input_frequency_matrix->GetProducerPort());
+    extract_slices->SetInputData(0, input_frequency_matrix);
     extract_slices->SetInputConnection(1, select_slices->GetOutputPort());
     extract_slices->SetSliceDimension(1);
 
@@ -136,7 +136,7 @@ int TestExtractSelectedSlices(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

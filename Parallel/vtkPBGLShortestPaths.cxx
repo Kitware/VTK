@@ -70,9 +70,9 @@ public:
 
   furthest_vertex_double(vtkGraph *g) : graph(g) { }
 
-  vtkstd::pair<vtkIdType, double>
-  operator()(vtkstd::pair<vtkIdType, double> x,
-             vtkstd::pair<vtkIdType, double> y) const
+  std::pair<vtkIdType, double>
+  operator()(std::pair<vtkIdType, double> x,
+             std::pair<vtkIdType, double> y) const
   {
     vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
     if (x.second > y.second
@@ -124,7 +124,7 @@ vtkPBGLShortestPaths::~vtkPBGLShortestPaths()
 
 void vtkPBGLShortestPaths::SetOriginSelection(vtkSelection* s)
 {
-  this->SetOriginSelectionConnection(s->GetProducerPort());
+  this->SetInputData(s);
 }
 
 // Description:
@@ -470,7 +470,7 @@ int vtkPBGLShortestPaths::RequestData(
       // processes.
       using namespace boost::parallel;
       maxFromRootVertex = all_reduce(pbglHelper->GetProcessGroup(),
-                                     vtkstd::make_pair(maxFromRootVertex,
+                                     std::make_pair(maxFromRootVertex,
                                                        maxDistance),
                                      furthest_vertex_double(output)).first;
 

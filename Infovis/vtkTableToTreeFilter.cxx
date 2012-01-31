@@ -32,9 +32,9 @@
 #include "vtkTable.h"
 #include "vtkTree.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkTableToTreeFilter);
 

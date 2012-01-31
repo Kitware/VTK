@@ -1,6 +1,7 @@
 SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests
+  TestBSplineWarp.cxx
   TestImageStencilData.cxx
   X3DTest.cxx
   )
@@ -8,8 +9,12 @@ IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
 #    TestAxisActor3D.cxx
+    TestCubeAxes2DMode.cxx
     TestCubeAxes3.cxx
     TestCubeAxesWithGridLines.cxx
+    TestCubeAxesWithXLines.cxx
+    TestCubeAxesWithYLines.cxx
+    TestCubeAxesWithZLines.cxx
     TestCubeAxesWithXInnerGrids.cxx
     TestCubeAxesWithYInnerGrids.cxx
     TestCubeAxesWithZInnerGrids.cxx

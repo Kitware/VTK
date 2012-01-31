@@ -19,24 +19,26 @@ package require vtkinteraction
 # in a gas turbine (e.g., a jet engine) and the hot gas eventually makes its
 # way to the turbine section.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
+
 # Planes are specified using a imin,imax, jmin,jmax, kmin,kmax coordinate
 # specification. Min and max i,j,k values are clamped to 0 and maximum value.
 #
 vtkStructuredGridGeometryFilter plane
-    plane SetInputConnection [pl3d GetOutputPort]
+    plane SetInputData $pl3dOutput
     plane SetExtent 10 10 1 100 1 100
 vtkStructuredGridGeometryFilter plane2
-    plane2 SetInputConnection [pl3d GetOutputPort]
+    plane2 SetInputData $pl3dOutput
     plane2 SetExtent 30 30 1 100 1 100
 vtkStructuredGridGeometryFilter plane3
-    plane3 SetInputConnection [pl3d GetOutputPort]
+    plane3 SetInputData $pl3dOutput
     plane3 SetExtent 45 45 1 100 1 100
 
 # We use an append filter because that way we can do the warping, etc. just
@@ -56,13 +58,13 @@ vtkPolyDataNormals normals
     normals SetFeatureAngle 60
 vtkPolyDataMapper planeMapper
     planeMapper SetInputConnection [normals GetOutputPort]
-    eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval planeMapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper planeMapper
 
 # The outline provides context for the data and the planes.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

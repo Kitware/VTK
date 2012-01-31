@@ -74,6 +74,15 @@ public:
   vtkGetMacro(Border, int);
 
   // Description:
+  // Instead of rendering only to the image border, render out
+  // to the viewport boundary with the background color.  The
+  // background color will be the lowest color on the lookup
+  // table that is being used for the image.
+  vtkSetMacro(Background, int);
+  vtkBooleanMacro(Background, int);
+  vtkGetMacro(Background, int);
+
+  // Description:
   // Automatically set the slice position to the camera focal point.
   // This provides a convenient way to interact with the image, since
   // most Interactors directly control the camera.
@@ -144,8 +153,7 @@ protected:
   // Compute the coordinates and texture coordinates for the image, given
   // an extent that describes a single slice.
   void MakeTextureGeometry(
-    vtkImageData *input, const int extent[6], int border,
-    double coords[12], double tcoords[8]);
+    const int extent[6], double coords[12], double tcoords[8]);
 
   // Description:
   // Given an extent that describes a slice (it must have unit thickness
@@ -171,7 +179,13 @@ protected:
   // assembly path for its prop.
   vtkMatrix4x4 *GetDataToWorldMatrix();
 
+  // Description:
+  // Get the background color, by using the first color in the
+  // supplied lookup table, or black if there is no lookup table.
+  void GetBackgroundColor(vtkImageProperty *property, double color[4]);
+
   int Border;
+  int Background;
   vtkScalarsToColors *DefaultLookupTable;
   vtkMultiThreader *Threader;
   int NumberOfThreads;

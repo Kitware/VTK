@@ -84,8 +84,9 @@ public:
       {
       vtkResliceCursorLineRepresentation *rep = dynamic_cast<
         vtkResliceCursorLineRepresentation * >(rcw->GetRepresentation());
-      vtkResliceCursor *rc = rep->GetResliceCursorActor()->
-                  GetCursorAlgorithm()->GetResliceCursor();
+      // Although the return value is not used, we keep the get calls
+      // in case they had side-effects
+      rep->GetResliceCursorActor()->GetCursorAlgorithm()->GetResliceCursor();
       for (int i = 0; i < 3; i++)
         {
         vtkPlaneSource *ps = static_cast< vtkPlaneSource * >(
@@ -116,7 +117,7 @@ public:
 };
 
 
-QtVTKRenderWindows::QtVTKRenderWindows( int argc, char *argv[])
+QtVTKRenderWindows::QtVTKRenderWindows( int vtkNotUsed(argc), char *argv[])
 {
   this->ui = new Ui_QtVTKRenderWindows;
   this->ui->setupUi(this);

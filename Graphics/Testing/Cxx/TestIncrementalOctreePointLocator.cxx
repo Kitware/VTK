@@ -425,7 +425,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
   pntsFile = fopen( fileName, "rb" );
   delete []  fileName;  fileName = NULL;
-  fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
+  (void) fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
   #ifdef VTK_WORDS_BIGENDIAN
   SwapForBigEndian
     (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
@@ -433,7 +433,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   pLocPnts = ( double * ) realloc( pLocPnts, sizeof( double ) * nLocPnts * 3 );
   minDist2 = ( double * ) realloc( minDist2, sizeof( double ) * nLocPnts     );
   maxDist2 = ( double * ) realloc( maxDist2, sizeof( double ) * nLocPnts     );
-  fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
+  (void) fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
   //fread( minDist2, sizeof( double ), nLocPnts,     pntsFile );
   //fread( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
   #ifdef VTK_WORDS_BIGENDIAN

@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkPolyLine);
 
@@ -311,7 +311,7 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
       }
     }
 
-  vtkstd::fill_n(weights, this->Points->GetNumberOfPoints(), 0.0);
+  std::fill_n(weights, this->Points->GetNumberOfPoints(), 0.0);
   if (subId >= 0)
     {
     weights[subId] = closestWeights[0];

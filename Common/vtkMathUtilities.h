@@ -35,7 +35,7 @@ namespace vtkMathUtilities
 template<class A>
 bool FuzzyCompare(A a, A b)
 {
-  return fabs(a - b) < vtkstd::numeric_limits<A>::epsilon();
+  return fabs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 //Description:

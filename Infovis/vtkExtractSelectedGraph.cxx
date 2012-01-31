@@ -48,7 +48,7 @@
 #include "vtkVertexListIterator.h"
 
 #include <vtksys/stl/map>
-#include <vtkstd/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPriorityQueue.h"
 #include "vtkInteractorObserver.h"
-#include <vtkstd/map>
+#include <map>
 
 vtkStandardNewMacro(vtkObserverMediator);
 
@@ -57,10 +57,10 @@ struct vtkObserverCompare
 };
 
 // The important feature of the map is that it sorts data (based on the functor above).
-class vtkObserverMap : public vtkstd::map<vtkInteractorObserver*,int,vtkObserverCompare>
+class vtkObserverMap : public std::map<vtkInteractorObserver*,int,vtkObserverCompare>
 {
 public:
-  vtkObserverMap() : vtkstd::map<vtkInteractorObserver*,int,vtkObserverCompare>() {}
+  vtkObserverMap() : std::map<vtkInteractorObserver*,int,vtkObserverCompare>() {}
 };
 typedef vtkObserverMap::iterator ObserverMapIterator;
 

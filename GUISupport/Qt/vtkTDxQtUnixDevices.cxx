@@ -30,7 +30,7 @@ public:
     }
 };
 
-typedef vtkstd::map<vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>,
+typedef std::map<vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>,
                     vtkLessThanWindowId> vtkWindowIdToDevice;
 
 class vtkTDxQtUnixDevicesPrivate
@@ -81,7 +81,7 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent *e)
       // not yet created.
       device=vtkSmartPointer<vtkTDxUnixDevice>::New();
       this->Private->Map.insert(
-        vtkstd::pair<const vtkTDxUnixDeviceWindow ,vtkSmartPointer<vtkTDxUnixDevice> >(
+        std::pair<const vtkTDxUnixDeviceWindow ,vtkSmartPointer<vtkTDxUnixDevice> >(
           winId,device));
       
       device->SetDisplayId(event->xany.display);

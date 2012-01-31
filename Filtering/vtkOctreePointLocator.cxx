@@ -33,11 +33,11 @@
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
 
-#include <vtkstd/list>
-#include <vtkstd/map>
-#include <vtkstd/queue>
-#include <vtkstd/stack>
-#include <vtkstd/vector>
+#include <list>
+#include <map>
+#include <queue>
+#include <stack>
+#include <vector>
 
 vtkStandardNewMacro(vtkOctreePointLocator);
 
@@ -60,12 +60,12 @@ namespace
         if(dist2 <= this->LargestDist2 || 
            this->NumPoints < this->NumDesiredPoints)
           {
-          vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it=
+          std::map<float, std::list<vtkIdType> >::iterator it=
             this->dist2ToIds.find(dist2);
           this->NumPoints++;
           if(it == this->dist2ToIds.end())
             {
-            vtkstd::list<vtkIdType> idset;
+            std::list<vtkIdType> idset;
             idset.push_back(id);
             this->dist2ToIds[dist2] = idset;
             }
@@ -80,7 +80,7 @@ namespace
             if((this->NumPoints-it->second.size()) > this->NumDesiredPoints)
               {
               this->NumPoints -= it->second.size();
-              vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it2 = it;
+              std::map<float, std::list<vtkIdType> >::iterator it2 = it;
               it2--;
               this->LargestDist2 = it2->first;
               this->dist2ToIds.erase(it);
@@ -95,11 +95,11 @@ namespace
           ? this->NumDesiredPoints : this->NumPoints;
         ids->SetNumberOfIds(numIds);
         vtkIdType counter = 0;
-        vtkstd::map<float, vtkstd::list<vtkIdType> >::iterator it=
+        std::map<float, std::list<vtkIdType> >::iterator it=
           this->dist2ToIds.begin();
         while(counter < numIds && it!=this->dist2ToIds.end())
           {
-          vtkstd::list<vtkIdType>::iterator lit=it->second.begin();
+          std::list<vtkIdType>::iterator lit=it->second.begin();
           while(counter < numIds && lit!=it->second.end())
             {
             ids->InsertId(counter, *lit);
@@ -119,7 +119,7 @@ namespace
     size_t NumDesiredPoints, NumPoints;
     float LargestDist2;
     // map from dist^2 to a list of ids
-    vtkstd::map<float, vtkstd::list<vtkIdType> > dist2ToIds; 
+    std::map<float, std::list<vtkIdType> > dist2ToIds;
   };
 }
 
@@ -274,7 +274,7 @@ void vtkOctreePointLocator::DivideRegion(
   int numberOfPoints = node->GetNumberOfPoints();
   vtkDataSet* ds = this->GetDataSet();
 
-  vtkstd::vector<int> points[7];
+  std::vector<int> points[7];
   int  i;
   int subOctantNumberOfPoints[8] = {0,0,0,0,0,0,0,0};
   for(i=0;i<numberOfPoints;i++)
@@ -663,7 +663,7 @@ int vtkOctreePointLocator::FindClosestPointInSphere(
   dist2 = radius * radius * 1.0001;
   int localCloseId = -1;
 
-  vtkstd::stack<vtkOctreePointLocatorNode*> regions;
+  std::stack<vtkOctreePointLocatorNode*> regions;
   regions.push(this->Top);
   while(!regions.empty())
     {
@@ -945,7 +945,7 @@ void vtkOctreePointLocator::FindClosestNPoints(int N, const double x[3],
   float largestDist2 = orderedPoints.GetLargestDist2();
   double bounds[6];
   node = this->Top;
-  vtkstd::queue<vtkOctreePointLocatorNode*> nodesToBeSearched;
+  std::queue<vtkOctreePointLocatorNode*> nodesToBeSearched;
   nodesToBeSearched.push(node);
   while(!nodesToBeSearched.empty())
     {
@@ -1062,10 +1062,10 @@ void vtkOctreePointLocator::GenerateRepresentation(int level,
     return;
     }
 
-  vtkstd::list<vtkOctreePointLocatorNode*> nodesAtLevel;
+  std::list<vtkOctreePointLocatorNode*> nodesAtLevel;
   // queue of nodes to be examined and what level each one is at
-  vtkstd::queue<vtkstd::pair<vtkOctreePointLocatorNode*, int> > testNodes; 
-  testNodes.push(vtkstd::make_pair(this->Top, 0));
+  std::queue<std::pair<vtkOctreePointLocatorNode*, int> > testNodes;
+  testNodes.push(std::make_pair(this->Top, 0));
   while(!testNodes.empty())
     {
     vtkOctreePointLocatorNode* node = testNodes.front().first;
@@ -1079,7 +1079,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level,
       {
       for(int i=0;i<8;i++)
         {
-        testNodes.push(vtkstd::make_pair(node->GetChild(i), nodeLevel+1));
+        testNodes.push(std::make_pair(node->GetChild(i), nodeLevel+1));
         }
       }
     }
@@ -1092,7 +1092,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level,
   vtkCellArray* polys = vtkCellArray::New();
   polys->Allocate(npolys);
 
-  for(vtkstd::list<vtkOctreePointLocatorNode*>::iterator it=nodesAtLevel.begin();
+  for(std::list<vtkOctreePointLocatorNode*>::iterator it=nodesAtLevel.begin();
       it!=nodesAtLevel.end();it++)
     {
     vtkOctreePointLocator::AddPolys(*it, pts, polys);

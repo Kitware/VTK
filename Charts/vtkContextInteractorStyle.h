@@ -25,6 +25,7 @@
 #include "vtkInteractorStyle.h"
 #include "vtkNew.h" // For ivars
 
+class vtkContextMouseEvent;
 class vtkContextScene;
 
 class VTK_CHARTS_EXPORT vtkContextInteractorStyle : public vtkInteractorStyle
@@ -148,6 +149,9 @@ protected:
 private:
   vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
   void operator=(const vtkContextInteractorStyle&); // Not implemented
+
+  void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
+  bool ProcessMousePress(const vtkContextMouseEvent &event);
 };
 
 #endif

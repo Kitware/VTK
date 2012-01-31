@@ -39,7 +39,7 @@
 
 #include "vtkExodusReader.h"
 
-#include <vtkstd/vector> // Required for vector
+#include <vector> // Required for vector
 
 class vtkTimerLog;
 
@@ -155,7 +155,7 @@ protected:
   int NumberOfFileNames;
   int GenerateFileIdArray;
 //BTX
-  vtkstd::vector<vtkExodusReader*> readerList;
+  std::vector<vtkExodusReader*> readerList;
 //ETX
 
   int Timing;

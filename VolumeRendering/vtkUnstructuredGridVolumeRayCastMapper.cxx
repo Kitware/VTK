@@ -213,7 +213,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     }
   
   this->GetInputAlgorithm()->UpdateInformation();
-  this->GetInputAlgorithm()->SetUpdateExtentToWholeExtent();
+  this->SetUpdateExtentToWholeExtent();
   this->GetInputAlgorithm()->Update();
 
   // Check to make sure we have an appropriate integrator.

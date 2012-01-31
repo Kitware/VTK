@@ -47,6 +47,7 @@ public:
 
   // Description:
   // Place/Adjust widget within bounds
+  using vtk3DWidget::PlaceWidget;
   virtual void PlaceWidget(double bounds[6]);
 
   // Description:

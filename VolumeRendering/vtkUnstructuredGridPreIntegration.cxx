@@ -32,7 +32,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnstructuredGridPartialPreIntegration.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 #include <math.h>
 
 //-----------------------------------------------------------------------------

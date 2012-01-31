@@ -22,12 +22,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-#include <vtkstd/set>
+#include <set>
 
 class vtkSpatialRepresentationFilterInternal
 {
 public:
-  vtkstd::set<int> Levels;
+  std::set<int> Levels;
 };
 
 vtkStandardNewMacro(vtkSpatialRepresentationFilter);
@@ -84,7 +84,7 @@ int vtkSpatialRepresentationFilter::RequestData(
   //
   // Loop over all requested levels generating new levels as necessary
   //
-  vtkstd::set<int>::iterator it;
+  std::set<int>::iterator it;
   for ( it = this->Internal->Levels.begin();
         it != this->Internal->Levels.end();
         it++ )

@@ -28,8 +28,8 @@
 #include "vtkArrayNorm.h"
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/limits>
-#include <vtkstd/stdexcept>
+#include <limits>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkArrayNorm
@@ -40,7 +40,7 @@ vtkArrayNorm::vtkArrayNorm() :
   Dimension(0),
   L(2),
   Invert(false),
-  Window(0, vtkstd::numeric_limits<vtkIdType>::max())
+  Window(0, std::numeric_limits<vtkIdType>::max())
 {
 }
 
@@ -96,23 +96,23 @@ int vtkArrayNorm::RequestData(
     // Test our preconditions ...
     vtkArrayData* const input_data = vtkArrayData::GetData(inputVector[0]);
     if(!input_data)
-      throw vtkstd::runtime_error("Missing vtkArrayData on input port 0.");
+      throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_data->GetNumberOfArrays() != 1)
-      throw vtkstd::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
+      throw std::runtime_error("vtkArrayData on input port 0 must contain exactly one vtkArray.");
     vtkTypedArray<double>* const input_array = vtkTypedArray<double>::SafeDownCast(
       input_data->GetArray(static_cast<vtkIdType>(0)));
     if(!input_array)
-      throw vtkstd::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
+      throw std::runtime_error("vtkArray on input port 0 must be a vtkTypedArray<double>.");
     if(input_array->GetDimensions() != 2)
-      throw vtkstd::runtime_error("vtkArray on input port 0 must be a matrix.");
+      throw std::runtime_error("vtkArray on input port 0 must be a matrix.");
 
     const vtkIdType vector_dimension = this->Dimension;
     if(vector_dimension < 0 || vector_dimension > 1)
-      throw vtkstd::runtime_error("Dimension must be zero or one.");
+      throw std::runtime_error("Dimension must be zero or one.");
     const vtkIdType element_dimension = 1 - vector_dimension;
 
     // Setup our output ...
-    vtkstd::ostringstream array_name;
+    std::ostringstream array_name;
     array_name << "L" << this->L << "_norm";
     
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
@@ -151,7 +151,7 @@ int vtkArrayNorm::RequestData(
         }
       }
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

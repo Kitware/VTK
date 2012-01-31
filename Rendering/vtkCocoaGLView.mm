@@ -50,8 +50,8 @@
     if ([NSThread isMultiThreaded] == NO)
       {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:)
-							   toTarget:self
-						     withObject:nil];
+                               toTarget:self
+                             withObject:nil];
       }
     }
   return self;
@@ -633,14 +633,15 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
 
-  NSDate*  infinity = [NSDate distantFuture];
+  NSApplication* application = [NSApplication sharedApplication];
+  NSDate* infinity = [NSDate distantFuture];
   do
     {
-    theEvent = [NSApp nextEventMatchingMask: NSLeftMouseUpMask |
-                                             NSLeftMouseDraggedMask
-                      untilDate: infinity
-                      inMode: NSEventTrackingRunLoopMode
-                      dequeue: YES];
+    theEvent = [application nextEventMatchingMask:NSLeftMouseUpMask |
+                                                  NSLeftMouseDraggedMask
+                                        untilDate:infinity
+                                           inMode:NSEventTrackingRunLoopMode
+                                          dequeue:YES];
     if (theEvent)
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
@@ -717,14 +718,15 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
 
-  NSDate*  infinity = [NSDate distantFuture];
+  NSApplication* application = [NSApplication sharedApplication];
+  NSDate* infinity = [NSDate distantFuture];
   do
     {
-    theEvent = [NSApp nextEventMatchingMask: NSRightMouseUpMask |
-                                             NSRightMouseDraggedMask
-                      untilDate: infinity
-                      inMode: NSEventTrackingRunLoopMode
-                      dequeue: YES];
+    theEvent = [application nextEventMatchingMask:NSRightMouseUpMask |
+                                                  NSRightMouseDraggedMask
+                                        untilDate:infinity
+                                           inMode:NSEventTrackingRunLoopMode
+                                          dequeue:YES];
     if (theEvent)
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
@@ -801,14 +803,15 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   interactor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
   
-  NSDate*  infinity = [NSDate distantFuture];
+  NSApplication* application = [NSApplication sharedApplication];
+  NSDate* infinity = [NSDate distantFuture];
   do
     {
-    theEvent = [NSApp nextEventMatchingMask: NSOtherMouseUpMask |
-                                             NSOtherMouseDraggedMask
-                      untilDate: infinity
-                      inMode: NSEventTrackingRunLoopMode
-                      dequeue: YES];
+    theEvent = [application nextEventMatchingMask:NSOtherMouseUpMask |
+                                                  NSOtherMouseDraggedMask
+                                        untilDate:infinity
+                                           inMode:NSEventTrackingRunLoopMode
+                                          dequeue:YES];
     if (theEvent)
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];

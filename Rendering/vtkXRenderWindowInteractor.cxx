@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-#include <vtkstd/map>
+#include <map>
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
@@ -93,8 +93,8 @@ protected:
   
 private:
   int TimerIdCount;
-  vtkstd::map<int, XtIntervalId> LocalToX;
-  vtkstd::map<XtIntervalId, int> XToLocal;
+  std::map<int, XtIntervalId> LocalToX;
+  std::map<XtIntervalId, int> XToLocal;
 };
 
 // Initialize static members:

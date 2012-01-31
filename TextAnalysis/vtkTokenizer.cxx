@@ -107,20 +107,20 @@ const vtkTokenizer::DelimiterRanges vtkTokenizer::Punctuation()
 
   vtkTokenizer::DelimiterRanges result;
 
-  result.push_back(vtkstd::make_pair(0x0021, 0x0030)); // ASCII Punctuation and Symbols
-  result.push_back(vtkstd::make_pair(0x003a, 0x0041)); // ASCII Punctuation and Symbols
-  result.push_back(vtkstd::make_pair(0x005b, 0x0061)); // ASCII Punctuation and Symbols
-  result.push_back(vtkstd::make_pair(0x007b, 0x007f)); // ASCII Punctuation and Symbols
-  result.push_back(vtkstd::make_pair(0x00a1, 0x00c0)); // Latin Punctuation and Symbols 
-  result.push_back(vtkstd::make_pair(0x200c, 0x206f)); // General Punctuation
-  result.push_back(vtkstd::make_pair(0x2100, 0x214F)); // Letter-like Symbols
-  result.push_back(vtkstd::make_pair(0x3000, 0x3040)); // CJK Symbols and Punctuation
-  result.push_back(vtkstd::make_pair(0xfeff, 0xff00)); // Zero-width no-break space, which has become a de-facto byte-order mark
-  result.push_back(vtkstd::make_pair(0xff01, 0xff10)); // Full-width punctuation
-  result.push_back(vtkstd::make_pair(0xff1a, 0xff21)); // Full-width punctuation
-  result.push_back(vtkstd::make_pair(0xff3b, 0xff41)); // Full-width punctuation
-  result.push_back(vtkstd::make_pair(0xff5b, 0xff65)); // Full-width and half-width punctuation
-  result.push_back(vtkstd::make_pair(0xffe0, 0xffef)); // Full-width and half-width symbols
+  result.push_back(std::make_pair(0x0021, 0x0030)); // ASCII Punctuation and Symbols
+  result.push_back(std::make_pair(0x003a, 0x0041)); // ASCII Punctuation and Symbols
+  result.push_back(std::make_pair(0x005b, 0x0061)); // ASCII Punctuation and Symbols
+  result.push_back(std::make_pair(0x007b, 0x007f)); // ASCII Punctuation and Symbols
+  result.push_back(std::make_pair(0x00a1, 0x00c0)); // Latin Punctuation and Symbols
+  result.push_back(std::make_pair(0x200c, 0x206f)); // General Punctuation
+  result.push_back(std::make_pair(0x2100, 0x214F)); // Letter-like Symbols
+  result.push_back(std::make_pair(0x3000, 0x3040)); // CJK Symbols and Punctuation
+  result.push_back(std::make_pair(0xfeff, 0xff00)); // Zero-width no-break space, which has become a de-facto byte-order mark
+  result.push_back(std::make_pair(0xff01, 0xff10)); // Full-width punctuation
+  result.push_back(std::make_pair(0xff1a, 0xff21)); // Full-width punctuation
+  result.push_back(std::make_pair(0xff3b, 0xff41)); // Full-width punctuation
+  result.push_back(std::make_pair(0xff5b, 0xff65)); // Full-width and half-width punctuation
+  result.push_back(std::make_pair(0xffe0, 0xffef)); // Full-width and half-width symbols
 
   return result;
 }
@@ -132,9 +132,9 @@ const vtkTokenizer::DelimiterRanges vtkTokenizer::Whitespace()
 
   vtkTokenizer::DelimiterRanges result;
  
-  result.push_back(vtkstd::make_pair(0x0000, 0x0021)); // Includes, among other things: NUL, HT, LF, VT, FF, CR, ESC, Space
-  result.push_back(vtkstd::make_pair(0x0080, 0x00a1)); // Latin control codes and no-break space.
-  result.push_back(vtkstd::make_pair(0x2000, 0x200c)); // General Punctuation
+  result.push_back(std::make_pair(0x0000, 0x0021)); // Includes, among other things: NUL, HT, LF, VT, FF, CR, ESC, Space
+  result.push_back(std::make_pair(0x0080, 0x00a1)); // Latin control codes and no-break space.
+  result.push_back(std::make_pair(0x2000, 0x200c)); // General Punctuation
 
   return result;
 }
@@ -145,18 +145,18 @@ const vtkTokenizer::DelimiterRanges vtkTokenizer::Logosyllabic()
 
   vtkTokenizer::DelimiterRanges result;
 
-  result.push_back(vtkstd::make_pair(0x4e00, 0x9fd0)); // CJK Unified Ideographs
-  result.push_back(vtkstd::make_pair(0x3400, 0x4e00)); // CJK Unified Ideographs Extension A
-  result.push_back(vtkstd::make_pair(0x20000, 0x2A6e0)); // CJK Unified Ideographs Extension B
-  result.push_back(vtkstd::make_pair(0xf900, 0xfb00)); // CJK Compatibility Ideographs
-  result.push_back(vtkstd::make_pair(0x2f800, 0x2fa20)); // CJK Compatibility Ideographs Supplement
+  result.push_back(std::make_pair(0x4e00, 0x9fd0)); // CJK Unified Ideographs
+  result.push_back(std::make_pair(0x3400, 0x4e00)); // CJK Unified Ideographs Extension A
+  result.push_back(std::make_pair(0x20000, 0x2A6e0)); // CJK Unified Ideographs Extension B
+  result.push_back(std::make_pair(0xf900, 0xfb00)); // CJK Compatibility Ideographs
+  result.push_back(std::make_pair(0x2f800, 0x2fa20)); // CJK Compatibility Ideographs Supplement
 
   return result;
 }
 
 void vtkTokenizer::AddDroppedDelimiters(vtkUnicodeString::value_type begin, vtkUnicodeString::value_type end)
 {
-  this->Implementation->DroppedDelimiters.push_back(vtkstd::make_pair(begin, vtkstd::max(begin, end)));
+  this->Implementation->DroppedDelimiters.push_back(std::make_pair(begin, std::max(begin, end)));
   this->Modified();
 }
 
@@ -168,7 +168,7 @@ void vtkTokenizer::AddDroppedDelimiters(const DelimiterRanges& ranges)
 
 void vtkTokenizer::AddKeptDelimiters(vtkUnicodeString::value_type begin, vtkUnicodeString::value_type end)
 {
-  this->Implementation->KeptDelimiters.push_back(vtkstd::make_pair(begin, vtkstd::max(begin, end)));
+  this->Implementation->KeptDelimiters.push_back(std::make_pair(begin, std::max(begin, end)));
   this->Modified();
 }
 
@@ -242,12 +242,12 @@ int vtkTokenizer::RequestData(
     vtkIdTypeArray* const input_document_array = vtkIdTypeArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(0, 0, inputVector));
     if(!input_document_array)
-      throw vtkstd::runtime_error("missing input document ID array");
+      throw std::runtime_error("missing input document ID array");
 
     vtkUnicodeStringArray* const input_text_array = vtkUnicodeStringArray::SafeDownCast(
       this->GetInputAbstractArrayToProcess(1, 0, inputVector));
     if(!input_text_array)
-      throw vtkstd::runtime_error("missing input text array");
+      throw std::runtime_error("missing input text array");
 
     vtkIdTypeArray* range_documents_array = 0;
     vtkIdTypeArray* range_begin_array = 0;
@@ -257,13 +257,13 @@ int vtkTokenizer::RequestData(
       {
       range_documents_array = vtkIdTypeArray::SafeDownCast(this->GetInputAbstractArrayToProcess(2, 0, inputVector));
       if(!range_documents_array)
-        throw vtkstd::runtime_error("Missing range documents array.");
+        throw std::runtime_error("Missing range documents array.");
       range_begin_array = vtkIdTypeArray::SafeDownCast(this->GetInputAbstractArrayToProcess(3, 0, inputVector));
       if(!range_begin_array)
-        throw vtkstd::runtime_error("Missing range begin array.");
+        throw std::runtime_error("Missing range begin array.");
       range_end_array = vtkIdTypeArray::SafeDownCast(this->GetInputAbstractArrayToProcess(4, 0, inputVector));
       if(!range_end_array)
-        throw vtkstd::runtime_error("Missing range end array.");
+        throw std::runtime_error("Missing range end array.");
       }
 
     // Setup our output ...
@@ -291,8 +291,8 @@ int vtkTokenizer::RequestData(
       const vtkIdType document_length = static_cast<vtkIdType>(
         document_text.character_count());
 
-      vtkstd::vector<vtkIdType> range_begin;
-      vtkstd::vector<vtkIdType> range_end;
+      std::vector<vtkIdType> range_begin;
+      std::vector<vtkIdType> range_end;
       if(ranges)
         {
         for(vtkIdType range = 0; range != range_documents_array->GetNumberOfTuples(); ++range)
@@ -300,8 +300,8 @@ int vtkTokenizer::RequestData(
           if(range_documents_array->GetValue(range) != document_id)
             continue;
 
-          range_begin.push_back(vtkstd::min(document_length, range_begin_array->GetValue(range)));
-          range_end.push_back(vtkstd::min(document_length, range_end_array->GetValue(range)));
+          range_begin.push_back(std::min(document_length, range_begin_array->GetValue(range)));
+          range_end.push_back(std::min(document_length, range_end_array->GetValue(range)));
           }
         }
       else
@@ -315,10 +315,10 @@ int vtkTokenizer::RequestData(
         vtkIdType current_offset = range_begin[range];
 
         vtkUnicodeString::const_iterator current = document_text.begin();
-        vtkstd::advance(current, range_begin[range]);
+        std::advance(current, range_begin[range]);
 
         vtkUnicodeString::const_iterator end = current;
-        vtkstd::advance(end, range_end[range] - range_begin[range]);
+        std::advance(end, range_end[range] - range_begin[range]);
         
         for(; current != end; )
           {
@@ -376,7 +376,7 @@ int vtkTokenizer::RequestData(
     type_array->Delete();
     text_array->Delete();
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     vtkErrorMacro(<< "unhandled exception: " << e.what());
     return 0;

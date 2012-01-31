@@ -325,44 +325,41 @@ M_Read(void)
 
       for(d=0; d<m_NDims; d++)
       {
-        char* num = new char[sizeof(float)];
+        float td;
+        char* const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_X[d] = (float)td;
-        delete [] num;
       }
 
       for(d=0; d<m_NDims; d++)
       {
-        char* num = new char[sizeof(float)];
+        float td;
+        char* const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_V[d] = (float)td;
-        delete [] num;
       }
 
        for(d=0; d<4; d++)
       {
-        char* num = new char[sizeof(float)];
+        float td;
+        char* const num = (char *)(&td);
         for(k=0;k<sizeof(float);k++)
           {
           num[k] = _data[i+k];
           }
-        float td = (float)((float*)num)[0];
         MET_SwapByteIfSystemMSB(&td,MET_FLOAT);
         i+=sizeof(float);
         pnt->m_Color[d] = (float)td;
-        delete [] num;
       }
       m_PointList.push_back(pnt);
     }

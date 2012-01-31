@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #----------------------------------------------------------
     # Draw the graph in a window
     view = vtkGraphLayoutView()
-    view.AddRepresentationFromInputConnection(G.GetProducerPort())
+    view.AddRepresentationFromInput(G)
     view.SetVertexLabelArrayName("ID")
     view.SetVertexLabelVisibility(True)
     view.SetLayoutStrategyToSimple2D()

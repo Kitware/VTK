@@ -28,8 +28,8 @@
 
 #include <cmath>                     // For abs, sin, cos and tan
 
-#include <vtkstd/algorithm>          // For min, max, swap, etc.
-#include <vtkstd/list>               // For internal store
+#include <algorithm>          // For min, max, swap, etc.
+#include <list>               // For internal store
 
 template <class T> bool IsZero( T value )
 {
@@ -576,14 +576,14 @@ int vtkSimple3DCirclesStrategy::BuildLayers( vtkDirectedGraph * input, vtkSimple
           flayer = layers->GetValue( in_edge.Source );
           if ( flayer == -1 )
             HasAllInput = false;
-          layer = vtkstd::max( layer, flayer );
+          layer = std::max( layer, flayer );
           }
 
         if ( HasAllInput )
           {
           source->push_back( out_edge.Target );
           layers->SetValue( out_edge.Target, layer + 1 );
-          max_layer_id = vtkstd::max( max_layer_id, layer + 1 );
+          max_layer_id = std::max( max_layer_id, layer + 1 );
           }
         }
       }

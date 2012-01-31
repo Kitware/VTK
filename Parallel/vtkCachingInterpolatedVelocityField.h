@@ -44,7 +44,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // this is allowed
 //BTX
-#include <vtkstd/vector> // we need them
+#include <vector> // we need them
 //ETX
 
 class vtkDataSet;
@@ -56,7 +56,7 @@ class vtkAbstractCellLocator;
 //---------------------------------------------------------------------------
 class IVFDataSetInfo;
 //---------------------------------------------------------------------------
-class IVFCacheList : public vtkstd::vector< IVFDataSetInfo > {};
+class IVFCacheList : public std::vector< IVFDataSetInfo > {};
 //---------------------------------------------------------------------------
 //ETX
 class VTK_PARALLEL_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
@@ -124,7 +124,7 @@ protected:
   IVFCacheList          CacheList;
   char                    *VectorsSelection;
 //BTX
-  vtkstd::vector<double>   Weights;
+  std::vector<double>   Weights;
 //ETX
 
   vtkSetStringMacro(VectorsSelection);

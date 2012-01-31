@@ -48,7 +48,7 @@
 #include "vtkIncrementalPointLocator.h"
 
 
-#include <vtkstd/vector>
+#include <vector>
 #include <assert.h>
 
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
@@ -211,7 +211,7 @@ public:
     {
       if(this->Chunks==0)
         {
-        this->Chunks=new vtkstd::vector<vtkstd::vector<G> *>();
+        this->Chunks=new std::vector<std::vector<G> *>();
         this->Chunks->reserve(VTK_DEFAULT_NUMBER_OF_CHUNKS);
         }
     }
@@ -232,7 +232,7 @@ public:
       if(c==0) // first Allocate()
         {
         this->Chunks->resize(1);
-        (*this->Chunks)[0]=new vtkstd::vector<G>();
+        (*this->Chunks)[0]=new std::vector<G>();
         // Allocate the first chunk
         (*this->Chunks)[0]->reserve(this->ChunkSize);
         (*this->Chunks)[0]->resize(1);
@@ -252,7 +252,7 @@ public:
           // Allocate the next chunk.
           size_t chunkIdx=this->Chunks->size();
           this->Chunks->resize(chunkIdx+1);
-          (*this->Chunks)[chunkIdx]=new vtkstd::vector<G>();
+          (*this->Chunks)[chunkIdx]=new std::vector<G>();
           (*this->Chunks)[chunkIdx]->reserve(this->ChunkSize);
           // Return the first element of this new chunk.
           (*this->Chunks)[chunkIdx]->resize(1);
@@ -307,7 +307,7 @@ public:
       assert("post: is_set" && size==this->GetChunkSize());
     }
 protected:
-  vtkstd::vector<vtkstd::vector<G> *> *Chunks;
+  std::vector<std::vector<G> *> *Chunks;
   unsigned int ChunkSize;
 };
 
@@ -383,7 +383,7 @@ public:
         ++i;
         }
     }
-  vtkstd::vector<vtkSurfel *> HashTable;
+  std::vector<vtkSurfel *> HashTable;
   
   // Add a face defined by its cell type `faceType', its number of points,
   // its list of points and the cellId of the 3D cell it belongs to.

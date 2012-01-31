@@ -40,7 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrderStatistics.h"
 
 //BTX
-#include <vtkstd/map> // STL Header
+#include <map> // STL Header
 //ETX
 
 class vtkIdTypeArray;
@@ -81,11 +81,11 @@ class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
   bool Reduce( vtkIdTypeArray*,
                vtkIdType&,
                char*,
-               vtkstd::map<vtkStdString,vtkIdType>& );
+               std::map<vtkStdString,vtkIdType>& );
 
   // Description:
   // Broadcast reduced histogram to all processes in the case of string inputs
-  bool Broadcast( vtkstd::map<vtkStdString,vtkIdType>&,
+  bool Broadcast( std::map<vtkStdString,vtkIdType>&,
                   vtkIdTypeArray*,
                   vtkStringArray*,
                   vtkIdType );

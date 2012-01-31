@@ -156,7 +156,7 @@ normCoords.SetCoordinateSystemToNormalizedViewport()
 
 # Set up the mapper and actor (2D) for the grid.
 mapper = vtk.vtkPolyDataMapper2D()
-mapper.SetInput(Grid)
+mapper.SetInputData(Grid)
 mapper.SetTransformCoordinate(normCoords)
 gridActor = vtk.vtkActor2D()
 gridActor.SetMapper(mapper)

@@ -101,10 +101,10 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkMath.h" // for Inf() and NegInf()
 
-#include <vtkstd/vector> // for lists of threshold rules
-#include <vtkstd/map> // for IntervalRules map
-#include <vtkstd/set> // for UpdateDependents()
-#include <vtkstd/string> // for holding array names in NormKey
+#include <vector> // for lists of threshold rules
+#include <map> // for IntervalRules map
+#include <set> // for UpdateDependents()
+#include <string> // for holding array names in NormKey
 
 class vtkCell;
 class vtkCellData;
@@ -229,7 +229,7 @@ public:
   public:
     int Association; // vtkDataObject::FIELD_ASSOCIATION_POINTS or vtkDataObject::FIELD_ASSOCIATION_CELLS
     int Type; // -1 => use Name, otherwise: vtkDataSetAttributes::{SCALARS, VECTORS, TENSORS, NORMALS, TCOORDS, GLOBALIDS}
-    vtkstd::string Name; // Either empty or (when ArrayType == -1) an input array name
+    std::string Name; // Either empty or (when ArrayType == -1) an input array name
     int Component; // LINFINITY_NORM, L1_NORM, L2_NORM or an integer component number
     int AllScalars; // For Association == vtkDataObject::FIELD_ASSOCIATION_POINTS, must all points be in the interval?
     int InputArrayIndex; // The number passed to vtkAlgorithm::SetInputArrayToProcess()
@@ -319,7 +319,7 @@ public:
     /// The boolean operation that will be performed on the inputs to obtain the output.
     int Operator;
     /// A list of input sets. These may be IntervalSets or BooleanSets.
-    vtkstd::vector<int> Inputs;
+    std::vector<int> Inputs;
 
     /// Construct a new set with the given ID, operator, and inputs.
     BooleanSet( int sId, int op, int* inBegin, int* inEnd ) : Inputs( inBegin, inEnd ) {
@@ -380,12 +380,12 @@ protected:
 
   //BTX
   /// A list of pointers to IntervalSets.
-  typedef vtkstd::vector<Interval*> IntervalList;
+  typedef std::vector<Interval*> IntervalList;
   /// A map describing the IntervalSets that share a common attribute and norm.
-  typedef vtkstd::map<NormKey,IntervalList> RuleMap;
+  typedef std::map<NormKey,IntervalList> RuleMap;
 
-  typedef vtkstd::vector<int> TruthTreeValues;
-  typedef vtkstd::vector<TruthTreeValues> TruthTree;
+  typedef std::vector<int> TruthTreeValues;
+  typedef std::vector<TruthTreeValues> TruthTree;
 
   // Description:
   // A set of threshold rules sorted by the attribute+norm to which they are applied.
@@ -394,7 +394,7 @@ protected:
   // Description:
   // A list of rules keyed by their unique integer ID.
   // This list is used to quickly determine whether interval membership implies membership in a given output mesh.
-  vtkstd::vector<Set*> Sets;
+  std::vector<Set*> Sets;
 
   // Description:
   // A list of boolean sets whose values depend on the given set.
@@ -406,8 +406,8 @@ protected:
   // Description:
   // Recursively update the setStates and unresolvedOutputs vectors based on this->DependentSets.
   void UpdateDependents(
-    int id, vtkstd::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
-    vtkCellData* inCellData, vtkIdType cellId, vtkGenericCell* cell, vtkstd::vector<vtkUnstructuredGrid*>& outv );
+    int id, std::set<int>& unresolvedOutputs, TruthTreeValues& setStates,
+    vtkCellData* inCellData, vtkIdType cellId, vtkGenericCell* cell, std::vector<vtkUnstructuredGrid*>& outv );
 
   // Description:
   // A utility method called by the public AddInterval members.

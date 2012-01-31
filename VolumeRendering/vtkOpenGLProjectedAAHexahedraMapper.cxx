@@ -57,7 +57,7 @@
 #include "vtkShader2Collection.h"
 
 #include <math.h>
-#include <vtkstd/algorithm>
+#include <algorithm>
 
 // Shader code
 extern const char *vtkProjectedAAHexahedraMapper_VS;

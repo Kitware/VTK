@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMath.h"
-#include <vtkstd/vector>
+#include <vector>
 
 //----------------------------------------------------------------------------
 class vtkDensifyPolyDataInternals
@@ -239,7 +239,7 @@ public:
   };
 
   // A container of polygons.
-  typedef vtkstd::vector< Polygon > PolygonsType;
+  typedef std::vector< Polygon > PolygonsType;
 
   // After subdivision, use this method to get the next point. 
   // Returns the pointId of the point. Returns -1 if no more points.

@@ -50,8 +50,8 @@ balls SetPhiResolution 10
 balls SetThetaResolution 10
 
 vtkGlyph3D glyphPoints
-glyphPoints SetInput inputData
-glyphPoints SetSource [balls GetOutput]
+glyphPoints SetInputData inputData
+glyphPoints SetSourceConnection [balls GetOutputPort]
 
 vtkPolyDataMapper glyphMapper
 glyphMapper SetInputConnection [glyphPoints GetOutputPort]
@@ -88,7 +88,7 @@ profileData SetLines lines
 # Add thickness to the resulting line.
 vtkTubeFilter profileTubes
 profileTubes SetNumberOfSides 8
-profileTubes SetInput profileData
+profileTubes SetInputData profileData
 profileTubes SetRadius .005
 
 vtkPolyDataMapper profileMapper

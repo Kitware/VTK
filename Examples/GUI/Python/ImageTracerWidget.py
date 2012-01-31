@@ -35,16 +35,16 @@ def AdjustSpline(evt, obj):
     npts = itw.GetNumberOfHandles()
     
     if npts < 2:
-        imageActor2.SetInputConnection(extract.GetOutputPort())
+        imageActor2.GetMapper().SetInputConnection(extract.GetOutputPort())
         return
     
-    closed = itw.GetIsClosed()
+    closed = itw.IsClosed()
 
     if closed:
         isw.ClosedOn()
     else:
         isw.ClosedOff()
-        imageActor2.SetInputConnection(extract.GetOutputPort())
+        imageActor2.GetMapper().SetInputConnection(extract.GetOutputPort())
 
     isw.SetNumberOfHandles(npts)
 
@@ -54,7 +54,7 @@ def AdjustSpline(evt, obj):
 
     if closed:
         isw.GetPolyData(spoly)
-        imageActor2.SetInputConnection(stencil.GetOutputPort())
+        imageActor2.GetMapper().SetInputConnection(stencil.GetOutputPort())
         stencil.Update()
 
 def AdjustTracer(evt, obj):
@@ -69,7 +69,7 @@ def AdjustTracer(evt, obj):
 
     if closed:
         isw.GetPolyData(spoly)
-        imageActor2.SetInputConnection(stencil.GetOutputPort())
+        imageActor2.GetMapper().SetInputConnection(stencil.GetOutputPort())
         stencil.Update()
 
     itw.InitializeHandles(points)
@@ -105,7 +105,7 @@ shifter.Update()
 # Display a y-z plane.
 #
 imageActor = vtk.vtkImageActor()
-imageActor.SetInput(shifter.GetOutput())
+imageActor.GetMapper().SetInputConnection(shifter.GetOutputPort())
 imageActor.VisibilityOn()
 imageActor.SetDisplayExtent(31, 31, 0, 63, 0, 92)
 imageActor.InterpolateOff()
@@ -155,7 +155,7 @@ extract.ReleaseDataFlagOff()
 #
 
 imageActor2 = vtk.vtkImageActor()
-imageActor2.SetInput(extract.GetOutput())
+imageActor2.GetMapper().SetInputConnection(extract.GetOutputPort())
 imageActor2.VisibilityOn()
 imageActor2.SetDisplayExtent(31, 31, 0, 63, 0, 92)
 imageActor2.InterpolateOff()
@@ -238,7 +238,7 @@ spoly = vtk.vtkPolyData()
 # clockwise path provides the dual region of interest.
 #
 extrude = vtk.vtkLinearExtrusionFilter()
-extrude.SetInput(spoly)
+extrude.SetInputData(spoly)
 extrude.SetScaleFactor(1)
 extrude.SetExtrusionTypeToNormalExtrusion()
 extrude.SetVector(1, 0, 0)
@@ -250,7 +250,7 @@ dataToStencil.SetInputConnection(extrude.GetOutputPort())
 
 stencil = vtk.vtkImageStencil()
 stencil.SetInputConnection(extract.GetOutputPort())
-stencil.SetStencil(dataToStencil.GetOutput())
+stencil.SetStencilConnection(dataToStencil.GetOutputPort())
 stencil.ReverseStencilOff()
 stencil.SetBackgroundValue(128)
 #

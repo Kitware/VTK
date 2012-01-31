@@ -29,7 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkGenericCell.h"
 #include "vtkStdString.h"
-#include <vtkstd/vector>
+#include <vector>
 
 
 

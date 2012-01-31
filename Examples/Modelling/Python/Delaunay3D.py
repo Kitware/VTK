@@ -22,7 +22,7 @@ profile.SetPoints(points)
 # alpha value is the radius of circumcircles, circumspheres. Any mesh
 # entity whose circumcircle is smaller than this value is output.
 delny = vtk.vtkDelaunay3D()
-delny.SetInput(profile)
+delny.SetInputData(profile)
 delny.SetTolerance(0.01)
 delny.SetAlpha(0.2)
 delny.BoundingTriangulationOff()

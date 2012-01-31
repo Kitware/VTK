@@ -48,7 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 
 class vtkSQLDatabase::vtkCallbackVector :
-  public vtkstd::vector<vtkSQLDatabase::CreateFunction>
+  public std::vector<vtkSQLDatabase::CreateFunction>
 {
 public:
   vtkSQLDatabase* CreateFromURL(const char* URL)
@@ -386,14 +386,14 @@ vtkStdString vtkSQLDatabase::GetTriggerSpecification( vtkSQLDatabaseSchema* sche
 // ----------------------------------------------------------------------
 vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
 {
-  vtkstd::string urlstr( URL ? URL : "" );
-  vtkstd::string protocol;
-  vtkstd::string username;
-  vtkstd::string unused;
-  vtkstd::string hostname;
-  vtkstd::string dataport;
-  vtkstd::string database;
-  vtkstd::string dataglom;
+  std::string urlstr( URL ? URL : "" );
+  std::string protocol;
+  std::string username;
+  std::string unused;
+  std::string hostname;
+  std::string dataport;
+  std::string database;
+  std::string dataglom;
   vtkSQLDatabase* db = 0;
 
   static vtkSimpleCriticalSection dbURLCritSec;
@@ -557,7 +557,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
 
     // In case separate INDEX statements are needed (backend-specific)
-    vtkstd::vector<vtkStdString> idxStatements;
+    std::vector<vtkStdString> idxStatements;
     bool skipped = false;
 
     // Loop over all indices of the current table
@@ -618,7 +618,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
       }
 
     // Execute separate CREATE INDEX statements if needed
-    for ( vtkstd::vector<vtkStdString>::iterator it = idxStatements.begin();
+    for ( std::vector<vtkStdString>::iterator it = idxStatements.begin();
           it != idxStatements.end(); ++ it )
       {
       query->SetQuery( *it );

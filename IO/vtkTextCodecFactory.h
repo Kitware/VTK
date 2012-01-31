@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Description
 // A single class to hold registered codecs and return instances of them based
 // on either a decriptive name (UTF16 or latin-1) or by asking who can handle a
-// given vtkstd::vector<unsigned char>
+// given std::vector<unsigned char>
 //
 // .SECTION Thanks
 // Thanks to Tim Shed from Sandia National Laboratories for his work

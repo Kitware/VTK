@@ -22,7 +22,7 @@
 
 #include <sys/stat.h>
 
-#include <vtkstd/string>
+#include <string>
 
 
 extern "C" {
@@ -174,7 +174,7 @@ int vtkTIFFReaderInternal::Initialize()
         if (TIFFGetField(this->Image,TIFFTAG_IMAGEDESCRIPTION,description))
           {
           // look for the number of images
-          vtkstd::string desc = description[0];
+          std::string desc = description[0];
           int pos = desc.find("images=");
           int pos2 = desc.find("\n");
           if( (pos != -1) && (pos2 != -1))

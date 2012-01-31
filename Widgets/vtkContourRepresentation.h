@@ -54,7 +54,7 @@
 #define __vtkContourRepresentation_h
 
 #include "vtkWidgetRepresentation.h"
-#include <vtkstd/vector> // STL Header; Required for vector
+#include <vector> // STL Header; Required for vector
 
 class vtkContourLineInterpolator;
 class vtkIncrementalOctreePointLocator;
@@ -82,7 +82,7 @@ public:
   double        WorldOrientation[9];
   double        NormalizedDisplayPosition[2];
   int           Selected;
-  vtkstd::vector<vtkContourRepresentationPoint*> Points;
+  std::vector<vtkContourRepresentationPoint*> Points;
 
   // The point id. This is blank except in the case of
   // vtkPolygonalSurfaceContourLineInterpolator
@@ -92,7 +92,7 @@ public:
 class vtkContourRepresentationInternals
 {
 public:
-  vtkstd::vector<vtkContourRepresentationNode*> Nodes;
+  std::vector<vtkContourRepresentationNode*> Nodes;
   void ClearNodes()
   {
     for(unsigned int i=0;i<this->Nodes.size();i++)

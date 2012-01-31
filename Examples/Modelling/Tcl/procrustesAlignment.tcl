@@ -26,6 +26,11 @@ vtkTransformPolyDataFilter transformer2
     transformer2 SetInputConnection [sphere GetOutputPort]
     transformer2 SetTransform transform2
 
+vtkMultiBlockDataGroupFilter group
+    group AddInputConnection [sphere GetOutputPort]
+    group AddInputConnection [transformer1 GetOutputPort]
+    group AddInputConnection [transformer2 GetOutputPort]
+
 # map these three shapes into the first renderer
 vtkPolyDataMapper map1a
     map1a SetInputConnection [sphere GetOutputPort]
@@ -47,80 +52,73 @@ vtkActor Actor1c
 
 # -- align the shapes using Procrustes (using SetModeToRigidBody) --
 vtkProcrustesAlignmentFilter procrustes1
-    procrustes1 SetNumberOfInputs 3
-    procrustes1 SetInput 0 [sphere GetOutput]
-    procrustes1 SetInput 1 [transformer1 GetOutput]
-    procrustes1 SetInput 2 [transformer2 GetOutput]
+    procrustes1 SetInputConnection [group GetOutputPort]
     [procrustes1 GetLandmarkTransform] SetModeToRigidBody
+    procrustes1 Update
 
 # map the aligned shapes into the second renderer
 vtkPolyDataMapper map2a
-    map2a SetInputConnection [procrustes1 GetOutputPort 0]
+    map2a SetInputData [[procrustes1 GetOutput] GetBlock 0]
 vtkActor Actor2a
     Actor2a SetMapper map2a
     [Actor2a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map2b
-    map2b SetInputConnection [procrustes1 GetOutputPort 1]
+    map2b SetInputData [[procrustes1 GetOutput] GetBlock 1]
 vtkActor Actor2b
     Actor2b SetMapper map2b
     [Actor2b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map2c
-    map2c SetInputConnection [procrustes1 GetOutputPort 2]
+    map2c SetInputData [[procrustes1 GetOutput] GetBlock 2]
 vtkActor Actor2c
     Actor2c SetMapper map2c
     [Actor2c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
 
 # -- align the shapes using Procrustes (using SetModeToSimilarity (default)) --
 vtkProcrustesAlignmentFilter procrustes2
-    procrustes2 SetNumberOfInputs 3
-    procrustes2 SetInput 0 [sphere GetOutput]
-    procrustes2 SetInput 1 [transformer1 GetOutput]
-    procrustes2 SetInput 2 [transformer2 GetOutput]
-
+    procrustes2 SetInputConnection [group GetOutputPort]
+    procrustes2 Update
 # map the aligned shapes into the third renderer
 vtkPolyDataMapper map3a
-    map3a SetInputConnection [procrustes2 GetOutputPort 0]
+    map3a SetInputData [[procrustes2 GetOutput] GetBlock 0]
 vtkActor Actor3a
     Actor3a SetMapper map3a
     [Actor3a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map3b
-    map3b SetInputConnection [procrustes2 GetOutputPort 1]
+    map3b SetInputData [[procrustes2 GetOutput] GetBlock 1]
 vtkActor Actor3b
     Actor3b SetMapper map3b
     [Actor3b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map3c
-    map3c SetInputConnection [procrustes2 GetOutputPort 2]
+    map3c SetInputData [[procrustes2 GetOutput] GetBlock 2]
 vtkActor Actor3c
     Actor3c SetMapper map3c
     [Actor3c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
 
 # -- align the shapes using Procrustes (using SetModeToAffine) --
 vtkProcrustesAlignmentFilter procrustes3
-    procrustes3 SetNumberOfInputs 3
-    procrustes3 SetInput 0 [sphere GetOutput]
-    procrustes3 SetInput 1 [transformer1 GetOutput]
-    procrustes3 SetInput 2 [transformer2 GetOutput]
+    procrustes3 SetInputConnection [group GetOutputPort]
     [procrustes3 GetLandmarkTransform] SetModeToAffine
+    procrustes3 Update
 
 # map the aligned shapes into the fourth renderer
 vtkPolyDataMapper map4a
-    map4a SetInputConnection [procrustes3 GetOutputPort 0]
+    map4a SetInputData [[procrustes3 GetOutput] GetBlock 0]
 vtkActor Actor4a
     Actor4a SetMapper map4a
     [Actor4a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map4b
-    map4b SetInputConnection [procrustes3 GetOutputPort 1]
+    map4b SetInputData [[procrustes3 GetOutput] GetBlock 1]
 vtkActor Actor4b
     Actor4b SetMapper map4b
     [Actor4b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map4c
-    map4c SetInputConnection [procrustes3 GetOutputPort 2]
+    map4c SetInputData [[procrustes3 GetOutput] GetBlock 2]
 vtkActor Actor4c
     Actor4c SetMapper map4c
     [Actor4c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000

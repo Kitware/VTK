@@ -37,7 +37,7 @@
 #include "vtkTrivialProducer.h"
 
 #include <assert.h>
-#include <vtkstd/vector>
+#include <vector>
 
 vtkInstantiatorNewMacro(vtkGlyph3DMapper);
 
@@ -84,6 +84,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->NestedDisplayLists = true;
 
   this->Masking = false;
+  this->SelectMode=1;
   this->SelectionColorId=1;
 }
 

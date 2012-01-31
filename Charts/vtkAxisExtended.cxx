@@ -196,7 +196,7 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
 int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 {
   vtksys_ios::ostringstream ostr;
-  ostr.imbue(vtkstd::locale::classic());
+  ostr.imbue(std::locale::classic());
   int numSize(0);
 
   switch(format)

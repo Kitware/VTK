@@ -32,9 +32,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -70,7 +70,7 @@ int TestAssignMimeType(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Make it happen ...
     vtkSmartPointer<vtkAssignMimeType> assign_mime_type = vtkSmartPointer<vtkAssignMimeType>::New();
-    assign_mime_type->SetInputConnection(0, documents->GetProducerPort());
+    assign_mime_type->SetInputData(0, documents);
 
     assign_mime_type->Update();
     assign_mime_type->GetOutput()->Dump(20);
@@ -84,7 +84,7 @@ int TestAssignMimeType(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
  
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

@@ -72,8 +72,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <ctype.h>
 #include <stdio.h>
 
-#include "vtkstd/stack"
-#include "vtksys/SystemTools.hxx"
+#include <stack>
+#include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMNITransformWriter);
@@ -351,7 +351,7 @@ int vtkMNITransformWriter::WriteGridTransform(
     }
 
   // Split FileName into directory and filename
-  vtkstd::vector<vtkstd::string> xfmpath;
+  std::vector<std::string> xfmpath;
   vtksys::SystemTools::SplitPath(this->FileName, xfmpath);
   if (xfmpath.size() < 1)
     {
@@ -361,7 +361,7 @@ int vtkMNITransformWriter::WriteGridTransform(
 
   // Replace the ".xfm" extension of the filename with "_grid.mnc"
   size_t i = xfmpath.size() - 1;
-  vtkstd::string filename =
+  std::string filename =
     vtksys::SystemTools::GetFilenameWithoutLastExtension(xfmpath[i]);
   filename.append("_grid.mnc");
   xfmpath[i] = filename;
@@ -484,7 +484,7 @@ int vtkMNITransformWriter::WriteFile()
   outfile << "\n";
 
   // Push the transforms onto the stack in reverse order
-  vtkstd::stack<vtkAbstractTransform *> tstack;
+  std::stack<vtkAbstractTransform *> tstack;
   int i = this->Transforms->GetNumberOfItems();
   while (i > 0)
     {

@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-#include <vtkstd/vector>
+#include <vector>
 
 
 //----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class vtkInformationDoubleVectorValue: public vtkObjectBase
 {
 public:
   vtkTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
-  vtkstd::vector<double> Value;
+  std::vector<double> Value;
 };
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ void vtkInformationDoubleVectorKey::Get(vtkInformation* info,
       this->GetAsObjectBase(info));
   if(v && value)
     {
-    for(vtkstd::vector<double>::size_type i = 0;
+    for(std::vector<double>::size_type i = 0;
         i < v->Value.size(); ++i)
       {
       value[i] = v->Value[i];

@@ -34,9 +34,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -65,7 +65,7 @@ int TestTokenizer(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Make it happen ...
     vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();
-    tokenizer->SetInputConnection(0, documents->GetProducerPort());
+    tokenizer->SetInputData(0, documents);
     tokenizer->AddDroppedDelimiters(vtkTokenizer::Whitespace());
     tokenizer->AddKeptDelimiters(vtkTokenizer::Punctuation());
 
@@ -79,7 +79,7 @@ int TestTokenizer(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
  
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

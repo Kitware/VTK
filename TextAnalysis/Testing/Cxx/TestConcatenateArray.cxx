@@ -33,9 +33,9 @@
 { \
   if(!(expression)) \
     { \
-    vtkstd::ostringstream buffer; \
+    std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw vtkstd::runtime_error(buffer.str()); \
+    throw std::runtime_error(buffer.str()); \
     } \
 }
 
@@ -61,8 +61,8 @@ int TestConcatenateArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     b_data->AddArray(b);
 
     vtkSmartPointer<vtkConcatenateArray> concatenate = vtkSmartPointer<vtkConcatenateArray>::New();
-    concatenate->SetInputConnection(0, a_data->GetProducerPort());
-    concatenate->SetInputConnection(1, b_data->GetProducerPort());
+    concatenate->SetInputData(0, a_data);
+    concatenate->SetInputData(1, b_data);
     concatenate->Update();
     vtkSparseArray<double>* const array = vtkSparseArray<double>::SafeDownCast(concatenate->GetOutput()->GetArray(0));
   
@@ -76,7 +76,7 @@ int TestConcatenateArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
    
     return 0;
     }
-  catch(vtkstd::exception& e)
+  catch(std::exception& e)
     {
     cerr << e.what() << endl;
     return 1;

@@ -37,9 +37,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <set>
+#include <vector>
+#include <string>
 
 vtkStandardNewMacro(vtkPPairwiseExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcessController);

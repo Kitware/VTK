@@ -1584,6 +1584,9 @@ int vtkImageCanvasSource2D::RequestInformation (
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent,6);
 
+  outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
+
   vtkDataObject::SetPointDataActiveScalarInfo
     (outInfo, this->ImageData->GetScalarType(),
      this->ImageData->GetNumberOfScalarComponents());

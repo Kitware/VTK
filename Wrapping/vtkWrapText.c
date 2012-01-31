@@ -68,8 +68,11 @@ const char *vtkWrapText_QuoteString(
       strcpy(&result[j],"\\n");
       j += 2;
       }
-    else if (isprint(comment[i]))
+    else if ((comment[i] & 0x80) != 0 || isprint(comment[i]))
       {
+      // all characters in extended-ASCII set are printable. Some compilers (VS
+      // 2010, in debug mode) asserts when isprint() is passed a negative value.
+      // Hence, we simply skip the check.
       result[j] = comment[i];
       j++;
       }

@@ -620,6 +620,14 @@ void vtkX3DExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Speed: " << this->Speed << "\n";
   os << indent << "Binary: " << this->Binary << "\n";
   os << indent << "Fastest: " << this->Fastest << endl;
+
+  os << indent << "WriteToOutputString: "
+     << (this->WriteToOutputString ? "On" : "Off") << std::endl;
+  os << indent << "OutputStringLength: " << this->OutputStringLength << std::endl;
+  if (this->OutputString)
+    {
+    os << indent << "OutputString: " << this->OutputString << std::endl;
+    }
 }
 
 
@@ -674,7 +682,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
   writer->StartNode(Text);
   writer->SetField(vtkX3D::string, ds);
 
-  vtkstd::string familyStr;
+  std::string familyStr;
   switch(tp->GetFontFamily())
     {
   case 0:
@@ -689,7 +697,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
     break;
     }
 
-  vtkstd::string justifyStr;
+  std::string justifyStr;
   switch  (tp->GetJustification())
     {
   case 0:
@@ -834,7 +842,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
       }
     }
 
-  vtkstd::vector<int> imageDataVec;
+  std::vector<int> imageDataVec;
   imageDataVec.push_back(xsize);
   imageDataVec.push_back(ysize);
   imageDataVec.push_back(mappedScalars->GetNumberOfComponents());
@@ -909,8 +917,8 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   vtkDataArray* tcoords, 
   bool common_data_written, int index, vtkX3DExporterWriter* writer)
 {
-  vtkstd::vector<int> coordIndexVector;
-  vtkstd::vector<int> cellIndexVector;
+  std::vector<int> coordIndexVector;
+  std::vector<int> cellIndexVector;
 
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
@@ -1025,7 +1033,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
   sprintf(indexString, "%04d", index);
 
   // write out the points
-  vtkstd::string defString = "VTKcoordinates";
+  std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(DEF, defString.append(indexString).c_str());
   writer->SetField(point, MFVEC3F, points->GetData());
@@ -1058,7 +1066,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     writer->StartNode(Color);
     writer->SetField(DEF, defString.append(indexString).c_str());
 
-    vtkstd::vector<double> colorVec;
+    std::vector<double> colorVec;
     unsigned char c[4];
     for (int i = 0; i < colors->GetNumberOfTuples(); i++)
       {
@@ -1077,7 +1085,7 @@ static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int i
 {
   char indexString[100];
   sprintf(indexString, "%04d", index);
-  vtkstd::string defString = "VTKcoordinates";
+  std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(USE, defString.append(indexString).c_str());
   writer->EndNode();
@@ -1114,7 +1122,7 @@ static bool vtkX3DExporterWriterRenderVerts(
   vtkPoints* points, vtkCellArray* cells,
   vtkUnsignedCharArray* colors, bool cell_colors,  vtkX3DExporterWriter* writer)
 {
-  vtkstd::vector<double> colorVector;
+  std::vector<double> colorVector;
 
   if (colors)
     {
@@ -1166,8 +1174,8 @@ static bool vtkX3DExporterWriterRenderPoints(
     return false;
     }
 
-  vtkstd::vector<double> colorVec;
-  vtkstd::vector<double> coordinateVec;
+  std::vector<double> colorVec;
+  std::vector<double> coordinateVec;
 
   vtkPoints* points = pd->GetPoints();
 

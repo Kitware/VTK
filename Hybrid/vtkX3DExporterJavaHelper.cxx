@@ -116,7 +116,7 @@ vtkX3DExporterJavaHelper::vtkX3DExporterJavaHelper()
     /* There is a new JNI_VERSION_1_4, but it doesn't add anything for the purposes of our example. */
     args.version = JNI_VERSION_1_2;
     args.nOptions = 1;
-    vtkstd::string str;
+    std::string str;
     if ( vtkX3DExporterJavaHelper::FastInfosetJarLocation )
       {
       str = "-Djava.class.path=";

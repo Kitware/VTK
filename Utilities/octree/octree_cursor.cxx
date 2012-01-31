@@ -125,7 +125,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::down( int child_of_this_node )
     }
   if ( child_of_this_node < 0 || child_of_this_node > (1<<d_) )
     {
-    throw vtkstd::range_error( "Invalid child node specified." );
+    throw std::range_error( "Invalid child node specified." );
     }
   this->_M_parents.push_back( this->_M_current_node );
   this->_M_indices.push_back( child_of_this_node );
@@ -152,7 +152,7 @@ int octree_cursor<T_,R_,P_,O_,OP_,d_>::where() const
 /**\brief Move to a different child with the same parent.
   *
   * This function has no effect when the cursor is currently on the root node.
-  * This can throw vtkstd::range_error when \a child_of_shared_parent is invalid.
+  * This can throw std::range_error when \a child_of_shared_parent is invalid.
   *
   * @param[in] child_of_shared_parent the child of the parent node to which the cursor should move.
   *            This is an integer in \f$\left\{0,\ldots,2^{\mathrm{\texttt{d\_}}}-1\right\}\f$.
@@ -167,7 +167,7 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::over( int child_of_shared_parent )
 
   if ( child_of_shared_parent < 0 || child_of_shared_parent >= (1<<d_) )
     {
-    throw vtkstd::range_error( "Invalid sibling specified." );
+    throw std::range_error( "Invalid sibling specified." );
     }
 
   this->_M_indices.back() = child_of_shared_parent;
@@ -178,8 +178,8 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::over( int child_of_shared_parent )
   *
   * Move the cursor to the sibling which occupies the other quadrant/octant/... along
   * the given \a axis while sharing the same bounds on all other axes.
-  * This will throw a vtkstd::logic_error when the cursor is at the root of the tree.
-  * It will throw a vtkstd::range_error when the axis is invalid.
+  * This will throw a std::logic_error when the cursor is at the root of the tree.
+  * It will throw a std::range_error when the axis is invalid.
   *
   * @param axis An integer in \f$\left\{0,\ldots,\mathrm{\texttt{d\_}}-1\right\}\f$
   */
@@ -188,13 +188,13 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_partner( int axis )
 {
   if ( axis < 0 || axis >= d_ )
     {
-    throw vtkstd::range_error( "An invalid axis was specified." );
+    throw std::range_error( "An invalid axis was specified." );
     }
 
   int bitcode = this->where();
   if ( bitcode < 0 )
     {
-    throw vtkstd::logic_error( "The root node has no axis partner." );
+    throw std::logic_error( "The root node has no axis partner." );
     }
 
   bitcode = (bitcode & ~(1<<axis)) | (bitcode ^ (1<<axis));
@@ -204,8 +204,8 @@ void octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_partner( int axis )
 
 /**\brief Determine whether the cursor is pointing to a lower or upper quadrant/octant/... of its parent along the given axis.
   *
-  * This will throw a vtkstd::logic_error when the cursor is at the root of the tree.
-  * It will throw a vtkstd::range_error when the axis is invalid.
+  * This will throw a std::logic_error when the cursor is at the root of the tree.
+  * It will throw a std::range_error when the axis is invalid.
   *
   * @param[in] axis The axis of interest. An integer in \f$\left\{0,\ldots,\mathrm{\texttt{d\_}}-1\right\}\f$.
   * @retval         0 if the cursor points to a lower quadrant/octant, 1 if the cursor points to an upper quadrant/octant.
@@ -215,13 +215,13 @@ bool octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_bit( int axis ) const
 {
   if ( axis < 0 || axis >= (1<<d_) )
     {
-    throw vtkstd::range_error( "An invalid axis was specified." );
+    throw std::range_error( "An invalid axis was specified." );
     }
 
   int bitcode = this->where();
   if ( bitcode < 0 )
     {
-    throw vtkstd::logic_error( "The root node has no axis partner." );
+    throw std::logic_error( "The root node has no axis partner." );
     }
 
   return ( bitcode & (1<<axis) ) ? 1 : 0;
@@ -235,10 +235,10 @@ bool octree_cursor<T_,R_,P_,O_,OP_,d_>::axis_bit( int axis ) const
   * Otherwise, the cursor will remain unchanged.
   */
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
-bool octree_cursor<T_,R_,P_,O_,OP_,d_>::visit( const vtkstd::vector<int>& pathSpec )
+bool octree_cursor<T_,R_,P_,O_,OP_,d_>::visit( const std::vector<int>& pathSpec )
 {
-  vtkstd::vector<int>::const_iterator it;
-  vtkstd::vector<octree_node_pointer> parents;
+  std::vector<int>::const_iterator it;
+  std::vector<octree_node_pointer> parents;
   octree_node_pointer head = this->_M_root;
   for ( it = pathSpec.begin(); it != pathSpec.end(); ++ it )
     {

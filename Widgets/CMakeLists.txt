@@ -35,6 +35,7 @@ vtkBoundedPlanePointPlacer.cxx
 vtkBoxRepresentation.cxx
 vtkBoxWidget.cxx
 vtkBoxWidget2.cxx
+vtkBrokenLineWidget.cxx
 vtkButtonRepresentation.cxx
 vtkButtonWidget.cxx
 vtkCameraRepresentation.cxx

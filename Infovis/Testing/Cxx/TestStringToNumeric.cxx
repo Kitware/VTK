@@ -25,28 +25,30 @@
 #include "vtkStringToNumeric.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
+#include "vtkMath.h"
 
-#include "vtkSmartPointer.h"
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#include "vtkNew.h"
 
-int TestStringToNumeric(int argc, char* argv[])
+namespace
+{
+
+int ArrayTypesTest(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                     "Data/authors.csv");
-  
-  VTK_CREATE(vtkDelimitedTextReader, reader);
+
+  vtkNew<vtkDelimitedTextReader> reader;
   reader->SetFileName(file);
   reader->SetHaveHeaders(true);
 
   delete [] file;
 
-  VTK_CREATE(vtkStringToNumeric, numeric);
+  vtkNew<vtkStringToNumeric> numeric;
   numeric->SetInputConnection(reader->GetOutputPort());
   numeric->Update();
-  
+
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
-  
+
   cerr << "Testing array types..." << endl;
   int errors = 0;
   if (!vtkStringArray::SafeDownCast(table->GetColumnByName("Author")))
@@ -110,19 +112,108 @@ int TestStringToNumeric(int argc, char* argv[])
       }
     }
 
-  cerr << "Testing ForceDouble..." << endl;
+  cerr << "Testing force double..." << endl;
   numeric->ForceDoubleOn();
   numeric->Update();
   table = vtkTable::SafeDownCast(numeric->GetOutput());
   if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("Age")))
     {
-    cerr << "ERROR: ForceDouble did not force Age to double array" << endl;
+    cerr << "ERROR: Arrays should have been forced to double" << endl;
     ++errors;
     }
 
-  cerr << "...done testing" << endl;
-  cerr << errors << " errors found." << endl;
-  
   return errors;
 }
 
+int WhitespaceAndEmptyCellsTest()
+{
+  // Setup a table of string columns, which is to get converted to numeric
+  vtkNew<vtkTable> inputTable;
+  vtkNew<vtkStringArray> integerColumn;
+  integerColumn->SetName("IntegerColumn");
+  integerColumn->SetNumberOfTuples(2);
+  integerColumn->SetValue(0, " ");
+  integerColumn->SetValue(1, " 1 ");
+
+  vtkNew<vtkStringArray> doubleColumn;
+  doubleColumn->SetName("DoubleColumn");
+  doubleColumn->SetNumberOfTuples(2);
+  doubleColumn->SetValue(0, " ");
+  doubleColumn->SetValue(1, " 1.1 ");
+
+  inputTable->AddColumn(integerColumn.GetPointer());
+  inputTable->AddColumn(doubleColumn.GetPointer());
+
+  // Setup the vtkStringToNumeric which is under test
+  vtkNew<vtkStringToNumeric> numeric;
+  int const defaultIntValue = 100;
+  numeric->SetDefaultIntegerValue(defaultIntValue);
+  numeric->SetDefaultDoubleValue(vtkMath::Nan());
+  numeric->SetTrimWhitespacePriorToNumericConversion(true);
+  numeric->SetInputData(inputTable.GetPointer());
+  numeric->Update();
+  vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
+  table->Dump();
+
+  cerr << "Testing handling whitespace and empty cells..." << endl;
+  int errors = 0;
+  if (!vtkIntArray::SafeDownCast(table->GetColumnByName("IntegerColumn")))
+    {
+    cerr << "ERROR: IntegerColumn array missing or not converted to int" << endl;
+    ++errors;
+    }
+  else
+    {
+    vtkIntArray* column =
+        vtkIntArray::SafeDownCast(table->GetColumnByName("IntegerColumn"));
+    if (defaultIntValue != column->GetValue(0))
+      {
+      cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
+           << ". Expected: " << defaultIntValue;
+      ++errors;
+      }
+    if (1 != column->GetValue(1))
+      {
+      cerr << "ERROR: Cell with whitespace value is: "
+           << column->GetValue(1) << ". Expected: 1";
+      ++errors;
+      }
+    }
+
+  if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("DoubleColumn")))
+    {
+    cerr << "ERROR: DoubleColumn array missing or not converted to double"
+         << endl;
+    ++errors;
+    }
+  else
+    {
+    vtkDoubleArray* column =
+        vtkDoubleArray::SafeDownCast(table->GetColumnByName("DoubleColumn"));
+    if (!vtkMath::IsNan(column->GetValue(0)))
+      {
+      cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
+           << ". Expected: " << vtkMath::Nan();
+      ++errors;
+      }
+    if (1.1 != column->GetValue(1))
+      {
+      cerr << "ERROR: Cell with whitespace value is: "
+           << column->GetValue(1) << ". Expected: 1.1";
+      ++errors;
+      }
+    }
+  return errors;
+}
+}
+
+int TestStringToNumeric(int argc, char* argv[])
+{
+  int errors = ArrayTypesTest(argc, argv);
+  errors += WhitespaceAndEmptyCellsTest();
+
+  cerr << "...done testing" << endl;
+  cerr << errors << " errors found." << endl;
+
+  return errors;
+}

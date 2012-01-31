@@ -27,8 +27,8 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include <ctype.h>
-#include <vtkstd/set>
-#include <vtkstd/map>
+#include <set>
+#include <map>
 #include "vtk_exodusII.h"
 #include <ctype.h>
 
@@ -649,8 +649,8 @@ int vtkExodusModel::SetLocalBlockInformation(
   int lastId = -1;
   int idx = 0;
 
-  vtkstd::map<int,int> blockIdStart;
-  vtkstd::map<int,int>::iterator it;
+  std::map<int,int> blockIdStart;
+  std::map<int,int>::iterator it;
 
   for (i=0; i<ncells; i++) 
     {
@@ -668,7 +668,7 @@ int vtkExodusModel::SetLocalBlockInformation(
         return 1; 
         }
 
-      blockIdStart.insert(vtkstd::map<int,int>::value_type(idx, i));
+      blockIdStart.insert(std::map<int,int>::value_type(idx, i));
       lastId = id;
       }
 
@@ -785,12 +785,12 @@ cerr << endl;
 
   // external node IDs in vtkUnstructuredGrid
 
-  vtkstd::map<int, int> localNodeIdMap;
-  vtkstd::map<int, int>::iterator it;
+  std::map<int, int> localNodeIdMap;
+  std::map<int, int>::iterator it;
 
   for (i=0; i<npoints; i++)
     {
-    localNodeIdMap.insert(vtkstd::map<int,int>::value_type(pointIds[i], i));
+    localNodeIdMap.insert(std::map<int,int>::value_type(pointIds[i], i));
     }
 
   int nns = emd->GetNumberOfNodeSets();
@@ -939,12 +939,12 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
   // external cell IDs in vtkUnstructuredGrid
 
-  vtkstd::map<int, int> localCellIdMap;
-  vtkstd::map<int, int>::iterator it;
+  std::map<int, int> localCellIdMap;
+  std::map<int, int>::iterator it;
 
   for (i=0; i<ncells; i++)
     {
-    localCellIdMap.insert(vtkstd::map<int,int>::value_type(cellIds[i], i));
+    localCellIdMap.insert(std::map<int,int>::value_type(cellIds[i], i));
     }
 
   int nss = emd->GetNumberOfSideSets();

@@ -25,8 +25,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <vtkstd/set>
-#include <vtkstd/vector>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkAppendPoints);
 
@@ -57,7 +57,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType totalPoints = 0;
   int numInputs = this->GetNumberOfInputConnections(0);
   bool first = true;
-  vtkstd::set<vtkstd::string> arrayNames;
+  std::set<std::string> arrayNames;
   for (int idx = 0; idx < numInputs; ++idx)
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
@@ -77,8 +77,8 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
         }
       else
         {
-        vtkstd::set<vtkstd::string> toErase;
-        vtkstd::set<vtkstd::string>::iterator it, itEnd;
+        std::set<std::string> toErase;
+        std::set<std::string>::iterator it, itEnd;
         itEnd = arrayNames.end();
         for (it = arrayNames.begin(); it != itEnd; ++it)
           {
@@ -96,7 +96,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
       }
     }
 
-  vtkstd::vector<vtkSmartPointer<vtkPolyData> > inputs;
+  std::vector<vtkSmartPointer<vtkPolyData> > inputs;
   for (int idx = 0; idx < numInputs; ++idx)
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
@@ -107,7 +107,7 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
       vtkSmartPointer<vtkPolyData> copy =
         vtkSmartPointer<vtkPolyData>::New();
       copy->SetPoints(input->GetPoints());
-      vtkstd::set<vtkstd::string>::iterator it, itEnd;
+      std::set<std::string>::iterator it, itEnd;
       itEnd = arrayNames.end();
       for (it = arrayNames.begin(); it != itEnd; ++it)
         {

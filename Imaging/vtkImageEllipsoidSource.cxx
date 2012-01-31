@@ -112,6 +112,8 @@ int vtkImageEllipsoidSource::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   
+  outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent, 6);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);

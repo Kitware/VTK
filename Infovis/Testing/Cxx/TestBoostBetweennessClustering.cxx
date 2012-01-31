@@ -24,7 +24,7 @@
 
 #include <boost/version.hpp>
 
-#include <vtkstd/map>
+#include <map>
 
 int TestBoostBetweennessClustering(int vtkNotUsed(argc),
                                    char* vtkNotUsed(argv)[])
@@ -122,7 +122,7 @@ int TestBoostBetweennessClustering(int vtkNotUsed(argc),
 
   // Now lets create the correct mapping so that we can compare the results
   // against it.
-  vtkstd::map<int, int> expResults;
+  std::map<int, int> expResults;
   expResults[0] = 0;
   expResults[1] = 0;
   expResults[2] = 0;

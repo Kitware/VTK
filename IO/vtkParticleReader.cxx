@@ -28,9 +28,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
-#include <vtkstd/algorithm>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <algorithm>
+#include <vector>
+#include <string>
 #include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(vtkParticleReader);
@@ -48,12 +48,12 @@ namespace {
   {
   public:
     ParseLine (): LookForEndString(false) {};
-    int operator () (vtkstd::string &s, T val[4])
+    int operator () (std::string &s, T val[4])
     {
       // Skip over comment lines.
-      vtkstd::string::iterator itr;
-      vtkstd::string tgt("/*");
-      itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
+      std::string::iterator itr;
+      std::string tgt("/*");
+      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
         {
         LookForEndString = true;
@@ -62,7 +62,7 @@ namespace {
       if ( LookForEndString )
         {
         tgt = "*/";
-        itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
+        itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
         if ( itr != s.end() )
           {
           LookForEndString = false;
@@ -72,25 +72,25 @@ namespace {
         }
 
       tgt = "//";
-      itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
+      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
         {
         return 0;
         }
       tgt = "%";
-      itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
+      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
         {
         return 0;
         }
       tgt = "#";
-      itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
+      itr = std::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
         {
         return 0;
         }
       // If comma delimited, replace with tab
-      vtkstd::replace(s.begin(),s.end(),',','\t');
+      std::replace(s.begin(),s.end(),',','\t');
 
       // We have data.
       vtksys_ios::stringstream is;
@@ -281,7 +281,7 @@ int vtkParticleReader::DetermineFileType()
 
   size_t sampleSize = fileLength < 5000 ? fileLength: 5000;
   // cout << "File length: " << fileLength << " Sample size: " << sampleSize << endl;
-  vtkstd::vector <unsigned char> s;
+  std::vector <unsigned char> s;
   for ( size_t i = 0; i < sampleSize; ++i )
     {
     char c;
@@ -357,7 +357,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   size_t fileLength = (unsigned long)this->File->tellg();
   size_t bytesRead = 0;
 
-  vtkstd::string s;
+  std::string s;
   
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
@@ -434,7 +434,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   size_t fileLength = (unsigned long)this->File->tellg();
   size_t bytesRead = 0;
 
-  vtkstd::string s;
+  std::string s;
   
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToFloat();

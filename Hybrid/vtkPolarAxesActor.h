@@ -35,7 +35,6 @@ All rights reserve
 #define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5
 #define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
-#define VTK_DEFAULT_MAXIMUM_POLAR_ANGLE 90.0
 #define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
 
 #include "vtkActor.h"
@@ -64,14 +63,13 @@ public:
 
   // Description:
   // Explicitly specify the coordinate of the pole.
-  // The default coordinates are (0,0,0).
-  vtkSetVector3Macro( Pole, double );
+  virtual void SetPole( double[3] );
+  virtual void SetPole( double, double, double );
   vtkGetVector3Macro( Pole, double );
 
   // Description:
   // Gets/Sets the number of radial axes
-  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
-  vtkSetClampMacro( NumberOfRadialAxes, vtkIdType, 2, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES );
+  virtual void SetNumberOfRadialAxes( vtkIdType );
   vtkGetMacro( NumberOfRadialAxes, vtkIdType );
 
   // Description:
@@ -85,11 +83,11 @@ public:
   // Default: true
   vtkSetMacro( AutoSubdividePolarAxis, bool );
   vtkGetMacro( AutoSubdividePolarAxis, bool );
+  vtkBooleanMacro( AutoSubdividePolarAxis, bool );
 
   // Description:
-  //  Set/Get the maximum radius of the polar coordinates.
-  // Default: VTK_DOUBLE_MAX
-  vtkSetClampMacro( MaximumRadius, double, 0., VTK_DOUBLE_MAX );
+  // Set/Get the maximum radius of the polar coordinates.
+  virtual void SetMaximumRadius( double );
   vtkGetMacro( MaximumRadius, double );
 
   // Description:
@@ -100,15 +98,20 @@ public:
 
   // Description:
   //  Set/Get the minimum radius of the polar coordinates (in degrees).
-  // Default: 0.
-  vtkSetClampMacro( MinimumAngle, double, 0., 360. );
+  virtual void SetMinimumAngle( double );
   vtkGetMacro( MinimumAngle, double );
 
   // Description:
   //  Set/Get the maximum radius of the polar coordinates (in degrees).
-  // Default: VTK_DEFAULT_MAXIMUM_POLAR_ANGLE
-  vtkSetClampMacro( MaximumAngle, double, 0., 360. );
+  virtual void SetMaximumAngle( double );
   vtkGetMacro( MaximumAngle, double );
+
+  // Description:
+  //  Set/Get the minimum radial angle distinguishable from polar axis
+  // NB: This is used only when polar axis is visible
+  // Default: 0.5
+  vtkSetClampMacro( SmallestVisiblePolarAngle, double, 0., 5. );
+  vtkGetMacro( SmallestVisiblePolarAngle, double );
 
   // Description: Set/Get whether angle units (degrees) are used to label radial axes 
   // Default: true
@@ -136,7 +139,7 @@ public:
   vtkGetStringMacro( PolarAxisTitle );
 
   // Description:
-  // Set/Get the format with which to print the polar axis labels
+  // Set/Get the format with which to print the polar axis labels.
   vtkSetStringMacro( PolarLabelFormat );
   vtkGetStringMacro( PolarLabelFormat );
 
@@ -147,22 +150,42 @@ public:
   void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
+  // Enable and disable the use of distance based LOD for titles and labels. 
+  vtkSetMacro( EnableDistanceLOD, int );
+  vtkGetMacro( EnableDistanceLOD, int );
+  
+  // Description:a
+  // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
+  vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
+  vtkGetMacro( DistanceLODThreshold, double);
+
+  // Description:
+  // Enable and disable the use of view angle based LOD for titles and labels. 
+  vtkSetMacro( EnableViewAngleLOD, int );
+  vtkGetMacro( EnableViewAngleLOD, int );
+  
+  // Description:
+  // Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
+  vtkSetClampMacro( ViewAngleLODThreshold, double, 0., 1. );
+  vtkGetMacro( ViewAngleLODThreshold, double );
+
+  // Description:
   // Turn on and off the visibility of the polar axis.
-  vtkSetMacro( PolarAxisVisibility,int );
-  vtkGetMacro( PolarAxisVisibility,int );
-  vtkBooleanMacro( PolarAxisVisibility,int );
+  vtkSetMacro( PolarAxisVisibility, int );
+  vtkGetMacro( PolarAxisVisibility, int );
+  vtkBooleanMacro( PolarAxisVisibility, int );
 
   // Description:
   // Turn on and off the visibility of titles for polar axis.
-  vtkSetMacro( PolarTitleVisibility,int );
-  vtkGetMacro( PolarTitleVisibility,int );
-  vtkBooleanMacro( PolarTitleVisibility,int );
+  vtkSetMacro( PolarTitleVisibility, int );
+  vtkGetMacro( PolarTitleVisibility, int );
+  vtkBooleanMacro( PolarTitleVisibility, int );
 
   // Description:
   // Turn on and off the visibility of labels for polar axis.
-  vtkSetMacro( PolarLabelVisibility,int );
-  vtkGetMacro( PolarLabelVisibility,int );
-  vtkBooleanMacro( PolarLabelVisibility,int );
+  vtkSetMacro( PolarLabelVisibility, int );
+  vtkGetMacro( PolarLabelVisibility, int );
+  vtkBooleanMacro( PolarLabelVisibility, int );
 
   // Description:
   // Turn on and off the visibility of ticks for polar axis.
@@ -172,15 +195,15 @@ public:
 
   // Description:
   // Turn on and off the visibility of non-polar radial axes.
-  vtkSetMacro( RadialAxesVisibility,int );
-  vtkGetMacro( RadialAxesVisibility,int );
-  vtkBooleanMacro( RadialAxesVisibility,int );
+  vtkSetMacro( RadialAxesVisibility, int );
+  vtkGetMacro( RadialAxesVisibility, int );
+  vtkBooleanMacro( RadialAxesVisibility, int );
 
   // Description:
   // Turn on and off the visibility of titles for non-polar radial axes.
-  vtkSetMacro( RadialTitleVisibility,int );
-  vtkGetMacro( RadialTitleVisibility,int );
-  vtkBooleanMacro( RadialTitleVisibility,int );
+  vtkSetMacro( RadialTitleVisibility, int );
+  vtkGetMacro( RadialTitleVisibility, int );
+  vtkBooleanMacro( RadialTitleVisibility, int );
 
   // Description:
   // Turn on and off the visibility of arcs for polar axis.
@@ -229,32 +252,36 @@ protected:
   ~vtkPolarAxesActor();
 
   // Description:
-  // Transform the bounding box to display coordinates.
-  void  TransformBounds( vtkViewport*, double* );
-
-  // Description:
   // Build the axes. 
   // Determine coordinates, position, etc.
-  void  BuildAxes( vtkViewport * );
+  void BuildAxes( vtkViewport * );
+
+  // Description:
+  // Calculate bounds based on maximum radius and angular sector
+  void CalculateBounds();
 
   // Description:
   // Send attributes which are common to all axes, both polar and radial
-  void  SetCommonAxisAttributes( vtkAxisActor* );
+  void SetCommonAxisAttributes( vtkAxisActor* );
+
+  // Description:
+  // Create requested number of type X axes and set followers
+  void CreateRadialAxes();
+
+  // Description:
+  // Build requested number of radial axes with respect to specified pole.
+  void BuildRadialAxes();
 
   // Description:
   // Prepare ticks on polar axis with respect to coordinate offset
-  void  BuildPolarAxisTicks( double );
+  void BuildPolarAxisTicks( double );
 
   // Description:
   // Build polar axis labels and arcs with respect to specified pole.
-  void  BuildPolarAxisLabelsArcs( double* );
+  void BuildPolarAxisLabelsArcs();
 
-  int LabelExponent(double min, double max );
-
-  int Digits(double min, double max );
-
-  double MaxOf(double, double );
-
+  // Description:
+  // Convenience methods
   double FFix(double );
   double FSign(double, double );
 
@@ -265,10 +292,12 @@ protected:
 
   // Description:
   // Coordinates of the pole
+  // Default: (0,0,0).
   double Pole[3]; 
 
   // Description:
   // Number of radial axes
+  // Default: VTK_DEFAULT_NUMBER_OF_RADIAL_AXES
   int NumberOfRadialAxes;
 
   // Description:
@@ -282,6 +311,7 @@ protected:
 
   // Description:
   // Maximum polar radius (minimum is always 0)
+  // Default: 1
   double MaximumRadius;
 
   // Description:
@@ -290,11 +320,17 @@ protected:
 
   // Description:
   // Minimum polar angle
+  // Default: 0.
   double MinimumAngle;
 
   // Description:
   // Maximum polar angle
+  // Default: 90.
   double MaximumAngle;
+
+  // Description:
+  // Smallest radial angle distinguishable from polar axis
+  double SmallestVisiblePolarAngle;
 
   // Description:
   // Explicit actor bounds
@@ -325,21 +361,43 @@ protected:
   char  *PolarLabelFormat;
 
   // Description:
-  // Use angle units (degrees) to label radial axes
+  // Display angle units (degrees) to label radial axes
+  // Default is true
   bool RadialUnits;
 
-  int TickLocation;
+  // Description:
+  // If enabled the actor will not be visible at a certain distance from the camera.
+  // Default is true
+  int EnableDistanceLOD;
 
+  // Description:
+  // Default is 0.80
+  // This determines at what fraction of camera far clip range, actor is not visible.
+  double DistanceLODThreshold;
+
+  // Description:
+  // If enabled the actor will not be visible at a certain view angle.
+  // Default is true.
+  int EnableViewAngleLOD;
+
+  // Description:
+  // This determines at what view angle to geometry will make the geometry not visibile.
+  // Default is 0.3.
+  double ViewAngleLODThreshold;
+
+  // Description:
   // Visibility of polar axis and its title, labels, ticks (major only)
   int PolarAxisVisibility;
   int PolarTitleVisibility;
   int PolarLabelVisibility;
   int PolarTickVisibility;
 
+  // Description:
   // Visibility of radial axes and their titles
   int RadialAxesVisibility;
   int RadialTitleVisibility;
 
+  // Description:
   // Visibility of polar arcs
   int PolarArcsVisibility;
 
@@ -347,23 +405,35 @@ protected:
 
   int RenderSomething;
 
-  double LabelScreenOffset;
-
+  // Description:
   // Text properties of polar axis title and labels
   vtkTextProperty   *PolarAxisTitleTextProperty;
   vtkTextProperty   *PolarAxisLabelTextProperty;
 
+  // Description:
   // General properties of polar axis
   vtkProperty* PolarAxisProperty;
 
+  // Description:
   // General properties of radial axes
   vtkProperty* RadialAxesProperty;
 
   vtkTimeStamp BuildTime;
 
-  double LabelScale;
+  // Description:
+  // Title scale factor
   double TitleScale;
 
+  // Description:
+  // Label scale factor
+  double LabelScale;
+
+  // Description:
+  // Label screen offset
+  double LabelScreenOffset;
+
+  // Description:
+  // Text screen size
   double ScreenSize;
 
 private:

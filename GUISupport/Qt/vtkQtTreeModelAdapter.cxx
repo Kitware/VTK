@@ -37,7 +37,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
-#include <vtkstd/algorithm>
+#include <algorithm>
 #include <QIcon>
 #include <QPainter>
 #include <QBrush>
@@ -46,7 +46,7 @@
 #include <QMimeData>
 
 #include <vtksys/ios/sstream>
-#include <vtkstd/set>
+#include <set>
 
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
@@ -196,13 +196,13 @@ vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
   IndexSelection->AddNode(node);
   
   // Run through the QModelIndexList pulling out vtk indexes
-  vtkstd::set<int> unique_ids;
+  std::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
     unique_ids.insert(qmil.at(i).internalId());
     }  
 
-  vtkstd::set<int>::iterator iter;
+  std::set<int>::iterator iter;
   for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
     {
     index_arr->InsertNextValue(*iter);

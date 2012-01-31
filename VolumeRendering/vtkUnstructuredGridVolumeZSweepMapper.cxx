@@ -42,8 +42,8 @@
 
 #include <assert.h>
 #include <string.h> // memset()
-#include <vtkstd/vector>
-#include <vtkstd/list>
+#include <vector>
+#include <list>
 
 // do not remove the following line:
 //#define BACK_TO_FRONT
@@ -250,7 +250,8 @@ enum
   VTK_CASE_VERTICAL_IN_TO_OUT, // with edge equation
   VTK_CASE_VERTICAL_OUT_TO_IN,
   VTK_CASE_HORIZONTAL_IN_TO_OUT,
-  VTK_CASE_HORIZONTAL_OUT_TO_IN
+  VTK_CASE_HORIZONTAL_OUT_TO_IN,
+  VTK_CASE_UNDEFINED
 };
 
 // We use an edge equation as described in:
@@ -277,6 +278,10 @@ class vtkSimpleScreenEdge
   : public vtkScreenEdge
 {
 public:
+  vtkSimpleScreenEdge()
+  {
+    this->Case = VTK_CASE_UNDEFINED;
+  }
   // Initialize the edge by the vertices v0 and v2 (ordered in y)
   // `onRight' is true if the edge in on the right side of the triangle.
   void Init(vtkVertexEntry *v0,
@@ -1101,6 +1106,8 @@ public:
             this->Zview+=this->ZStep;
             }
           break;
+        default:
+          vtkGenericWarningMacro(<< "Undefined edge case");
         }
     }
   
@@ -1655,7 +1662,7 @@ protected:
 
 // Pimpl (i.e. private implementation) idiom
 
-//typedef vtkstd::list<vtkPixelListEntry *> vtkPixelList;
+//typedef std::list<vtkPixelListEntry *> vtkPixelList;
 
 class vtkPixelListEntryBlock
 {
@@ -1904,7 +1911,7 @@ protected:
 class vtkPixelListFrame
 {
 public:
-  typedef vtkstd::vector<vtkPixelList> VectorType;
+  typedef std::vector<vtkPixelList> VectorType;
  
   vtkPixelListFrame(int size)
     :Vector(size)
@@ -1957,7 +1964,7 @@ public:
     }
 #if 0
   // Return the end iterator for pixel `i'.
-  vtkstd::list<vtkPixelListEntry *>::iterator GetEndIterator(int i)
+  std::list<vtkPixelListEntry *>::iterator GetEndIterator(int i)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       return this->Vector[i].end();
@@ -2007,11 +2014,11 @@ protected:
   
   // the STL specification claims that
   // size() on a std: :list is permitted to be O(n)!!!!
-//  vtkstd::vector<vtkIdType> Sizes;
+//  std::vector<vtkIdType> Sizes;
   
-//  vtkstd::list<vtkPixelListEntry *>::iterator It;
-//  vtkstd::list<vtkPixelListEntry *>::iterator PreviousIt;
-//  vtkstd::list<vtkPixelListEntry *>::iterator ItEnd;
+//  std::list<vtkPixelListEntry *>::iterator It;
+//  std::list<vtkPixelListEntry *>::iterator PreviousIt;
+//  std::list<vtkPixelListEntry *>::iterator ItEnd;
 };
 
 //-----------------------------------------------------------------------------
@@ -2100,10 +2107,10 @@ private:
 class vtkUseSet
 {
 public:
-  typedef vtkstd::vector<vtkstd::list<vtkFace *> *> VectorType;
+  typedef std::vector<std::list<vtkFace *> *> VectorType;
   VectorType Vector;
 
-  vtkstd::list<vtkFace *> AllFaces; // to set up rendering to false.
+  std::list<vtkFace *> AllFaces; // to set up rendering to false.
   
   // Initialize with the number of vertices.
   vtkUseSet(int size)
@@ -2221,10 +2228,10 @@ public:
         int i=0;
         while(i<3)
           {
-          vtkstd::list<vtkFace *> *p=this->Vector[faceIds[i]];
+          std::list<vtkFace *> *p=this->Vector[faceIds[i]];
           if(p==0)
             {
-            p=new vtkstd::list<vtkFace *>;
+            p=new std::list<vtkFace *>;
             this->Vector[faceIds[i]]=p;
             }
           p->push_back(f);
@@ -2300,8 +2307,8 @@ public:
   
   void SetNotRendered()
     {
-      vtkstd::list<vtkFace *>::iterator it;
-      vtkstd::list<vtkFace *>::iterator end;
+      std::list<vtkFace *>::iterator it;
+      std::list<vtkFace *>::iterator end;
       it=this->AllFaces.begin();
       end=this->AllFaces.end();
       while(it!=end)
@@ -2316,7 +2323,7 @@ protected:
   // this face, otherwise return null.
   vtkFace *GetFace(vtkIdType faceIds[3])
     {    
-      vtkstd::list<vtkFace *> *useSet=this->Vector[faceIds[0]];
+      std::list<vtkFace *> *useSet=this->Vector[faceIds[0]];
       vtkFace *result=0;
       
       if(useSet!=0)
@@ -2343,15 +2350,15 @@ protected:
   
   
   // Used in GetFace()
-  vtkstd::list<vtkFace *>::iterator It;
-  vtkstd::list<vtkFace *>::iterator ItEnd;
+  std::list<vtkFace *>::iterator It;
+  std::list<vtkFace *>::iterator ItEnd;
 };
 
 // For each vertex, store its projection. It is view-dependent.
 class vtkVertices
 {
 public:
-  typedef vtkstd::vector<vtkVertexEntry> VectorType;
+  typedef std::vector<vtkVertexEntry> VectorType;
   VectorType Vector;
   
   // Initialize with the number of vertices.
@@ -3256,8 +3263,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
   // by taking the vertices of all those cells.
   //
   zTarget=previousZTarget;
-  vtkstd::list<vtkFace *>::iterator it;
-  vtkstd::list<vtkFace *>::iterator itEnd;
+  std::list<vtkFace *>::iterator it;
+  std::list<vtkFace *>::iterator itEnd;
   
 //  this->MaxRecordedPixelListSize=0;
   this->MaxPixelListSizeReached=0;

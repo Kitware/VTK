@@ -50,7 +50,7 @@
 #include <QApplication>
 #include <QFontDatabase>
 
-using vtkstd::string;
+using std::string;
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -89,7 +89,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
     verts->InsertCellPoint(i);
     orient->InsertNextValue((double)(rand()%100)*3.60);
     vtkStdString s;
-    vtkstd::stringstream out;
+    std::stringstream out;
     out << i;
     s = out.str();
     label->InsertNextValue(s);

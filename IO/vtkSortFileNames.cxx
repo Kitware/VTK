@@ -19,10 +19,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
-#include <vtkstd/string>
-#include <vtkstd/vector>
-#include <vtkstd/list>
-#include <vtkstd/algorithm>
+#include <string>
+#include <vector>
+#include <list>
+#include <algorithm>
 #include <vtksys/SystemTools.hxx>
 
 #include <ctype.h>
@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkSortFileNames);
 class vtkStringArrayVector
 {
 public:
-  typedef vtkstd::vector<vtkSmartPointer<vtkStringArray> > VectorType;
+  typedef std::vector<vtkSmartPointer<vtkStringArray> > VectorType;
 
   static vtkStringArrayVector *New() {
     return new vtkStringArrayVector; }; 
@@ -169,18 +169,18 @@ vtkStringArray *vtkSortFileNames::GetFileNames()
 void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
                                       vtkStringArrayVector *output)
 {
-  vtkstd::string baseName;
-  vtkstd::string extension;
-  vtkstd::string fileNamePath;
-  vtkstd::string reducedName;
+  std::string baseName;
+  std::string extension;
+  std::string fileNamePath;
+  std::string reducedName;
 
-  vtkstd::list<unsigned int> ungroupedFiles;
-  vtkstd::vector<vtkstd::string> reducedFileNames;
+  std::list<unsigned int> ungroupedFiles;
+  std::vector<std::string> reducedFileNames;
 
   unsigned int numberOfStrings = input->GetNumberOfValues();
   for (unsigned int i = 0; i < numberOfStrings; i++)
     {
-    vtkstd::string& fileName = input->GetValue(i);
+    std::string& fileName = input->GetValue(i);
     extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
     fileNamePath = vtksys::SystemTools::GetFilenamePath(fileName);
     baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
@@ -261,12 +261,12 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     {
     // get the first element in the list
     unsigned int fileIndex = ungroupedFiles.front();
-    vtkstd::string& reducedFileName = reducedFileNames[fileIndex];
+    std::string& reducedFileName = reducedFileNames[fileIndex];
 
     vtkStringArray *newGroup = vtkStringArray::New();
 
     // find all matches and move them into the group
-    vtkstd::list<unsigned int>::iterator p = ungroupedFiles.begin();
+    std::list<unsigned int>::iterator p = ungroupedFiles.begin();
     while (p != ungroupedFiles.end())
       {
       unsigned int tryIndex = *p;
@@ -289,8 +289,8 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
 }
 
 // Sort filenames lexicographically, ignoring case.
-bool vtkCompareFileNamesIgnoreCase(const vtkstd::string& s1,
-                                   const vtkstd::string& s2)
+bool vtkCompareFileNamesIgnoreCase(const std::string& s1,
+                                   const std::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
@@ -335,8 +335,8 @@ bool vtkCompareFileNamesIgnoreCase(const vtkstd::string& s1,
 }
 
 // Sort filenames numerically
-bool vtkCompareFileNamesNumeric(const vtkstd::string& s1,
-                                const vtkstd::string& s2)
+bool vtkCompareFileNamesNumeric(const std::string& s1,
+                                const std::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
@@ -417,8 +417,8 @@ bool vtkCompareFileNamesNumeric(const vtkstd::string& s1,
 }
 
 // Sort filenames numerically
-bool vtkCompareFileNamesNumericIgnoreCase(const vtkstd::string& s1,
-                                          const vtkstd::string& s2)
+bool vtkCompareFileNamesNumericIgnoreCase(const std::string& s1,
+                                          const std::string& s2)
 {
   unsigned int n1 = static_cast<unsigned int>(s1.length());
   unsigned int n2 = static_cast<unsigned int>(s2.length());
@@ -506,11 +506,11 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
                                      vtkStringArray *output)
 {
   // convert vtkStringArray into an STL vector
-  vtkstd::vector<vtkstd::string> fileNames;
+  std::vector<std::string> fileNames;
   unsigned int numberOfStrings = input->GetNumberOfValues();
   for (unsigned int j = 0; j < numberOfStrings; j++)
     {
-    vtkstd::string& fileName = input->GetValue(j);
+    std::string& fileName = input->GetValue(j);
 
     // skip anything that is a directory
     if (this->SkipDirectories &&
@@ -529,13 +529,13 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
     if (this->NumericSort)
       {
       // numeric sort without case sensitivity
-      vtkstd::sort(fileNames.begin(), fileNames.end(),
+      std::sort(fileNames.begin(), fileNames.end(),
                    vtkCompareFileNamesNumericIgnoreCase);
       }
     else
       {
       // lexicographic sort without case sensitivity
-      vtkstd::sort(fileNames.begin(), fileNames.end(),
+      std::sort(fileNames.begin(), fileNames.end(),
                    vtkCompareFileNamesIgnoreCase);
       }
     }
@@ -544,18 +544,18 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
     if (this->NumericSort)
       {
       // numeric sort
-      vtkstd::sort(fileNames.begin(), fileNames.end(),
+      std::sort(fileNames.begin(), fileNames.end(),
                    vtkCompareFileNamesNumeric);
       }
     else
       {
       // lexicographic sort (the default)
-      vtkstd::sort(fileNames.begin(), fileNames.end());
+      std::sort(fileNames.begin(), fileNames.end());
       }
     }
 
   // build the output
-  vtkstd::vector<vtkstd::string>::iterator iter = fileNames.begin();
+  std::vector<std::string>::iterator iter = fileNames.begin();
   while (iter < fileNames.end())
     {
     output->InsertNextValue(*iter++);

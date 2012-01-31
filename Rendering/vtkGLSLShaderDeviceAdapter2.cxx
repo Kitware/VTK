@@ -21,15 +21,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkShaderProgram2.h"
 
-#include <vtkstd/map>
-#include <vtkstd/string>
+#include <map>
+#include <string>
 
 #include "vtkgl.h"
 
 class vtkGLSLShaderDeviceAdapter2::vtkInternal
 {
 public:
-  typedef vtkstd::map<vtkstd::string, int> MapOfStringToInt;
+  typedef std::map<std::string, int> MapOfStringToInt;
   MapOfStringToInt AttributeIndicesCache;
 };
 

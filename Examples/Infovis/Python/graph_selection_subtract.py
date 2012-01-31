@@ -21,18 +21,18 @@ sel1.AddID(0, 2)
 sel1.AddID(0, 3)
 sel1.Update()
 
-G = source.GetOutput()
+G = source.GetOutputPort()
 
 selExp0 = vtkExpandSelectedGraph()
 selExp0.SetInputConnection(0, sel1.GetOutputPort());
-selExp0.SetGraphConnection( G.GetProducerPort() )
+selExp0.SetGraphConnection( G )
 selExp0.SetBFSDistance(0)
 selExp0.Update()
 
 
 selExp1 = vtkExpandSelectedGraph()
 selExp1.SetInputConnection(0, sel1.GetOutputPort());
-selExp1.SetGraphConnection( G.GetProducerPort() )
+selExp1.SetGraphConnection( G )
 selExp1.SetBFSDistance(2)
 selExp1.Update()
 
@@ -40,7 +40,7 @@ selExp1.Update()
 selExp1.GetOutput().Subtract( selExp0.GetOutput() )
 
 view = vtkGraphLayoutView()
-view.AddRepresentationFromInputConnection(G.GetProducerPort())
+view.AddRepresentationFromInputConnection(G)
 
 view.SetVertexLabelArrayName("vertex id")
 view.SetVertexColorArrayName("vertex id")

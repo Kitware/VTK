@@ -23,7 +23,7 @@
 #include "vtkCachingInterpolatedVelocityField.h"
 #include "vtkAbstractCellLocator.h"
 
-#include <vtkstd/vector>
+#include <vector>
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
 //---------------------------------------------------------------------------

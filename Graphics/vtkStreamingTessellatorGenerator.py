@@ -435,15 +435,15 @@ print >> genCode, """
 #undef DBG_MIDPTS
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-   /* Ignore "return type for 'vtkstd::deque<int*>::const_iterator::operator ->'
+   /* Ignore "return type for 'std::deque<int*>::const_iterator::operator ->'
     * is 'int *const * ' (ie; not a UDT or reference to a UDT.
     * Will produce errors if applied using infix notation)" warning on MSVC6.
     */
 #  pragma warning ( disable : 4284 )
 #endif
 
-#include <vtkstd/stack>
-#include <vtkstd/algorithm>
+#include <stack>
+#include <algorithm>
 
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
 #  define VTK_TESSELLATOR_INCR_CASE_COUNT(cs) this->CaseCounts[cs]++
@@ -788,7 +788,7 @@ void vtkStreamingTessellator::AdaptivelySample1Facet( double* v0, double* v1, in
 
   double midpt0[11+vtkStreamingTessellator::MaxFieldSize];
   // make valgrind happy
-  vtkstd::fill(midpt0,midpt0+this->PointDimension[1],0.);
+  std::fill(midpt0,midpt0+this->PointDimension[1],0.);
 
   if ( maxDepth-- > 0 )
     {
@@ -822,9 +822,9 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
   double midpt2[11+vtkStreamingTessellator::MaxFieldSize];
 
   // Make valgrind happy
-  vtkstd::fill(midpt0,midpt0+this->PointDimension[2],0.);
-  vtkstd::fill(midpt1,midpt1+this->PointDimension[2],0.);
-  vtkstd::fill(midpt2,midpt2+this->PointDimension[2],0.);
+  std::fill(midpt0,midpt0+this->PointDimension[2],0.);
+  std::fill(midpt1,midpt1+this->PointDimension[2],0.);
+  std::fill(midpt2,midpt2+this->PointDimension[2],0.);
 
   if ( maxDepth-- > 0 )
     {
@@ -991,12 +991,12 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
   double facept3[11+vtkStreamingTessellator::MaxFieldSize];
 
   // Make valgrind happy
-  vtkstd::fill(midpt0,midpt0+this->PointDimension[3],0.);
-  vtkstd::fill(midpt1,midpt1+this->PointDimension[3],0.);
-  vtkstd::fill(midpt2,midpt2+this->PointDimension[3],0.);
-  vtkstd::fill(midpt3,midpt3+this->PointDimension[3],0.);
-  vtkstd::fill(midpt4,midpt4+this->PointDimension[3],0.);
-  vtkstd::fill(midpt5,midpt5+this->PointDimension[3],0.);
+  std::fill(midpt0,midpt0+this->PointDimension[3],0.);
+  std::fill(midpt1,midpt1+this->PointDimension[3],0.);
+  std::fill(midpt2,midpt2+this->PointDimension[3],0.);
+  std::fill(midpt3,midpt3+this->PointDimension[3],0.);
+  std::fill(midpt4,midpt4+this->PointDimension[3],0.);
+  std::fill(midpt5,midpt5+this->PointDimension[3],0.);
 
   double edgeLength2[6];
   if ( maxDepth-- > 0 )
@@ -1084,9 +1084,9 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     permuted[13] = facept3;
 
     int comparisonBits;
-    vtkstd::stack<vtkIdType*> outputTets;
-    vtkstd::stack<vtkIdType*> outputPerm;
-    vtkstd::stack<int>        outputSign;
+    std::stack<vtkIdType*> outputTets;
+    std::stack<vtkIdType*> outputPerm;
+    std::stack<int>        outputSign;
 
     // cout << "Case " << C << "  Permutation " << P << endl;
     // 2. Generate tetrahedra based on the configuration.

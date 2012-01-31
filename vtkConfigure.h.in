@@ -177,10 +177,12 @@
 /* Setup VTK based on platform features and configuration.                  */
 
 /* Setup vtkstd, a portable namespace for std.  */
-#ifndef VTK_NO_STD_NAMESPACE
-# define vtkstd std
-#else
-# define vtkstd
+#ifndef VTK_LEGACY_REMOVE
+# ifndef VTK_NO_STD_NAMESPACE
+#  define vtkstd std
+# else
+#  define vtkstd
+# endif
 #endif
 
 /* Define a "vtkstd_bool" type.  This should be used as the

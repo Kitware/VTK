@@ -49,7 +49,7 @@
 #include "vtkWindowToImageFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
 
-#include "vtkstd/string"
+#include <string>
 #include "vtkSmartPointer.h"
 
 // Generate a vector to warp by.
@@ -66,11 +66,11 @@ int TestQuadraturePoints(int argc,char *argv[])
     cerr << "Error: -D /path/to/data was not specified.";
     return 1;
     }
-  vtkstd::string dataRoot=testHelper->GetDataRoot();
-  vtkstd::string tempDir=testHelper->GetTempDirectory();
-  vtkstd::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
-  vtkstd::string tempFile=tempDir+"/tmp.vtu";
-  vtkstd::string tempBaseline=tempDir+"/TestQuadraturePoints.png";
+  std::string dataRoot=testHelper->GetDataRoot();
+  std::string tempDir=testHelper->GetTempDirectory();
+  std::string inputFileName=dataRoot+"/Data/Quadratic/CylinderQuadratic.vtk";
+  std::string tempFile=tempDir+"/tmp.vtu";
+  std::string tempBaseline=tempDir+"/TestQuadraturePoints.png";
 
   // Raed, xml or legacy file.
   vtkUnstructuredGrid *input=0;
@@ -97,9 +97,9 @@ int TestQuadraturePoints(int argc,char *argv[])
 
   // Add a couple arrays to be used in the demonstrations.
   int warpIdx=GenerateWarpVector(input);
-  vtkstd::string warpName=input->GetPointData()->GetArray(warpIdx)->GetName();
+  std::string warpName=input->GetPointData()->GetArray(warpIdx)->GetName();
   int threshIdx=GenerateThresholdScalar(input);
-  vtkstd::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
+  std::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
 
   // Add a quadrature scheme dictionary to the data set. This filter is
   // solely for our convinience. Typically we would expect that users

@@ -125,7 +125,7 @@ void vtkImageInterpolator::ComputeSupportSize(
       double x = matrix[4*i + j];
       // check fraction that remains after floor operation
       double f;
-      vtkInterpolateFloor(x, f);
+      vtkInterpolationMath::Floor(x, f);
       integerRow &= (f == 0);
       }
     // no extra support required in this direction
@@ -184,28 +184,28 @@ void vtkImageNLCInterpolate<F, T>::Nearest(
   vtkIdType *inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
-  int inIdX0 = vtkInterpolateRound(point[0]);
-  int inIdY0 = vtkInterpolateRound(point[1]);
-  int inIdZ0 = vtkInterpolateRound(point[2]);
+  int inIdX0 = vtkInterpolationMath::Round(point[0]);
+  int inIdY0 = vtkInterpolationMath::Round(point[1]);
+  int inIdZ0 = vtkInterpolationMath::Round(point[2]);
 
   switch (info->BorderMode)
     {
     case VTK_IMAGE_BORDER_REPEAT:
-      inIdX0 = vtkInterpolateWrap(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateWrap(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateWrap(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Wrap(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Wrap(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Wrap(inIdZ0, inExt[4], inExt[5]);
       break;
 
     case VTK_IMAGE_BORDER_MIRROR:
-      inIdX0 = vtkInterpolateMirror(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateMirror(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateMirror(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Mirror(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Mirror(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Mirror(inIdZ0, inExt[4], inExt[5]);
       break;
 
     default:
-      inIdX0 = vtkInterpolateClamp(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateClamp(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateClamp(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Clamp(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Clamp(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Clamp(inIdZ0, inExt[4], inExt[5]);
       break;
     }
 
@@ -228,9 +228,9 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;
-  int inIdX0 = vtkInterpolateFloor(point[0], fx);
-  int inIdY0 = vtkInterpolateFloor(point[1], fy);
-  int inIdZ0 = vtkInterpolateFloor(point[2], fz);
+  int inIdX0 = vtkInterpolationMath::Floor(point[0], fx);
+  int inIdY0 = vtkInterpolationMath::Floor(point[1], fy);
+  int inIdZ0 = vtkInterpolationMath::Floor(point[2], fz);
 
   int inIdX1 = inIdX0 + (fx != 0);
   int inIdY1 = inIdY0 + (fy != 0);
@@ -239,33 +239,33 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   switch (info->BorderMode)
     {
     case VTK_IMAGE_BORDER_REPEAT:
-      inIdX0 = vtkInterpolateWrap(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateWrap(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateWrap(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Wrap(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Wrap(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Wrap(inIdZ0, inExt[4], inExt[5]);
 
-      inIdX1 = vtkInterpolateWrap(inIdX1, inExt[0], inExt[1]);
-      inIdY1 = vtkInterpolateWrap(inIdY1, inExt[2], inExt[3]);
-      inIdZ1 = vtkInterpolateWrap(inIdZ1, inExt[4], inExt[5]);
+      inIdX1 = vtkInterpolationMath::Wrap(inIdX1, inExt[0], inExt[1]);
+      inIdY1 = vtkInterpolationMath::Wrap(inIdY1, inExt[2], inExt[3]);
+      inIdZ1 = vtkInterpolationMath::Wrap(inIdZ1, inExt[4], inExt[5]);
       break;
 
     case VTK_IMAGE_BORDER_MIRROR:
-      inIdX0 = vtkInterpolateMirror(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateMirror(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateMirror(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Mirror(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Mirror(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Mirror(inIdZ0, inExt[4], inExt[5]);
 
-      inIdX1 = vtkInterpolateMirror(inIdX1, inExt[0], inExt[1]);
-      inIdY1 = vtkInterpolateMirror(inIdY1, inExt[2], inExt[3]);
-      inIdZ1 = vtkInterpolateMirror(inIdZ1, inExt[4], inExt[5]);
+      inIdX1 = vtkInterpolationMath::Mirror(inIdX1, inExt[0], inExt[1]);
+      inIdY1 = vtkInterpolationMath::Mirror(inIdY1, inExt[2], inExt[3]);
+      inIdZ1 = vtkInterpolationMath::Mirror(inIdZ1, inExt[4], inExt[5]);
       break;
 
     default:
-      inIdX0 = vtkInterpolateClamp(inIdX0, inExt[0], inExt[1]);
-      inIdY0 = vtkInterpolateClamp(inIdY0, inExt[2], inExt[3]);
-      inIdZ0 = vtkInterpolateClamp(inIdZ0, inExt[4], inExt[5]);
+      inIdX0 = vtkInterpolationMath::Clamp(inIdX0, inExt[0], inExt[1]);
+      inIdY0 = vtkInterpolationMath::Clamp(inIdY0, inExt[2], inExt[3]);
+      inIdZ0 = vtkInterpolationMath::Clamp(inIdZ0, inExt[4], inExt[5]);
 
-      inIdX1 = vtkInterpolateClamp(inIdX1, inExt[0], inExt[1]);
-      inIdY1 = vtkInterpolateClamp(inIdY1, inExt[2], inExt[3]);
-      inIdZ1 = vtkInterpolateClamp(inIdZ1, inExt[4], inExt[5]);
+      inIdX1 = vtkInterpolationMath::Clamp(inIdX1, inExt[0], inExt[1]);
+      inIdY1 = vtkInterpolationMath::Clamp(inIdY1, inExt[2], inExt[3]);
+      inIdZ1 = vtkInterpolationMath::Clamp(inIdZ1, inExt[4], inExt[5]);
       break;
     }
 
@@ -310,18 +310,9 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
 // coefficients
 
 template<class T>
-void vtkTricubicInterpWeights(T F[4], int l, int h, T f)
+inline void vtkTricubicInterpWeights(T F[4], T f)
 {
   static const T half = T(0.5);
-
-  if (l*h == 1)
-    { // no interpolation
-    F[0] = 0;
-    F[1] = 1;
-    F[2] = 0;
-    F[3] = 0;
-    return;
-    }
 
   // cubic interpolation
   T fm1 = f - 1;
@@ -331,35 +322,6 @@ void vtkTricubicInterpWeights(T F[4], int l, int h, T f)
   F[1] = ((ft3 - 2)*fd2 - 1)*fm1;
   F[2] = -((ft3 - 4)*f - 1)*fd2;
   F[3] = f*fd2*fm1;
-
-  if (h - l == 3)
-    {
-    return;
-    }
-
-  // if we are at an edge, extrapolate: edge pixel repeats
-
-  if (l == 1)
-    {
-    F[1] += F[0];
-    F[0] = 0;
-    }
-  if (l == 2)
-    {
-    F[2] += F[1];
-    F[1] = 0;
-    }
-
-  if (h == 2)
-    {
-    F[2] += F[3];
-    F[3] = 0;
-    }
-  if (h == 1)
-    {
-    F[1] += F[2];
-    F[2] = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -374,9 +336,9 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;
-  int inIdX0 = vtkInterpolateFloor(point[0], fx);
-  int inIdY0 = vtkInterpolateFloor(point[1], fy);
-  int inIdZ0 = vtkInterpolateFloor(point[2], fz);
+  int inIdX0 = vtkInterpolationMath::Floor(point[0], fx);
+  int inIdY0 = vtkInterpolationMath::Floor(point[1], fy);
+  int inIdZ0 = vtkInterpolationMath::Floor(point[2], fz);
 
   // change arrays into locals
   vtkIdType inIncX = inInc[0];
@@ -396,82 +358,81 @@ void vtkImageNLCInterpolate<F, T>::Tricubic(
   switch (info->BorderMode)
     {
     case VTK_IMAGE_BORDER_REPEAT:
-      factX[0] = vtkInterpolateWrap(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolateWrap(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolateWrap(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolateWrap(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Wrap(inIdX0-1, minX, maxX)*inIncX;
+      factX[1] = vtkInterpolationMath::Wrap(inIdX0,   minX, maxX)*inIncX;
+      factX[2] = vtkInterpolationMath::Wrap(inIdX0+1, minX, maxX)*inIncX;
+      factX[3] = vtkInterpolationMath::Wrap(inIdX0+2, minX, maxX)*inIncX;
 
-      factY[0] = vtkInterpolateWrap(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolateWrap(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolateWrap(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolateWrap(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Wrap(inIdY0-1, minY, maxY)*inIncY;
+      factY[1] = vtkInterpolationMath::Wrap(inIdY0,   minY, maxY)*inIncY;
+      factY[2] = vtkInterpolationMath::Wrap(inIdY0+1, minY, maxY)*inIncY;
+      factY[3] = vtkInterpolationMath::Wrap(inIdY0+2, minY, maxY)*inIncY;
 
-      factZ[0] = vtkInterpolateWrap(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolateWrap(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolateWrap(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolateWrap(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Wrap(inIdZ0-1, minZ, maxZ)*inIncZ;
+      factZ[1] = vtkInterpolationMath::Wrap(inIdZ0,   minZ, maxZ)*inIncZ;
+      factZ[2] = vtkInterpolationMath::Wrap(inIdZ0+1, minZ, maxZ)*inIncZ;
+      factZ[3] = vtkInterpolationMath::Wrap(inIdZ0+2, minZ, maxZ)*inIncZ;
       break;
 
     case VTK_IMAGE_BORDER_MIRROR:
-      factX[0] = vtkInterpolateMirror(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolateMirror(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolateMirror(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolateMirror(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Mirror(inIdX0-1, minX, maxX)*inIncX;
+      factX[1] = vtkInterpolationMath::Mirror(inIdX0,   minX, maxX)*inIncX;
+      factX[2] = vtkInterpolationMath::Mirror(inIdX0+1, minX, maxX)*inIncX;
+      factX[3] = vtkInterpolationMath::Mirror(inIdX0+2, minX, maxX)*inIncX;
 
-      factY[0] = vtkInterpolateMirror(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolateMirror(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolateMirror(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolateMirror(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Mirror(inIdY0-1, minY, maxY)*inIncY;
+      factY[1] = vtkInterpolationMath::Mirror(inIdY0,   minY, maxY)*inIncY;
+      factY[2] = vtkInterpolationMath::Mirror(inIdY0+1, minY, maxY)*inIncY;
+      factY[3] = vtkInterpolationMath::Mirror(inIdY0+2, minY, maxY)*inIncY;
 
-      factZ[0] = vtkInterpolateMirror(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolateMirror(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolateMirror(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolateMirror(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Mirror(inIdZ0-1, minZ, maxZ)*inIncZ;
+      factZ[1] = vtkInterpolationMath::Mirror(inIdZ0,   minZ, maxZ)*inIncZ;
+      factZ[2] = vtkInterpolationMath::Mirror(inIdZ0+1, minZ, maxZ)*inIncZ;
+      factZ[3] = vtkInterpolationMath::Mirror(inIdZ0+2, minZ, maxZ)*inIncZ;
       break;
 
     default:
-      factX[0] = vtkInterpolateClamp(inIdX0-1, minX, maxX)*inIncX;
-      factX[1] = vtkInterpolateClamp(inIdX0,   minX, maxX)*inIncX;
-      factX[2] = vtkInterpolateClamp(inIdX0+1, minX, maxX)*inIncX;
-      factX[3] = vtkInterpolateClamp(inIdX0+2, minX, maxX)*inIncX;
+      factX[0] = vtkInterpolationMath::Clamp(inIdX0-1, minX, maxX)*inIncX;
+      factX[1] = vtkInterpolationMath::Clamp(inIdX0,   minX, maxX)*inIncX;
+      factX[2] = vtkInterpolationMath::Clamp(inIdX0+1, minX, maxX)*inIncX;
+      factX[3] = vtkInterpolationMath::Clamp(inIdX0+2, minX, maxX)*inIncX;
 
-      factY[0] = vtkInterpolateClamp(inIdY0-1, minY, maxY)*inIncY;
-      factY[1] = vtkInterpolateClamp(inIdY0,   minY, maxY)*inIncY;
-      factY[2] = vtkInterpolateClamp(inIdY0+1, minY, maxY)*inIncY;
-      factY[3] = vtkInterpolateClamp(inIdY0+2, minY, maxY)*inIncY;
+      factY[0] = vtkInterpolationMath::Clamp(inIdY0-1, minY, maxY)*inIncY;
+      factY[1] = vtkInterpolationMath::Clamp(inIdY0,   minY, maxY)*inIncY;
+      factY[2] = vtkInterpolationMath::Clamp(inIdY0+1, minY, maxY)*inIncY;
+      factY[3] = vtkInterpolationMath::Clamp(inIdY0+2, minY, maxY)*inIncY;
 
-      factZ[0] = vtkInterpolateClamp(inIdZ0-1, minZ, maxZ)*inIncZ;
-      factZ[1] = vtkInterpolateClamp(inIdZ0,   minZ, maxZ)*inIncZ;
-      factZ[2] = vtkInterpolateClamp(inIdZ0+1, minZ, maxZ)*inIncZ;
-      factZ[3] = vtkInterpolateClamp(inIdZ0+2, minZ, maxZ)*inIncZ;
+      factZ[0] = vtkInterpolationMath::Clamp(inIdZ0-1, minZ, maxZ)*inIncZ;
+      factZ[1] = vtkInterpolationMath::Clamp(inIdZ0,   minZ, maxZ)*inIncZ;
+      factZ[2] = vtkInterpolationMath::Clamp(inIdZ0+1, minZ, maxZ)*inIncZ;
+      factZ[3] = vtkInterpolationMath::Clamp(inIdZ0+2, minZ, maxZ)*inIncZ;
       break;
     }
 
+  // get the interpolation coefficients
+  F fX[4], fY[4], fZ[4];
+  vtkTricubicInterpWeights(fX, fx);
+  vtkTricubicInterpWeights(fY, fy);
+  vtkTricubicInterpWeights(fZ, fz);
+
   // check if only one slice in a particular direction
-  int multipleX = (minX != maxX);
   int multipleY = (minY != maxY);
   int multipleZ = (minZ != maxZ);
 
-  // if not b-spline, can use an even better rule
-  multipleX &= (fx != 0);
+  // or if fractional offset is zero
   multipleY &= (fy != 0);
   multipleZ &= (fz != 0);
 
   // the limits to use when doing the interpolation
-  int i1 = 1 - multipleX;
-  int i2 = 1 + 2*multipleX;
-
   int j1 = 1 - multipleY;
   int j2 = 1 + 2*multipleY;
 
   int k1 = 1 - multipleZ;
   int k2 = 1 + 2*multipleZ;
 
-  // get the interpolation coefficients
-  F fX[4], fY[4], fZ[4];
-  vtkTricubicInterpWeights(fX, i1, i2, fx);
-  vtkTricubicInterpWeights(fY, j1, j2, fy);
-  vtkTricubicInterpWeights(fZ, k1, k2, fz);
+  // if only one coefficient will be used
+  if (multipleY == 0) { fY[1] = 1; }
+  if (multipleZ == 0) { fZ[1] = 1; }
 
   do // loop over components
     {
@@ -931,8 +892,8 @@ void vtkImageInterpolatorPrecomputeWeights(
 
     // if output pixels lie exactly on top of the input pixels
     F f1, f2;
-    vtkInterpolateFloor(matrow[j], f1);
-    vtkInterpolateFloor(matrow[3], f2);
+    vtkInterpolationMath::Floor(matrow[j], f1);
+    vtkInterpolationMath::Floor(matrow[3], f2);
     if (f1 == 0 && f2 == 0)
       {
       step = 1;
@@ -963,102 +924,102 @@ void vtkImageInterpolatorPrecomputeWeights(
       F point = matrow[3] + i*matrow[j];
 
       int lcount = step;
+      int inId0 = 0;
+      F f = 0;
+      if (interpMode == VTK_NEAREST_INTERPOLATION)
+        {
+        inId0 = vtkInterpolationMath::Round(point);
+        }
+      else
+        {
+        inId0 = vtkInterpolationMath::Floor(point, f);
+        if (interpMode == VTK_CUBIC_INTERPOLATION &&
+            step != 1)
+          {
+          inId0--;
+          lcount = 4;
+          }
+        }
+
+      int inId[4];
+      int l = 0;
+      switch (weights->BorderMode)
+        {
+        case VTK_IMAGE_BORDER_REPEAT:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Wrap(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+
+        case VTK_IMAGE_BORDER_MIRROR:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Mirror(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+
+        default:
+          do
+            {
+            inId[l] = vtkInterpolationMath::Clamp(inId0, minExt, maxExt);
+            inId0++;
+            }
+          while (++l < lcount);
+          break;
+        }
+
+      // compute the weights and offsets
+      vtkIdType inInc = weights->Increments[k];
+      positions[step*i] = inId[0]*inInc;
+      if (interpMode != VTK_NEAREST_INTERPOLATION)
+        {
+        constants[step*i] = static_cast<F>(1);
+        }
+      if (step > 1)
+        {
+        if (interpMode == VTK_LINEAR_INTERPOLATION)
+          {
+          positions[step*i+1] = inId[1]*inInc;
+          constants[step*i] = static_cast<F>(1.0 - f);
+          constants[step*i+1] = static_cast<F>(f);
+          }
+        else if (interpMode == VTK_CUBIC_INTERPOLATION)
+          {
+          F g[4];
+          vtkTricubicInterpWeights(g, f);
+          if (step == 4)
+            {
+            for (int ll = 0; ll < 4; ll++)
+              {
+              positions[step*i + ll] = inId[ll]*inInc;
+              constants[step*i + ll] = g[ll];
+              }
+            }
+          else
+            {
+            // it gets tricky if there are fewer than 4 slices
+            F gg[4] = { 0, 0, 0, 0 };
+            for (int ll = 0; ll < 4; ll++)
+              {
+              int rIdx = inId[ll] - minExt;
+              gg[rIdx] += g[ll];
+              }
+            for (int jj = 0; jj < step; jj++)
+              {
+              positions[step*i + jj] = minExt + jj;
+              constants[step*i + jj] = gg[jj];
+              }
+            }
+          }
+        }
+
       if (point >= minBounds && point <= maxBounds)
         {
-        int inId0 = 0;
-        F f = 0;
-        if (interpMode == VTK_NEAREST_INTERPOLATION)
-          {
-          inId0 = vtkInterpolateRound(point);
-          }
-        else
-          {
-          inId0 = vtkInterpolateFloor(point, f);
-          if (interpMode == VTK_CUBIC_INTERPOLATION &&
-              step != 1)
-            {
-            inId0--;
-            lcount = 4;
-            }
-          }
-
-        int inId[4];
-        int l = 0;
-        switch (weights->BorderMode)
-          {
-          case VTK_IMAGE_BORDER_REPEAT:
-            do
-              {
-              inId[l] = vtkInterpolateWrap(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-
-          case VTK_IMAGE_BORDER_MIRROR:
-            do
-              {
-              inId[l] = vtkInterpolateMirror(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-
-          default:
-            do
-              {
-              inId[l] = vtkInterpolateClamp(inId0, minExt, maxExt);
-              inId0++;
-              }
-            while (++l < lcount);
-            break;
-          }
-
-        // compute the weights and offsets
-        vtkIdType inInc = weights->Increments[k];
-        positions[step*i] = inId[0]*inInc;
-        if (interpMode != VTK_NEAREST_INTERPOLATION)
-          {
-          constants[step*i] = static_cast<F>(1);
-          }
-        if (step > 1)
-          {
-          if (interpMode == VTK_LINEAR_INTERPOLATION)
-            {
-            positions[step*i+1] = inId[1]*inInc;
-            constants[step*i] = static_cast<F>(1.0 - f);
-            constants[step*i+1] = static_cast<F>(f);
-            }
-          else if (interpMode == VTK_CUBIC_INTERPOLATION)
-            {
-            F g[4];
-            vtkTricubicInterpWeights(g, 0, 3, f);
-            if (step == 4)
-              {
-              for (int ll = 0; ll < 4; ll++)
-                {
-                positions[step*i + ll] = inId[ll]*inInc;
-                constants[step*i + ll] = g[ll];
-                }
-              }
-            else
-              {
-              // it gets tricky if there are fewer than 4 slices
-              F gg[4] = { 0, 0, 0, 0 };
-              for (int ll = 0; ll < 4; ll++)
-                {
-                int rIdx = inId[ll] - minExt;
-                gg[rIdx] += g[ll];
-                }
-              for (int jj = 0; jj < step; jj++)
-                {
-                positions[step*i + jj] = minExt + jj;
-                constants[step*i + jj] = gg[jj];
-                }
-              }
-            }
-          }
-
         if (region == 0)
           { // entering the input extent
           region = 1;
