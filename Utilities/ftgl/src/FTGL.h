@@ -1,9 +1,9 @@
 #ifndef    __FTGL__
 #define    __FTGL__
 
-#if defined(VTKFTGL)
+//#if defined(VTKFTGL)
 #include "vtkftglConfig.h"
-#endif
+//#endif
 
 #define FTGL_USE_NAMESPACE
 
