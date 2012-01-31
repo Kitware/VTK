@@ -45,9 +45,13 @@ public:
 
   // Description:
   // Set/Get the scalar input for which the normals will be 
-  // calculated
-  virtual void SetInput(vtkImageData*);
-  vtkGetObjectMacro( Input, vtkImageData );
+  // calculated. Note that this call does not setup a pipeline
+  // connection. vtkEncodedGradientEstimator is not an algorithm
+  // and does not update its input. If you are directly using this
+  // class, you may need to manually update the algorithm that produces
+  // this data object.
+  virtual void SetInputData(vtkImageData*);
+  vtkGetObjectMacro( InputData, vtkImageData );
 
   // Description:
   // Set/Get the scale and bias for the gradient magnitude
@@ -148,7 +152,7 @@ public:
   // this does not work with all compilers
 
   // The input scalar data on which the normals are computed
-  vtkImageData         *Input;
+  vtkImageData         *InputData;
 
   // The encoded normals (2 bytes) and the size of the encoded normals
   unsigned short        *EncodedNormals;

@@ -204,7 +204,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   
   this->Shade =  vol->GetProperty()->GetShade();  
 
-  this->GradientEstimator->SetInput( this->GetInput() );
+  this->GradientEstimator->SetInputData( this->GetInput() );
 
   if ( this->Shade )
     {

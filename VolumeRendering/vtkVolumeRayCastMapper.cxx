@@ -1959,7 +1959,7 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
 
   shading = volume_property->GetShade();
 
-  this->GradientEstimator->SetInput( this->GetInput() );
+  this->GradientEstimator->SetInputData( this->GetInput() );
 
   if ( shading )
     {
