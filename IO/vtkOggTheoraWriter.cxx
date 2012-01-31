@@ -273,7 +273,7 @@ int vtkOggTheoraWriterInternal::Write(vtkImageData *id)
     this->haveImageData = false;
     }
 
-  id->Update();
+  this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
 
   // convert current RGB int YCbCr color space
   this->RGB2YCbCr(id,this->thImage);
@@ -540,10 +540,7 @@ void vtkOggTheoraWriter::Write()
 
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
-  input->UpdateInformation();
-  int *wExtent = input->GetWholeExtent();
-  input->SetUpdateExtent(wExtent);
-  input->Update();
+  this->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
 
   int dim[4];
   input->GetDimensions(dim);

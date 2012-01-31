@@ -273,7 +273,7 @@ int vtkFFMPEGWriterInternal::Start()
 //---------------------------------------------------------------------------
 int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
 {
-  id->Update();
+  this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
 
   AVCodecContext *cc = this->avStream->codec;
 
@@ -486,10 +486,7 @@ void vtkFFMPEGWriter::Write()
 
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
-  input->UpdateInformation();
-  int *wExtent = input->GetWholeExtent();
-  input->SetUpdateExtent(wExtent);
-  input->Update();
+  this->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
 
   int dim[4];
   input->GetDimensions(dim);
