@@ -3,6 +3,19 @@ from vtk import *
 from vtk.util.misc import vtkGetDataRoot
 ############################################################
 
+# Create renderer and add actors to it
+renderer = vtkRenderer()
+renderer.SetBackground( .8, .8 ,.8 )
+
+# Create render window
+window = vtkRenderWindow()
+window.AddRenderer( renderer )
+window.SetSize( 500, 500 )
+
+# Create interactor
+interactor = vtkRenderWindowInteractor()
+interactor.SetRenderWindow( window )
+
 # Retrieve data root
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -38,10 +51,11 @@ fractionMapper.SetScalarModeToUseCellData()
 fractionMapper.SetColorModeToMapScalars()
 fractionMapper.ScalarVisibilityOn()
 
-# Create wireframe actor
+# Create wireframe actor and add it to view
 wireActor = vtkActor()
 wireActor.SetMapper( fractionMapper )
 wireActor.GetProperty().SetRepresentationToSurface()
+renderer.AddViewProp( wireActor )
 
 # Make multiblock from input mesh
 meshMB =  vtkMultiBlockDataSet()
@@ -60,30 +74,25 @@ interface.SetMaterialNormalArray( 1, "norme" )
 interface.UseAllBlocksOn()
 interface.Update()
 
-# Create mappeyr for surface rendering of reconstructed interface
+# Create mappers and actors for surface rendering of all reconstructed interfaces
 interfaceMapper = vtkDataSetMapper()
-interfaceMapper.SetInput( interface.GetOutput().GetBlock(0).GetBlock(0) )
-interfaceMapper.ScalarVisibilityOff()
-
-# Create surface actor
-surfActor = vtkActor()
-surfActor.SetMapper( interfaceMapper )
-surfActor.GetProperty().SetRepresentationToSurface()
-
-# Create renderer and add actors to it
-renderer = vtkRenderer()
-renderer.AddViewProp( wireActor )
-renderer.AddViewProp( surfActor )
-renderer.SetBackground( .8, .8 ,.8 )
-
-# Create render window
-window = vtkRenderWindow()
-window.AddRenderer( renderer )
-window.SetSize( 500, 500 )
-
-# Create interactor
-interactor = vtkRenderWindowInteractor()
-interactor.SetRenderWindow( window )
+interfaceIterator = vtkCompositeDataIterator()
+interfaceIterator.SetDataSet( interface.GetOutput() )
+interfaceIterator.VisitOnlyLeavesOn()
+interfaceIterator.SkipEmptyNodesOn()
+interfaceIterator.InitTraversal()
+interfaceIterator.GoToFirstItem()
+while ( interfaceIterator.IsDoneWithTraversal() == 0 ):
+    # Create mapper for leaf node
+    print "Creating mapper and actor for object with flat index", interfaceIterator.GetCurrentFlatIndex()
+    interfaceMapper.SetInput( interfaceIterator.GetCurrentDataObject() )
+    interfaceIterator.GoToNextItem()
+    interfaceMapper.ScalarVisibilityOff()
+    # Create surface actor and add it to view
+    interfaceActor = vtkActor()
+    interfaceActor.SetMapper( interfaceMapper )
+    interfaceActor.GetProperty().SetColor( 0., 0., 0. )
+    renderer.AddViewProp( interfaceActor )
 
 # Start interaction
 window.Render()
