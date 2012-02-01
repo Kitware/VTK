@@ -75,6 +75,11 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
         const unsigned int level, const unsigned int idx);
 
     // Description:
+    // Accessing the dataset by an iterator
+    vtkUniformGrid* GetDataSet(vtkCompositeDataIterator* iter)
+     {return vtkUniformGrid::SafeDownCast(this->Superclass::GetDataSet(iter));}
+
+    // Description:
     // Retrieve the cached scalar range into the user-supplied buffer.
     void GetScalarRange(double range[2]);
     double *GetScalarRange();
