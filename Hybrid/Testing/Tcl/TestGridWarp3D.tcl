@@ -48,7 +48,7 @@ vtkTransformToGrid gridThinPlate
   gridThinPlate Update
 
 vtkGridTransform gridTransform
-  gridTransform SetDisplacementGrid [gridThinPlate GetOutput]
+  gridTransform SetDisplacementGridData [gridThinPlate GetOutput]
   gridTransform SetDisplacementShift [gridThinPlate GetDisplacementShift]
   gridTransform SetDisplacementScale [gridThinPlate GetDisplacementScale]
 

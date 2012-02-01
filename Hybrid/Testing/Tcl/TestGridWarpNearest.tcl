@@ -68,7 +68,7 @@ vtkTransformToGrid transformToGrid
   transformToGrid Update
 
 vtkGridTransform transform
-  transform SetDisplacementGrid [transformToGrid GetOutput]
+  transform SetDisplacementGridConnection [transformToGrid GetOutputPort]
   transform SetInterpolationModeToNearestNeighbor
   # must lower the tolerance or it won't invert
   transform SetInverseTolerance 2.0

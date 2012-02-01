@@ -65,7 +65,7 @@ vtkTransformToGrid transformToGrid
   transformToGrid Update
 
 vtkGridTransform transform
-  transform SetDisplacementGrid [transformToGrid GetOutput]
+  transform SetDisplacementGridConnection [transformToGrid GetOutputPort]
 
 # apply the grid warp to the image
 

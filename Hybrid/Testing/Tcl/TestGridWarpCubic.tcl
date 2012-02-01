@@ -66,7 +66,7 @@ vtkTransformToGrid transformToGrid
   transformToGrid Update
 
 vtkGridTransform transform
-  transform SetDisplacementGrid [transformToGrid GetOutput]
+  transform SetDisplacementGridConnection [transformToGrid GetOutputPort]
   transform SetInterpolationModeToCubic
 # you must invert the transform before passing it to vtkImageReslice
   transform Inverse

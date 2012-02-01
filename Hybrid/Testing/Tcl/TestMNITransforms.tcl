@@ -100,7 +100,7 @@ vtkTransformToGrid transformToGrid
   transformToGrid Update
 
 vtkGridTransform gridTransform
-  gridTransform SetDisplacementGrid [transformToGrid GetOutput]
+  gridTransform SetDisplacementGridConnection [transformToGrid GetOutputPort]
   gridTransform SetInterpolationModeToCubic
 
 # add back the linear part

@@ -762,7 +762,7 @@ int vtkMNITransformReader::ReadGridTransform(
 
   // Create the transform
   vtkGridTransform *transform = vtkGridTransform::New();
-  transform->SetDisplacementGrid(reader->GetOutput());
+  transform->SetDisplacementGridConnection(reader->GetOutputPort());
   transform->SetDisplacementShift(reader->GetRescaleIntercept());
   transform->SetDisplacementScale(reader->GetRescaleSlope());
   transform->SetInverseTolerance(0.05);

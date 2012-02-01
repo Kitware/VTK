@@ -43,13 +43,14 @@ public:
   vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetDisplacementGridConnection(vtkAlgorithmOutput*);
-
   // Description:
   // Set/Get the grid transform (the grid transform must have three 
   // components for displacement in x, y, and z respectively).
   // The vtkGridTransform class will never modify the data.
-  virtual void SetDisplacementGrid(vtkImageData*);
+  // Note that SetDisplacementGridData() does not setup a pipeline
+  // connection whereas SetDisplacementGridConnection does.
+  virtual void SetDisplacementGridConnection(vtkAlgorithmOutput*);
+  virtual void SetDisplacementGridData(vtkImageData*);
   virtual vtkImageData* GetDisplacementGrid();
 
   // Description:
