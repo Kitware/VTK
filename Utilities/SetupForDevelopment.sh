@@ -35,10 +35,6 @@ echo "Setting up git hooks..."
 ./SetupHooks.sh || exit 1
 echo
 
-echo "Setting up the topic stage..."
-./SetupTopicStage.sh || exit 1
-echo
-
 echo "Setting up git aliases..."
 ./SetupGitAliases.sh || exit 1
 echo
