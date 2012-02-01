@@ -67,7 +67,7 @@ int TestSpiderPlotActor( int argc, char * argv [] )
   dobj->GetFieldData()->AddArray(oily);
 
   vtkSpiderPlotActor *actor = vtkSpiderPlotActor::New();
-  actor->SetInput(dobj);
+  actor->SetInputData(dobj);
   actor->SetTitle("Spider Plot");
   actor->SetIndependentVariablesToColumns();
   actor->GetPositionCoordinate()->SetValue(0.05,0.1,0.0);
