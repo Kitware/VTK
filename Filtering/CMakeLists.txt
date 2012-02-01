@@ -158,6 +158,7 @@ vtkMutableDirectedGraph.cxx
 vtkMutableUndirectedGraph.cxx
 vtkNonLinearCell.cxx
 vtkNonMergingPointLocator.cxx
+vtkNonOverlappingAMR.cxx
 vtkOctreePointLocator.cxx
 vtkOctreePointLocatorNode.cxx
 vtkOrderedTriangulator.cxx
@@ -251,6 +252,7 @@ vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
+vtkUniformGridAMR.cxx
 vtkUniformGridPartitioner.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
@@ -336,6 +338,7 @@ vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
 vtkThreadedImageAlgorithm
 vtkTreeIterator
+vtkUniformGridAMR
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
