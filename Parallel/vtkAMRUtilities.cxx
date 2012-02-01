@@ -41,9 +41,10 @@ void vtkAMRUtilities::GenerateMetaData(
 
   CollectAMRMetaData( amrData, controller );
   ComputeLevelRefinementRatio( amrData );
+  amrData->GenerateParentChildInformation();
+
   if( controller != NULL )
     controller->Barrier();
-  amrData->GenerateParentChildInformation();
 }
 
 //------------------------------------------------------------------------------
