@@ -63,11 +63,14 @@ vtkPolyDataMapper lineMapper
 vtkActor lineActor
     lineActor SetMapper lineMapper
 
+probe Update
+probe3 Update
+
 # probe the line and plot it
 vtkXYPlotActor xyplot
-    xyplot AddInputConnection [probe GetOutputPort]
-    xyplot AddInputConnection [probe2 GetOutputPort]
-    xyplot AddInputConnection [probe3 GetOutputPort]
+    xyplot AddDataSetInput [probe GetOutput]
+    xyplot AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot AddDataSetInput [probe3 GetOutput]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -88,9 +91,9 @@ vtkXYPlotActor xyplot
     xyplot SetLabelFormat "%-#6.2f"
 
 vtkXYPlotActor xyplot2
-    xyplot2 AddInputConnection [probe GetOutputPort]
-    xyplot2 AddInputConnection [probe2 GetOutputPort]
-    xyplot2 AddInputConnection [probe3 GetOutputPort]
+    xyplot2 AddDataSetInput [probe GetOutput]
+    xyplot2 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -111,9 +114,9 @@ vtkXYPlotActor xyplot2
     xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
-    xyplot3 AddInputConnection [probe GetOutputPort]
-    xyplot3 AddInputConnection [probe2 GetOutputPort]
-    xyplot3 AddInputConnection [probe3 GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot3 SetXValuesToIndex

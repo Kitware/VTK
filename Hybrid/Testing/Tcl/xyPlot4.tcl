@@ -73,9 +73,9 @@ vtkGlyphSource2D cross
     cross SetGlyphTypeToCross
     cross Update
 vtkXYPlotActor xyplot
-    xyplot AddInputConnection [probe GetOutputPort]
-    xyplot AddInputConnection [probe2 GetOutputPort]
-    xyplot AddInputConnection [probe3 GetOutputPort]
+    xyplot AddDataSetInputConnection [probe GetOutputPort]
+    xyplot AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -107,9 +107,9 @@ vtkXYPlotActor xyplot
 vtkSphereSource vertexGlyph
     vertexGlyph Update
 vtkXYPlotActor xyplot2
-    xyplot2 AddInputConnection [probe GetOutputPort]
-    xyplot2 AddInputConnection [probe2 GetOutputPort]
-    xyplot2 AddInputConnection [probe3 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -143,11 +143,11 @@ vtkXYPlotActor xyplot2
     xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
-    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 0
-    xyplot3 AddInputConnection [probe GetOutputPort] "Density" 0
-    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 1
-    xyplot3 AddInputConnection [probe GetOutputPort] "Momentum" 2
-    xyplot3 RemoveInputConnection [probe GetOutputPort] "Density" 0
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort] "Momentum" 0
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort] "Density" 0
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort] "Momentum" 1
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort] "Momentum" 2
+    xyplot3 RemoveDataSetInputConnection [probe GetOutputPort] "Density" 0
     xyplot3 SetPlotLabel 0 "Mx"
     xyplot3 SetPlotColor 0 1 0 0
     xyplot3 SetPlotLabel 1 "My"

@@ -114,7 +114,7 @@ vtkProbeFilter probe
 # The plot of the profile data.
 #
 vtkXYPlotActor profile
-  profile AddInputConnection [ probe GetOutputPort ]
+  profile AddDataSetInputConnection [ probe GetOutputPort ]
   [ profile GetPositionCoordinate ] SetValue 0.05 0.05 0
   [ profile GetPosition2Coordinate ] SetValue 0.95 0.95 0
   profile SetXValuesToNormalizedArcLength

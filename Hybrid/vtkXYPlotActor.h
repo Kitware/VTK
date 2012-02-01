@@ -130,19 +130,27 @@ public:
   // which point array to plot. The array must be a vtkDataArray subclass, i.e. 
   // a numeric array. If the array name is NULL, then the default
   // scalars are used.  The array can have multiple components, but only the
-  // first component is ploted.
-  void AddInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
-  void AddInputConnection(vtkAlgorithmOutput *in) {this->AddInputConnection(in, NULL, 0);}
+  // first component is ploted. Note that AddInputDataSet() does not setup
+  // a pipeline connection whereas AddInputConnection() does.
+  void AddDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
+  void AddDataSetInput(vtkDataSet *ds) {this->AddDataSetInput(ds, NULL, 0);}
+  void AddDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
+  void AddDataSetInputConnection(vtkAlgorithmOutput *in) {this->AddDataSetInputConnection(in, NULL, 0);}
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
-  void RemoveInputConnection(vtkAlgorithmOutput *in) {this->RemoveInputConnection(in, NULL, 0);}
+  void RemoveDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
+  void RemoveDataSetInput(vtkDataSet *ds) {this->RemoveDataSetInput(ds, NULL, 0);}
+  void RemoveDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
+  void RemoveDataSetInputConnection(vtkAlgorithmOutput *in)
+  {
+    this->RemoveDataSetInputConnection(in, NULL, 0);
+  }
 
   // Description:
   // This removes all of the data set inputs, 
   // but does not change the data object inputs.
-  void RemoveAllInputConnections();
+  void RemoveAllDataSetInputConnections();
 
   // Description:
   // If plotting points by value, which component to use to determine the
@@ -175,17 +183,14 @@ public:
   // input data objects will be plotted (if defined).
   
   // Description:
-  // Add a dataset to the list of data to append.
+  // Add a data object to the list of data to display.
   void AddDataObjectInput(vtkDataObject *in);
+  void AddDataObjectInputConnection(vtkAlgorithmOutput *alg);
 
   // Description:
-  // Remove a dataset from the list of data to append.
+  // Remove a dataset from the list of data to display.
+  void RemoveDataObjectInputConnection(vtkAlgorithmOutput *aout);
   void RemoveDataObjectInput(vtkDataObject *in);
-
-  // Description:
-  // Return the list of inputs to this filter.
-  vtkDataObjectCollection *GetDataObjectInputList() 
-    {return this->DataObjectInputList;}
 
   // Description:
   // Indicate whether to plot rows or columns. If plotting rows, then
@@ -586,7 +591,7 @@ protected:
   vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot
   vtkIntArray* SelectedInputScalarsComponent; // list of componenents
-  vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot
+  vtkXYPlotActorConnections *DataObjectInputConnectionHolder; //list of data objects to plot
   char  *Title;
   char  *XTitle;
   char  *YTitle;

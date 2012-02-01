@@ -71,9 +71,9 @@ vtkGlyphSource2D cross
     cross SetGlyphTypeToCross
     cross Update
 vtkXYPlotActor xyplot
-    xyplot AddInputConnection [probe GetOutputPort]
-    xyplot AddInputConnection [probe2 GetOutputPort]
-    xyplot AddInputConnection [probe3 GetOutputPort]
+    xyplot AddDataSetInputConnection [probe GetOutputPort]
+    xyplot AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -105,9 +105,9 @@ vtkXYPlotActor xyplot
 vtkSphereSource vertexGlyph
    vertexGlyph Update
 vtkXYPlotActor xyplot2
-    xyplot2 AddInputConnection [probe GetOutputPort]
-    xyplot2 AddInputConnection [probe2 GetOutputPort]
-    xyplot2 AddInputConnection [probe3 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -143,7 +143,6 @@ vtkXYPlotActor xyplot2
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [probe GetOutputPort]
-    ds2do Update
 vtkDataSetToDataObjectFilter ds2do2
     ds2do2 SetInputConnection [probe GetOutputPort]
     ds2do2 Update
@@ -151,7 +150,7 @@ vtkDataSetToDataObjectFilter ds2do3
     ds2do3 SetInputConnection [probe GetOutputPort]
     ds2do3 Update
 vtkXYPlotActor xyplot3
-    xyplot3 AddDataObjectInput [ds2do GetOutput]
+    xyplot3 AddDataObjectInputConnection [ds2do GetOutputPort]
     xyplot3 SetDataObjectXComponent 0 2
     xyplot3 SetDataObjectYComponent 0 5
     xyplot3 SetPlotColor 0 1 0 0

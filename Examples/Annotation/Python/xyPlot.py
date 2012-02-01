@@ -81,9 +81,9 @@ lineActor.SetMapper(lineMapper)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are arc length.
 xyplot = vtk.vtkXYPlotActor()
-xyplot.AddInputConnection(probe.GetOutputPort())
-xyplot.AddInputConnection(probe2.GetOutputPort())
-xyplot.AddInputConnection(probe3.GetOutputPort())
+xyplot.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot.GetPositionCoordinate().SetValue(0.0, 0.67, 0)
 xyplot.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot.SetXValuesToArcLength()
@@ -105,9 +105,9 @@ xyplot.SetAxisLabelTextProperty(tprop)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are normalized arc length.
 xyplot2 = vtk.vtkXYPlotActor()
-xyplot2.AddInputConnection(probe.GetOutputPort())
-xyplot2.AddInputConnection(probe2.GetOutputPort())
-xyplot2.AddInputConnection(probe3.GetOutputPort())
+xyplot2.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot2.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot2.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot2.GetPositionCoordinate().SetValue(0.00, 0.33, 0)
 xyplot2.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot2.SetXValuesToNormalizedArcLength()
@@ -129,9 +129,9 @@ xyplot2.SetAxisLabelTextProperty(tprop)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are the underlying point data values.
 xyplot3 = vtk.vtkXYPlotActor()
-xyplot3.AddInputConnection(probe.GetOutputPort())
-xyplot3.AddInputConnection(probe2.GetOutputPort())
-xyplot3.AddInputConnection(probe3.GetOutputPort())
+xyplot3.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot3.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot3.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot3.GetPositionCoordinate().SetValue(0.0, 0.0, 0)
 xyplot3.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot3.SetXValuesToIndex()

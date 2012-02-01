@@ -37,6 +37,7 @@
 #include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
 #define VTK_MAX_PLOTS 50
@@ -72,7 +73,8 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->InputConnectionHolder = vtkXYPlotActorConnections::New();
   this->SelectedInputScalars = NULL;
   this->SelectedInputScalarsComponent = vtkIntArray::New();
-  this->DataObjectInputList = vtkDataObjectCollection::New();
+
+  this->DataObjectInputConnectionHolder = vtkXYPlotActorConnections::New();
 
   this->Title = NULL;
   this->XTitle = new char[7];
@@ -291,8 +293,7 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->InputConnectionHolder->Delete();
   this->InputConnectionHolder = NULL;
 
-  this->DataObjectInputList->Delete();
-  this->DataObjectInputList = NULL;
+  this->DataObjectInputConnectionHolder->Delete();
 
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
@@ -397,10 +398,21 @@ int vtkXYPlotActor::IsInputPresent(vtkAlgorithmOutput* in,
 }
 
 //----------------------------------------------------------------------------
+void vtkXYPlotActor::AddDataSetInput(vtkDataSet *ds,
+                                     const char *arrayName,
+                                     int component)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(ds);
+  this->AddDataSetInputConnection(tp->GetOutputPort(), arrayName, component);
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
 // Add a dataset and array to the list of data to plot.
-void vtkXYPlotActor::AddInputConnection(vtkAlgorithmOutput *in,
-                                        const char *arrayName,
-                                        int component)
+void vtkXYPlotActor::AddDataSetInputConnection(vtkAlgorithmOutput *in,
+                                               const char *arrayName,
+                                               int component)
 {
   int idx, num;
   char** newNames;
@@ -453,7 +465,7 @@ void vtkXYPlotActor::AddInputConnection(vtkAlgorithmOutput *in,
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::RemoveAllInputConnections()
+void vtkXYPlotActor::RemoveAllDataSetInputConnections()
 {
   int idx, num;
 
@@ -470,14 +482,36 @@ void vtkXYPlotActor::RemoveAllInputConnections()
     }
   this->SelectedInputScalarsComponent->Reset();
 
-  this->DataObjectInputList->RemoveAllItems();
+  this->DataObjectInputConnectionHolder->RemoveAllInputs();
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::RemoveDataSetInput(vtkDataSet *ds,
+                                        const char *arrayName,
+                                        int component)
+{
+  int numConns = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int idx=0; idx<numConns; idx++)
+    {
+    vtkAlgorithmOutput* aout =
+      this->InputConnectionHolder->GetInputConnection(0, idx);
+    vtkAlgorithm* alg =  aout ? aout->GetProducer() : 0;
+    if (alg)
+      {
+      if (ds == alg->GetOutputDataObject(aout->GetIndex()))
+        {
+        this->RemoveDataSetInputConnection(aout, arrayName, component);
+        return;
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to plot.
-void vtkXYPlotActor::RemoveInputConnection(vtkAlgorithmOutput *in,
-                                           const char *arrayName,
-                                           int component)
+void vtkXYPlotActor::RemoveDataSetInputConnection(vtkAlgorithmOutput *in,
+                                                  const char *arrayName,
+                                                  int component)
 {
   // IsInputPresent returns 0 on failure, index+1 on success.
   // Subtract 1 for the actual index.
@@ -513,13 +547,49 @@ void vtkXYPlotActor::RemoveInputConnection(vtkAlgorithmOutput *in,
 }
 
 //----------------------------------------------------------------------------
+void vtkXYPlotActor::AddDataObjectInputConnection(vtkAlgorithmOutput *aout)
+{
+  // Return if the connection already exists
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
+    {
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    if (port == aout)
+      {
+      return;
+      }
+    }
+
+  this->DataObjectInputConnectionHolder->AddInputConnection(aout);
+}
+
+//----------------------------------------------------------------------------
 // Add a data object to the list of data to plot.
 void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
 {
-  if ( ! this->DataObjectInputList->IsItemPresent(in) )
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(in);
+  this->AddDataObjectInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Remove a data object from the list of data to plot.
+void vtkXYPlotActor::RemoveDataObjectInputConnection(vtkAlgorithmOutput *aout)
+{
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
     {
-    this->Modified();
-    this->DataObjectInputList->AddItem(in);
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    if (port == aout)
+      {
+      this->DataObjectInputConnectionHolder->RemoveInputConnection(0, i);
+      break;
+      }
     }
 }
 
@@ -527,10 +597,19 @@ void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
 // Remove a data object from the list of data to plot.
 void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
 {
-  if ( this->DataObjectInputList->IsItemPresent(in) )
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
     {
-    this->Modified();
-    this->DataObjectInputList->RemoveItem(in);
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIdx = port->GetIndex();
+    if (alg->GetOutputDataObject(portIdx) == in)
+      {
+      this->DataObjectInputConnectionHolder->RemoveInputConnection(0, i);
+      break;
+      }
     }
 }
 
@@ -541,8 +620,8 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething = 0;
 
   // Make sure input is up to date.
-  if ( this->InputConnectionHolder->GetNumberOfInputConnections(0) < 1 && 
-       this->DataObjectInputList->GetNumberOfItems() < 1 )
+  if ( this->InputConnectionHolder->GetNumberOfInputConnections(0) < 1 &&
+       this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0) < 1 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -590,7 +669,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Initialize
   // Make sure input is up to date.
   numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
-  numDO = this->DataObjectInputList->GetNumberOfItems();
+  numDO = this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
   if ( numDS > 0 )
     {
     vtkDebugMacro(<<"Plotting input data sets");
@@ -613,11 +692,15 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   else if ( numDO > 0 )
     {
     vtkDebugMacro(<<"Plotting input data objects");
-    vtkCollectionSimpleIterator doit;
-    for (mtime=0, this->DataObjectInputList->InitTraversal(doit); 
-         (dobj = this->DataObjectInputList->GetNextDataObject(doit)); )
+    mtime = 0;
+    for (int i=0 ; i<numDO; i++)
       {
-      //dobj->Update();
+      vtkAlgorithmOutput* port =
+        this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIdx = port->GetIndex();
+      alg->Update(portIdx);
+      dobj = alg->GetOutputDataObject(portIdx);
       dsMtime = dobj->GetMTime();
       if ( dsMtime > mtime )
         {
@@ -1157,8 +1240,13 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Input DataObjects:\n";
-  this->DataObjectInputList->PrintSelf(os,indent.GetNextIndent());
-  
+  num = this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (idx = 0; idx < num; ++idx)
+    {
+    input = this->DataObjectInputConnectionHolder->GetInputConnection(0, idx);
+    os << i2 << input << endl;
+    }
+
   if (this->TitleTextProperty)
     {
     os << indent << "Title Text Property:\n";
@@ -1480,10 +1568,16 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
   
   xrange[0] = yrange[0] = VTK_DOUBLE_MAX;
   xrange[1] = yrange[1] = -VTK_DOUBLE_MAX;
-  vtkCollectionSimpleIterator doit;
-  for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(doit); 
-        (dobj = this->DataObjectInputList->GetNextDataObject(doit)); doNum++)
+  maxNum = 0;
+  int numDOs =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for ( doNum = 0; doNum < numDOs; doNum++ )
     {
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, doNum);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIdx = port->GetIndex();
+    dobj = alg->GetOutputDataObject(portIdx);
 
     lengths[doNum] = 0.0;
     field = dobj->GetFieldData();
@@ -1829,11 +1923,16 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     vtkIdType numRows, numTuples;
     vtkDataArray *array;
     vtkFieldData *field;
-    vtkCollectionSimpleIterator doit;
-    for ( doNum=0, this->DataObjectInputList->InitTraversal(doit); 
-          (dobj = this->DataObjectInputList->GetNextDataObject(doit)); 
-          doNum++ )
+    int numDOs =
+      this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+    for ( doNum = 0; doNum < numDOs; doNum++ )
       {
+      vtkAlgorithmOutput* port =
+        this->DataObjectInputConnectionHolder->GetInputConnection(0, doNum);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIdx = port->GetIndex();
+      dobj = alg->GetOutputDataObject(portIdx);
+
       // determine the shape of the field
       field = dobj->GetFieldData();
       numColumns = field->GetNumberOfComponents(); //number of "columns"
