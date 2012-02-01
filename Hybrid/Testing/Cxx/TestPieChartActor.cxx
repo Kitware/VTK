@@ -47,7 +47,7 @@ int TestPieChartActor( int argc, char * argv [] )
   dobj->GetFieldData()->AddArray(bitter);
   
   vtkPieChartActor *actor = vtkPieChartActor::New();
-  actor->SetInput(dobj);
+  actor->SetInputData(dobj);
   actor->SetTitle("Pie Chart");
   actor->GetPositionCoordinate()->SetValue(0.05,0.1,0.0);
   actor->GetPosition2Coordinate()->SetValue(0.95,0.85,0.0);
