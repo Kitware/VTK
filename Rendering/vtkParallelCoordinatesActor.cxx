@@ -110,6 +110,7 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->TitleActor = NULL;
   
   this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 
   this->Initialize();
   

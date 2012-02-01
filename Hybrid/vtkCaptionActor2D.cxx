@@ -185,6 +185,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->TextActor->Delete();
 
   this->LeaderGlyphConnectionHolder->Delete();
+  this->LeaderGlyphConnectionHolder = 0;
 
   this->BorderPolyData->Delete();
   this->BorderMapper->Delete();

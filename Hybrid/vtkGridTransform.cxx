@@ -721,6 +721,7 @@ vtkGridTransform::vtkGridTransform()
 vtkGridTransform::~vtkGridTransform()
 {
   this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 }
 
 //----------------------------------------------------------------------------
