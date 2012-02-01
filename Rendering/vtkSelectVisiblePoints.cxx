@@ -67,8 +67,6 @@ int vtkSelectVisiblePoints::RequestData(
 
   vtkIdType ptId, cellId;
   int visible;
-  vtkPoints *outPts;
-  vtkCellArray *outputVertices;
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
@@ -108,20 +106,19 @@ int vtkSelectVisiblePoints::RequestData(
     return 1;
     }
 
-  outPts = vtkPoints::New();
+  vtkPoints *outPts = vtkPoints::New();
   outPts->Allocate(numPts/2+1);
   outPD->CopyAllocate(inPD);
 
-  outputVertices = vtkCellArray::New();
+  vtkCellArray *outputVertices = vtkCellArray::New();
   output->SetVerts(outputVertices);
   outputVertices->Delete();
 
-  float *zPtr = NULL;
   const int SimpleQueryLimit = 25;
   bool getZbuff = numPts > SimpleQueryLimit ? true : false;
 
-  zPtr = Initialize(getZbuff);
-  
+  float *zPtr = this->Initialize(getZbuff);
+
   int abort=0;
   vtkIdType progressInterval=numPts/20+1;
   x[3] = 1.0;
@@ -130,7 +127,7 @@ int vtkSelectVisiblePoints::RequestData(
     // perform conversion
     input->GetPoint(ptId,x);
 
-    if ( ! (ptId % progressInterval) ) 
+    if ( ! (ptId % progressInterval) )
       {
       this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = this->GetAbortExecute();
@@ -151,12 +148,9 @@ int vtkSelectVisiblePoints::RequestData(
   outPts->Delete();
   output->Squeeze();
 
-  if (zPtr)
-    {
-    delete [] zPtr;
-    }
+  delete [] zPtr;
 
-  vtkDebugMacro(<<"Selected " << cellId + 1 << " out of " 
+  vtkDebugMacro(<<"Selected " << cellId + 1 << " out of "
                 << numPts << " original points");
 
   return 1;
@@ -166,7 +160,7 @@ unsigned long int vtkSelectVisiblePoints::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
- 
+
   if ( this->Renderer != NULL )
     {
     time = this->Renderer->GetMTime();
@@ -187,17 +181,17 @@ void vtkSelectVisiblePoints::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Renderer: " << this->Renderer << "\n";
-  os << indent << "Selection Window: " 
+  os << indent << "Selection Window: "
      << (this->SelectionWindow ? "On\n" : "Off\n");
 
   os << indent << "Selection: \n";
-  os << indent << "  Xmin,Xmax: (" << this->Selection[0] << ", " 
+  os << indent << "  Xmin,Xmax: (" << this->Selection[0] << ", "
      << this->Selection[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->Selection[2] << ", " 
+  os << indent << "  Ymin,Ymax: (" << this->Selection[2] << ", "
      << this->Selection[3] << ")\n";
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
-  os << indent << "Select Invisible: " 
+  os << indent << "Select Invisible: "
      << (this->SelectInvisible ? "On\n" : "Off\n");
 }
 
@@ -206,7 +200,7 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
 
-  // specify a selection window to avoid querying 
+  // specify a selection window to avoid querying
   if ( this->SelectionWindow )
     {
     for (int i=0; i<4; i++)
@@ -236,23 +230,22 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
   if (getZbuff)
     {
     return this->Renderer->GetRenderWindow()->GetZbufferData(
-      this->InternalSelection[0], 
-      this->InternalSelection[2], 
-      this->InternalSelection[1], 
+      this->InternalSelection[0],
+      this->InternalSelection[2],
+      this->InternalSelection[1],
       this->InternalSelection[3]);
     }
   return NULL;
 }
 
 bool vtkSelectVisiblePoints::IsPointOccluded(
-  const double x[],  
-  float *zPtr
+  const double x[3],
+  const float *zPtr
   )
 {
   double view[4];
   double dx[3], z;
-  double xx[4];
-  xx[0] = x[0], xx[1] = x[1], xx[2] = x[2], xx[3] = 1.0;
+  double xx[4] = {x[0], x[1], x[2], 1.0};
 
   this->CompositePerspectiveTransform->MultiplyPoint(xx, view);
   if (view[3] == 0.0)
@@ -263,7 +256,7 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
   this->Renderer->ViewToDisplay();
   this->Renderer->GetDisplayPoint(dx);
 
-  // check whether visible and in selection window 
+  // check whether visible and in selection window
   if ( dx[0] >= this->InternalSelection[0] && dx[0] <= this->InternalSelection[1] &&
     dx[1] >= this->InternalSelection[2] && dx[1] <= this->InternalSelection[3] )
     {
@@ -278,11 +271,11 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
       }
     else
       {
-      z = this->Renderer->GetZ(static_cast<int>(dx[0]), 
+      z = this->Renderer->GetZ(static_cast<int>(dx[0]),
         static_cast<int>(dx[1]));
       }
 
-    if( dx[2] < (z + this->Tolerance) ) 
+    if( dx[2] < (z + this->Tolerance) )
       {
       return true;
       }
