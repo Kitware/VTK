@@ -1,40 +1,34 @@
 #!/usr/bin/env bash
 
 # This script makes optional suggestions for working with git.
-if test "$(git config color.ui)" != "auto"; then
-  cat << EOF
 
-You may want to enable color output from Git commands with
+egrep-q() {
+  egrep "$@" >/dev/null 2>/dev/null
+}
+
+if test -z "$(git config --get color.ui)"; then
+  echo '
+One may enable color output from Git commands with
 
   git config --global color.ui auto
-
-EOF
+'
 fi
 
-if ! bash -i -c 'echo $PS1' | grep -q '__git_ps1'; then
-  cat << EOF
-
+if ! bash -i -c 'echo $PS1' | egrep-q '__git_ps1'; then
+  echo '
 A dynamic, informative Git shell prompt can be obtained by sourcing the git
 bash-completion script in your ~/.bashrc.  Set the PS1 environmental variable as
 suggested in the comments at the top of the bash-completion script.  You may
-need to install the bash-completion package from your distribution to obtain the
-script.
-
-EOF
+need to install the bash-completion package from your distribution to obtain it.
+'
 fi
 
-if ! git config merge.tool >/dev/null; then
-  cat << EOF
-
-A merge tool can be configured with
+if test -z "$(git config --get merge.tool)"; then
+  echo '
+One may configure Git to load a merge tool with
 
   git config merge.tool <toolname>
 
-For more information, see
-
-  git help mergetool
-
-EOF
+See "git help mergetool" for more information.
+'
 fi
-
-echo "Done."
