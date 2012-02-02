@@ -19,7 +19,8 @@
 //  levels of resolution that do not overlap with each other.
 //
 // .SECTION See Also
-// vtkUniformGridAMR
+// vtkUniformGridAMR vtkNonOverlappingAMR
+
 #ifndef VTKNONOVERLAPPINGAMR_H_
 #define VTKNONOVERLAPPINGAMR_H_
 
@@ -31,6 +32,19 @@ class VTK_FILTERING_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
     static vtkNonOverlappingAMR* New();
     vtkTypeMacro(vtkNonOverlappingAMR,vtkUniformGridAMR);
     void PrintSelf(ostream& os, vtkIndent indent);
+
+    // Description:
+    // Returns object type (see vtkType.h for definitions).
+    virtual int GetDataObjectType() {return VTK_NON_OVERLAPPING_AMR; }
+
+    // Description:
+    // Shallow/Deep & CopyStructure.
+    virtual void ShallowCopy(vtkDataObject *src)
+     {this->Superclass::ShallowCopy(src);}
+    virtual void DeepCopy(vtkDataObject *src)
+     {this->Superclass::DeepCopy(src);}
+    virtual void CopyStructure(vtkNonOverlappingAMR* input)
+     {this->Superclass::CopyStructure(input);}
 
   protected:
     vtkNonOverlappingAMR();

@@ -16,6 +16,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkTimeStamp.h"
+#include "vtkDataObject.h"
 
 #include <cassert>
 

@@ -28,12 +28,17 @@
 
 class vtkUniformGrid;
 class vtkTimeStamp;
+class vtkDataObject;
 
 class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
 {
   public:
     vtkTypeMacro(vtkUniformGridAMR,vtkCompositeDataSet);
     void PrintSelf(ostream& os, vtkIndent indent);
+
+    // Description:
+    // Return data type (See vtkType.h for definitions)
+    virtual int GetDataObjectType() {return VTK_UNIFORM_GRID_AMR; }
 
     // Description:
     // Sets the number of refinement levels.
@@ -77,7 +82,16 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     // Description:
     // Accessing the dataset by an iterator
     virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
-    { return( this->Superclass::GetDataSet(iter) ); }
+     {return( this->Superclass::GetDataSet(iter) ); }
+
+    // Description:
+    // Shallow/Deep copy & CopyStructure
+    virtual void ShallowCopy(vtkDataObject *src)
+     {this->Superclass::ShallowCopy(src);}
+    virtual void DeepCopy(vtkDataObject *src)
+     {this->Superclass::DeepCopy(src);}
+    virtual void CopyStructure(vtkUniformGridAMR* input)
+     {this->Superclass::CopyStructure(input);}
 
     // Description:
     // Retrieve the cached scalar range into the user-supplied buffer.
