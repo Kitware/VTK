@@ -30,7 +30,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkMPIController.h"
 #include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
