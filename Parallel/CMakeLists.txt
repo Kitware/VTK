@@ -78,10 +78,7 @@ vtkPReflectionFilter.cxx
 vtkPSLACReader.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
-vtkPStructuredGridConnectivity.cxx
-vtkPStructuredGridGhostDataGenerator.cxx
 vtkPTableToStructuredGrid.cxx
-vtkPUniformGridGhostDataGenerator.cxx
 vtkPYoungsMaterialInterface.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
@@ -166,6 +163,9 @@ IF (VTK_USE_MPI)
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkPNetCDFPOPReader.cxx
+    vtkPStructuredGridConnectivity.cxx
+    vtkPUniformGridGhostDataGenerator.cxx
+    vtkPStructuredGridGhostDataGenerator.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
