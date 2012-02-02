@@ -76,8 +76,8 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
 
     // Description:
     // Accessing the dataset by an iterator
-    vtkUniformGrid* GetDataSet(vtkCompositeDataIterator* iter)
-     {return vtkUniformGrid::SafeDownCast(this->Superclass::GetDataSet(iter));}
+    virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
+    { return( this->Superclass::GetDataSet(iter) ); }
 
     // Description:
     // Retrieve the cached scalar range into the user-supplied buffer.
