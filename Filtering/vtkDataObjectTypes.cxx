@@ -85,6 +85,9 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkDirectedAcyclicGraph",
   "vtkArrayData",
   "vtkReebGraph",
+  "vtkUniformGridAMR",
+  "vtkNonOverlappingAMR",
+  "vtkOverlappingAMR",
   NULL
 };
 
