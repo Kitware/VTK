@@ -344,6 +344,31 @@ int vtkReflectionFilter::RequestDataInternal(
       cellId = output->InsertNextCell(cellType, cellPts);
       cellPts->Delete();
       }
+    else if  (cellType == VTK_PYRAMID  && vtkUnstructuredGrid::SafeDownCast(input))
+      {
+      if(numCellPts != 5)
+        {
+        vtkErrorMacro("Pyramid cell must have exactly 5 points")
+        } 
+      int four  = numCellPts-1;
+      cellPts = cell->GetPointIds();
+      newCellPts = new vtkIdType[numCellPts];
+      for (j = four-1; j >= 0; j--)
+        {
+        newCellPts[four-1-j] = cellPts->GetId(j);
+        if (this->CopyInput)
+          {
+          newCellPts[four-1-j] += numPts;
+          }
+        } 
+      newCellPts[four] = cellPts->GetId(four);
+      if (this->CopyInput)
+        {
+        newCellPts[four] += numPts;
+        }
+      cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
+      delete [] newCellPts;
+      } 
     else
       {
       cellPts = cell->GetPointIds();

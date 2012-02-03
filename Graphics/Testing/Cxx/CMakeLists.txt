@@ -48,6 +48,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestQuadRotationalExtrusion.cxx
     TestQuadRotationalExtrusionMultiBlock.cxx
     TestRectilinearGridToPointSet.cxx
+    TestReflectionFilter.cxx
     TestRotationalExtrusion.cxx
     TestSelectEnclosedPoints.cxx
     TestTessellatedBoxSource.cxx
