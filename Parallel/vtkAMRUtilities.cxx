@@ -44,7 +44,9 @@ void vtkAMRUtilities::GenerateMetaData(
   amrData->GenerateParentChildInformation();
 
   if( controller != NULL )
+    {
     controller->Barrier();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -63,36 +65,38 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
   // will have a single grid at level 0.
   for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
     {
-
-      vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
-      if( gridPtr != NULL )
+    vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
+    if( gridPtr != NULL )
+      {
+      double *gridBounds = gridPtr->GetBounds();
+      assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
+      if( gridBounds[0] < min[0] )
         {
-          double *gridBounds = gridPtr->GetBounds();
-          assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
-
-          if( gridBounds[0] < min[0] )
-            min[0] = gridBounds[0];
-          if( gridBounds[2] < min[1] )
-            min[1] = gridBounds[2];
-          if( gridBounds[4] < min[2] )
-            min[2] = gridBounds[4];
-
+        min[0] = gridBounds[0];
         }
-
+      if( gridBounds[2] < min[1] )
+        {
+        min[1] = gridBounds[2];
+        }
+      if( gridBounds[4] < min[2] )
+        {
+        min[2] = gridBounds[4];
+        }
+      } // END if gridPtr is not NULL
     } // END for all data-sets at level 0
 
   // If data is distributed, get the global min
   if( controller != NULL )
     {
-      if( controller->GetNumberOfProcesses() > 1 )
-        {
-          // TODO: Define a custom operator s.t. only one all-reduce operation
-          // is called.
-          controller->AllReduce(&min[0],&origin[0],1,vtkCommunicator::MIN_OP);
-          controller->AllReduce(&min[1],&origin[1],1,vtkCommunicator::MIN_OP);
-          controller->AllReduce(&min[2],&origin[2],1,vtkCommunicator::MIN_OP);
-          return;
-        }
+    if( controller->GetNumberOfProcesses() > 1 )
+      {
+      // TODO: Define a custom operator s.t. only one all-reduce operation
+      // is called.
+      controller->AllReduce(&min[0],&origin[0],1,vtkCommunicator::MIN_OP);
+      controller->AllReduce(&min[1],&origin[1],1,vtkCommunicator::MIN_OP);
+      controller->AllReduce(&min[2],&origin[2],1,vtkCommunicator::MIN_OP);
+      return;
+      }
     }
 
    // Else this is a single process
@@ -119,48 +123,58 @@ void vtkAMRUtilities::ComputeGlobalBounds(
   // will have a single grid at level 0.
   for( unsigned int idx=0; idx < amrData->GetNumberOfDataSets(0); ++idx )
     {
+    vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
+    if( gridPtr != NULL )
+      {
+      // Get the bounnds of the grid: {xmin,xmax,ymin,ymax,zmin,zmax}
+      double *gridBounds = gridPtr->GetBounds();
+      assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
 
-      vtkUniformGrid *gridPtr = amrData->GetDataSet( 0, idx );
-      if( gridPtr != NULL )
+      // Check min
+      if( gridBounds[0] < min[0] )
         {
-          // Get the bounnds of the grid: {xmin,xmax,ymin,ymax,zmin,zmax}
-          double *gridBounds = gridPtr->GetBounds();
-          assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
-
-          // Check min
-          if( gridBounds[0] < min[0] )
-            min[0] = gridBounds[0];
-          if( gridBounds[2] < min[1] )
-            min[1] = gridBounds[2];
-          if( gridBounds[4] < min[2] )
-            min[2] = gridBounds[4];
-
-          // Check max
-          if( gridBounds[1] > max[0])
-            max[0] = gridBounds[1];
-          if( gridBounds[3] > max[1])
-            max[1] = gridBounds[3];
-          if( gridBounds[5] > max[2] )
-            max[2] = gridBounds[5];
+        min[0] = gridBounds[0];
+        }
+      if( gridBounds[2] < min[1] )
+        {
+        min[1] = gridBounds[2];
+        }
+      if( gridBounds[4] < min[2] )
+        {
+        min[2] = gridBounds[4];
         }
 
+      // Check max
+      if( gridBounds[1] > max[0])
+        {
+        max[0] = gridBounds[1];
+        }
+      if( gridBounds[3] > max[1])
+        {
+        max[1] = gridBounds[3];
+        }
+      if( gridBounds[5] > max[2] )
+        {
+        max[2] = gridBounds[5];
+        }
+      } // END if grid is not NULL
     } // END for all data-sets at level 0
 
   if( myController != NULL )
     {
-      if( myController->GetNumberOfProcesses() > 1 )
-        {
-          // All Reduce min
-          myController->AllReduce(&min[0],&bounds[0],1,vtkCommunicator::MIN_OP);
-          myController->AllReduce(&min[1],&bounds[1],1,vtkCommunicator::MIN_OP);
-          myController->AllReduce(&min[2],&bounds[2],1,vtkCommunicator::MIN_OP);
+    if( myController->GetNumberOfProcesses() > 1 )
+      {
+      // All Reduce min
+      myController->AllReduce(&min[0],&bounds[0],1,vtkCommunicator::MIN_OP);
+      myController->AllReduce(&min[1],&bounds[1],1,vtkCommunicator::MIN_OP);
+      myController->AllReduce(&min[2],&bounds[2],1,vtkCommunicator::MIN_OP);
 
-          // All Reduce max
-          myController->AllReduce(&max[0],&bounds[3],1,vtkCommunicator::MAX_OP);
-          myController->AllReduce(&max[1],&bounds[4],1,vtkCommunicator::MAX_OP);
-          myController->AllReduce(&max[2],&bounds[5],1,vtkCommunicator::MAX_OP);
-          return;
-        }
+      // All Reduce max
+      myController->AllReduce(&max[0],&bounds[3],1,vtkCommunicator::MAX_OP);
+      myController->AllReduce(&max[1],&bounds[4],1,vtkCommunicator::MAX_OP);
+      myController->AllReduce(&max[2],&bounds[5],1,vtkCommunicator::MAX_OP);
+      return;
+      }
     }
 
   bounds[0] = min[0];
@@ -169,7 +183,6 @@ void vtkAMRUtilities::ComputeGlobalBounds(
   bounds[3] = max[0];
   bounds[4] = max[1];
   bounds[5] = max[2];
-
 }
 
 //------------------------------------------------------------------------------
@@ -192,9 +205,8 @@ void vtkAMRUtilities::CollectAMRMetaData(
   // STEP 2: Distribute meta-data to all processes
   if( myController != NULL )
     {
-      DistributeMetaData( amrData, myController );
+    DistributeMetaData( amrData, myController );
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -210,17 +222,15 @@ void vtkAMRUtilities::SerializeMetaData(
   std::vector< vtkAMRBox > boxList;
   for( unsigned int level=0; level < amrData->GetNumberOfLevels(); ++level )
     {
-      for(unsigned int idx=0;idx < amrData->GetNumberOfDataSets( level );++idx )
+    for(unsigned int idx=0;idx < amrData->GetNumberOfDataSets( level );++idx )
+      {
+      if( amrData->GetDataSet(level,idx) != NULL )
         {
-
-          if( amrData->GetDataSet(level,idx) != NULL )
-            {
-              vtkAMRBox myBox;
-              amrData->GetMetaData(level,idx,myBox);
-              boxList.push_back( myBox );
-            }
-
-        } // END for all data at the current level
+        vtkAMRBox myBox;
+        amrData->GetMetaData(level,idx,myBox);
+        boxList.push_back( myBox );
+        }
+      } // END for all data at the current level
     } // END for all levels
 
   // STEP 1: Compute & Allocate buffer size
@@ -236,13 +246,13 @@ void vtkAMRUtilities::SerializeMetaData(
   // STEP 3: Serialize each box
   for( unsigned int i=0; i < boxList.size( ); ++i )
     {
-      assert( "ptr is NULL" && (ptr != NULL) );
+    assert( "ptr is NULL" && (ptr != NULL) );
 
-      unsigned char *tmp = NULL;
-      vtkIdType nbytes      = 0;
-      boxList[ i ].Serialize( tmp, nbytes );
-      memcpy( ptr, tmp, vtkAMRBox::GetBytesize() );
-      ptr += vtkAMRBox::GetBytesize();
+    unsigned char *tmp = NULL;
+    vtkIdType nbytes      = 0;
+    boxList[ i ].Serialize( tmp, nbytes );
+    memcpy( ptr, tmp, vtkAMRBox::GetBytesize() );
+    ptr += vtkAMRBox::GetBytesize();
     }
 
 }
@@ -267,11 +277,11 @@ void vtkAMRUtilities::DeserializeMetaData(
   boxList.resize( N );
   for( int i=0; i < N; ++i )
     {
-      assert( "ptr is NULL" && (ptr != NULL) );
+    assert( "ptr is NULL" && (ptr != NULL) );
 
-      vtkIdType nbytes = vtkAMRBox::GetBytesize();
-      boxList[ i ].Deserialize( ptr, nbytes );
-      ptr += nbytes;
+    vtkIdType nbytes = vtkAMRBox::GetBytesize();
+    boxList[ i ].Deserialize( ptr, nbytes );
+    ptr += nbytes;
     }
 
 }
@@ -300,7 +310,9 @@ void vtkAMRUtilities::DistributeMetaData(
   // STEP 2: Compute the receive buffer & Allocate
   vtkIdType rbufferSize = rcvcounts[0];
   for( int i=1; i < numRanks; ++i)
+    {
     rbufferSize+=rcvcounts[i];
+    }
   unsigned char *rcvBuffer = new unsigned char[ rbufferSize ];
   assert( "Receive buffer is NULL" && (rcvBuffer != NULL) );
 
@@ -308,7 +320,9 @@ void vtkAMRUtilities::DistributeMetaData(
   vtkIdType *offSet = new vtkIdType[ numRanks];
   offSet[0] = 0;
   for( int i=1; i < numRanks; ++i )
+    {
     offSet[ i ] = offSet[ i-1 ]+rcvcounts[ i-1 ];
+    }
 
   // STEP 4: All-gatherv boxes
   myController->AllGatherV( buffer, rcvBuffer, numBytes, rcvcounts, offSet );
@@ -318,26 +332,23 @@ void vtkAMRUtilities::DistributeMetaData(
   amrBoxes.resize( numRanks );
   for( int i=0; i < numRanks; ++i )
     {
-
-      if( i != myController->GetLocalProcessId() )
+    if( i != myController->GetLocalProcessId() )
+      {
+      DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
+      for( unsigned int j=0; j < amrBoxes[i].size(); ++j )
         {
-          DeserializeMetaData( rcvBuffer+offSet[i],rcvcounts[i],amrBoxes[i] );
-          for( unsigned int j=0; j < amrBoxes[i].size(); ++j )
-            {
-              int level = amrBoxes[i][j].GetLevel();
-              int index = amrBoxes[i][j].GetBlockId();
-              amrData->SetMetaData( level,index,amrBoxes[i][j] );
-            }
+        int level = amrBoxes[i][j].GetLevel();
+        int index = amrBoxes[i][j].GetBlockId();
+        amrData->SetMetaData( level,index,amrBoxes[i][j] );
         }
-
-    }
+      } // END if not a local process
+    } // END for all ranks
 
   // STEP 7: Clean up all dynamically allocated memory
   delete [] buffer;
   delete [] rcvcounts;
   delete [] offSet;
   delete [] rcvBuffer;
-
 }
 
 //------------------------------------------------------------------------------
@@ -369,61 +380,55 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   int i=0;
   switch( myGrid->GetDataDimension() )
     {
-      case 1:
-        lo[0]   = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
-        hi[0]   = vtkMath::Round( static_cast<double>(lo[0] + ( ndim[0]-1 )) );
-        for(i=1; i < 3; ++i )
-         lo[i] = hi[i] = 0;
-        break;
-      case 2:
-        if( myGrid->GetGridDescription() == VTK_YZ_PLANE )
+    case 1:
+      lo[0] = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+      hi[0] = vtkMath::Round( static_cast<double>(lo[0] + ( ndim[0]-1 )) );
+      for(i=1; i < 3; ++i )
+        {
+        lo[i] = hi[i] = 0;
+        }
+      break;
+    case 2:
+      if( myGrid->GetGridDescription() == VTK_YZ_PLANE )
+        {
+        // YZ plane
+        for( i=1; i < 3; ++i )
           {
-            // YZ plane
-            for( i=1; i < 3; ++i )
-              {
-                lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
-                hi[i]   = vtkMath::Round(
-                    static_cast<double>(lo[i] + ( ndim[i]-1 )) );
-              }
-            lo[0] = hi[0] = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+          lo[i] = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i] = vtkMath::Round( static_cast<double>(lo[i] + ( ndim[i]-1 )) );
           }
-        else if( myGrid->GetGridDescription() == VTK_XZ_PLANE )
+        lo[0] = hi[0] = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+        }
+      else if( myGrid->GetGridDescription() == VTK_XZ_PLANE )
+        {
+        // XZ plane
+        lo[1] = hi[1] = vtkMath::Round( (gridOrigin[1]-origin[1])/h[1] );
+        lo[0] = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
+        hi[0] = vtkMath::Round( static_cast<double>(lo[0] + ( ndim[0]-1 )) );
+        lo[2] = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
+        hi[2] = vtkMath::Round( static_cast<double>(lo[2] + ( ndim[2]-1 )) );
+        }
+      else if( myGrid->GetGridDescription() == VTK_XY_PLANE )
+        {
+        // XY plane
+        for( i=0; i < 2; ++i )
           {
-            // XZ plane
-            lo[1]   = hi[1] = vtkMath::Round( (gridOrigin[1]-origin[1])/h[1] );
-
-            lo[0]   = vtkMath::Round( (gridOrigin[0]-origin[0])/h[0] );
-            hi[0]   = vtkMath::Round(
-                          static_cast<double>(lo[0] + ( ndim[0]-1 )) );
-            lo[2]   = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
-            hi[2]   = vtkMath::Round(
-                         static_cast<double>(lo[2] + ( ndim[2]-1 )) );
+          lo[i] = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+          hi[i] = vtkMath::Round( static_cast<double>(lo[i] + ( ndim[i]-1 )) );
           }
-        else if( myGrid->GetGridDescription() == VTK_XY_PLANE )
-          {
-            // XY plane
-            for( i=0; i < 2; ++i )
-              {
-                lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
-                hi[i]   = vtkMath::Round(
-                              static_cast<double>(lo[i] + ( ndim[i]-1 )) );
-              }
-            lo[2] = hi[2] = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
-          }
-        break;
-      case 3:
-        for( i=0; i < 3; ++i )
-          {
-            lo[i]   = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
-            hi[i]   = vtkMath::Round(
-                          static_cast<double>(lo[i] + ( ndim[i]-1 )) );
-          }
-        break;
-      default:
-        assert(
-            "Invalid grid dimension! Code should not reach here!" &&
-            false );
-    }
+        lo[2] = hi[2] = vtkMath::Round( (gridOrigin[2]-origin[2])/h[2] );
+        }
+      break;
+    case 3:
+      for( i=0; i < 3; ++i )
+        {
+        lo[i] = vtkMath::Round( (gridOrigin[i]-origin[i])/h[i] );
+        hi[i] = vtkMath::Round( static_cast<double>(lo[i] + ( ndim[i]-1 )) );
+        }
+      break;
+    default:
+      assert("Invalid grid dimension! Code should not reach here!" && false );
+    } // END switch
 
   myBox.SetGridDescription( myGrid->GetGridDescription( ) );
   myBox.SetDimensionality( myGrid->GetDataDimension() );
@@ -431,8 +436,8 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
   myBox.SetGridSpacing( h );
   myBox.SetDimensions( lo, hi );
 
-  assert( "post: Invalid AMR box Dimension, only 2,3 are supported" &&
-     ( myBox.GetDimensionality()==2 || myBox.GetDimensionality()==3 ) );
+  assert("post: Invalid AMR box Dimension, only 2,3 are supported" &&
+         ( myBox.GetDimensionality()==2 || myBox.GetDimensionality()==3 ) );
   assert( "post: AMR box is invalid!" && !myBox.IsInvalid() );
 }
 
@@ -445,21 +450,19 @@ void vtkAMRUtilities::ComputeLocalMetaData(
 
   for( unsigned int level=0; level < myAMRData->GetNumberOfLevels(); ++level )
     {
-      for(unsigned int idx=0;idx < myAMRData->GetNumberOfDataSets(level);++idx )
+    for(unsigned int idx=0;idx < myAMRData->GetNumberOfDataSets(level);++idx )
+      {
+      vtkUniformGrid *myGrid = myAMRData->GetDataSet( level, idx );
+      if( myGrid != NULL )
         {
-
-          vtkUniformGrid *myGrid = myAMRData->GetDataSet( level, idx );
-          if( myGrid != NULL )
-            {
-              vtkAMRBox myBox;
-              CreateAMRBoxForGrid( origin, myGrid, myBox );
-              myBox.SetBlockId( idx );
-              myBox.SetLevel( level );
-              myBox.SetProcessId( process );
-              myAMRData->SetMetaData( level, idx, myBox );
-            }
-
-        } // END for all data at current level
+        vtkAMRBox myBox;
+        CreateAMRBoxForGrid( origin, myGrid, myBox );
+        myBox.SetBlockId( idx );
+        myBox.SetLevel( level );
+        myBox.SetProcessId( process );
+        myAMRData->SetMetaData( level, idx, myBox );
+        }
+      } // END for all data at current level
     } // END for all levels
 }
 
@@ -474,51 +477,48 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
 
   if( numLevels < 1 )
     {
-      // Dataset is empty!
-      return;
+    // Dataset is empty!
+    return;
     }
 
   if( numLevels == 1)
     {
-      // No refinement, data-set has only a single level.
-      // The refinement ratio is set to 2 to satisfy the
-      // vtkHierarchicalBoxDataSet requirement.
-      amr->SetRefinementRatio(0,2);
-      return;
+    // No refinement, data-set has only a single level.
+    // The refinement ratio is set to 2 to satisfy the
+    // vtkHierarchicalBoxDataSet requirement.
+    amr->SetRefinementRatio(0,2);
+    return;
     }
 
    for( int level=0; level < numLevels-1; ++level )
      {
+     int childLevel = level+1;
+     assert("No data at parent!" && amr->GetNumberOfDataSets(childLevel)>=1);
+     assert("No data in this level" && amr->GetNumberOfDataSets(level)>=1 );
 
-       int childLevel = level+1;
-       assert("No data at parent!" && amr->GetNumberOfDataSets(childLevel)>=1);
-       assert("No data in this level" && amr->GetNumberOfDataSets(level)>=1 );
+     vtkAMRBox childBox;
+     amr->GetMetaData(childLevel,0,childBox);
 
-       vtkAMRBox childBox;
-       amr->GetMetaData(childLevel,0,childBox);
+     vtkAMRBox myBox;
+     amr->GetMetaData(level,0,myBox);
 
-       vtkAMRBox myBox;
-       amr->GetMetaData(level,0,myBox);
+     double childSpacing[3];
+     childBox.GetGridSpacing(childSpacing);
 
-       double childSpacing[3];
-       childBox.GetGridSpacing(childSpacing);
+     double currentSpacing[3];
+     myBox.GetGridSpacing( currentSpacing );
 
-       double currentSpacing[3];
-       myBox.GetGridSpacing( currentSpacing );
+     // Note current implementation assumes uniform spacing. The
+     // refinement ratio is the same in each dimension i,j,k.
+     int ratio = vtkMath::Round(currentSpacing[0]/childSpacing[0]);
 
-       // Note current implementation assumes uniform spacing. The
-       // refinement ratio is the same in each dimension i,j,k.
-       int ratio = vtkMath::Round(currentSpacing[0]/childSpacing[0]);
-
-       // Set the ratio at the last level, i.e., level numLevels-1, to be the
-       // same as the ratio at the previous level,since the highest level
-       // doesn't really have a refinement ratio.
-       if( level==numLevels-2 )
-         {
-           amr->SetRefinementRatio(level+1,ratio);
-         }
-       amr->SetRefinementRatio(level,ratio);
-
+     // Set the ratio at the last level, i.e., level numLevels-1, to be the
+     // same as the ratio at the previous level,since the highest level
+     // doesn't really have a refinement ratio.
+     if( level==numLevels-2 )
+       {
+       amr->SetRefinementRatio(level+1,ratio);
+       }
+     amr->SetRefinementRatio(level,ratio);
      } // END for all hi-res levels
-
 }

@@ -121,9 +121,6 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Description:
     // This method distributes the AMR data to all process. Upon completion,
     // the give AMR data-set has a complete tree with all meta-data.
-    //
-    // .SECTION Assumptions
-    //
     static void DistributeMetaData(
         vtkHierarchicalBoxDataSet *amrData,
         vtkMultiProcessController *myController );

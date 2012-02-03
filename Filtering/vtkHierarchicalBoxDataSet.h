@@ -362,7 +362,7 @@ protected:
   bool PadCellVisibility;
 
   // Global Origin
-  double origin[3];
+  double Origin[3];
   double Bounds[6];
 
   // Mapping of composite indices to the (level,id) pair.
