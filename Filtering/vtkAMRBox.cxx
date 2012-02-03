@@ -150,26 +150,26 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
       case 2:
         switch( this->GridDescription )
           {
-            case VTK_XY_PLANE:
-              N1  = ndim[0];
-              N2  = ndim[1];
-              idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
-              break;
-            case VTK_XZ_PLANE:
-              N1  = ndim[0];
-              N2  = ndim[2];
-              idx = ijk[1]*N1*N2 + ijk[2]*N1 + ijk[0];
-              break;
-            case VTK_YZ_PLANE:
-              N1  = ndim[1];
-              N2  = ndim[2];
-              idx = ijk[0]*N1*N2 + ijk[2]*N1 + ijk[1];
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
+          case VTK_XY_PLANE:
+            N1  = ndim[0];
+            N2  = ndim[1];
+            idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+            break;
+          case VTK_XZ_PLANE:
+            N1  = ndim[0];
+            N2  = ndim[2];
+            idx = ijk[1]*N1*N2 + ijk[2]*N1 + ijk[0];
+            break;
+          case VTK_YZ_PLANE:
+            N1  = ndim[1];
+            N2  = ndim[2];
+            idx = ijk[0]*N1*N2 + ijk[2]*N1 + ijk[1];
+            break;
+          default:
+            std::cerr << "Invalid 2-D topoly for AMR box!\n";
+            std::cerr << "FILE: " << __FILE__ << std::endl;
+            std::cerr << "LINE: " << __LINE__ << std::endl;
+            std::cerr.flush();
           }
         break;
       default:
@@ -212,8 +212,8 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
   this->BlockLevel       = other.BlockLevel;
   for( int i=0; i < 6; ++i )
     {
-      this->RealExtent[i] = other.RealExtent[i];
-      this->NG[i]         = other.NG[i];
+    this->RealExtent[i] = other.RealExtent[i];
+    this->NG[i]         = other.NG[i];
     }
 
   assert( "post: AMR Box instance is invalid" && !this->IsInvalid() );
@@ -231,16 +231,16 @@ void vtkAMRBox::Initialize( )
 
   for( int i=0; i < 3; ++i )
     {
-      this->LoCorner[ i ] = 0;
-      this->HiCorner[ i ] = 0;
+    this->LoCorner[ i ] = 0;
+    this->HiCorner[ i ] = 0;
     }
 
   this->X0[0] = this->X0[1] = this->X0[2] = 0.0;
   this->DX[0] = this->DX[1] = this->DX[2] = 1.0;
   for( int i=0; i < 6; ++i )
     {
-      this->NG[i]         = 0;
-      this->RealExtent[i] = 0;
+    this->NG[i]         = 0;
+    this->RealExtent[i] = 0;
     }
 
 }
@@ -285,18 +285,18 @@ void vtkAMRBox::SetDimensions(
 {
   if (ilo>ihi || jlo>jhi || klo>khi)
     {
-      this->Invalidate();
+    this->Invalidate();
     }
   else
     {
-      this->LoCorner[0]= ilo;
-      this->LoCorner[1]= jlo;
-      this->LoCorner[2]= klo;
-      this->HiCorner[0]= ihi;
-      this->HiCorner[1]= jhi;
-      this->HiCorner[2]= khi;
+    this->LoCorner[0]= ilo;
+    this->LoCorner[1]= jlo;
+    this->LoCorner[2]= klo;
+    this->HiCorner[0]= ihi;
+    this->HiCorner[1]= jhi;
+    this->HiCorner[2]= khi;
 
-      this->SetRealExtent( this->LoCorner, this->HiCorner );
+    this->SetRealExtent( this->LoCorner, this->HiCorner );
     }
 }
 
@@ -345,7 +345,7 @@ void vtkAMRBox::GetLoCorner(int *lo) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
     {
-      lo[q]=this->LoCorner[q];
+    lo[q] = this->LoCorner[q];
     }
 }
 
@@ -355,7 +355,7 @@ void vtkAMRBox::GetHiCorner(int *hi) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
     {
-      hi[q]=this->HiCorner[q];
+    hi[q] = this->HiCorner[q];
     }
 }
 
@@ -365,7 +365,7 @@ void vtkAMRBox::GetGridSpacing(double *dX) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
     {
-      dX[q]=this->DX[q];
+    dX[q] = this->DX[q];
     }
 }
 
@@ -395,7 +395,7 @@ void vtkAMRBox::GetDataSetOrigin(double *x0) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
     {
-      x0[q]=this->X0[q];
+    x0[q]=this->X0[q];
     }
 }
 
@@ -421,7 +421,7 @@ void vtkAMRBox::GetBoxOrigin(double *x0) const
 
   for( int i=0; i < 3; ++i )
     {
-      x0[i] = this->X0[i]+this->LoCorner[i]*this->DX[i];
+    x0[i] = this->X0[i]+this->LoCorner[i]*this->DX[i];
     }
 }
 
@@ -433,51 +433,51 @@ void vtkAMRBox::GetNumberOfCells(int *ext) const
 
   if( this->Empty( ) )
     {
-      ext[0]=ext[1]=ext[2]=0;
-      return;
+    ext[0]=ext[1]=ext[2]=0;
+    return;
     }
 
   switch( this->Dimension )
     {
-      case 1:
-        ext[1] = ext[2] = 0;
-        ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-            case VTK_XY_PLANE:
-              ext[2] = 0;
-              ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
-              ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
-              break;
-            case VTK_XZ_PLANE:
-              ext[1] = 0;
-              ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
-              ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
-              break;
-            case VTK_YZ_PLANE:
-              ext[0] = 0;
-              ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
-              ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
-          }
-        break;
-      case 3:
-        ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
-        ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
-        ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
-        break;
-      default:
-        std::cerr << "Undefined dimension!\n";
-        std::cerr << "FILE: " << __FILE__ << std::endl;
-        std::cerr << "LINE: " << __LINE__ << std::endl;
-        std::cerr.flush();
+    case 1:
+      ext[1] = ext[2] = 0;
+      ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          ext[2] = 0;
+          ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+          ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+          break;
+        case VTK_XZ_PLANE:
+          ext[1] = 0;
+          ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+          ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+          break;
+        case VTK_YZ_PLANE:
+          ext[0] = 0;
+          ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+          ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      ext[0] = this->HiCorner[0]-this->LoCorner[0]+1;
+      ext[1] = this->HiCorner[1]-this->LoCorner[1]+1;
+      ext[2] = this->HiCorner[2]-this->LoCorner[2]+1;
+      break;
+    default:
+      std::cerr << "Undefined dimension!\n";
+      std::cerr << "FILE: " << __FILE__ << std::endl;
+      std::cerr << "LINE: " << __LINE__ << std::endl;
+      std::cerr.flush();
     }
 
 }
@@ -492,10 +492,14 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
   int numCells = 0;
   for( int i=0; i < 3; ++i )
     {
-      if( numCells == 0 )
-        numCells = cellExtent[i];
-      else if( cellExtent[i] != 0 )
-        numCells *= cellExtent[i];
+    if( numCells == 0 )
+      {
+      numCells = cellExtent[i];
+      }
+    else if( cellExtent[i] != 0 )
+      {
+      numCells *= cellExtent[i];
+      }
     }
   return( numCells );
 }
@@ -508,51 +512,51 @@ void vtkAMRBox::GetNumberOfNodes(int *ext) const
 
   if( this->Empty( ) )
     {
-      ext[0]=ext[1]=ext[2]=0;
-      return;
+    ext[0]=ext[1]=ext[2]=0;
+    return;
     }
 
   switch( this->Dimension )
     {
-      case 1:
-        ext[1] = ext[2] = 0;
-        ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-            case VTK_XY_PLANE:
-              ext[2] = 0;
-              ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
-              ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
-              break;
-            case VTK_XZ_PLANE:
-              ext[1] = 0;
-              ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
-              ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
-              break;
-            case VTK_YZ_PLANE:
-              ext[0] = 0;
-              ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
-              ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
-          }
-        break;
-      case 3:
-        ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
-        ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
-        ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
-        break;
-      default:
-        std::cerr << "Undefined dimension!\n";
-        std::cerr << "FILE: " << __FILE__ << std::endl;
-        std::cerr << "LINE: " << __LINE__ << std::endl;
-        std::cerr.flush();
+    case 1:
+      ext[1] = ext[2] = 0;
+      ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          ext[2] = 0;
+          ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+          ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+          break;
+        case VTK_XZ_PLANE:
+          ext[1] = 0;
+          ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+          ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+          break;
+        case VTK_YZ_PLANE:
+          ext[0] = 0;
+          ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+          ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      ext[0] = this->HiCorner[0]-this->LoCorner[0]+2;
+      ext[1] = this->HiCorner[1]-this->LoCorner[1]+2;
+      ext[2] = this->HiCorner[2]-this->LoCorner[2]+2;
+      break;
+    default:
+      std::cerr << "Undefined dimension!\n";
+      std::cerr << "FILE: " << __FILE__ << std::endl;
+      std::cerr << "LINE: " << __LINE__ << std::endl;
+      std::cerr.flush();
     }
 
 }
@@ -567,10 +571,14 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
   int numNodes = 0;
   for( int i=0; i < 3; ++i )
     {
-      if( numNodes == 0 )
-        numNodes = ext[i];
-      else if( ext[i] != 0 )
-        numNodes *= ext[i];
+    if( numNodes == 0 )
+      {
+      numNodes = ext[i];
+      }
+    else if( ext[i] != 0 )
+      {
+      numNodes *= ext[i];
+      }
     }
   return( numNodes );
 }
@@ -582,11 +590,11 @@ void vtkAMRBox::Grow(int byN)
 
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried growing an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried growing an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
   int lo[3];
@@ -599,78 +607,78 @@ void vtkAMRBox::Grow(int byN)
   int q;
   switch( this->Dimension )
     {
-      case 1:
-        lo[1] = this->LoCorner[1];
-        lo[2] = this->LoCorner[2];
-        hi[1] = this->HiCorner[1];
-        hi[2] = this->HiCorner[2];
-        lo[0] = this->LoCorner[0]-byN;
-        hi[0] = this->HiCorner[0]+byN;
-        this->NG[0]++;
-        this->NG[1]++;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-            case VTK_XY_PLANE:
-              lo[2] = this->LoCorner[2];
-              hi[2] = this->HiCorner[2];
-              for( q=0; q < 2; ++q )
-                {
-                  lo[q] = this->LoCorner[q]-byN;
-                  hi[q] = this->HiCorner[q]+byN;
-                  this->NG[q*2]++;
-                  this->NG[q*2+1]++;
-                }
-              break;
-            case VTK_XZ_PLANE:
-              lo[1] = this->LoCorner[1];
-              hi[1] = this->HiCorner[1];
+    case 1:
+      lo[1] = this->LoCorner[1];
+      lo[2] = this->LoCorner[2];
+      hi[1] = this->HiCorner[1];
+      hi[2] = this->HiCorner[2];
+      lo[0] = this->LoCorner[0]-byN;
+      hi[0] = this->HiCorner[0]+byN;
+      this->NG[0]++;
+      this->NG[1]++;
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          lo[2] = this->LoCorner[2];
+          hi[2] = this->HiCorner[2];
+          for( q=0; q < 2; ++q )
+            {
+              lo[q] = this->LoCorner[q]-byN;
+              hi[q] = this->HiCorner[q]+byN;
+              this->NG[q*2]++;
+              this->NG[q*2+1]++;
+            }
+          break;
+        case VTK_XZ_PLANE:
+          lo[1] = this->LoCorner[1];
+          hi[1] = this->HiCorner[1];
 
-              // grow along x
-              lo[0] = this->LoCorner[0]-byN;
-              hi[0] = this->HiCorner[0]+byN;
-              this->NG[0]++;
-              this->NG[1]++;
+          // grow along x
+          lo[0] = this->LoCorner[0]-byN;
+          hi[0] = this->HiCorner[0]+byN;
+          this->NG[0]++;
+          this->NG[1]++;
 
-              // grow along z
-              lo[2] = this->LoCorner[2]-byN;
-              hi[2] = this->HiCorner[2]+byN;
-              this->NG[4]++;
-              this->NG[5]++;
-              break;
-            case VTK_YZ_PLANE:
-              lo[0] = this->LoCorner[0];
-              hi[0] = this->HiCorner[0];
-              for( q=1; q < 3; ++q )
-                {
-                  lo[q] = this->LoCorner[q]-byN;
-                  hi[q] = this->HiCorner[q]+byN;
-                  this->NG[q*2]++;
-                  this->NG[q*2+1]++;
-                }
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
-          }
-        break;
-      case 3:
-        for( q=0; q < 3; ++q )
-          {
-            lo[q] = this->LoCorner[q]-byN;
-            hi[q] = this->HiCorner[q]+byN;
-            this->NG[q*2]++;
-            this->NG[q*2+1]++;
-          }
-        break;
-      default:
-        // Code should not reach here!
-        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
-        std::cerr.flush();
-        assert( false );
+          // grow along z
+          lo[2] = this->LoCorner[2]-byN;
+          hi[2] = this->HiCorner[2]+byN;
+          this->NG[4]++;
+          this->NG[5]++;
+          break;
+        case VTK_YZ_PLANE:
+          lo[0] = this->LoCorner[0];
+          hi[0] = this->HiCorner[0];
+          for( q=1; q < 3; ++q )
+            {
+              lo[q] = this->LoCorner[q]-byN;
+              hi[q] = this->HiCorner[q]+byN;
+              this->NG[q*2]++;
+              this->NG[q*2+1]++;
+            }
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      for( q=0; q < 3; ++q )
+        {
+        lo[q] = this->LoCorner[q]-byN;
+        hi[q] = this->HiCorner[q]+byN;
+        this->NG[q*2]++;
+        this->NG[q*2+1]++;
+        }
+      break;
+    default:
+      // Code should not reach here!
+      std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+      std::cerr.flush();
+      assert( false );
     }
   this->SetDimensions(lo,hi);
   assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
@@ -683,11 +691,11 @@ void vtkAMRBox::Shrink(int byN)
 
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
   int lo[3];
@@ -699,61 +707,61 @@ void vtkAMRBox::Shrink(int byN)
   int q;
   switch( this->Dimension )
     {
-      case 1:
-        lo[0] = this->LoCorner[0]+byN;
-        hi[0] = this->HiCorner[0]-byN;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-            case VTK_XY_PLANE:
-              lo[2] = this->LoCorner[2];
-              hi[2] = this->HiCorner[2];
-              for( q=0; q < 2; ++q )
-                {
-                  lo[q] = this->LoCorner[q]+byN;
-                  hi[q] = this->HiCorner[q]-byN;
-                }
-              break;
-            case VTK_XZ_PLANE:
-              lo[1] = this->LoCorner[1];
-              hi[1] = this->HiCorner[1];
-              // grow along x
-              lo[0] = this->LoCorner[0]+byN;
-              hi[0] = this->HiCorner[0]-byN;
-
-              // grow along z
-              lo[2] = this->LoCorner[2]+byN;
-              hi[2] = this->HiCorner[2]-byN;
-              break;
-            case VTK_YZ_PLANE:
-              lo[0] = this->LoCorner[0];
-              hi[0] = this->HiCorner[0];
-              for( q=1; q < 3; ++q )
-                {
-                  lo[q] = this->LoCorner[q]+byN;
-                  hi[q] = this->HiCorner[q]-byN;
-                }
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
-          }
-        break;
-      case 3:
-        for( q=0; q < 3; ++q )
-          {
+    case 1:
+      lo[0] = this->LoCorner[0]+byN;
+      hi[0] = this->HiCorner[0]-byN;
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          lo[2] = this->LoCorner[2];
+          hi[2] = this->HiCorner[2];
+          for( q=0; q < 2; ++q )
+            {
             lo[q] = this->LoCorner[q]+byN;
             hi[q] = this->HiCorner[q]-byN;
-          }
-        break;
-      default:
-        // Code should not reach here!
-        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
-        std::cerr.flush();
-        assert( false );
+            }
+          break;
+        case VTK_XZ_PLANE:
+          lo[1] = this->LoCorner[1];
+          hi[1] = this->HiCorner[1];
+          // grow along x
+          lo[0] = this->LoCorner[0]+byN;
+          hi[0] = this->HiCorner[0]-byN;
+
+          // grow along z
+          lo[2] = this->LoCorner[2]+byN;
+          hi[2] = this->HiCorner[2]-byN;
+          break;
+        case VTK_YZ_PLANE:
+          lo[0] = this->LoCorner[0];
+          hi[0] = this->HiCorner[0];
+          for( q=1; q < 3; ++q )
+            {
+            lo[q] = this->LoCorner[q]+byN;
+            hi[q] = this->HiCorner[q]-byN;
+            }
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      for( q=0; q < 3; ++q )
+        {
+        lo[q] = this->LoCorner[q]+byN;
+        hi[q] = this->HiCorner[q]-byN;
+        }
+      break;
+    default:
+      // Code should not reach here!
+      std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+      std::cerr.flush();
+      assert( false );
     }
   this->SetDimensions(lo,hi);
   assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
@@ -765,11 +773,11 @@ void vtkAMRBox::Shift(int i, int j)
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
   // TODO: There is no bound checking here!
@@ -785,11 +793,11 @@ void vtkAMRBox::Shift(int i, int j, int k)
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried shrinking an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
   int ijk[3]; ijk[0] = i; ijk[1] = j; ijk[2] = k;
@@ -800,56 +808,55 @@ void vtkAMRBox::Shift(int i, int j, int k)
   int q;
   switch( this->Dimension )
     {
-      case 1:
-        this->LoCorner[0] = this->LoCorner[0]+i;
-        this->HiCorner[0] = this->HiCorner[0]+i;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-          case VTK_XY_PLANE:
-            for( q=0; q < 2; ++q )
-              {
-                this->LoCorner[q] = this->LoCorner[q]+ijk[q];
-                this->HiCorner[q] = this->HiCorner[q]+ijk[q];
-              }
-            break;
-          case VTK_XZ_PLANE:
-            // shift in x
-            this->LoCorner[0] = this->LoCorner[0]+i;
-            this->HiCorner[0] = this->HiCorner[0]+i;
-
-            // shift in z
-            this->LoCorner[2] = this->LoCorner[2]+k;
-            this->HiCorner[2] = this->HiCorner[2]+k;
-            break;
-          case VTK_YZ_PLANE:
-            for( q=1; q < 3; ++q )
-              {
-                this->LoCorner[q] = this->LoCorner[q]+ijk[q];
-                this->HiCorner[q] = this->HiCorner[q]+ijk[q];
-              }
-            break;
-          default:
-            std::cerr << "Invalid 2-D topoly for AMR box!\n";
-            std::cerr << "FILE: " << __FILE__ << std::endl;
-            std::cerr << "LINE: " << __LINE__ << std::endl;
-            std::cerr.flush();
-
-          }
-        break;
-      case 3:
-        for( q=0; q < 3; ++q )
-          {
+    case 1:
+      this->LoCorner[0] = this->LoCorner[0]+i;
+      this->HiCorner[0] = this->HiCorner[0]+i;
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          for( q=0; q < 2; ++q )
+            {
             this->LoCorner[q] = this->LoCorner[q]+ijk[q];
             this->HiCorner[q] = this->HiCorner[q]+ijk[q];
-          }
-        break;
-      default:
-        // Code should not reach here!
-        std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
-        std::cerr.flush();
-        assert( false );
+            }
+          break;
+        case VTK_XZ_PLANE:
+          // shift in x
+          this->LoCorner[0] = this->LoCorner[0]+i;
+          this->HiCorner[0] = this->HiCorner[0]+i;
+
+          // shift in z
+          this->LoCorner[2] = this->LoCorner[2]+k;
+          this->HiCorner[2] = this->HiCorner[2]+k;
+          break;
+        case VTK_YZ_PLANE:
+          for( q=1; q < 3; ++q )
+            {
+            this->LoCorner[q] = this->LoCorner[q]+ijk[q];
+            this->HiCorner[q] = this->HiCorner[q]+ijk[q];
+            }
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      for( q=0; q < 3; ++q )
+        {
+        this->LoCorner[q] = this->LoCorner[q]+ijk[q];
+        this->HiCorner[q] = this->HiCorner[q]+ijk[q];
+        }
+      break;
+    default:
+      // Code should not reach here!
+      std::cerr << "Undefined dimension! @" << __FILE__ << __LINE__ << "\n";
+      std::cerr.flush();
+      assert( false );
     }
   assert( "post: Shifted AMR Box instance is invalid" && !this->IsInvalid() );
 }
@@ -947,45 +954,49 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 
   switch( this->Dimension )
     {
-      case 1:
-        if( x >= min[0] && x <= max[0]  )
-            return true;
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-          case VTK_XY_PLANE:
-            return(
-             (x >= min[0] && x <= max[0] &&
-              y >= min[1] && y <= max[1]) );
-            break;
-          case VTK_XZ_PLANE:
-            return(
-             (x >= min[0] && x <= max[0] &&
-              z >= min[2] && z <= max[2]) );
-            break;
-          case VTK_YZ_PLANE:
-            return(
-             (y >= min[1] && y <= max[1] &&
-              z >= min[2] && z <= max[2]) );
-            break;
-          default:
-            std::cerr << "Invalid 2-D topoly for AMR box!\n";
-            std::cerr << "FILE: " << __FILE__ << std::endl;
-            std::cerr << "LINE: " << __LINE__ << std::endl;
-            std::cerr.flush();
-          }
-        break;
-      case 3:
-        if( x >= min[0] && x <= max[0] &&
-            y >= min[1] && y <= max[1] &&
-            z >= min[2] && z <= max[2]   )
-            return true;
-        break;
-      default:
-        std::cerr << "Error code should not reach here!";
-        std::cerr.flush();
-        assert(false);
+    case 1:
+      if( x >= min[0] && x <= max[0]  )
+        {
+        return true;
+        }
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          return(
+           (x >= min[0] && x <= max[0] &&
+            y >= min[1] && y <= max[1]) );
+          break;
+        case VTK_XZ_PLANE:
+          return(
+           (x >= min[0] && x <= max[0] &&
+            z >= min[2] && z <= max[2]) );
+          break;
+        case VTK_YZ_PLANE:
+          return(
+           (y >= min[1] && y <= max[1] &&
+            z >= min[2] && z <= max[2]) );
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      if( x >= min[0] && x <= max[0] &&
+          y >= min[1] && y <= max[1] &&
+          z >= min[2] && z <= max[2]   )
+        {
+        return true;
+        }
+      break;
+    default:
+      std::cerr << "Error code should not reach here!";
+      std::cerr.flush();
+      assert(false);
     }
   return false;
 
@@ -1121,49 +1132,51 @@ bool vtkAMRBox::Contains(int i,int j,int k) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   if( this->Empty() )
+    {
     return false;
+    }
 
    switch (this->Dimension)
     {
-      case 1:
-        if( this->LoCorner[0]<=i && this->HiCorner[0]>=i )
-          {
-            return true;
-          }
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-            case VTK_XY_PLANE:
-              return(
-               ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
-                 this->LoCorner[1]<=j && this->HiCorner[1]>=j) );
-              break;
-            case VTK_XZ_PLANE:
-              return(
-               ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
-                 this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
-              break;
-            case VTK_YZ_PLANE:
-              return(
-               ( this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
-                 this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
-              break;
-            default:
-              std::cerr << "Invalid 2-D topoly for AMR box!\n";
-              std::cerr << "FILE: " << __FILE__ << std::endl;
-              std::cerr << "LINE: " << __LINE__ << std::endl;
-              std::cerr.flush();
-          }
-        break;
-      case 3:
-        if( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
-            this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
-            this->LoCorner[2]<=k && this->HiCorner[2]>=k  )
-          {
-            return true;
-          }
-        break;
+    case 1:
+      if( this->LoCorner[0]<=i && this->HiCorner[0]>=i )
+        {
+        return true;
+        }
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          return(
+           ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+             this->LoCorner[1]<=j && this->HiCorner[1]>=j) );
+          break;
+        case VTK_XZ_PLANE:
+          return(
+           ( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+             this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
+          break;
+        case VTK_YZ_PLANE:
+          return(
+           ( this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
+             this->LoCorner[2]<=k && this->HiCorner[2]>=k) );
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    case 3:
+      if( this->LoCorner[0]<=i && this->HiCorner[0]>=i &&
+          this->LoCorner[1]<=j && this->HiCorner[1]>=j &&
+          this->LoCorner[2]<=k && this->HiCorner[2]>=k  )
+        {
+        return true;
+        }
+      break;
     }
   return false;
 }
@@ -1198,11 +1211,11 @@ void vtkAMRBox::Refine(int r)
 
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried refining an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried refining an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
   int q;
@@ -1219,9 +1232,9 @@ void vtkAMRBox::Refine(int r)
          case VTK_XY_PLANE:
           for( q=0; q < 2; ++q )
            {
-             this->LoCorner[q]=this->LoCorner[q]*r;
-             this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
-             this->DX[q] /= r;
+           this->LoCorner[q]=this->LoCorner[q]*r;
+           this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+           this->DX[q] /= r;
            }
            break;
          case VTK_XZ_PLANE:
@@ -1238,9 +1251,9 @@ void vtkAMRBox::Refine(int r)
          case VTK_YZ_PLANE:
           for( q=1; q < 3; ++q )
             {
-              this->LoCorner[q]=this->LoCorner[q]*r;
-              this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
-              this->DX[q] /= r;
+            this->LoCorner[q]=this->LoCorner[q]*r;
+            this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+            this->DX[q] /= r;
             }
            break;
          default:
@@ -1253,9 +1266,9 @@ void vtkAMRBox::Refine(int r)
      case 3:
        for( q=0; q < 3; ++q )
          {
-           this->LoCorner[q]=this->LoCorner[q]*r;
-           this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
-           this->DX[q] /= r;
+         this->LoCorner[q]=this->LoCorner[q]*r;
+         this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
+         this->DX[q] /= r;
          }
        break;
      default:
@@ -1277,11 +1290,11 @@ void vtkAMRBox::Coarsen(int r)
 
   if( this->Empty() )
     {
-      std::cerr << "WARNING: tried refining an empty AMR box!\n";
-      std::cerr << "FILE:" << __FILE__ << std::endl;
-      std::cerr << "LINE:" << __LINE__ << std::endl;
-      std::cerr.flush();
-      return;
+    std::cerr << "WARNING: tried refining an empty AMR box!\n";
+    std::cerr << "FILE:" << __FILE__ << std::endl;
+    std::cerr << "LINE:" << __LINE__ << std::endl;
+    std::cerr.flush();
+    return;
     }
 
 
@@ -1314,11 +1327,11 @@ void vtkAMRBox::Coarsen(int r)
           hi[2] = this->HiCorner[2];
           for( q=0; q < 2; ++q )
             {
-              lo[q]=( (this->LoCorner[q] < 0)?
-                      -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-              hi[q]=( this->HiCorner[q]<0 ?
-                      -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
-              this->DX[q]*=r;
+            lo[q]=( (this->LoCorner[q] < 0)?
+                    -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+            hi[q]=( this->HiCorner[q]<0 ?
+                    -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+            this->DX[q]*=r;
             }
           break;
         case VTK_XZ_PLANE:
@@ -1345,11 +1358,11 @@ void vtkAMRBox::Coarsen(int r)
           hi[0] = this->HiCorner[0];
           for( q=1; q < 3; ++q )
             {
-              lo[q] = ( (this->LoCorner[q] < 0)?
-                 -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-              hi[q] = ( this->HiCorner[q]<0 ?
-                 -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
-              this->DX[q]*=r;
+            lo[q] = ( (this->LoCorner[q] < 0)?
+               -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+            hi[q] = ( this->HiCorner[q]<0 ?
+               -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+            this->DX[q]*=r;
             }
           break;
         default:
@@ -1362,11 +1375,11 @@ void vtkAMRBox::Coarsen(int r)
     case 3:
       for( q=0; q < 3; ++q )
         {
-          lo[q]=( (this->LoCorner[q] < 0)?
-             -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
-          hi[q]=( this->HiCorner[q]<0 ?
-            -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
-          this->DX[q]*=r;
+        lo[q]=( (this->LoCorner[q] < 0)?
+           -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
+        hi[q]=( this->HiCorner[q]<0 ?
+          -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
+        this->DX[q]*=r;
         }
       break;
     default:
@@ -1444,18 +1457,24 @@ bool vtkAMRBox::IsGhostNode( const int i, const int j, const int k )
     {
     case 1:
       if( (i < this->RealExtent[0]) || (i > this->RealExtent[1])    )
+        {
         status = true;
+        }
       break;
     case 2:
       if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) ||
           (j < this->RealExtent[2]) || (j > this->RealExtent[3])    )
+        {
         status = true;
+        }
       break;
     case 3:
       if( (i < this->RealExtent[0]) || (i > this->RealExtent[1]) ||
           (j < this->RealExtent[2]) || (j > this->RealExtent[3]) ||
           (k < this->RealExtent[4]) || (k > this->RealExtent[5])    )
+        {
         status = true;
+        }
       break;
     default:
       // Code should not reach here!
@@ -1472,16 +1491,19 @@ void vtkAMRBox::GetPoint( const int ijk[3], double pnt[3] ) const
   pnt[0] = 0.0; pnt[1] = 0.0; pnt[2] = 0.0;
   for( int i=0; i < 3; ++i )
     {
-      // Sanity Check!
-      assert( "pre: ijk index out-of-bounds" &&
-          (ijk[i]>=this->LoCorner[i]) && (ijk[i]<=this->HiCorner[i]) );
+    // Sanity Check!
+    assert( "pre: ijk index out-of-bounds" &&
+        (ijk[i]>=this->LoCorner[i]) && (ijk[i]<=this->HiCorner[i]) );
 
-      if( ijk[i] == 0 )
-        pnt[i] = this->X0[i];
-      else
-        pnt[i] = this->X0[i]+ijk[i]*this->DX[i];
+    if( ijk[i] == 0 )
+      {
+      pnt[i] = this->X0[i];
+      }
+    else
+      {
+      pnt[i] = this->X0[i]+ijk[i]*this->DX[i];
+      }
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -1489,13 +1511,12 @@ void vtkAMRBox::GetPoint(
     const int i, const int j, const int k, double pnt[3] ) const
 {
   int ijk[3] = {i,j,k};
-  this->GetPoint( ijk, pnt );
+  this->GetPoint(ijk, pnt);
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 {
-
   assert( "pre: input buffer is expected to be NULL" && (buffer==NULL) );
 
   bytesize       = vtkAMRBox::GetBytesize();
@@ -1549,7 +1570,6 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 //-----------------------------------------------------------------------------
 void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
 {
-
   assert( "pre: input buffer is NULL" && (buffer != NULL) );
   assert( "pre: buffer bytesize is 0" && (bytesize >0) );
 
@@ -1560,7 +1580,6 @@ void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
   std::memcpy( &(this->Dimension), ptr, sizeof(int) );
   ptr += sizeof( int );
   assert( ptr != NULL );
-
 
   // STEP 2: de-serialize the coordinates
   std::memcpy( &(this->X0), ptr, 3*sizeof(double) );
@@ -1650,7 +1669,7 @@ bool vtkAMRBox::Collides( vtkAMRBox &b1, vtkAMRBox &b2)
 
   // Sanity check
   assert( "pre: boxes must be of the same dimension" &&
-          (b1.GetDimensionality( ) == b2.GetDimensionality( )  ) );
+          (b1.GetDimensionality() == b2.GetDimensionality()));
 
   b1.GetMinBounds( min1 );
   b1.GetMaxBounds( max1 );
@@ -1659,21 +1678,25 @@ bool vtkAMRBox::Collides( vtkAMRBox &b1, vtkAMRBox &b2)
 
   for( int i=0; i < b1.GetDimensionality(); ++i )
     {
-
-      if( (min1[i] >= min2[i]) && (min1[i] <= max2[i]) )
-       continue;
-      if( (min2[i] >= min1[i]) && (min2[i] <= max1[i]) )
-        continue;
-      if( (max1[i] >= min2[i]) && (max1[i] <= max2[i]) )
-        continue;
-      if( (max2[i] >= min1[i]) && (max2[i] <= max1[i]) )
-        continue;
-
-      return false;
+    if( (min1[i] >= min2[i]) && (min1[i] <= max2[i]) )
+      {
+      continue;
+      }
+    if( (min2[i] >= min1[i]) && (min2[i] <= max1[i]) )
+      {
+      continue;
+      }
+    if( (max1[i] >= min2[i]) && (max1[i] <= max2[i]) )
+      {
+      continue;
+      }
+    if( (max2[i] >= min1[i]) && (max2[i] <= max1[i]) )
+      {
+      continue;
+      }
+    return false;
     } // End for all directions
-
   return true;
-
 }
 
 
