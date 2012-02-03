@@ -36,9 +36,6 @@
 #include "vtkType.h"
 
 #include <cmath>
-#include <limits>
-#include <vtkstd/vector>
-#include <sstream>
 #include <cassert>
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
@@ -56,7 +53,7 @@ vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,GEOMETRIC_DESCRIPTION,Integer);
 vtkInformationKeyRestrictedMacro(
     vtkHierarchicalBoxDataSet,REAL_EXTENT,IntegerVector,6);
 
-typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
+typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 {
@@ -380,8 +377,8 @@ bool vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 
   double min[3];
   double max[3];
-  min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
-  max[0] = max[1] = max[2] = std::numeric_limits<double>::min();
+  min[0] = min[1] = min[2] = VTK_DOUBLE_MAX;
+  max[0] = max[1] = max[2] = VTK_DOUBLE_MIN;
 
   int lo[3];
   lo[0]=lo[1]=lo[2]=0;
@@ -493,7 +490,7 @@ void vtkHierarchicalBoxDataSet::SetCompositeIndex(
   vtkInformation *metadata = this->GetMetaData( level, index );
   assert( "pre: metadata object is NULL" && (metadata != NULL) );
 
-  vtkstd::pair< unsigned int, unsigned int > p;
+  std::pair< unsigned int, unsigned int > p;
   p.first  = level;
   p.second = index;
   this->CompositeIndex2LevelIdPair[ idx ] = p;
@@ -691,7 +688,7 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
 
   // for the child parent relationships we need an array to hold how many
   // parents each child has - for trees this will always be 1
-  vtkstd::vector<unsigned int> parentsVec;
+  std::vector<unsigned int> parentsVec;
   int i, j, n = (int)nlboxes.size();
   int childInfoStartIndex = this->ChildrenInformation->GetNumberOfTuples();
   int numChildren;
@@ -1053,7 +1050,7 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
   if( this->CompositeIndex2LevelIdPair.find( flatIdx ) !=
       this->CompositeIndex2LevelIdPair.end() )
     {
-    vtkstd::pair< unsigned int, unsigned int > p=
+    std::pair< unsigned int, unsigned int > p=
           this->CompositeIndex2LevelIdPair[ flatIdx ];
     level = p.first;
     idx   = p.second;

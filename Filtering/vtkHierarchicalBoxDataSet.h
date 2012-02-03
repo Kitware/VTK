@@ -41,9 +41,9 @@
 #define __vtkHierarchicalBoxDataSet_h
 
 #include "vtkCompositeDataSet.h"
-#include <vtkstd/vector>    // For STL vector
-#include <vtkstd/map>       // For STL map
-#include <vtkstd/utility>   // For STL pair
+#include <vector>    // For STL vector
+#include <map>       // For STL map
+#include <utility>   // For STL pair
 
 class vtkAMRBox;
 class vtkInformationIdTypeKey;
@@ -52,7 +52,7 @@ class vtkInformationIntegerVectorKey;
 class vtkUniformGrid;
 class vtkUnsignedIntArray;
 
-typedef vtkstd::vector<vtkAMRBox> vtkAMRBoxList;
+typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
 class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet: public vtkCompositeDataSet
 {
@@ -366,7 +366,7 @@ protected:
   double Bounds[6];
 
   // Mapping of composite indices to the (level,id) pair.
-  vtkstd::map< int, vtkstd::pair<unsigned int,unsigned int> >
+  std::map< int, std::pair<unsigned int,unsigned int> >
     CompositeIndex2LevelIdPair;
 
   // Arrays needed to get the Parents of a block - the first holds
