@@ -69,6 +69,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->CompositeIndex = -1;
   this->HierarchicalLevel = -1;
   this->HierarchicalIndex = -1;
+  this->QueryString = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -502,6 +503,13 @@ int vtkSelectionSource::RequestData(
       }
     output->SetSelectionList(selectionList);
     selectionList->Delete();
+    }
+
+  if(this->ContentType == vtkSelectionNode::QUERY)
+    {
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
+    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
+    output->SetQueryString(this->QueryString);
     }
 
   oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(),
