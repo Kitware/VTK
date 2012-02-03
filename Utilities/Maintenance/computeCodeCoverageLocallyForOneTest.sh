@@ -70,14 +70,22 @@ echo "    "
 else
 
 #==========================================================================
-lcov --directory . --zerocounters
+echo -n "Please wait while lcov deletes all .da files in . and subdirectories..."
+lcov --quiet --directory . --zerocounters
+echo "Done"
 destinationdir=$1
 shift
 ctest $*
 cd $destinationdir
-lcov --directory . --capture --output-file app.info
-lcov --remove app.info '*Instantiator.*' 'vtkType*Array.*'  '*Tcl.cxx' '*TCLInit.cxx' '*Python.cxx' '*Wrapping*' '*Examples*' '*Testing*'  '*Utilities*' '*_s.cxx' '*_vs*.cxx' '*_fs*.cxx' '*GS.cxx' '*VS.cxx' '*FS.cxx' '*FP*.cxx' '*VP*.cxx' 'vtkgl.cxx' '/usr/*' --output-file  app.info2
-genhtml app.info2
+echo -n "Please wait while lcov captures the coverage data..."
+lcov --quiet --directory . --capture --output-file app.info
+echo "Done"
+echo -n "Please wait while lcov removes coverage for some files..."
+lcov --quiet --remove app.info '*Instantiator.*' 'vtkType*Array.*'  '*Tcl.cxx' '*TCLInit.cxx' '*Python.cxx' '*Wrapping*' '*Examples*' '*Testing*'  '*Utilities*' '*_s.cxx' '*_vs*.cxx' '*_fs*.cxx' '*GS.cxx' '*VS.cxx' '*FS.cxx' '*FP*.cxx' '*VP*.cxx' 'vtkgl.cxx' '/usr/*' --output-file  app.info2
+echo "Done"
+echo -n "Please wait while genhtml generates an HTML view from lcov coverage data files..."
+genhtml --quiet app.info2 >/dev/null 2>&1
+echo "Done"
 echo "To view results on Linux, type firefox "$destinationdir"/index.html"
 echo "To view results on Mac, type open "$destinationdir"/index.html"
 fi
