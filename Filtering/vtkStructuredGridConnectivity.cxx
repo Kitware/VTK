@@ -882,7 +882,7 @@ void vtkStructuredGridConnectivity::SetNeighbors(
 
   // STEP 0: Setup i-to-j
   this->Neighbors[ i ].push_back( Ni2j );
-  int i2jNeiIdx = this->Neighbors[ i ].size()-1;
+  int i2jNeiIdx = static_cast<int>(this->Neighbors[ i ].size())-1;
   std::pair<int,int> i2jPair = std::make_pair(i,j);
   assert("ERROR: Duplicate neighboring pair!" &&
          this->NeighborPair2NeighborListIndex.find(i2jPair)==
@@ -891,7 +891,7 @@ void vtkStructuredGridConnectivity::SetNeighbors(
 
   // STEP 1: Setup j-to-i
   this->Neighbors[ j ].push_back( Nj2i );
-  int j2iNeiIdx = this->Neighbors[ j ].size()-1;
+  int j2iNeiIdx = static_cast<int>(this->Neighbors[ j ].size())-1;
   std::pair<int,int> j2iPair = std::make_pair(j,i);
   assert("ERROR: Duplicate neighboring pair!" &&
            this->NeighborPair2NeighborListIndex.find(j2iPair)==
@@ -969,8 +969,8 @@ int vtkStructuredGridConnectivity::PartialOverlap(
     }
 
   // Code should not reach here!
-  assert( "Hmm...code should not reach here!" && false );
-  return NO_OVERLAP;
+//  assert( "Hmm...code should not reach here!" && false );
+//  return NO_OVERLAP;
 }
 
 //------------------------------------------------------------------------------
@@ -1457,7 +1457,7 @@ void vtkStructuredGridConnectivity::TransferGhostDataFromNeighbors(
   assert( "pre: Neigbors is not propertly allocated" &&
           (this->NumberOfGrids==this->Neighbors.size() ) );
 
-  int NumNeis = this->Neighbors[ gridID ].size();
+  int NumNeis = static_cast<int>(this->Neighbors[ gridID ].size());
   for( int nei=0; nei < NumNeis; ++nei )
     {
     this->TransferLocalNeighborData( gridID, this->Neighbors[gridID][nei] );
@@ -1574,7 +1574,7 @@ void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
   int myGhostedGridExtent[6];
   this->GetGhostedGridExtent( gridID, myGhostedGridExtent );
 
-  int NumNeis = this->Neighbors[ gridID ].size();
+  int NumNeis = static_cast<int>(this->Neighbors[ gridID ].size());
   for( int nei=0; nei < NumNeis; ++nei )
     {
     int neiRealExtent[6];

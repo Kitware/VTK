@@ -91,7 +91,13 @@ class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
     static bool IsPropertySet( unsigned char &propertyField,const int property )
     {
       assert("pre:invalid property" && (property >= 0 && property < 8));
-      return( propertyField & (1 << property) );
+      bool status = false;
+      if( propertyField & (1 << property) )
+        {
+        status = true;
+        }
+
+      return status;
     }
 
     // Description:

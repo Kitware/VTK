@@ -98,7 +98,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
     // Returns the number of neighbors for the grid corresponding to the given
     // grid ID.
     int GetNumberOfNeighbors( const int gridID )
-      { return( this->Neighbors[ gridID ].size() ); };
+      { return( static_cast<int>(this->Neighbors[ gridID ].size() )); };
 
     // Description:
     // Returns the list of neighboring blocks for the given grid and the
@@ -886,7 +886,12 @@ inline bool vtkStructuredGridConnectivity::HasBlockConnection(
         (this->NumberOfGrids == this->BlockTopology.size()));
   assert("pre: blockDirection is out-of-bounds" &&
         (blockDirection >= 0) && (blockDirection < 6) );
-  return( this->BlockTopology[ gridID ] & (1 << blockDirection) );
+  bool status = false;
+  if( this->BlockTopology[ gridID ] & (1 << blockDirection) )
+    {
+    status = true;
+    }
+  return( status );
 }
 
 //------------------------------------------------------------------------------
