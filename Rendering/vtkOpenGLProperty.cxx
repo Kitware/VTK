@@ -614,6 +614,13 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
 {
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   vtkShaderProgram2 *prog=oRenderer->GetShaderProgram();
+
+  // Reset the face culling now we are done, leaking into text actor etc.
+  if (this->BackfaceCulling || this->FrontfaceCulling)
+    {
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
   
   if(this->CurrentShaderProgram2!=0) // ie if shaders are supported
     {
