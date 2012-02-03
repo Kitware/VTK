@@ -3091,7 +3091,6 @@ int vtkMath::IsInf(double x)
   // IEEE-754 infinites have all of their exponent set and none of their
   // mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsInf of " << xbits << endl;
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
           && ((xbits & vtkMathDoubleMantissa) == 0) ) ? 1 : 0;
 #else
@@ -3111,7 +3110,6 @@ int vtkMath::IsNan(double x)
   // IEEE-754 NaNs have all of their exponent set and at least one bit in
   // their mantissa set.
   vtkTypeInt64 xbits = *reinterpret_cast<vtkTypeInt64*>(&x);
-  cout << "IsNan of " << xbits << endl;
   return (   ((xbits & vtkMathDoubleExponent) == vtkMathDoubleExponent)
           && ((xbits & vtkMathDoubleMantissa) != 0) ) ? 1 : 0;
 #else
