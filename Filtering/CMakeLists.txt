@@ -349,6 +349,8 @@ vtkViewport
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAMRBox.cxx
+  vtkAtom.cxx
+  vtkBond.cxx
   vtkExecutionSchedulerManager.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkImageBSplineInternals.cxx

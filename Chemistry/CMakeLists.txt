@@ -26,6 +26,12 @@ SET_SOURCE_FILES_PROPERTIES(
   ABSTRACT
   )
 
+SET_SOURCE_FILES_PROPERTIES(
+  vtkAbstractElectronicData.cxx
+  vtkMoleculeToPolyDataFilter.cxx
+  WRAP_EXCLUDE
+  )
+
 # OpenQube setup
 FIND_PACKAGE(OpenQube QUIET)
 IF(OpenQube_FOUND)
