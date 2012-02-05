@@ -39,19 +39,12 @@ vtkBond::~vtkBond()
 //----------------------------------------------------------------------------
 void vtkBond::PrintSelf(ostream &os, vtkIndent indent)
 {
-  char buffer[80];
-  double coord[3];
-  snprintf(buffer, 80,
-           "Parent: %p Id: %4d Order: %1d Len: %9.5f BeginAtomId: %d "
-           "EndAtomId: %d\n", this->Molecule, this->Id, this->GetBondOrder(),
-           this->GetBondLength(), this->BeginAtomId, this->EndAtomId);
-  os << indent << buffer;
-
-  os << indent << "Bonded Atoms:\n";
-  this->Molecule->GetAtom(this->BeginAtomId).PrintSelf
-    (os, indent.GetNextIndent());
-  this->Molecule->GetAtom(this->EndAtomId).PrintSelf
-    (os, indent.GetNextIndent());
+  os << indent << "Molecule: " << this->Molecule
+     << " Id: " << this->Id
+     << " Order: " << this->GetBondOrder()
+     << " Length: " << this->GetBondLength()
+     << " BeginAtomId: " << this->BeginAtomId
+     << " EndAtomId: " << this->EndAtomId << endl;
 }
 
 //----------------------------------------------------------------------------

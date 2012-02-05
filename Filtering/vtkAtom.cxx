@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkMolecule.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <assert.h>
 
@@ -34,13 +35,10 @@ vtkAtom::~vtkAtom()
 //----------------------------------------------------------------------------
 void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
 {
-  char buffer[80];
-  double coord[3];
-  this->GetPosition(coord);
-  snprintf(buffer, 80, "Molecule: %p Id: %4d Ele: %3d Pos: %9.5f %9.5f %9.5f\n",
-           this->Molecule, this->Id, this->GetAtomicNumber(),
-           coord[0], coord[1], coord[2]);
-  os << indent << buffer;
+  os << indent << "Molecule: " << this->Molecule
+     << " Id: " << this->Id
+     << " Element: " << this->GetAtomicNumber()
+     << " Position: " << this->GetPositionAsVector3f() << endl;
 }
 
 //----------------------------------------------------------------------------
