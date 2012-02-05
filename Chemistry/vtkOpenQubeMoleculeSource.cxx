@@ -157,12 +157,12 @@ void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
 {
   mol->Initialize();
   // Copy atoms
-  double pos[3];
+  Eigen::Vector3d pos;
   for (size_t i = 0; i < oqmol->numAtoms(); ++i)
     {
     vtkAtom atom = mol->AddAtom();
-    oqmol->atomPos(i, pos);
-    atom.SetPosition(pos);
+    pos = oqmol->atomPos(i);
+    atom.SetPosition(pos.data());
     atom.SetAtomicNumber(oqmol->atomAtomicNumber(i));
     }
 

@@ -360,14 +360,10 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateElectronDensity()
 void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
                                                       vtkImageData *image)
 {
-  int dim[3];
-  qube->dimensions(dim);
-  double min[3];
-  qube->min(min);
-  double max[3];
-  qube->max(max);
-  double spacing[3];
-  qube->spacing(spacing);
+  Eigen::Vector3i dim = qube->dimensions();
+  Eigen::Vector3d min = qube->min();
+  Eigen::Vector3d max = qube->max();
+  Eigen::Vector3d spacing = qube->spacing();
 
   vtkDebugMacro(<< "Converting OpenQube::Cube to vtkImageData:"
                 << "\n\tDimensions: "
@@ -390,9 +386,9 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
 
   image->SetNumberOfScalarComponents(1);
   image->SetScalarTypeToDouble();
-  image->SetExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
-  image->SetOrigin(min);
-  image->SetSpacing(spacing);
+  image->SetExtent(0, dim[0] - 1, 0, dim[1] - 1, 0, dim[2] - 1);
+  image->SetOrigin(min.data());
+  image->SetSpacing(spacing.data());
   image->AllocateScalars();
   image->Update();
 
