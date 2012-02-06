@@ -146,35 +146,6 @@ int vtkMoleculeToBondStickFilter::RequestData(
         break;
       }
 
-    if (this->GetDebug())
-      {
-      char buffer[1024];
-      snprintf(buffer, 1024, "\n------------------------\n"
-               "Bond %hd, order: %hu:\n"
-               "Start pos:   %9.5f %9.5f %9.5f\n"
-               "End pos:     %9.5f %9.5f %9.5f\n"
-               "Bond length: %9.5f\n"
-               "bondVec:     %9.5f %9.5f %9.5f\n"
-               "rotAxis:     %9.5f %9.5f %9.5f\n"
-               "rotAngle:    %9.5f\n"
-               "bondCenter:  %9.5f %9.5f %9.5f\n"
-               "radius:      %9.5f\n"
-               "delta:       %9.5f %9.5f %9.5f\n"
-               "initialDisp: %9.5f %9.5f %9.5f\n",
-               bondInd, bondOrder,
-               pos1[0], pos1[1], pos1[2],
-               pos2[0], pos2[1], pos2[2],
-               bondLength,
-               bondVec[0], bondVec[1], bondVec[2],
-               rotAxis[0], rotAxis[1], rotAxis[2],
-               rotAngle,
-               bondCenter[0], bondCenter[1], bondCenter[2],
-               radius,
-               delta[0], delta[1], delta[2],
-               initialDisp[0], initialDisp[1], initialDisp[2]);
-      vtkDebugMacro(<<buffer);
-      }
-
     // Construct transform
     xform->Identity();
     xform->Scale(radius, bondLength, radius);

@@ -585,31 +585,6 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
         }
       }
 
-    if (this->GetDebug())
-      {
-      char buffer[1024];
-      snprintf(buffer, 1024, "\n------------------------\n"
-               "Bond %hd, order: %hu:\n"
-               "Start pos:   %9.5f %9.5f %9.5f\n"
-               "End pos:     %9.5f %9.5f %9.5f\n"
-               "Bond length: %9.5f\n"
-               "bondVec:     %9.5f %9.5f %9.5f\n"
-               "bondCenter:  %9.5f %9.5f %9.5f\n"
-               "radius:      %9.5f\n"
-               "delta:       %9.5f %9.5f %9.5f\n"
-               "initialDisp: %9.5f %9.5f %9.5f\n",
-               bondInd, bondOrder,
-               pos1.GetData()[0], pos1.GetData()[1], pos1.GetData()[2],
-               pos2.GetData()[0], pos2.GetData()[1], pos2.GetData()[2],
-               bondLength,
-               bondVec.GetData()[0], bondVec.GetData()[1], bondVec.GetData()[2],
-               bondCenter.GetData()[0], bondCenter.GetData()[1], bondCenter.GetData()[2],
-               this->BondRadius,
-               delta.GetData()[0], delta.GetData()[1], delta.GetData()[2],
-               initialDisp.GetData()[0], initialDisp.GetData()[1], initialDisp.GetData()[2]);
-      vtkDebugMacro(<<buffer);
-      }
-
     // Set up cylinder scale factors
     switch (this->BondColorMode)
       {

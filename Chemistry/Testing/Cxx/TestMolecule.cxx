@@ -77,7 +77,7 @@ bool MoleculeExampleCode2()
   return true;
 }
 
-int TestMolecule(int argc, char *argv[])
+int TestMolecule(int, char * [])
 {
   // Check that the example code given in the molecule docs compiles:
   TEST(!MoleculeExampleCode1());
