@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #=============================================================================
-# Copyright 2010-2011 Kitware, Inc.
+# Copyright 2010-2012 Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,14 @@
 #=============================================================================
 
 . "$GIT_DIR/hooks/hooks-config.bash"
+
+# Invoke the Gerrit Change-Id hook here for "git merge" because
+# it does not run the normal commit-msg hook.
+hooks_GerritId=$(git config --get hooks.GerritId)
+case "$hooks_GerritId,$2,$3" in
+	true,merge,) "$GIT_DIR/hooks/gerrit/commit-msg" "$1" ;;
+	*) ;;
+esac
 
 #-----------------------------------------------------------------------------
 # Chain to project-specific hook.
