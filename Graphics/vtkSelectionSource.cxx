@@ -80,6 +80,7 @@ vtkSelectionSource::~vtkSelectionSource()
     {
     delete[] this->ArrayName;
     }
+  delete[] this->QueryString;
 }
 
 //----------------------------------------------------------------------------
