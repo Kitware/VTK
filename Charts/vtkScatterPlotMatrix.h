@@ -86,6 +86,11 @@ public:
   void SetColumnVisibility(const vtkStdString& name, bool visible);
 
   // Description:
+  // Insert the specified column at the index position of
+  // the visible columns.
+  void InsertVisibleColumn(const vtkStdString& name, int index);
+
+  // Description:
   // Get the visibility of the specified column.
   bool GetColumnVisibility(const vtkStdString& name);
 
@@ -97,6 +102,10 @@ public:
   // Description:
   // Get a list of the columns, and the order in which they are displayed.
   virtual vtkStringArray* GetVisibleColumns();
+
+  // Description:
+  // Set the list of visible columns, and the order in which they will be displayed.
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
 
   // Description:
   // Set the number of bins in the histograms along the central diagonal of the
