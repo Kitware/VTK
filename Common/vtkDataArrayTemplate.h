@@ -118,6 +118,9 @@ public:
 
   // Description:
   // Resize the array while conserving the data.
+  // Caution: No assumption can be made on the resulting size of the DataArray,
+  //          meaning that the provided argument won't necessary be equal to
+  //          the data array size, but at least the size will be bigger.
   virtual int Resize(vtkIdType numTuples);
 
   // Description:
