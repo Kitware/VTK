@@ -275,7 +275,7 @@ void vtkDataArrayTemplate<T>::DeleteArray()
 
 //----------------------------------------------------------------------------
 template <class T>
-T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
+T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
 {
   T* newArray;
   vtkIdType newSize;
@@ -285,7 +285,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz, bool useExactSize)
     // Requested size is bigger than current size.  Allocate enough
     // memory to fit the requested size and be more than double the
     // currently allocated memory.
-    newSize = sz + (useExactSize ? 0 : this->Size);
+    newSize = this->Size + sz;
     }
   else if (sz == this->Size)
     {
@@ -387,7 +387,7 @@ template <class T>
 int vtkDataArrayTemplate<T>::Resize(vtkIdType sz)
 {
   this->DataChanged();
-  T *newArray = this->ResizeAndExtend(sz*this->NumberOfComponents, true);
+  T *newArray = this->ResizeAndExtend(sz*this->NumberOfComponents);
   if( newArray!=0 || sz <= 0)
     {
     return 1;
@@ -462,7 +462,7 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, vtkIdType j,
   vtkIdType maxSize = locOut + inNumComp;
   if (maxSize > this->Size)
     {
-    if (this->ResizeAndExtend(maxSize,false)==0)
+    if (this->ResizeAndExtend(maxSize)==0)
       {
       return;
       }
@@ -508,7 +508,7 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(vtkIdType j,
   // after getting the pointer may make it invalid.
   if (this == source)
     {
-    if (this->ResizeAndExtend(this->Size+1,false)==0)
+    if (this->ResizeAndExtend(this->Size+1)==0)
       {
       return -1;
       }
@@ -862,7 +862,7 @@ T* vtkDataArrayTemplate<T>::WritePointer(vtkIdType id,
   vtkIdType newSize=id+number;
   if ( newSize > this->Size )
     {
-    if (this->ResizeAndExtend(newSize,false)==0)
+    if (this->ResizeAndExtend(newSize)==0)
       {
       return 0;
       }
@@ -881,7 +881,7 @@ void vtkDataArrayTemplate<T>::InsertValue(vtkIdType id, T f)
 {
   if ( id >= this->Size )
     {
-    if (this->ResizeAndExtend(id+1,false)==0)
+    if (this->ResizeAndExtend(id+1)==0)
       {
       return;
       }

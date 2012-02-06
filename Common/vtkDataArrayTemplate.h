@@ -110,15 +110,17 @@ public:
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() { this->ResizeAndExtend (this->MaxId+1, false); }
+  void Squeeze() { this->ResizeAndExtend (this->MaxId+1); }
 
   // Description:
   // Return the capacity in typeof T units of the current array.
   vtkIdType Capacity() { return this->Size; }
 
   // Description:
-  // Resize the array while conserving the data. The DataArray will be extend
-  // to exactly fit the required number of tuples
+  // Resize the array while conserving the data.
+  // Caution: No assumption can be made on the resulting size of the DataArray,
+  //          meaning that the provided argument won't necessary be equal to
+  //          the data array size, but at least the size will be bigger.
   virtual int Resize(vtkIdType numTuples);
 
   // Description:
@@ -270,7 +272,7 @@ protected:
 
   T* Array;   // pointer to data
   T ValueRange[2]; // range of the data
-  T* ResizeAndExtend(vtkIdType sz, bool useExactSize);  // function to resize data
+  T* ResizeAndExtend(vtkIdType sz);  // function to resize data
   T* Realloc(vtkIdType sz);
 
   int TupleSize; //used for data conversion
