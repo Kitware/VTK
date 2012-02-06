@@ -113,7 +113,7 @@ vtkAtom vtkMolecule::AddAtom(unsigned short atomicNumber, const float pos[3])
 
   atomicNums->InsertValue(id, atomicNumber);
   vtkIdType coordID = this->Points->InsertNextPoint(pos);
-
+  vtkNotUsed(coordID);
   assert("point ids synced with vertex ids" && coordID == id);
 
   this->Modified();
@@ -133,7 +133,7 @@ vtkAtom vtkMolecule::AddAtom(unsigned short atomicNumber, const double pos[3])
 
   atomicNums->InsertValue(id, atomicNumber);
   vtkIdType coordID = this->Points->InsertNextPoint(pos);
-
+  vtkNotUsed(coordID);
   assert("point ids synced with vertex ids" && coordID == id);
 
   this->Modified();
