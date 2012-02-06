@@ -601,7 +601,7 @@ void vtkAMRBox::Grow(int byN)
   int hi[3];
 
 
-  // TODO: One quesions here is, should we allow negative indices?
+  // TODO: One question here is, should we allow negative indices?
   //       Or should we otherwise, ensure that the box is grown with
   //       bounds.
   int q;
@@ -701,7 +701,7 @@ void vtkAMRBox::Shrink(int byN)
   int lo[3];
   int hi[3];
 
-  // TODO: One quesions here is, should we allow negative indices?
+  // TODO: One question here is, should we allow negative indices?
   //       Or should we otherwise, ensure that the box is grown with
   //       bounds.
   int q;
@@ -802,7 +802,7 @@ void vtkAMRBox::Shift(int i, int j, int k)
 
   int ijk[3]; ijk[0] = i; ijk[1] = j; ijk[2] = k;
 
-  // TODO: One quesions here is, should we allow negative indices?
+  // TODO: One question here is, should we allow negative indices?
   //       Or should we otherwise, ensure that the box is grown with
   //       bounds.
   int q;
