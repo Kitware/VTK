@@ -1217,8 +1217,12 @@ void vtkBrokenLineWidget::SizeHandles()
 double vtkBrokenLineWidget::GetSummedLength()
 {
   vtkPoints* points = this->LineSource->GetOutput()->GetPoints();
-  int npts = points->GetNumberOfPoints();
+  if(!points)
+    {
+    return 0.;
+    }
 
+  int npts = points->GetNumberOfPoints();
   if ( npts < 2 )
     {
     return 0.;
