@@ -101,7 +101,7 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     // Appends the dataset at the given level. Increments the number of datasets
     // within the given level. Further, if an insufficient number of levels the
     // data-structure will grow accordingly.
-    void AppendDataSet(unsigned int level, vtkUniformGrid *grid);
+    virtual void AppendDataSet(unsigned int level, vtkUniformGrid *grid);
 
     // Description:
     // Returns the dataset stored at the given (level,idx). The user-supplied
@@ -120,12 +120,12 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     // Description:
     // Retrieve the cached scalar range into the user-supplied buffer.
     void GetScalarRange(double range[2]);
-    double *GetScalarRange();
+    double* GetScalarRange();
 
     // Description:
     // Retrieve the bounds of the AMR domain
     void GetBounds(double bounds[6]);
-    double *GetBounds();
+    double* GetBounds();
 
   protected:
     vtkUniformGridAMR();
@@ -145,7 +145,6 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     vtkTimeStamp ScalarRangeComputeTime;
 
     double Bounds[6];
-
   private:
     vtkUniformGridAMR(const vtkUniformGridAMR&);//Not implemented
     void operator=(const vtkUniformGridAMR&); // Not implemented

@@ -115,31 +115,11 @@ void vtkOverlappingAMR::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
-void vtkOverlappingAMR::SetDataSet(
-    unsigned int level, unsigned int idx, vtkUniformGrid *grid )
+vtkUniformGrid* vtkOverlappingAMR::GetDataSet(
+    unsigned int level, unsigned int id, vtkAMRBox& box)
 {
-
-// In some cases the grid could be NULL, i.e., in the case that the data
-// is distributed.
-//  assert( "Input grid is NULL!" && (grid!=NULL) );
-
-  // STEP 0: Resize the number of levels accordingly
-  if( level >= this->GetNumberOfLevels() )
-    {
-    this->SetNumberOfLevels( level+1 );
-    }
-
-  // STEP 1: Insert data at the given location
-  vtkMultiPieceDataSet* levelDS =
-      vtkMultiPieceDataSet::SafeDownCast( this->Superclass::GetChild(level));
-  if( levelDS != NULL )
-    {
-    levelDS->SetPiece(idx, grid);
-    }
-  else
-    {
-    vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
-    }
+  this->GetMetaData(level,id,box);
+  return( this->GetDataSet(level,id) );
 }
 
 //------------------------------------------------------------------------------
@@ -197,40 +177,7 @@ void vtkOverlappingAMR::SetMetaData(
     {
     vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
     }
-
 }
-
-//------------------------------------------------------------------------------
-vtkUniformGrid* vtkOverlappingAMR::GetDataSet(
-    unsigned int level, unsigned int id )
-{
-  if( this->GetNumberOfLevels() <= level ||
-      this->GetNumberOfDataSets(level) <= id )
-    {
-    return NULL;
-    }
-
-  vtkMultiPieceDataSet* levelDS =
-      vtkMultiPieceDataSet::SafeDownCast(this->Superclass::GetChild(level));
-  if( levelDS )
-    {
-    return( vtkUniformGrid::SafeDownCast( levelDS->GetPiece( id ) ) );
-    }
-  vtkErrorMacro( "Unexcepected NULL pointer encountered!\n" );
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
-vtkUniformGrid* vtkOverlappingAMR::GetDataSet(
-              const unsigned int level, const unsigned int id, vtkAMRBox& box )
-{
-  if( this->GetMetaData( level, id, box ) != 1 )
-    {
-    vtkErrorMacro( "Could not retrieve meta-data for the given data set!" );
-    }
-  return( this->GetDataSet( level, id ) );
-}
-
 
 //----------------------------------------------------------------------------
 void vtkOverlappingAMR::SetRefinementRatio(unsigned int level,
@@ -556,8 +503,9 @@ void vtkOverlappingAMR::GetHigherResolutionCoarsenedBoxes(
 }
 
 //----------------------------------------------------------------------------
-void vtkOverlappingAMR::GetBoxesFromLevel(const unsigned int levelIdx,
-                                                  vtkAMRBoxList &boxes)
+void vtkOverlappingAMR::GetBoxesFromLevel(
+    const unsigned int levelIdx,
+    vtkAMRBoxList &boxes)
 {
   boxes.clear();
   unsigned int numDataSets = this->GetNumberOfDataSets( levelIdx);
@@ -570,7 +518,6 @@ void vtkOverlappingAMR::GetBoxesFromLevel(const unsigned int levelIdx,
       vtkGenericWarningMacro( "No MetaData associated with this instance!\n" );
       continue;
       }
-    
     this->GetMetaData( levelIdx, dataSetIdx, box );    
     boxes.push_back(box);
     } // END for all datasets
@@ -768,10 +715,7 @@ void vtkOverlappingAMR::BlankGridsAtLevel(
 //----------------------------------------------------------------------------
 void vtkOverlappingAMR::GenerateVisibilityArrays()
 {
-
-//  this->PadCellVisibility = true;
   unsigned int numLevels = this->GetNumberOfLevels();
-
   for (unsigned int levelIdx=0; levelIdx<numLevels; levelIdx++)
     {
     // Copy boxes of higher level and coarsen to this level
@@ -848,17 +792,6 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
     }
 }
 
-//----------------------------------------------------------------------------
-int vtkOverlappingAMR::GetTotalNumberOfBlocks( )
-{
-  int totalNumBlocks     = 0;
-  unsigned int numLevels = this->GetNumberOfLevels();
-  for( unsigned int levelIdx=0; levelIdx < numLevels; ++levelIdx )
-    {
-    totalNumBlocks += this->GetNumberOfDataSets( levelIdx );
-    }
-  return( totalNumBlocks );
-}
 
 //----------------------------------------------------------------------------
 vtkAMRBox vtkOverlappingAMR::GetAMRBox(vtkCompositeDataIterator* iter)
@@ -905,7 +838,8 @@ void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
 unsigned int vtkOverlappingAMR::GetFlatIndex(unsigned int level,
   unsigned int index)
 {
-  if (level > this->GetNumberOfLevels() || index > this->GetNumberOfDataSets(level))
+  if (level > this->GetNumberOfLevels() ||
+      index > this->GetNumberOfDataSets(level))
     {
     // invalid level, index.
     vtkErrorMacro("Invalid level (" << level << ") or index (" << index << ")");
@@ -1086,7 +1020,7 @@ vtkOverlappingAMR* vtkOverlappingAMR::GetData(
 //  bounds[5] = this->Bounds[5];
 //}
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::AssignUnsignedIntArray(vtkUnsignedIntArray **dest,
                                                vtkUnsignedIntArray *src)
 {
@@ -1105,7 +1039,7 @@ void vtkOverlappingAMR::AssignUnsignedIntArray(vtkUnsignedIntArray **dest,
     }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::ShallowCopy( vtkDataObject *src )
 {
   if( src == this )
@@ -1145,7 +1079,7 @@ void vtkOverlappingAMR::ShallowCopy( vtkDataObject *src )
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::DeepCopy( vtkDataObject *src )
 {
   if( src == this )
@@ -1186,10 +1120,9 @@ void vtkOverlappingAMR::DeepCopy( vtkDataObject *src )
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
 {
-
   if( src == this )
     {
     return;
@@ -1219,9 +1152,9 @@ void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
       } // END for all levels
     } // END if hbds
 
-
   this->Modified();
 }
+
 //----------------------------------------------------------------------------
 unsigned int *vtkOverlappingAMR::
 GetParents(unsigned int level, unsigned int index)
@@ -1237,7 +1170,8 @@ GetParents(unsigned int level, unsigned int index)
   unsigned int parentInfo = this->ParentInformationMap->GetValue(blockPos);
   return this->ParentInformation->GetPointer(parentInfo);
 }
-//----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 unsigned int *vtkOverlappingAMR::
 GetChildren(unsigned int level, unsigned int index)
 {
@@ -1253,12 +1187,14 @@ GetChildren(unsigned int level, unsigned int index)
   unsigned int childInfo = this->ChildrenInformationMap->GetValue(blockPos);
   return this->ChildrenInformation->GetPointer(childInfo);
 }
-//----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::
 PrintParentChildInfo(unsigned int level, unsigned int index)
 {
   unsigned int *ptr, i, n;
-  std::cerr << "Parent Child Info for block " << index << " of Level: " << level << endl;
+  std::cerr << "Parent Child Info for block " << index
+            << " of Level: " << level << endl;
   ptr = this->GetParents(level, index);
   if ((!ptr) || (ptr[0] == 0))
     {

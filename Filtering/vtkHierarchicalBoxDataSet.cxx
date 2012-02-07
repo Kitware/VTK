@@ -13,6 +13,8 @@
 =========================================================================*/
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
@@ -32,4 +34,19 @@ vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
+  vtkInformation* info)
+{
+  return
+    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+}
+
+//----------------------------------------------------------------------------
+vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
+  vtkInformationVector* v, int i)
+{
+  return vtkHierarchicalBoxDataSet::GetData(v->GetInformationObject(i));
 }
