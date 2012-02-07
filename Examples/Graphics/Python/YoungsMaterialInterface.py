@@ -59,7 +59,6 @@ meshMat3 = threshold3.GetOutput()
 
 # Make multiblock from extracted submeshes
 meshMB =  vtkMultiBlockDataSet()
-meshMB.SetNumberOfBlocks( 1 )
 meshMB.SetNumberOfBlocks( 2 )
 meshMB.GetMetaData( 0 ).Set( vtkCompositeDataSet.NAME(), "Material 2" )
 meshMB.SetBlock( 0, meshMat2 )
