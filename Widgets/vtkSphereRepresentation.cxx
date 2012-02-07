@@ -426,13 +426,18 @@ void vtkSphereRepresentation::SetCenter(double center[3])
     {
     double handle[3];
     this->SphereSource->SetCenter(center);
-    this->HandleSource->GetCenter(handle);
-    this->HandleDirection[0] = handle[0] - center[0];
-    this->HandleDirection[1] = handle[1] - center[1];
-    this->HandleDirection[2] = handle[2] - center[2];
-    double r = static_cast<double>(
-      vtkMath::Distance2BetweenPoints(handle,center) );
-    this->SphereSource->SetRadius(r);
+
+    if(this->GetHandleVisibility())
+      {
+      this->HandleSource->GetCenter(handle);
+      this->HandleDirection[0] = handle[0] - center[0];
+      this->HandleDirection[1] = handle[1] - center[1];
+      this->HandleDirection[2] = handle[2] - center[2];
+      double r = static_cast<double>(
+        vtkMath::Distance2BetweenPoints(handle,center) );
+      this->SphereSource->SetRadius(r);
+      }
+
     this->SphereSource->Update();
     this->Modified();
     }
