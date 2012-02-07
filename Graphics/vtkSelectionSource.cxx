@@ -256,6 +256,7 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CompositeIndex: " << this->CompositeIndex << endl;
   os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
   os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
+  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "NULL") << endl;
 }
 
 //----------------------------------------------------------------------------
