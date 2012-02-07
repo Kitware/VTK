@@ -114,7 +114,7 @@ int vtkSimpleBondPerceiver::RequestData(
         {
         vtkDebugMacro(<<"Adding bond between " << i << " and " << j
                       << ". Distance: " << diffsq << "\n");
-        output->AddBond(i, j, 1);
+        output->AppendBond(i, j, 1);
         }
       }
     }
