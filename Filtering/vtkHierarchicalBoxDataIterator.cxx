@@ -13,6 +13,9 @@
 
  =========================================================================*/
 #include "vtkHierarchicalBoxDataIterator.h"
+#include "vtkObjectFactory.h"
+
+vtkStandardNewMacro(vtkHierarchicalBoxDataIterator);
 
 vtkHierarchicalBoxDataIterator::vtkHierarchicalBoxDataIterator()
 {
