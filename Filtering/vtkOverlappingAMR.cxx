@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHierarchicalBoxDataSet.cxx
+  Module:    vtkUniformGridAMR.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 
 #include "vtkAMRBox.h"
-#include "vtkHierarchicalBoxDataIterator.h"
+#include "vtkUniformGridAMRDataIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -38,24 +38,22 @@
 #include <cmath>
 #include <cassert>
 
-vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
-vtkInformationKeyRestrictedMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector, 6);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,NUMBER_OF_BLANKED_POINTS,IdType);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,REFINEMENT_RATIO,Integer);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX_DIMENSIONALITY,Integer);
-vtkInformationKeyRestrictedMacro(
-    vtkHierarchicalBoxDataSet,BOX_ORIGIN,DoubleVector, 3);
-vtkInformationKeyRestrictedMacro(
-    vtkHierarchicalBoxDataSet,SPACING,DoubleVector, 3);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,RANK,Integer);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BLOCK_ID,Integer);
-vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,GEOMETRIC_DESCRIPTION,Integer);
-vtkInformationKeyRestrictedMacro(
-    vtkHierarchicalBoxDataSet,REAL_EXTENT,IntegerVector,6);
+vtkStandardNewMacro(vtkOverlappingAMR);
+
+vtkInformationKeyRestrictedMacro(vtkOverlappingAMR,BOX,IntegerVector, 6);
+vtkInformationKeyMacro(vtkOverlappingAMR,NUMBER_OF_BLANKED_POINTS,IdType);
+vtkInformationKeyMacro(vtkOverlappingAMR,REFINEMENT_RATIO,Integer);
+vtkInformationKeyMacro(vtkOverlappingAMR,BOX_DIMENSIONALITY,Integer);
+vtkInformationKeyRestrictedMacro(vtkOverlappingAMR,BOX_ORIGIN,DoubleVector,3);
+vtkInformationKeyRestrictedMacro(vtkOverlappingAMR,SPACING,DoubleVector,3);
+vtkInformationKeyMacro(vtkOverlappingAMR,RANK,Integer);
+vtkInformationKeyMacro(vtkOverlappingAMR,BLOCK_ID,Integer);
+vtkInformationKeyMacro(vtkOverlappingAMR,GEOMETRIC_DESCRIPTION,Integer);
+vtkInformationKeyRestrictedMacro(vtkOverlappingAMR,REAL_EXTENT,IntegerVector,6);
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
+vtkOverlappingAMR::vtkOverlappingAMR()
 {
   this->ScalarRange[0]    = VTK_DOUBLE_MAX;
   this->ScalarRange[1]    = VTK_DOUBLE_MIN;
@@ -71,7 +69,7 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
+vtkOverlappingAMR::~vtkOverlappingAMR()
 {
   AssignUnsignedIntArray(&(this->LevelMap), NULL);
   AssignUnsignedIntArray(&(this->ChildrenInformation), NULL);
@@ -81,7 +79,7 @@ vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetOrigin( const double o[3] )
+void vtkOverlappingAMR::SetOrigin( const double o[3] )
 {
   for( int i=0; i < 3; ++i )
     {
@@ -90,7 +88,7 @@ void vtkHierarchicalBoxDataSet::SetOrigin( const double o[3] )
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetOrigin( double o[3] )
+void vtkOverlappingAMR::GetOrigin( double o[3] )
 {
   for( int i=0; i < 3; ++i )
     {
@@ -98,71 +96,9 @@ void vtkHierarchicalBoxDataSet::GetOrigin( double o[3] )
     }
 }
 
-//----------------------------------------------------------------------------
-vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
-{
-  vtkHierarchicalBoxDataIterator* iter = vtkHierarchicalBoxDataIterator::New();
-  iter->SetDataSet(this);
-  return iter;
-}
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetNumberOfLevels(unsigned int numLevels)
-{
-  this->Superclass::SetNumberOfChildren(numLevels);
-
-  // Initialize each level with a vtkMultiPieceDataSet. 
-  // vtkMultiPieceDataSet is an overkill here, since the datasets with in a
-  // level cannot be composite datasets themselves. 
-  // This will make is possible for the user to set information with each level
-  // (in future).
-  for (unsigned int cc=0; cc < numLevels; cc++)
-    {
-    if (!this->Superclass::GetChild(cc))
-      {
-      vtkMultiPieceDataSet* mds = vtkMultiPieceDataSet::New();
-      this->Superclass::SetChild(cc, mds);
-      mds->Delete();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-unsigned int vtkHierarchicalBoxDataSet::GetNumberOfLevels()
-{
-  return this->Superclass::GetNumberOfChildren();
-}
-
-//----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetNumberOfDataSets(unsigned int level, 
-  unsigned int numDS)
-{
-  if (level >= this->GetNumberOfLevels())
-    {
-    this->SetNumberOfLevels(level+1);
-    }
-  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
-    this->Superclass::GetChild(level));
-  if (levelDS)
-    {
-    levelDS->SetNumberOfPieces(numDS);
-    }
-}
-
-//----------------------------------------------------------------------------
-unsigned int vtkHierarchicalBoxDataSet::GetNumberOfDataSets(unsigned int level)
-{
-  vtkMultiPieceDataSet* levelDS = vtkMultiPieceDataSet::SafeDownCast(
-    this->Superclass::GetChild(level));
-  if (levelDS)
-    {
-    return levelDS->GetNumberOfPieces();
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetDataSet(
+void vtkOverlappingAMR::SetDataSet(
   unsigned int level, unsigned int id,
   int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet)
 {
@@ -171,8 +107,7 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
-
-void vtkHierarchicalBoxDataSet::SetDataSet(
+void vtkOverlappingAMR::SetDataSet(
   unsigned int level, unsigned int id, vtkAMRBox &box, vtkUniformGrid *dataSet)
 {
   this->SetDataSet( level, id, dataSet );
@@ -180,7 +115,7 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetDataSet(
+void vtkOverlappingAMR::SetDataSet(
     unsigned int level, unsigned int idx, vtkUniformGrid *grid )
 {
 
@@ -208,31 +143,7 @@ void vtkHierarchicalBoxDataSet::SetDataSet(
 }
 
 //------------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::AppendDataSet(
-    unsigned int level, vtkUniformGrid* grid )
-{
-  // STEP 0: Resize the number of levels accordingly
-  if( level >= this->GetNumberOfLevels() )
-    {
-    this->SetNumberOfLevels( level+1 );
-    }
-
-  // STEP 1: Insert data at the end
-  vtkMultiPieceDataSet* levelDS =
-      vtkMultiPieceDataSet::SafeDownCast( this->Superclass::GetChild(level));
-  if( levelDS != NULL )
-    {
-    unsigned int idx = levelDS->GetNumberOfPieces();
-    levelDS->SetPiece(idx, grid);
-    }
-  else
-    {
-    vtkErrorMacro( "Multi-piece data-structure is NULL!!!!" );
-    }
-}
-
-//------------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetMetaData(
+void vtkOverlappingAMR::SetMetaData(
     unsigned int level, unsigned int id, const vtkAMRBox &box )
 {
 
@@ -290,7 +201,7 @@ void vtkHierarchicalBoxDataSet::SetMetaData(
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
+vtkUniformGrid* vtkOverlappingAMR::GetDataSet(
     unsigned int level, unsigned int id )
 {
   if( this->GetNumberOfLevels() <= level ||
@@ -310,8 +221,8 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
-                          unsigned int level, unsigned int id, vtkAMRBox& box )
+vtkUniformGrid* vtkOverlappingAMR::GetDataSet(
+              const unsigned int level, const unsigned int id, vtkAMRBox& box )
 {
   if( this->GetMetaData( level, id, box ) != 1 )
     {
@@ -322,7 +233,7 @@ vtkUniformGrid* vtkHierarchicalBoxDataSet::GetDataSet(
 
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
+void vtkOverlappingAMR::SetRefinementRatio(unsigned int level,
                                                    int ratio)
 {
   assert("pre: valid_ratio" && ratio>=2);
@@ -336,7 +247,7 @@ void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::GetRefinementRatio(unsigned int level)
+int vtkOverlappingAMR::GetRefinementRatio(unsigned int level)
 {
   if (!this->Superclass::HasChildMetaData(level))
     {
@@ -352,7 +263,7 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(unsigned int level)
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::GetRefinementRatio(vtkCompositeDataIterator* iter)
+int vtkOverlappingAMR::GetRefinementRatio(vtkCompositeDataIterator* iter)
 {
   if (!this->HasMetaData(iter))
     {
@@ -367,7 +278,7 @@ int vtkHierarchicalBoxDataSet::GetRefinementRatio(vtkCompositeDataIterator* iter
 }
 
 //----------------------------------------------------------------------------
-bool vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
+bool vtkOverlappingAMR::GetRootAMRBox( vtkAMRBox &root )
 {
   if( (this->GetNumberOfLevels() == 0) ||
       (this->GetNumberOfDataSets(0) == 0) )
@@ -445,7 +356,7 @@ bool vtkHierarchicalBoxDataSet::GetRootAMRBox( vtkAMRBox &root )
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetGlobalAMRBoxWithSpacing(
+void vtkOverlappingAMR::GetGlobalAMRBoxWithSpacing(
     vtkAMRBox &box, double h[3] )
 {
   vtkAMRBox root;
@@ -479,7 +390,7 @@ void vtkHierarchicalBoxDataSet::GetGlobalAMRBoxWithSpacing(
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::SetCompositeIndex(
+void vtkOverlappingAMR::SetCompositeIndex(
       const unsigned int level, const unsigned int index, const int idx )
 {
   assert( "pre: level is out-of-bounds" &&
@@ -499,7 +410,7 @@ void vtkHierarchicalBoxDataSet::SetCompositeIndex(
 
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::GetCompositeIndex(
+int vtkOverlappingAMR::GetCompositeIndex(
     const unsigned int level, const unsigned int index )
 {
 
@@ -521,7 +432,7 @@ int vtkHierarchicalBoxDataSet::GetCompositeIndex(
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::GetMetaData(
+int vtkOverlappingAMR::GetMetaData(
     unsigned int level, unsigned int index, vtkAMRBox &box)
 {
   vtkMultiPieceDataSet* levelMDS =
@@ -568,7 +479,7 @@ int vtkHierarchicalBoxDataSet::GetMetaData(
 }
 
 //----------------------------------------------------------------------------
-vtkInformation* vtkHierarchicalBoxDataSet::GetMetaData(unsigned int level,
+vtkInformation* vtkOverlappingAMR::GetMetaData(unsigned int level,
   unsigned int index)
 {
   vtkMultiPieceDataSet* levelMDS = vtkMultiPieceDataSet::SafeDownCast(
@@ -581,7 +492,7 @@ vtkInformation* vtkHierarchicalBoxDataSet::GetMetaData(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::HasMetaData(unsigned int level,
+int vtkOverlappingAMR::HasMetaData(unsigned int level,
   unsigned int index)
 {
   vtkMultiPieceDataSet* levelMDS =
@@ -595,7 +506,7 @@ int vtkHierarchicalBoxDataSet::HasMetaData(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
+int vtkOverlappingAMRIsInBoxes(vtkAMRBoxList& boxes,
                                        int i, int j, int k)
 {
   vtkAMRBoxList::iterator it=boxes.begin();
@@ -611,7 +522,7 @@ int vtkHierarchicalBoxDataSetIsInBoxes(vtkAMRBoxList& boxes,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetHigherResolutionCoarsenedBoxes(
+void vtkOverlappingAMR::GetHigherResolutionCoarsenedBoxes(
     vtkAMRBoxList &boxes, const unsigned int levelIdx )
 {
   // if we are at the highest level, return immediately.
@@ -645,7 +556,7 @@ void vtkHierarchicalBoxDataSet::GetHigherResolutionCoarsenedBoxes(
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetBoxesFromLevel(const unsigned int levelIdx,
+void vtkOverlappingAMR::GetBoxesFromLevel(const unsigned int levelIdx,
                                                   vtkAMRBoxList &boxes)
 {
   boxes.clear();
@@ -666,7 +577,7 @@ void vtkHierarchicalBoxDataSet::GetBoxesFromLevel(const unsigned int levelIdx,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::
+void vtkOverlappingAMR::
 GenerateParentChildLevelInformation(const unsigned int levelIdx,
                                     vtkAMRBoxList &lboxes,
                                     vtkAMRBoxList &nlboxes)
@@ -775,7 +686,7 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
+void vtkOverlappingAMR::BlankGridsAtLevel(
     vtkAMRBoxList &boxes, const unsigned int levelIdx )
 {
   if( boxes.empty() )
@@ -842,8 +753,7 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
       {
       grid->AttachCellVisibilityToCellData();
       // Turn off visibility since it is attached as cell data
-      grid->GetCellVisibilityArray()->FillComponent(
-                                                    0,static_cast<char>(1));
+      grid->GetCellVisibilityArray()->FillComponent( 0,static_cast<char>(1) );
       }
 
     if (this->HasMetaData(levelIdx, dataSetIdx))
@@ -856,7 +766,7 @@ void vtkHierarchicalBoxDataSet::BlankGridsAtLevel(
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
+void vtkOverlappingAMR::GenerateVisibilityArrays()
 {
 
 //  this->PadCellVisibility = true;
@@ -873,7 +783,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GenerateParentChildInformation()
+void vtkOverlappingAMR::GenerateParentChildInformation()
 {
   // Note that we do not add the  the 
   // children of the max level to our arrays - hence the
@@ -902,7 +812,7 @@ void vtkHierarchicalBoxDataSet::GenerateParentChildInformation()
   this->LevelMap->SetValue(0,0);
 
   vtkAMRBoxList boxes[2];
-  int i, j;
+//  int i, j;
   // Grab the boxes at level 0
   this->GetBoxesFromLevel(0, boxes[0]);
   // We need to insert the level 0 parent information into the Parent Information Arrays since the
@@ -939,7 +849,7 @@ void vtkHierarchicalBoxDataSet::GenerateParentChildInformation()
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSet::GetTotalNumberOfBlocks( )
+int vtkOverlappingAMR::GetTotalNumberOfBlocks( )
 {
   int totalNumBlocks     = 0;
   unsigned int numLevels = this->GetNumberOfLevels();
@@ -951,7 +861,7 @@ int vtkHierarchicalBoxDataSet::GetTotalNumberOfBlocks( )
 }
 
 //----------------------------------------------------------------------------
-vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
+vtkAMRBox vtkOverlappingAMR::GetAMRBox(vtkCompositeDataIterator* iter)
 {
   vtkAMRBox box;
   if (this->HasMetaData(iter))
@@ -986,37 +896,13 @@ vtkAMRBox vtkHierarchicalBoxDataSet::GetAMRBox(vtkCompositeDataIterator* iter)
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  /*
-  unsigned int numLevels = this->GetNumberOfLevels();
-  os << indent << "Number of levels: " <<  numLevels << endl;
-  for (unsigned int i=0; i<numLevels; i++)
-    {
-    unsigned int numDataSets = this->GetNumberOfDataSets(i);
-    os << indent << "Level " << i << " number of datasets: " << numDataSets
-       << endl;
-    for (unsigned j=0; j<numDataSets; j++)
-      {
-      os << indent << "DataSet(" << i << "," << j << "):";
-      vtkDataObject* dobj = this->GetDataSet(i, j);
-      if (dobj)
-        {
-        os << endl;
-        dobj->PrintSelf(os, indent.GetNextIndent());
-        }
-      else
-        {
-        os << "(none)" << endl;
-        }
-      }
-    }
-    */
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level, 
+unsigned int vtkOverlappingAMR::GetFlatIndex(unsigned int level,
   unsigned int index)
 {
   if (level > this->GetNumberOfLevels() || index > this->GetNumberOfDataSets(level))
@@ -1041,7 +927,7 @@ unsigned int vtkHierarchicalBoxDataSet::GetFlatIndex(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
+void vtkOverlappingAMR::GetLevelAndIndex(
     const unsigned int flatIdx, unsigned int &level, unsigned int &idx )
 {
 
@@ -1062,146 +948,147 @@ void vtkHierarchicalBoxDataSet::GetLevelAndIndex(
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::Clear()
+void vtkOverlappingAMR::Clear()
 {
   this->Superclass::Initialize();
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
+vtkOverlappingAMR* vtkOverlappingAMR::GetData(
   vtkInformation* info)
 {
   return
-    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+    info?vtkOverlappingAMR::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
+vtkOverlappingAMR* vtkOverlappingAMR::GetData(
   vtkInformationVector* v, int i)
 {
-  return vtkHierarchicalBoxDataSet::GetData(v->GetInformationObject(i));
+  return vtkOverlappingAMR::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // Copy the cached scalar range into range.
-void vtkHierarchicalBoxDataSet::GetScalarRange(double range[2])
-{
-  this->ComputeScalarRange();
-  range[0]=this->ScalarRange[0];
-  range[1]=this->ScalarRange[1];
-}
+//void vtkOverlappingAMR::GetScalarRange(double range[2])
+//{
+//  this->ComputeScalarRange();
+//  range[0]=this->ScalarRange[0];
+//  range[1]=this->ScalarRange[1];
+//}
   
 //----------------------------------------------------------------------------
 // Description:
 // Return the cached range.
-double *vtkHierarchicalBoxDataSet::GetScalarRange()
-{
-  this->ComputeScalarRange();
-  return this->ScalarRange;
-}
+//double *vtkOverlappingAMR::GetScalarRange()
+//{
+//  this->ComputeScalarRange();
+//  return this->ScalarRange;
+//}
 
 //----------------------------------------------------------------------------
 // Description:
 // Compute the range of the scalars and cache it into ScalarRange
 // only if the cache became invalid (ScalarRangeComputeTime).
-void vtkHierarchicalBoxDataSet::ComputeScalarRange()
-{
-  if ( this->GetMTime() > this->ScalarRangeComputeTime )
-    {
-    double dataSetRange[2];
-    this->ScalarRange[0]=VTK_DOUBLE_MAX;
-    this->ScalarRange[1]=VTK_DOUBLE_MIN;
-    unsigned int level=0;
-    unsigned int levels=this->GetNumberOfLevels();
-    vtkAMRBox temp;
-    while(level<levels)
-      {
-      unsigned int dataset=0;
-      unsigned int datasets=this->GetNumberOfDataSets(level);
-      while(dataset<datasets)
-        {
-        vtkUniformGrid *ug = 
-          static_cast<vtkUniformGrid*>(this->GetDataSet(level, dataset, temp));
-        ug->GetScalarRange(dataSetRange);
-        if(dataSetRange[0]<this->ScalarRange[0])
-          {
-          this->ScalarRange[0]=dataSetRange[0];
-          }
-        if(dataSetRange[1]>this->ScalarRange[1])
-          {
-          this->ScalarRange[1]=dataSetRange[1];
-          }
-        ++dataset;
-        }
-      ++level;
-      }
-    this->ScalarRangeComputeTime.Modified();
-    }
-}
+//void vtkOverlappingAMR::ComputeScalarRange()
+//{
+//  if ( this->GetMTime() > this->ScalarRangeComputeTime )
+//    {
+//    double dataSetRange[2];
+//    this->ScalarRange[0]=VTK_DOUBLE_MAX;
+//    this->ScalarRange[1]=VTK_DOUBLE_MIN;
+//    unsigned int level=0;
+//    unsigned int levels=this->GetNumberOfLevels();
+//    vtkAMRBox temp;
+//    while(level<levels)
+//      {
+//      unsigned int dataset=0;
+//      unsigned int datasets=this->GetNumberOfDataSets(level);
+//      while(dataset<datasets)
+//        {
+//        vtkUniformGrid *ug =
+//          static_cast<vtkUniformGrid*>(this->GetDataSet(level, dataset, temp));
+//        ug->GetScalarRange(dataSetRange);
+//        if(dataSetRange[0]<this->ScalarRange[0])
+//          {
+//          this->ScalarRange[0]=dataSetRange[0];
+//          }
+//        if(dataSetRange[1]>this->ScalarRange[1])
+//          {
+//          this->ScalarRange[1]=dataSetRange[1];
+//          }
+//        ++dataset;
+//        }
+//      ++level;
+//      }
+//    this->ScalarRangeComputeTime.Modified();
+//    }
+//}
 //----------------------------------------------------------------------------
 // Description:
 // Get the Bounds of the Data
-double *vtkHierarchicalBoxDataSet::GetBounds()
-{
-  vtkAMRBox amrBox;
-  if( this->GetRootAMRBox( amrBox ) )
-    {
-    amrBox.GetBounds(this->Bounds);
-    }
-  else
-    {
-    this->Bounds[0] = VTK_DOUBLE_MAX;
-    this->Bounds[1] = VTK_DOUBLE_MIN;
-    this->Bounds[2] = VTK_DOUBLE_MAX;
-    this->Bounds[3] = VTK_DOUBLE_MIN;
-    this->Bounds[4] = VTK_DOUBLE_MAX;
-    this->Bounds[5] = VTK_DOUBLE_MIN;
-
-    double tmpbounds[6];
-    unsigned int levelIdx=0;
-    for( ; levelIdx < this->GetNumberOfLevels(); ++levelIdx )
-      {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < this->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-        {
-        vtkUniformGrid *grd = this->GetDataSet( levelIdx, dataIdx );
-        if( grd != NULL )
-          {
-          grd->GetBounds( tmpbounds );
-          for( int i=0; i < 3; ++i )
-            {
-            if( tmpbounds[i*2] < this->Bounds[i*2] )
-              {
-              this->Bounds[i*2] = tmpbounds[i*2];
-              }
-            if( tmpbounds[i*2+1] > this->Bounds[i*2+1] )
-              {
-              this->Bounds[i*2+1] = tmpbounds[i*2+1];
-              }
-            } // END for each dimension
-          } // END if grid is not NULL
-        } // END for all data at level
-      } // END for all levels
-    }
-
-  return this->Bounds;
-}
+//double *vtkOverlappingAMR::GetBounds()
+//{
+//  vtkAMRBox amrBox;
+//  if( this->GetRootAMRBox( amrBox ) )
+//    {
+//    amrBox.GetBounds(this->Bounds);
+//    }
+//  else
+//    {
+//    this->Bounds[0] = VTK_DOUBLE_MAX;
+//    this->Bounds[1] = VTK_DOUBLE_MIN;
+//    this->Bounds[2] = VTK_DOUBLE_MAX;
+//    this->Bounds[3] = VTK_DOUBLE_MIN;
+//    this->Bounds[4] = VTK_DOUBLE_MAX;
+//    this->Bounds[5] = VTK_DOUBLE_MIN;
+//
+//    double tmpbounds[6];
+//    unsigned int levelIdx = 0;
+//    unsigned int dataIdx  = 0;
+//    for( ; levelIdx < this->GetNumberOfLevels(); ++levelIdx )
+//      {
+//      for( dataIdx=0; dataIdx<this->GetNumberOfDataSets(levelIdx); ++dataIdx )
+//        {
+//        vtkUniformGrid *grd = this->GetDataSet(levelIdx,dataIdx);
+//        vtkUniformGrid *grd = this->GetDataSet(levelIdx,dataIdx);
+//        if( grd != NULL )
+//          {
+//          grd->GetBounds( tmpbounds );
+//          for( int i=0; i < 3; ++i )
+//            {
+//            if( tmpbounds[i*2] < this->Bounds[i*2] )
+//              {
+//              this->Bounds[i*2] = tmpbounds[i*2];
+//              }
+//            if( tmpbounds[i*2+1] > this->Bounds[i*2+1] )
+//              {
+//              this->Bounds[i*2+1] = tmpbounds[i*2+1];
+//              }
+//            } // END for each dimension
+//          } // END if grid is not NULL
+//        } // END for all data at level
+//      } // END for all levels
+//    }
+//
+//  return this->Bounds;
+//}
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::GetBounds(double bounds[6])
-{
-  this->GetBounds();
-  bounds[0] = this->Bounds[0];
-  bounds[1] = this->Bounds[1];
-  bounds[2] = this->Bounds[2];
-  bounds[3] = this->Bounds[3];
-  bounds[4] = this->Bounds[4];
-  bounds[5] = this->Bounds[5];
-}
+//void vtkOverlappingAMR::GetBounds(double bounds[6])
+//{
+//  this->GetBounds();
+//  bounds[0] = this->Bounds[0];
+//  bounds[1] = this->Bounds[1];
+//  bounds[2] = this->Bounds[2];
+//  bounds[3] = this->Bounds[3];
+//  bounds[4] = this->Bounds[4];
+//  bounds[5] = this->Bounds[5];
+//}
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::AssignUnsignedIntArray(vtkUnsignedIntArray **dest, 
-                                                       vtkUnsignedIntArray *src)
+void vtkOverlappingAMR::AssignUnsignedIntArray(vtkUnsignedIntArray **dest,
+                                               vtkUnsignedIntArray *src)
 {
   if (*dest == src)
     {
@@ -1219,7 +1106,7 @@ void vtkHierarchicalBoxDataSet::AssignUnsignedIntArray(vtkUnsignedIntArray **des
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
+void vtkOverlappingAMR::ShallowCopy( vtkDataObject *src )
 {
   if( src == this )
     {
@@ -1228,8 +1115,8 @@ void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
 
   this->Superclass::ShallowCopy( src );
 
-  vtkHierarchicalBoxDataSet *hbds =
-      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+  vtkOverlappingAMR *hbds =
+      vtkOverlappingAMR::SafeDownCast(src);
 
   if( hbds != NULL )
     {
@@ -1259,7 +1146,7 @@ void vtkHierarchicalBoxDataSet::ShallowCopy( vtkDataObject *src )
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::DeepCopy( vtkDataObject *src )
+void vtkOverlappingAMR::DeepCopy( vtkDataObject *src )
 {
   if( src == this )
     {
@@ -1268,8 +1155,8 @@ void vtkHierarchicalBoxDataSet::DeepCopy( vtkDataObject *src )
 
   this->Superclass::DeepCopy( src );
 
-  vtkHierarchicalBoxDataSet *hbds =
-      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+  vtkOverlappingAMR *hbds =
+      vtkOverlappingAMR::SafeDownCast(src);
 
   if( hbds != NULL )
     {
@@ -1300,7 +1187,7 @@ void vtkHierarchicalBoxDataSet::DeepCopy( vtkDataObject *src )
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::CopyStructure( vtkCompositeDataSet *src )
+void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
 {
 
   if( src == this )
@@ -1310,8 +1197,8 @@ void vtkHierarchicalBoxDataSet::CopyStructure( vtkCompositeDataSet *src )
 
   this->Superclass::CopyStructure( src );
 
-  vtkHierarchicalBoxDataSet *hbds =
-      vtkHierarchicalBoxDataSet::SafeDownCast(src);
+  vtkOverlappingAMR *hbds =
+      vtkOverlappingAMR::SafeDownCast(src);
 
   if( hbds != NULL )
     {
@@ -1336,7 +1223,7 @@ void vtkHierarchicalBoxDataSet::CopyStructure( vtkCompositeDataSet *src )
   this->Modified();
 }
 //----------------------------------------------------------------------------
-unsigned int *vtkHierarchicalBoxDataSet::
+unsigned int *vtkOverlappingAMR::
 GetParents(unsigned int level, unsigned int index)
 {
   // If we are at level 0 there are no parents or if there is no level
@@ -1351,7 +1238,7 @@ GetParents(unsigned int level, unsigned int index)
   return this->ParentInformation->GetPointer(parentInfo);
 }
 //----------------------------------------------------------------------------
-unsigned int *vtkHierarchicalBoxDataSet::
+unsigned int *vtkOverlappingAMR::
 GetChildren(unsigned int level, unsigned int index)
 {
   // If there is no level map or if the level is the max level
@@ -1367,7 +1254,7 @@ GetChildren(unsigned int level, unsigned int index)
   return this->ChildrenInformation->GetPointer(childInfo);
 }
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSet::
+void vtkOverlappingAMR::
 PrintParentChildInfo(unsigned int level, unsigned int index)
 {
   unsigned int *ptr, i, n;

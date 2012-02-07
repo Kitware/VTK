@@ -20,32 +20,21 @@
 // vtkUniformGrid. Each dataset has an associated vtkAMRBox that represents
 // it's region (similar to extent) in space.
 //
-// .SECTION Warning
-// To compute the cellId of a cell within a vtkUniformGrid with AMRBox=box, 
-// you should not use vtkUniformGrid::ComputeCellId( {x,y,z} ) but instead
-// use the following pseudo code:
-// for (int i=0; i<3; i++)
-//   {
-//   cellDims[i] = box.HiCorner[i] - box.LoCorner[i] + 1;
-//   }
-// vtkIdType cellId =
-//   (z-box.LoCorner[2])*cellDims[0]*cellDims[1] +
-//   (y-box.LoCorner[1])*cellDims[0] +
-//   (x-box.LoCorner[0]);
-//
-// NOTE vtkAMRBox is used to compute cell visibility, therefor it 
+// NOTE vtkAMRBox is used to compute cell visibility, therefore it
 // should be dimensioned according to the visible region.
 
 
-#ifndef __vtkHierarchicalBoxDataSet_h
-#define __vtkHierarchicalBoxDataSet_h
+#ifndef __vtkOverlappingAmr_h
+#define __vtkOverlappingAmr_h
 
-#include "vtkCompositeDataSet.h"
+#include "vtkUniformGridAMR.h"
 #include <vector>    // For STL vector
 #include <map>       // For STL map
 #include <utility>   // For STL pair
 
 class vtkAMRBox;
+class vtkDataObject;
+class vtkCompositeDataIterator;
 class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
@@ -54,11 +43,11 @@ class vtkUnsignedIntArray;
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet: public vtkCompositeDataSet
+class VTK_FILTERING_EXPORT vtkOverlappingAMR: public vtkUniformGridAMR
 {
 public:
-  static vtkHierarchicalBoxDataSet *New();
-  vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkCompositeDataSet);
+  static vtkOverlappingAMR *New();
+  vtkTypeMacro(vtkOverlappingAMR,vtkUniformGridAMR);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Descrition:
@@ -69,29 +58,29 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+//  virtual vtkCompositeDataIterator* NewIterator();
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  virtual int GetDataObjectType() {return VTK_OVERLAPPING_AMR;}
 
   // Description:
   // Set the number of refinement levels. This call might cause
   // allocation if the new number of levels is larger than the
   // current one.
-  void SetNumberOfLevels(unsigned int numLevels);
+//  void SetNumberOfLevels(unsigned int numLevels);
 
   // Description:
   // Returns the number of levels.
-  unsigned int GetNumberOfLevels();
+//  unsigned int GetNumberOfLevels();
 
   // Description:
   // Set the number of data set at a given level.
-  void SetNumberOfDataSets(unsigned int level, unsigned int numdatasets);
+//  void SetNumberOfDataSets(unsigned int level, unsigned int numdatasets);
 
   // Description:
   // Returns the number of data sets available at any level.
-  unsigned int GetNumberOfDataSets(unsigned int level);
+//  unsigned int GetNumberOfDataSets(unsigned int level);
 
   // Description:
   // Sets the data set at the location pointed by the iterator.
@@ -99,8 +88,8 @@ public:
   // be any composite datasite with similar structure (achieve by using
   // CopyStructure).
   // Un-hiding superclass overload.
-  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
-    { this->Superclass::SetDataSet(iter, dataObj); }
+//  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
+//    { this->Superclass::SetDataSet(iter, dataObj); }
 
   // Description:
   // This method returns the root AMR box for the entire root level.
@@ -112,51 +101,75 @@ public:
   // domain, with the prescribed spacing.
   void GetGlobalAMRBoxWithSpacing( vtkAMRBox &box, double h[3] );
 
+  // SetDataSet methods
+
+  // Description:
+  // Unhiding superclass method
+  virtual void SetDataSet(
+      vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
+     { this->Superclass::SetDataSet(iter, dataObj); };
+
+  // Description:
+  // Unhiding superclass method
+  virtual void SetDataSet(
+          unsigned int level,
+          unsigned int idx,
+          vtkUniformGrid *grid)
+    {this->Superclass::SetDataSet(level,idx,grid); }
+
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
   // levels and the number of datasets in the level to fit level, id requested. 
-  void SetDataSet(unsigned int level, unsigned int id, 
-                  int LoCorner[3], int HiCorner[3], vtkUniformGrid* dataSet);
+  virtual void SetDataSet(
+                  unsigned int level,
+                  unsigned int id,
+                  int LoCorner[3],
+                  int HiCorner[3],
+                  vtkUniformGrid* dataSet);
 
-  // Description:
-  // Set the dataset pointer for a given node without any metadata. This will
-  // resize the number of levels and the number of datasets accordingly.
-  void SetDataSet(unsigned int level, unsigned int id, vtkUniformGrid* dataSet);
-
-  // Description:
-  // Appends the dataset to the given level. This will resize the
-  // number of levels and the number of datasets accordingly.
-  void AppendDataSet(unsigned int level, vtkUniformGrid* dataSet );
-
-  // Description:
-  // Sets the meta-data object at a given node. This will resize the number
-  // of levels and number of datasets acoordingly.
-  void SetMetaData(unsigned int level, unsigned int id, const vtkAMRBox &box );
-
-//BTX
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
-  // levels and the number of datasets in the level to fit level, id requested. 
+  // levels and the number of datasets in the level to fit level, id requested.
   // The information carried by the vtkAMRBox is redundant with the extent
   // of the vtkUniformGrid. However, in case of parallel computation, the
   // vtkAMRBox is defined on each processor whereas the vtkUniformGrid is
   // defined only on the processor that owns it.
-  void SetDataSet(unsigned int level, unsigned int id, 
-                  vtkAMRBox& box, vtkUniformGrid* dataSet);
+  virtual void SetDataSet(
+                   unsigned int level,
+                   unsigned int id,
+                   vtkAMRBox& box,
+                   vtkUniformGrid* dataSet);
+
+  // Description:
+  // Sets the meta-data object at a given node. This will resize the number
+  // of levels and number of datasets acoordingly.
+  virtual void SetMetaData( unsigned int level,
+                            unsigned int id,
+                            const vtkAMRBox &box );
+
+
+  // GetDataSet methods
+
+  // Description:
+  // Unhiding superclass method.
+//  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
+//    { return this->Superclass::GetDataSet(iter); }
+
+  // Description:
+  // Unhiding superclass method.
+  virtual vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx)
+    { return(this->Superclass::GetDataSet(level,idx)); }
 
   // Description:
   // Get a dataset given a level and an id. In case of parallel computation,
   // the dataset can be a null pointer whereas the vtkAMRBox is always defined.
-  vtkUniformGrid* GetDataSet(unsigned int level,
-                             unsigned int id,
-                             vtkAMRBox& box);
-  vtkUniformGrid* GetDataSet(unsigned int level,unsigned int id );
+  virtual vtkUniformGrid* GetDataSet(
+      const unsigned int level, const unsigned int id, vtkAMRBox& box);
 
   // Description:
   // Returns the AMR box for the location pointer by the iterator.
   vtkAMRBox GetAMRBox(vtkCompositeDataIterator* iter);
 
-//ETX
 
 // Description:
 // Get meta-data associated with a level. This may allocate a new
@@ -242,31 +255,31 @@ public:
   //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
-  static vtkHierarchicalBoxDataSet* GetData(vtkInformation* info);
-  static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkOverlappingAMR* GetData(vtkInformation* info);
+  static vtkOverlappingAMR* GetData(vtkInformationVector* v, int i=0);
   //ETX
 
-  // Description:
-  // Copy the cached scalar range into range.
-  virtual void GetScalarRange(double range[]);
+// Description:
+// Copy the cached scalar range into range.
+//  virtual void GetScalarRange(double range[]);
   
-  // Description:
-  // Return the cached range.
-  virtual double *GetScalarRange();
+// Description:
+// Return the cached range.
+//  virtual double *GetScalarRange();
 
-  // Description:
-  // Unhiding superclass method.
+// Description:
+// Unhiding superclass method.
   virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
     { return this->Superclass::GetDataSet(iter); }
 
-  // Description:
-  // Unhiding superclass method.
+// Description:
+// Unhiding superclass method.
   virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
     { return this->Superclass::GetMetaData(iter); }
 
 
-  // Description:
-  // Unhiding superclass method.
+// Description:
+// Unhiding superclass method.
   virtual int HasMetaData(vtkCompositeDataIterator* iter)
     { return this->Superclass::HasMetaData(iter); }
  
@@ -282,7 +295,7 @@ public:
       const unsigned int compositeIdx, unsigned int &level, unsigned int &idx );
 
   // Description:
-  // Removes all AMR data stored in this instance of the vtkHierarchicalBoxDataSet
+  // Removes all AMR data stored in this instance of the vtkOverlappingAMR
   void Clear();
 
   // Description:
@@ -320,8 +333,8 @@ public:
   // Prints the parents and children of a requested block (Debug Routine)
   void PrintParentChildInfo(unsigned int level, unsigned int index);
 protected:
-  vtkHierarchicalBoxDataSet();
-  ~vtkHierarchicalBoxDataSet();
+  vtkOverlappingAMR();
+  ~vtkOverlappingAMR();
 
   // Description:
   // Gets the list of higher res boxes from this level at the level, l+1
@@ -352,18 +365,19 @@ protected:
 
   // Description:
   // Assign an array from the src
-  static void AssignUnsignedIntArray(vtkUnsignedIntArray **dest, vtkUnsignedIntArray *src);
+  static void AssignUnsignedIntArray(
+      vtkUnsignedIntArray **dest, vtkUnsignedIntArray *src);
 
   // Cached scalar range
-  double ScalarRange[2];
-  // Time at which scalar range is computed
-  vtkTimeStamp ScalarRangeComputeTime;
+//  double ScalarRange[2];
+//  // Time at which scalar range is computed
+//  vtkTimeStamp ScalarRangeComputeTime;
 
   bool PadCellVisibility;
 
   // Global Origin
   double Origin[3];
-  double Bounds[6];
+//  double Bounds[6];
 
   // Mapping of composite indices to the (level,id) pair.
   std::map< int, std::pair<unsigned int,unsigned int> >
@@ -390,12 +404,8 @@ protected:
   // Array needed to indicate where each level begins in the information map arrays
   vtkUnsignedIntArray *LevelMap;
 private:
-
-
-
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&);  // Not implemented.
-  void operator=(const vtkHierarchicalBoxDataSet&);  // Not implemented.
+  vtkOverlappingAMR(const vtkOverlappingAMR&);  // Not implemented.
+  void operator=(const vtkOverlappingAMR&);  // Not implemented.
 };
 
 #endif
-
