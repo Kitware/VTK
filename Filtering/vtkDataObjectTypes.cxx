@@ -27,6 +27,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkGenericDataSet.h"
 #include  "vtkGraph.h"
 #include  "vtkHierarchicalBoxDataSet.h"
+#include  "vtkOverlappingAMR.h"
+#include  "vtkNonOverlappingAMR.h"
 #include  "vtkHyperOctree.h"
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
@@ -71,7 +73,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkMultiGroupDataSet", // OBSOLETE
   "vtkMultiBlockDataSet", 
   "vtkHierarchicalDataSet", // OBSOLETE
-  "vtkHierarchicalBoxDataSet", 
+  "vtkHierarchicalBoxDataSet", // OBSOLETE
   "vtkGenericDataSet", 
   "vtkHyperOctree", 
   "vtkTemporalDataSet", 
@@ -198,6 +200,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkHierarchicalBoxDataSet") == 0)
     {
     return vtkHierarchicalBoxDataSet::New();
+    }
+  else if(strcmp(type,"vtkOverlappingAMR")==0)
+    {
+    return vtkOverlappingAMR::New();
+    }
+  else if(strcmp(type,"vtkNonOverlappingAMR")==0)
+    {
+    return vtkNonOverlappingAMR::New();
     }
   else if(strcmp(type, "vtkHyperOctree") == 0)
     {
