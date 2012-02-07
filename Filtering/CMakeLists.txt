@@ -102,8 +102,8 @@ vtkGraphWeightFilter.cxx
 vtkGraphWeightEuclideanDistanceFilter.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
-vtkHierarchicalBoxDataIterator.cxx
 vtkHierarchicalBoxDataSetAlgorithm.cxx
+vtkHierarchicalBoxDataIterator.cxx
 vtkHierarchicalBoxDataSet.cxx
 vtkHyperOctreeAlgorithm.cxx
 vtkHyperOctreeCursor.cxx
@@ -163,6 +163,7 @@ vtkOctreePointLocator.cxx
 vtkOctreePointLocatorNode.cxx
 vtkOrderedTriangulator.cxx
 vtkOutEdgeIterator.cxx
+vtkOverlappingAMR.cxx
 vtkParametricSpline.cxx
 vtkPassInputTypeAlgorithm.cxx
 vtkPentagonalPrism.cxx
@@ -253,6 +254,7 @@ vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
 vtkUniformGridAMR.cxx
+vtkUniformGridAMRDataIterator.cxx
 vtkUniformGridPartitioner.cxx
 vtkUnstructuredGrid.cxx
 vtkUnstructuredGridSource.cxx
