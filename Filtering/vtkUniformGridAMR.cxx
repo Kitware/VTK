@@ -17,6 +17,8 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkTimeStamp.h"
 #include "vtkDataObject.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 #include <cassert>
 
@@ -83,6 +85,14 @@ void vtkUniformGridAMR::SetNumberOfDataSets(
 }
 
 //------------------------------------------------------------------------------
+vtkCompositeDataIterator* vtkUniformGridAMR::NewIterator()
+{
+  vtkUniformGridAMRDataIterator* iter = vtkUniformGridAMRDataIterator::New();
+  iter->SetDataSet( this );
+  return(iter);
+}
+
+//------------------------------------------------------------------------------
 unsigned int vtkUniformGridAMR::GetNumberOfDataSets(const unsigned int level)
 {
   vtkMultiPieceDataSet* levelDS =
@@ -108,7 +118,7 @@ unsigned int vtkUniformGridAMR::GetTotalNumberOfBlocks()
 
 //------------------------------------------------------------------------------
 void vtkUniformGridAMR::SetDataSet(
-    const unsigned int level, const unsigned int idx, vtkUniformGrid *grid)
+    unsigned int level, unsigned int idx, vtkUniformGrid *grid)
 {
   if( level >= this->GetNumberOfLevels() )
     {
@@ -129,7 +139,7 @@ void vtkUniformGridAMR::SetDataSet(
 
 //------------------------------------------------------------------------------
 void vtkUniformGridAMR::AppendDataSet(
-    const unsigned int level, vtkUniformGrid* grid)
+    unsigned int level, vtkUniformGrid* grid)
 {
   unsigned int idx = this->GetNumberOfDataSets( level );
   this->SetDataSet( level,idx,grid );
@@ -137,7 +147,7 @@ void vtkUniformGridAMR::AppendDataSet(
 
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkUniformGridAMR::GetDataSet(
-    const unsigned int level, const unsigned int idx )
+    unsigned int level, unsigned int idx )
 {
   assert("pre: level is out of bounds!" &&
          (level < this->GetNumberOfLevels()));

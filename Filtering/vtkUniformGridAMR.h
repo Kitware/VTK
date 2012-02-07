@@ -29,6 +29,10 @@
 class vtkUniformGrid;
 class vtkTimeStamp;
 class vtkDataObject;
+class vtkCompositeDataIterator;
+class vtkUniformGridAMRDataIterator;
+class vtkInformation;
+class vtkInformationVector;
 
 class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
 {
@@ -61,28 +65,48 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     unsigned int GetTotalNumberOfBlocks();
 
     // Description:
+    // Return a new iterator (the iterator has to be deleted by the user).
+    virtual vtkCompositeDataIterator* NewIterator();
+
+    // Description:
+    // Unhiding superclass method
+    virtual void SetDataSet(
+        vtkCompositeDataIterator* iter, vtkDataObject* dataObj)
+      { this->Superclass::SetDataSet(iter, dataObj); };
+
+    // Description:
+    // Unhiding superclass method.
+    virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
+      { return this->Superclass::GetDataSet(iter); }
+
+    // Description:
+    // Unhiding superclass method.
+    virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
+     { return this->Superclass::GetMetaData(iter); }
+
+
+    // Description:
+    // Unhiding superclass method.
+    virtual int HasMetaData(vtkCompositeDataIterator* iter)
+     { return this->Superclass::HasMetaData(iter); }
+
+    // Description:
     // Sets the dataset at the given level and index. If insufficient number
     // of levels or data slots within the level, this method will grow the
     // data-structure accordingly.
-    void SetDataSet(
-        const unsigned int level,const unsigned int idx,vtkUniformGrid *grid);
+    virtual void SetDataSet(
+        unsigned int level,unsigned int idx,vtkUniformGrid *grid);
 
     // Description:
     // Appends the dataset at the given level. Increments the number of datasets
     // within the given level. Further, if an insufficient number of levels the
     // data-structure will grow accordingly.
-    void AppendDataSet(const unsigned int level, vtkUniformGrid *grid);
+    void AppendDataSet(unsigned int level, vtkUniformGrid *grid);
 
     // Description:
     // Returns the dataset stored at the given (level,idx). The user-supplied
     // level and idx must be within the bounds of the data-structure.
-    vtkUniformGrid* GetDataSet(
-        const unsigned int level, const unsigned int idx);
-
-    // Description:
-    // Accessing the dataset by an iterator
-    virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter)
-     {return( this->Superclass::GetDataSet(iter) ); }
+    virtual vtkUniformGrid* GetDataSet( unsigned int level, unsigned int idx);
 
     // Description:
     // Shallow/Deep copy & CopyStructure
@@ -90,7 +114,7 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
      {this->Superclass::ShallowCopy(src);}
     virtual void DeepCopy(vtkDataObject *src)
      {this->Superclass::DeepCopy(src);}
-    virtual void CopyStructure(vtkUniformGridAMR* input)
+    virtual void CopyStructure(vtkCompositeDataSet* input)
      {this->Superclass::CopyStructure(input);}
 
     // Description:
