@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHierarchicalBoxDataIterator.h
+  Module:    vtkUniformGridAMRDataIterator.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,20 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalBoxDataIterator - subclass of vtkCompositeDataIterator
+// .NAME vtkUniformGridAMRDataIterator - subclass of vtkCompositeDataIterator
 // with API to get current level and dataset index.
 // .SECTION Description
 
-#ifndef __vtkHierarchicalBoxDataIterator_h
-#define __vtkHierarchicalBoxDataIterator_h
+#ifndef __vtkUniformGridAMRDataIterator_h
+#define __vtkUniformGridAMRDataIterator_h
 
 #include "vtkCompositeDataIterator.h"
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataIterator : public vtkCompositeDataIterator
+class VTK_FILTERING_EXPORT vtkUniformGridAMRDataIterator :
+  public vtkCompositeDataIterator
 {
 public:
-  static vtkHierarchicalBoxDataIterator* New();
-  vtkTypeMacro(vtkHierarchicalBoxDataIterator, vtkCompositeDataIterator);
+  static vtkUniformGridAMRDataIterator* New();
+  vtkTypeMacro(vtkUniformGridAMRDataIterator, vtkCompositeDataIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,12 +40,12 @@ public:
 
 //BTX
 protected:
-  vtkHierarchicalBoxDataIterator();
-  ~vtkHierarchicalBoxDataIterator();
+  vtkUniformGridAMRDataIterator();
+  ~vtkUniformGridAMRDataIterator();
 
 private:
-  vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&); // Not implemented.
-  void operator=(const vtkHierarchicalBoxDataIterator&); // Not implemented.
+  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&); // Not implemented.
+  void operator=(const vtkUniformGridAMRDataIterator&); // Not implemented.
 //ETX
 };
 

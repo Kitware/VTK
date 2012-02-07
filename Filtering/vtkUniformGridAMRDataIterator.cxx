@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHierarchicalBoxDataIterator.cxx
+  Module:    vtkUniformGridAMRDataIterator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,24 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHierarchicalBoxDataIterator.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 #include "vtkCompositeDataSetInternals.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkHierarchicalBoxDataIterator);
+vtkStandardNewMacro(vtkUniformGridAMRDataIterator);
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataIterator::vtkHierarchicalBoxDataIterator()
+vtkUniformGridAMRDataIterator::vtkUniformGridAMRDataIterator()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkHierarchicalBoxDataIterator::~vtkHierarchicalBoxDataIterator()
+vtkUniformGridAMRDataIterator::~vtkUniformGridAMRDataIterator()
 {
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkHierarchicalBoxDataIterator::GetCurrentLevel()
+unsigned int vtkUniformGridAMRDataIterator::GetCurrentLevel()
 {
   if (this->IsDoneWithTraversal())
     {
@@ -42,7 +42,7 @@ unsigned int vtkHierarchicalBoxDataIterator::GetCurrentLevel()
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkHierarchicalBoxDataIterator::GetCurrentIndex()
+unsigned int vtkUniformGridAMRDataIterator::GetCurrentIndex()
 {
   if (this->IsDoneWithTraversal())
     {
@@ -59,7 +59,7 @@ unsigned int vtkHierarchicalBoxDataIterator::GetCurrentIndex()
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataIterator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUniformGridAMRDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
