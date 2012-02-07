@@ -192,7 +192,7 @@ void vtkCMLParser::NewMolecule(const char **attr)
 
 void vtkCMLParser::NewAtom(const char **attr)
 {
-  vtkAtom atom = this->Target->AddAtom();
+  vtkAtom atom = this->Target->AppendAtom();
   int attrInd = 0;
   unsigned short atomicNum = 0;
   double pos[3];
@@ -329,5 +329,5 @@ void vtkCMLParser::NewBond(const char **attr)
   vtkDebugMacro(<< "Adding bond between atomids " << atomId1 << " "
                 << atomId2);
 
-  this->Target->AddBond(atomId1, atomId2, order);
+  this->Target->AppendBond(atomId1, atomId2, order);
 }

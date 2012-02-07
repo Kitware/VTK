@@ -18,7 +18,7 @@
 //
 // vtkMolecule and the convenience classes vtkAtom and vtkBond
 // describe the geometry and connectivity of a molecule. The molecule
-// can be constructed using the AddAtom() and AddBond() methods in one
+// can be constructed using the AppendAtom() and AppendBond() methods in one
 // of two ways; either by fully specifying the atom/bond in a single
 // call, or by incrementally setting the various attributes using the
 // convience vtkAtom and vtkBond classes:
@@ -26,25 +26,25 @@
 // Single call:
 // \code
 // vtkMolecule *mol = vtkMolecule::New();
-// vtkAtom h1 = mol->AddAtom(1, 0.0, 0.0, -0.5);
-// vtkAtom h2 = mol->AddAtom(1, 0.0, 0.0,  0.5);
-// vtkBond b  = mol->AddBond(h1, h2, 1);
+// vtkAtom h1 = mol->AppendAtom(1, 0.0, 0.0, -0.5);
+// vtkAtom h2 = mol->AppendAtom(1, 0.0, 0.0,  0.5);
+// vtkBond b  = mol->AppendBond(h1, h2, 1);
 // \endcode
 //
 // Incremental:
 // \code
 // vtkMolecule *mol = vtkMolecule::New();
 //
-// vtkAtom h1 = mol->AddAtom();
+// vtkAtom h1 = mol->AppendAtom();
 // h1.SetAtomicNumber(1);
 // h1.SetPosition(0.0, 0.0, -0.5);
 //
-// vtkAtom h2 = mol->AddAtom();
+// vtkAtom h2 = mol->AppendAtom();
 // h2.SetAtomicNumber(1);
 // vtkVector3d displacement (0.0, 0.0, 1.0);
 // h2.SetPosition(h1.GetPositionAsVector3d() + displacement);
 //
-// vtkBond b  = mol->AddBond(h1, h2, 1);
+// vtkBond b  = mol->AppendBond(h1, h2, 1);
 // \endcode
 //
 // Both of the above methods will produce the same molecule, two
@@ -91,38 +91,38 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   // Description:
   // Add new atom with atomic number 0 (dummy atom) at origin. Return
   // a vtkAtom that refers to the new atom.
-  vtkAtom AddAtom()
+  vtkAtom AppendAtom()
   {
     const double pos[3] = {0.0, 0.0, 0.0};
-    return this->AddAtom(0, pos);
+    return this->AppendAtom(0, pos);
   }
 
   // Description:
   // Add new atom with the specified atomic number and
   // position. Return a vtkAtom that refers to the new atom.
-  vtkAtom AddAtom(unsigned short atomicNumber,
-                  const vtkVector3d &pos)
+  vtkAtom AppendAtom(unsigned short atomicNumber,
+                     const vtkVector3d &pos)
   {
-    return this->AddAtom(atomicNumber, pos.GetData());
+    return this->AppendAtom(atomicNumber, pos.GetData());
   }
-  vtkAtom AddAtom(unsigned short atomicNumber,
-                  const vtkVector3f &pos)
+  vtkAtom AppendAtom(unsigned short atomicNumber,
+                     const vtkVector3f &pos)
   {
-    return this->AddAtom(atomicNumber, pos.GetData());
+    return this->AppendAtom(atomicNumber, pos.GetData());
   }
-  vtkAtom AddAtom(unsigned short atomicNumber,
-                  double x, double y, double z)
+  vtkAtom AppendAtom(unsigned short atomicNumber,
+                     double x, double y, double z)
   {
     double pos[3];
     pos[0] = x;
     pos[1] = y;
     pos[2] = z;
-    return this->AddAtom(atomicNumber, pos);
+    return this->AppendAtom(atomicNumber, pos);
   }
-  vtkAtom AddAtom(unsigned short atomicNumber,
-                  const float pos[3]);
-  vtkAtom AddAtom(unsigned short atomicNumber,
-                  const double pos[3]);
+  vtkAtom AppendAtom(unsigned short atomicNumber,
+                     const float pos[3]);
+  vtkAtom AppendAtom(unsigned short atomicNumber,
+                     const double pos[3]);
 
   // Description:
   // Return a vtkAtom that refers to the atom with the specified id.
@@ -136,12 +136,12 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   // Add a bond between the specified atoms, optionally setting the
   // bond order (default: 1). Return a vtkBond object referring to the
   // new bond.
-  vtkBond AddBond(vtkIdType atom1, vtkIdType atom2,
-                  unsigned short order = 1);
-  vtkBond AddBond(const vtkAtom &atom1, const vtkAtom &atom2,
-                  unsigned short order = 1)
+  vtkBond AppendBond(vtkIdType atom1, vtkIdType atom2,
+                     unsigned short order = 1);
+  vtkBond AppendBond(const vtkAtom &atom1, const vtkAtom &atom2,
+                     unsigned short order = 1)
   {
-    return this->AddBond(atom1.Id, atom2.Id, order);
+    return this->AppendBond(atom1.Id, atom2.Id, order);
   }
 
   // Description:

@@ -101,7 +101,7 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkAtom vtkMolecule::AddAtom(unsigned short atomicNumber, const float pos[3])
+vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, const float pos[3])
 {
   vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
     (this->GetVertexData()->GetScalars());
@@ -121,7 +121,7 @@ vtkAtom vtkMolecule::AddAtom(unsigned short atomicNumber, const float pos[3])
 }
 
 //----------------------------------------------------------------------------
-vtkAtom vtkMolecule::AddAtom(unsigned short atomicNumber, const double pos[3])
+vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, const double pos[3])
 {
   vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
     (this->GetVertexData()->GetScalars());
@@ -224,7 +224,7 @@ vtkIdType vtkMolecule::GetNumberOfAtoms()
 }
 
 //----------------------------------------------------------------------------
-vtkBond vtkMolecule::AddBond(const vtkIdType atom1, const vtkIdType atom2,
+vtkBond vtkMolecule::AppendBond(const vtkIdType atom1, const vtkIdType atom2,
                              const unsigned short order)
 {
   vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::SafeDownCast
