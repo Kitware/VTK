@@ -29,7 +29,7 @@ int vtkMPIController::UseSsendForRMI = 0;
 
 // Output window which prints out the process id
 // with the error or warning messages
-class VTK_PARALLEL_EXPORT vtkMPIOutputWindow : public vtkOutputWindow
+class vtkMPIOutputWindow : public vtkOutputWindow
 {
 public:
   vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
@@ -46,9 +46,6 @@ public:
 
   vtkMPIOutputWindow()
     {
-      vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMPIOutputWindow");
-      if (ret)
-        ret->Delete();
       this->Controller = 0;
     }
 
