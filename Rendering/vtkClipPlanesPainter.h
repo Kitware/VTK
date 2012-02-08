@@ -34,6 +34,10 @@ public:
   // Get/Set the vtkPlaneCollection which specifies the clipping planes.
   static vtkInformationObjectBaseKey* CLIPPING_PLANES();
 
+  // Description:
+  // Update the bounds based on the clip planes
+  virtual void UpdateBounds(double bounds[6]);
+
 protected:
   vtkClipPlanesPainter();
   ~vtkClipPlanesPainter();

@@ -54,7 +54,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Instantiate object with no renderer; window selection turned off; 
+  // Instantiate object with no renderer; window selection turned off;
   // tolerance set to 0.01; and select invisible off.
   static vtkSelectVisiblePoints *New();
 
@@ -106,7 +106,7 @@ public:
   // Description:
   // Tests if a point x is being occluded or not against the Z-Buffer array passed in by
   // zPtr. Call Initialize before calling this method.
-  bool IsPointOccluded(const double x[], float *zPtr);
+  bool IsPointOccluded(const double x[3], const float *zPtr);
 
   // Description:
   // Return MTime also considering the renderer.

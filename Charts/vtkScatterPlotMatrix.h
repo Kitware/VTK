@@ -34,6 +34,7 @@ class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
 class vtkTextProperty;
+class vtkRenderWindowInteractor;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -251,6 +252,17 @@ protected:
   // The callback function when SelectionChangedEvent is invoked from
   // the Big chart. This class will just forward the event.
   void BigChartSelectionCallback(vtkObject*, unsigned long, void*);
+
+  // Description:
+  // Given a new position for the active plot, calculate a
+  // an animation path from the old active plot to the new
+  // active plot.
+  virtual void UpdateAnimationPath(const vtkVector2i& newActivePos);
+
+  // Description:
+  // Given the render window interactor, start animation of the
+  // animation path calculated above.
+  virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
 
   class PIMPL;
   PIMPL *Private;

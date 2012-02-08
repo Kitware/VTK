@@ -2,14 +2,6 @@
 
 # Run this script to set up basic user information.
 
-die() {
-  echo 'Failure during user information setup.' 1>&2
-  echo '--------------------------------------' 1>&2
-  echo '' 1>&2
-  echo "$@" 1>&2
-  exit 1
-}
-
 setup_user() {
   read -ep "Please enter your full name, such as 'John Doe': " name
   echo "Setting name to '$name'"
@@ -18,6 +10,8 @@ setup_user() {
   echo "Setting email address to '$email'"
   git config user.email "$email"
 }
+
+echo "Checking basic user information..."
 
 # Added some logic to introduce yourself to Git.
 gitName=$(git config user.name)

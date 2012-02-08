@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkDescriptiveStatistics_h
 #define __vtkDescriptiveStatistics_h
