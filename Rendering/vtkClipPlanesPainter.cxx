@@ -82,8 +82,8 @@ void vtkClipPlanesPainter::UpdateBounds(double bounds[6])
   vtkPlaneCollection* planes =this->ClippingPlanes;
   if(planes)
     {
-    int n = planes->GetNumberOfItems();
-    for(int i=0; i<n; i++)
+    int numPlanes = planes->GetNumberOfItems();
+    for(int i=0; i<numPlanes; i++)
       {
       vtkPlane *plane = planes->GetItem(i);
       if(plane)

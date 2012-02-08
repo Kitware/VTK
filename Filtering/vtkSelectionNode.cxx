@@ -179,6 +179,7 @@ void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->SelectionData->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "NULL") << endl;
 }
 
 //----------------------------------------------------------------------------

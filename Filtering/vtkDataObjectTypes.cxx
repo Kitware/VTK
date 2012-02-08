@@ -50,6 +50,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkArrayData.h"
 #endif
 
+#ifdef VTK_USE_CHEMISTRY
+#include  "vtkMolecule.h"
+#endif
+
 vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
@@ -85,6 +89,9 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkDirectedAcyclicGraph",
   "vtkArrayData",
   "vtkReebGraph",
+#ifdef VTK_USE_CHEMISTRY
+  "vtkMolecule",
+#endif
   NULL
 };
 
@@ -244,6 +251,12 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkReebGraph::New();
     }
+#ifdef VTK_USE_CHEMISTRY
+  else if(strcmp(type, "vtkMolecule") == 0)
+    {
+    return vtkMolecule::New();
+    }
+#endif
 #ifdef VTK_USE_N_WAY_ARRAYS
   else if(strcmp(type, "vtkArrayData") == 0)
     {

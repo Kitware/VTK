@@ -79,6 +79,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetScaleArray(vtkDataSetAttributes::SCALARS);
   this->SetMaskArray(vtkDataSetAttributes::SCALARS);
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
+  this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
   this->NestedDisplayLists = true;
 
@@ -195,6 +196,29 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
       vtkGlyph3DMapper::SOURCE_INDEX, input, association);
     }
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetSelectionIdArray(const char* selectionIdArrayName)
+{
+  this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, selectionIdArrayName);
+}
+
+// ---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetSelectionIdArray(int fieldAttributeType)
+{
+  this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
+}
+
+// ---------------------------------------------------------------------------
+vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
+{
+  int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  vtkDataArray* arr = this->GetInputArrayToProcess(
+        vtkGlyph3DMapper::SELECTIONID, input, association);
+  return arr;
 }
 
 // ---------------------------------------------------------------------------

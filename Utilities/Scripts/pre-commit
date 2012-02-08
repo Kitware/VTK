@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+egrep-q() {
+  egrep "$@" >/dev/null 2>/dev/null
+}
+
+die() {
+  echo 'pre-commit hook failure' 1>&2
+  echo '-----------------------' 1>&2
+  echo '' 1>&2
+  echo "$@" 1>&2
+  exit 1
+}
+
+#-----------------------------------------------------------------------------
+
+# Check that developmer setup is up-to-date.
+lastSetupForDevelopment=$(git config --get hooks.SetupForDevelopment || echo 0)
+eval $(grep '^SetupForDevelopment_VERSION=' "${BASH_SOURCE%/*}/../SetupForDevelopment.sh")
+test -n "$SetupForDevelopment_VERSION" || SetupForDevelopment_VERSION=0
+if test $lastSetupForDevelopment -lt $SetupForDevelopment_VERSION; then
+  die 'Developer setup in this work tree is out of date.  Please re-run
+
+  Utilities/SetupForDevelopment.sh
+'
+fi

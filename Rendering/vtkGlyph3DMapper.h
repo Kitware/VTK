@@ -42,7 +42,8 @@ public:
     SCALE = 0,
     SOURCE_INDEX = 1,
     MASK = 2,
-    ORIENTATION = 3
+    ORIENTATION = 3,
+    SELECTIONID = 4
     };
   //ETX
 
@@ -272,6 +273,26 @@ public:
   void SetSourceIndexArray(int fieldAttributeType);
 
   // Description:
+  // Convenience method to set the array used for selection IDs. This is same
+  // as calling
+  // SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+  //    vtkDataObject::FIELD_ASSOCIATION_POINTS, selectionidarrayname).
+  //
+  // If no selection id array is specified, the index of the glyph point is
+  // used.
+  void SetSelectionIdArray(const char* selectionIdArrayName);
+
+  // Description:
+  // Convenience method to set the array used for selection IDs. This is same
+  // as calling
+  // SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+  //    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType).
+  //
+  // If no selection id array is specified, the index of the glyph point is
+  // used.
+  void SetSelectionIdArray(int fieldAttributeType);
+
+  // Description:
   // For selection by color id mode (not for end-user, called by
   // vtkGlyphSelectionRenderMode). 0 is reserved for miss. it has to
   // start at 1. Initial value is 1.
@@ -309,6 +330,7 @@ protected:
   vtkDataArray* GetSourceIndexArray(vtkDataSet* input);
   vtkDataArray* GetOrientationArray(vtkDataSet* input);
   vtkDataArray* GetScaleArray(vtkDataSet* input);
+  vtkDataArray* GetSelectionIdArray(vtkDataSet* input);
   vtkUnsignedCharArray* GetColors(vtkDataSet* input);
 
   bool Scaling; // Determine whether scaling of geometry is performed
