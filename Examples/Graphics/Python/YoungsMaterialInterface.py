@@ -59,16 +59,14 @@ meshMat3 = threshold3.GetOutput()
 
 # Make multiblock from extracted submeshes
 meshMB =  vtkMultiBlockDataSet()
-meshMB.SetNumberOfBlocks( 2 )
+meshMB.SetNumberOfBlocks( 1 )
 meshMB.GetMetaData( 0 ).Set( vtkCompositeDataSet.NAME(), "Material 2" )
 meshMB.SetBlock( 0, meshMat2 )
-meshMB.GetMetaData( 1 ).Set( vtkCompositeDataSet.NAME(), "Material 3" )
-meshMB.SetBlock( 1, meshMat3 )
 
-# Create mapper for submesh corresponding to material 2
+# Create mapper for submesh corresponding to material 3
 matRange = cellData.GetScalars().GetRange()
 meshMapper = vtkDataSetMapper()
-meshMapper.SetInput( meshMat2 )
+meshMapper.SetInput( meshMat3 )
 meshMapper.SetScalarRange( matRange )
 meshMapper.SetScalarModeToUseCellData()
 meshMapper.SetColorModeToMapScalars()
@@ -76,7 +74,7 @@ meshMapper.ScalarVisibilityOn()
 meshMapper.SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 )
 meshMapper.SetResolveCoincidentTopologyToPolygonOffset()
 
-# Create wireframe actor for entire mesh
+# Create wireframe actor for submesh
 meshActor = vtkActor()
 meshActor.SetMapper( meshMapper )
 meshActor.GetProperty().SetRepresentationToWireframe()
@@ -86,18 +84,13 @@ cellData.SetActiveScalars("frac_pres[1]")
 # Reconstruct material interface
 interface = vtkYoungsMaterialInterface()
 interface.SetInput( meshMB )
-interface.SetNumberOfMaterials( 2 )
+interface.SetNumberOfMaterials( 1 )
 interface.SetMaterialVolumeFractionArray( 0, "frac_pres[1]" )
-interface.SetMaterialVolumeFractionArray( 1, "frac_pres[2]" )
+#interface.SetMaterialVolumeFractionArray( 1, "frac_pres[2]" )
 interface.SetMaterialNormalArray( 0, "norme" )
-interface.SetMaterialNormalArray( 1, "norme" )
+#interface.SetMaterialNormalArray( 1, "norme" )
 interface.FillMaterialOn()
-interface.RemoveAllMaterialBlockMappings()
-interface.AddMaterialBlockMapping( -1 )
-interface.AddMaterialBlockMapping( 1 )
-interface.AddMaterialBlockMapping( -2 )
-interface.AddMaterialBlockMapping( 2 )
-interface.UseAllBlocksOff()
+interface.UseAllBlocksOn()
 interface.Update()
 
 # Create mappers and actors for surface rendering of all reconstructed interfaces
