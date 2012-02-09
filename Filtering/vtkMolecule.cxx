@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
@@ -47,10 +48,10 @@ void vtkMolecule::Initialize()
   vertData->AllocateArrays(1); // atomic nums
 
   // Atomic numbers
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::New();
+  vtkNew<vtkUnsignedShortArray> atomicNums;
   atomicNums->SetNumberOfComponents(1);
   atomicNums->SetName("Atomic Numbers");
-  vertData->SetScalars(atomicNums);
+  vertData->SetScalars(atomicNums.GetPointer());
 
   // Nuclear coordinates
   this->Points->Initialize();
@@ -59,10 +60,10 @@ void vtkMolecule::Initialize()
   vtkDataSetAttributes *edgeData = this->GetEdgeData();
   edgeData->AllocateArrays(1); // Bond orders
 
-  vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::New();
+  vtkNew<vtkUnsignedShortArray> bondOrders;
   bondOrders->SetNumberOfComponents(1);
   bondOrders->SetName("Bond Orders");
-  edgeData->SetScalars(bondOrders);
+  edgeData->SetScalars(bondOrders.GetPointer());
 
   this->UpdateBondList();
 
