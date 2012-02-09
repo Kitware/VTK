@@ -46,7 +46,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestPolyhedron0.cxx
     TestPolyhedron1.cxx
     TestQuadRotationalExtrusion.cxx
-    TestQuadRotationalExtrusionMultiBlock.cxx
     TestRectilinearGridToPointSet.cxx
     TestReflectionFilter.cxx
     TestRotationalExtrusion.cxx
@@ -98,6 +97,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestIncrementalOctreePointLocator.cxx
       TestMultiBlock.cxx
       TestQuadraturePoints.cxx
+      TestQuadRotationalExtrusionMultiBlock.cxx
       TestUnstructuredGridGeometryFilter.cxx
       UnstructuredGridGradients.cxx
       UnstructuredGridCellGradients.cxx
@@ -106,6 +106,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestBooleanOperationPolyDataFilter2.cxx
       TestDistancePolyDataFilter.cxx
       TestIntersectionPolyDataFilter.cxx
+      TestYoungsMaterialInterface.cxx
       )
     IF (VTK_USE_PARALLEL)
       SET(MyTests ${MyTests}
