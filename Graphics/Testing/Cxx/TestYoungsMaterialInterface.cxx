@@ -55,6 +55,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/UCD2D/UCD_00005.inp");
   vtkNew<vtkAVSucdReader> reader;
   reader->SetFileName( fileName );
+  delete [] fileName;
 
   // Update reader and get mesh cell data;
   reader->Update();
@@ -179,5 +180,5 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
     interactor->Start();
     }
   
-  return ! retVal;
+  return !retVal;
 }
