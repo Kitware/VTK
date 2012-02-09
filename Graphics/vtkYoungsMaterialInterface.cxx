@@ -16,8 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 // This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
-// Implementation by Thierry Carrard (CEA)
-// Modification by Philippe Pebay, Kitware SAS 2011
+// Implementation by Thierry Carrard (CEA) and Philippe Pebay (Kitware SAS)
 
 #include "vtkYoungsMaterialInterface.h"
 
@@ -834,7 +833,7 @@ int vtkYoungsMaterialInterface::RequestData(
             }
           }
 
-        // for debugging : ensures that we don't read anything from cell, but only from previously filled arrays
+        // For debugging : ensure that we don't read anything from cell, but only from previously filled arrays
         vtkcell = 0;
 
         int processedEfectiveMat = 0;
@@ -844,10 +843,10 @@ int vtkYoungsMaterialInterface::RequestData(
           {
           int m = this->ReverseMaterialOrder ? matOrdering[nmat-1-mi].index : matOrdering[mi].index;
 
-          // get volume fraction and interface plane normal from input arrays
+          // Get volume fraction and interface plane normal from input arrays
           double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(ci) : 0;
 
-          // normalisation de la fraction sur le volume restant
+          // Normalize remaining volume fraction
           fraction = (referenceVolume>0) ? (fraction/referenceVolume) : 0.0;
 
           if( this->CellProduceInterface(cell.dim,cell.np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
