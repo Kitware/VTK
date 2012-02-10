@@ -447,12 +447,14 @@ static int pop_buffer();
            expanded = 1;
            }
          }
+       /* non-function macro expansion breaks "real superclass" trick
        else if (macro->Definition)
          {
          push_buffer();
          yy_switch_to_buffer(yy_scan_string(macro->Definition));
          expanded = 1;
          }
+       */
        }
      if (!expanded)
        {
