@@ -159,11 +159,13 @@ vtkMutableUndirectedGraph.cxx
 vtkNonLinearCell.cxx
 vtkNonMergingPointLocator.cxx
 vtkNonOverlappingAMR.cxx
+vtkNonOverlappingAMRAlgorithm.cxx
 vtkOctreePointLocator.cxx
 vtkOctreePointLocatorNode.cxx
 vtkOrderedTriangulator.cxx
 vtkOutEdgeIterator.cxx
 vtkOverlappingAMR.cxx
+vtkOverlappingAMRAlgorithm.cxx
 vtkParametricSpline.cxx
 vtkPassInputTypeAlgorithm.cxx
 vtkPentagonalPrism.cxx
@@ -254,6 +256,7 @@ vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
 vtkUnstructuredGridAlgorithm.cxx
 vtkUniformGridAMR.cxx
+vtkUniformGridAMRAlgorithm.cxx
 vtkUniformGridAMRDataIterator.cxx
 vtkUniformGridPartitioner.cxx
 vtkUnstructuredGrid.cxx
