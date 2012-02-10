@@ -180,6 +180,18 @@ MacroInfo *vtkParsePreprocess_GetMacro(
   PreprocessInfo *info, const char *name);
 
 /**
+ * Expand a function macro, given arguments in parentheses.
+ * Returns a new string that was allocated with malloc.
+ */
+const char *vtkParsePreprocess_ExpandMacro(
+  MacroInfo *macro, const char *argstring);
+
+/**
+ * Free an expanded macro.
+ */
+void vtkParsePreprocess_FreeExpandedMacro(const char *emacro);
+
+/**
  * Add an include directory.  The directories that were added
  * first will be searched first.
  */
