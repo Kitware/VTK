@@ -119,7 +119,7 @@ int vtkUniformGridAMRAlgorithm::ProcessRequest(
         if(info != NULL)
           {
           info->Set(
-            vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+           vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
           }
         }
       }
