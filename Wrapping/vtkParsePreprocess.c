@@ -724,14 +724,26 @@ static int preproc_evaluate_single(
         }
       else if (macro->IsFunction)
         {
-        /* skip function macros, and return a result of 0 */
+        /* expand function macros using the arguments */
         if (tokens->tok == '(')
           {
+          const char *args = tokens->text;
           *val = 0;
           *is_unsigned = 0;
           if (preproc_skip_parentheses(tokens) == VTK_PARSE_OK)
             {
-            return result;
+            const char *expansion;
+            expansion = vtkParsePreprocess_ExpandMacro(macro, args);
+            if (expansion)
+              {
+              result = vtkParsePreprocess_EvaluateExpression(
+                info, expansion, val, is_unsigned);
+              vtkParsePreprocess_FreeExpandedMacro(expansion);
+              return result;
+              }
+#if PREPROC_DEBUG
+            fprintf(stderr, "wrong number of macro args %d\n", __LINE__);
+#endif
             }
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
@@ -2368,8 +2380,10 @@ const char *vtkParsePreprocess_ExpandMacro(
   if (n != macro->NumberOfArguments)
     {
     free((char **)values);
+#if PREPROC_DEBUG
     fprintf(stderr, "wrong number of macro args to %s, %d != %d\n",
             macro->Name, n, macro->NumberOfArguments);
+#endif
     return NULL;
     }
 
