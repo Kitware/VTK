@@ -278,17 +278,16 @@ void vtkChartParallelCoordinates::SetColumnVisibility(const vtkStdString& name,
 //-----------------------------------------------------------------------------
 void vtkChartParallelCoordinates::SetColumnVisibilityAll(bool visible)
 {
+  // We always need to clear the current visible columns.
+  this->VisibleColumns->SetNumberOfTuples(0);
+  this->Storage->CurrentAxis = -1;
   if (visible)
     {
-    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    vtkTable *table = this->GetPlot(0)->GetInput();
+    for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
       {
-      this->SetColumnVisibility(this->VisibleColumns->GetValue(i), visible);
+      this->SetColumnVisibility(table->GetColumnName(i), visible);
       }
-    }
-  else
-    {
-    this->VisibleColumns->SetNumberOfTuples(0);
-    this->Storage->CurrentAxis = -1;
     }
 }
 
