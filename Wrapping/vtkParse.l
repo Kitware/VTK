@@ -446,6 +446,10 @@ static int pop_buffer();
            vtkParsePreprocess_FreeExpandedMacro(emacro);
            expanded = 1;
            }
+         else
+           {
+           fprintf(stderr, "wrong number of args to macro %s\n", macro->Name);
+           }
          }
        /* non-function macro expansion breaks "real superclass" trick
        else if (macro->Definition)
@@ -978,6 +982,9 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
       break;
     case VTK_PARSE_FILE_READ_ERROR:
       text = "input/output error";
+      break;
+    case VTK_PARSE_MACRO_NUMARGS:
+      text = "wrong number of args for macro";
       break;
     case VTK_PARSE_SYNTAX_ERROR:
       text = "syntax error";
