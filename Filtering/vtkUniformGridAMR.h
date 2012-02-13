@@ -84,11 +84,32 @@ class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
     virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
      { return this->Superclass::GetMetaData(iter); }
 
-
     // Description:
     // Unhiding superclass method.
     virtual int HasMetaData(vtkCompositeDataIterator* iter)
      { return this->Superclass::HasMetaData(iter); }
+
+    // Description:
+    // Get meta-data associated with a level. This may allocate a new
+    // vtkInformation object if none is already present. Use HasLevelMetaData to
+    // avoid unnecessary allocations.
+    virtual vtkInformation* GetLevelMetaData(unsigned int level)
+     { return this->GetChildMetaData(level); }
+
+    // Description:
+    // Returns if meta-data exists for a given level.
+    virtual int HasLevelMetaData(unsigned int level)
+     { return this->HasChildMetaData(level); }
+
+    // Description:
+    // Get meta-data associated with a dataset.  This may allocate a new
+    // vtkInformation object if none is already present. Use HasMetaData to
+    // avoid unnecessary allocations.
+    virtual vtkInformation* GetMetaData(unsigned int level, unsigned int index);
+
+    // Description:
+    // Returns if meta-data exists for a given dataset under a given level.
+    virtual int HasMetaData(unsigned int level, unsigned int index);
 
     // Description:
     // Sets the dataset at the given level and index. If insufficient number

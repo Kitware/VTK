@@ -135,18 +135,6 @@ public:
   vtkAMRBox GetAMRBox(vtkCompositeDataIterator* iter);
 
   // Description:
-  // Get meta-data associated with a level. This may allocate a new
-  // vtkInformation object if none is already present. Use HasLevelMetaData to
-  // avoid unnecessary allocations.
-  vtkInformation* GetLevelMetaData(unsigned int level)
-    { return this->GetChildMetaData(level); }
-
-  // Description:
-  // Returns if meta-data exists for a given level.
-  int HasLevelMetaData(unsigned int level)
-    { return this->HasChildMetaData(level); }
-
-  // Description:
   // Sets the composite index of the data at the given (level,index) pair.
   void SetCompositeIndex(
       const unsigned int level, const unsigned int index, const int idx );
@@ -157,19 +145,10 @@ public:
   int GetCompositeIndex( const unsigned int level, const unsigned int index );
 
   // Description:
-  // Get meta-data associated with a dataset.  This may allocate a new
-  // vtkInformation object if none is already present. Use HasMetaData to
-  // avoid unnecessary allocations.
-  vtkInformation* GetMetaData(unsigned int level, unsigned int index);
-
-  // Description:
   // Get the AMR box meta-data associated with a given dataset.
   // Returns 1 iff GetMetaData() was successful, else 0.
-  int GetMetaData(unsigned int level, unsigned int index, vtkAMRBox &box);
-
-  // Description:
-  // Returns if meta-data exists for a given dataset under a given level.
-  int HasMetaData(unsigned int level, unsigned int index);
+  virtual int GetMetaData(
+      unsigned int level, unsigned int index, vtkAMRBox &box);
 
   // Description:
   // Sets the refinement of a given level. The spacing at level
@@ -230,14 +209,24 @@ public:
   // Description:
   // Unhiding superclass method.
   virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
-    { return this->Superclass::GetMetaData(iter); }
+    {return this->Superclass::GetMetaData(iter); }
 
 
   // Description:
   // Unhiding superclass method.
   virtual int HasMetaData(vtkCompositeDataIterator* iter)
-    { return this->Superclass::HasMetaData(iter); }
+    {return this->Superclass::HasMetaData(iter); }
+
+  // Description:
+  // Unhiding superclass method.
+  virtual int HasMetaData(unsigned int level, unsigned int index)
+    {return this->Superclass::HasMetaData(level,index); }
  
+  // Desription:
+  // Unhiding superclass method.
+  virtual vtkInformation* GetMetaData(unsigned int level, unsigned int index)
+   {return this->Superclass::GetMetaData(level,index); }
+
   // Description:
   // Given the level and dataset index, returns the flat index in pre-order
   // traversal.

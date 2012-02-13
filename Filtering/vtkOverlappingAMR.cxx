@@ -426,33 +426,6 @@ int vtkOverlappingAMR::GetMetaData(
 }
 
 //----------------------------------------------------------------------------
-vtkInformation* vtkOverlappingAMR::GetMetaData(unsigned int level,
-  unsigned int index)
-{
-  vtkMultiPieceDataSet* levelMDS = vtkMultiPieceDataSet::SafeDownCast(
-    this->GetChild(level));
-  if (levelMDS)
-    {
-    return levelMDS->GetMetaData(index);
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkOverlappingAMR::HasMetaData(unsigned int level,
-  unsigned int index)
-{
-  vtkMultiPieceDataSet* levelMDS =
-      vtkMultiPieceDataSet::SafeDownCast(this->GetChild(level));
-  if (levelMDS)
-    {
-    return levelMDS->HasMetaData(index);
-    }
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 int vtkOverlappingAMRIsInBoxes(vtkAMRBoxList& boxes,
                                        int i, int j, int k)
 {

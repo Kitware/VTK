@@ -138,6 +138,31 @@ void vtkUniformGridAMR::SetDataSet(
 }
 
 //------------------------------------------------------------------------------
+vtkInformation* vtkUniformGridAMR::GetMetaData(unsigned level, unsigned int idx)
+{
+  vtkMultiPieceDataSet *levelMDS =
+      vtkMultiPieceDataSet::SafeDownCast(this->GetChild(level));
+  if( levelMDS != NULL )
+    {
+    return( levelMDS->GetMetaData(idx) );
+    }
+  return NULL;
+}
+
+//------------------------------------------------------------------------------
+int vtkUniformGridAMR::HasMetaData(unsigned int level, unsigned int idx )
+{
+  vtkMultiPieceDataSet* levelMDS =
+      vtkMultiPieceDataSet::SafeDownCast(this->GetChild(level));
+
+  if(levelMDS != NULL)
+    {
+    return( levelMDS->HasMetaData(idx) );
+    }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
 void vtkUniformGridAMR::AppendDataSet(
     unsigned int level, vtkUniformGrid* grid)
 {
