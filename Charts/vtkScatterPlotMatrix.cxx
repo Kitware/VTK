@@ -503,8 +503,7 @@ void vtkScatterPlotMatrix::StartAnimation(
 
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
 {
-  return this->Private->BigChart ?
-    this->Private->BigChart->GetAnnotationLink() : NULL;
+  return this->Private->Link.GetPointer();
 }
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
