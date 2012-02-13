@@ -898,16 +898,15 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
 
       if( checkVisibility && grid->IsCellVisible(inId) )
         {
-          outId = outPolys->InsertNextCell(4);
-          outPolys->InsertCellPoint(outPtId);
-          outPolys->InsertCellPoint(outPtId+cOutInc);
-          outPolys->InsertCellPoint(outPtId+cOutInc+1);
-          outPolys->InsertCellPoint(outPtId+1);
-          // Copy cell data.
-          outCD->CopyData(inCD,inId,outId);
-          this->RecordOrigCellId(outId, inId);
+        outId = outPolys->InsertNextCell(4);
+        outPolys->InsertCellPoint(outPtId);
+        outPolys->InsertCellPoint(outPtId+cOutInc);
+        outPolys->InsertCellPoint(outPtId+cOutInc+1);
+        outPolys->InsertCellPoint(outPtId+1);
+        // Copy cell data.
+        outCD->CopyData(inCD,inId,outId);
+        this->RecordOrigCellId(outId, inId);
         }
-
       }
     }
 
