@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkNonOverlappingAMRLevelIdScalars.cxx
+  Module:    vtkOverlappingAMRLevelIdScalars.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkNonOverlappingAMRLevelIdScalars.h"
+#include "vtkOverlappingAMRLevelIdScalars.h"
 
 #include "vtkCellData.h"
 #include "vtkUniformGridAMR.h"
@@ -21,23 +21,23 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkNonOverlappingAMR.h"
+#include "vtkOverlappingAMR.h"
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkNonOverlappingAMRLevelIdScalars);
+vtkStandardNewMacro(vtkOverlappingAMRLevelIdScalars);
 //----------------------------------------------------------------------------
-vtkNonOverlappingAMRLevelIdScalars::vtkNonOverlappingAMRLevelIdScalars()
+vtkOverlappingAMRLevelIdScalars::vtkOverlappingAMRLevelIdScalars()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkNonOverlappingAMRLevelIdScalars::~vtkNonOverlappingAMRLevelIdScalars()
+vtkOverlappingAMRLevelIdScalars::~vtkOverlappingAMRLevelIdScalars()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
+void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
     vtkUniformGridAMR *input, vtkUniformGridAMR *output)
 {
   assert( "pre: input should not be NULL" && (input != NULL) );
@@ -81,7 +81,7 @@ void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
 
 //----------------------------------------------------------------------------
 // Map ids into attribute data
-int vtkNonOverlappingAMRLevelIdScalars::RequestData(
+int vtkOverlappingAMRLevelIdScalars::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -108,7 +108,7 @@ int vtkNonOverlappingAMRLevelIdScalars::RequestData(
 }
 
 //----------------------------------------------------------------------------
-vtkUniformGrid* vtkNonOverlappingAMRLevelIdScalars::ColorLevel(
+vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(
   vtkUniformGrid* input, int group)
 {
   vtkUniformGrid* output = 0;
@@ -130,7 +130,7 @@ vtkUniformGrid* vtkNonOverlappingAMRLevelIdScalars::ColorLevel(
 
 
 //----------------------------------------------------------------------------
-void vtkNonOverlappingAMRLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOverlappingAMRLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

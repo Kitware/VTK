@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkNonOverlappingAMRLevelIdScalars.h
+  Module:    vtkOverlappingAMRLevelIdScalars.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,32 +12,32 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkNonOverlappingAMRLevelIdScalars - generate scalars from levels.
+// .NAME vtkOverlappingAMRLevelIdScalars - generate scalars from levels.
 // .SECTION Description
-// vtkNonOverlappingAMRLevelIdScalars is a filter that generates scalars using
+// vtkOverlappingAMRLevelIdScalars is a filter that generates scalars using
 // the level number for each level. Note that all datasets within a level get
 // the same scalar. The new scalars array is named \c LevelIdScalars.
 
-#ifndef __vtkNonOverlappingAMRLevelIdScalars_h
-#define __vtkNonOverlappingAMRLevelIdScalars_h
+#ifndef __vtkOverlappingAMRLevelIdScalars_h
+#define __vtkOverlappingAMRLevelIdScalars_h
 
-#include "vtkNonOverlappingAMRAlgorithm.h"
+#include "vtkOverlappingAMRAlgorithm.h"
 
 class vtkUniformGrid;
 class vtkUniformGridAMR;
 
-class VTK_GRAPHICS_EXPORT vtkNonOverlappingAMRLevelIdScalars :
-  public vtkNonOverlappingAMRAlgorithm
+class VTK_GRAPHICS_EXPORT vtkOverlappingAMRLevelIdScalars :
+  public vtkOverlappingAMRAlgorithm
 {
 public:
-  static vtkNonOverlappingAMRLevelIdScalars* New();
-  vtkTypeMacro(vtkNonOverlappingAMRLevelIdScalars,vtkNonOverlappingAMRAlgorithm);
+  static vtkOverlappingAMRLevelIdScalars* New();
+  vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkNonOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
 protected:
-  vtkNonOverlappingAMRLevelIdScalars();
-  ~vtkNonOverlappingAMRLevelIdScalars();
+  vtkOverlappingAMRLevelIdScalars();
+  ~vtkOverlappingAMRLevelIdScalars();
 
   int RequestData(vtkInformation *, 
                   vtkInformationVector **, 
@@ -47,8 +47,8 @@ protected:
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkNonOverlappingAMRLevelIdScalars(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
-  void operator=(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
+  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
+  void operator=(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
 //ETX
 };
 
