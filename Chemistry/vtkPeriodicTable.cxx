@@ -31,8 +31,7 @@
 #include <cstring>
 
 // Setup static variables
-vtkBlueObeliskData * vtkPeriodicTable::BlueObeliskData =
-  vtkBlueObeliskData::New();
+vtkNew<vtkBlueObeliskData> vtkPeriodicTable::BlueObeliskData;
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPeriodicTable);
