@@ -99,6 +99,16 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
     os << subIndent << "===== Bond " << i << ": =====\n";
     this->GetBond(i).PrintSelf(os, subIndent);
     }
+
+  os << indent << "Electronic Data:\n";
+  if (this->ElectronicData)
+    {
+    this->ElectronicData->PrintSelf(os, subIndent);
+    }
+  else
+    {
+    os << subIndent << "Not set.\n";
+    }
 }
 
 //----------------------------------------------------------------------------
