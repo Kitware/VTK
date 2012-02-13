@@ -173,12 +173,14 @@ vtkModifiedBSPTree.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
 vtkMultiThreshold.cxx
+vtkNonOverlappingAMRLevelIdScalars.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
 vtkOutlineCornerSource.cxx
 vtkOutlineFilter.cxx
 vtkOutlineSource.cxx
+vtkOverlappingAMRLevelIdScalars.cxx
 vtkParametricFunctionSource.cxx
 vtkPlaneSource.cxx
 vtkPlatonicSolidSource.cxx
