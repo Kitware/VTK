@@ -31,7 +31,7 @@ class VTK_GRAPHICS_EXPORT vtkOverlappingAMRLevelIdScalars :
 {
 public:
   static vtkOverlappingAMRLevelIdScalars* New();
-  vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkNonOverlappingAMRAlgorithm);
+  vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
