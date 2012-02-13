@@ -24,6 +24,7 @@
 #define __vtkPeriodicTable_h
 
 #include "vtkObject.h"
+#include "vtkNew.h"
 
 class vtkBlueObeliskData;
 class vtkColor3f;
@@ -40,7 +41,7 @@ public:
   // Description:
   // Access the static vtkBlueObeliskData object for raw access to
   // BODR data.
-  vtkGetObjectMacro(BlueObeliskData, vtkBlueObeliskData);
+  vtkGetNewMacro(BlueObeliskData, vtkBlueObeliskData);
 
   // Description:
   // Returns the number of elements in the periodic table.
@@ -89,7 +90,7 @@ protected:
   vtkPeriodicTable();
   ~vtkPeriodicTable();
 
-  static vtkBlueObeliskData *BlueObeliskData;
+  static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
   vtkPeriodicTable(const vtkPeriodicTable&);   // Not implemented
