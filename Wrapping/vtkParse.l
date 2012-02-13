@@ -438,17 +438,18 @@ static int pop_buffer();
            {
            emacro = vtkParsePreprocess_ExpandMacro(macro, args);
            free((char *)args);
-           }
-         if (emacro)
-           {
-           push_buffer();
-           yy_switch_to_buffer(yy_scan_string(emacro));
-           vtkParsePreprocess_FreeExpandedMacro(emacro);
-           expanded = 1;
-           }
-         else
-           {
-           fprintf(stderr, "wrong number of args to macro %s\n", macro->Name);
+           if (emacro)
+             {
+             push_buffer();
+             yy_switch_to_buffer(yy_scan_string(emacro));
+             vtkParsePreprocess_FreeExpandedMacro(emacro);
+             expanded = 1;
+             }
+           else
+             {
+             print_preprocessor_error(
+               VTK_PARSE_MACRO_NUMARGS, macro->Name, strlen(macro->Name));
+             }
            }
          }
        /* non-function macro expansion breaks "real superclass" trick
