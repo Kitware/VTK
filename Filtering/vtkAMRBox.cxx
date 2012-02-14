@@ -1819,8 +1819,8 @@ void Split(
       const int minSide[3],
       std::vector<vtkAMRBox> &decomp)
 {
-  vector<vtkAMRBox> tDecomp; // Working array for resulting splits
-  vector<vtkAMRBox> aDecomp; // and for atomic boxes.
+  std::vector<vtkAMRBox> tDecomp; // Working array for resulting splits
+  std::vector<vtkAMRBox> aDecomp; // and for atomic boxes.
 
   // For each coordinate direction attempt N splits.
   for (int cdir=0; cdir<3; ++cdir)
@@ -1881,8 +1881,8 @@ void Split(
       const int minSide[3],
       std::vector<vtkAMRBox> &decomp)
 {
-  vector<vtkAMRBox> tDecomp; // Working array for resulting splits
-  vector<vtkAMRBox> aDecomp; // and for atomic boxes.
+  std::vector<vtkAMRBox> tDecomp; // Working array for resulting splits
+  std::vector<vtkAMRBox> aDecomp; // and for atomic boxes.
   for (int cdir=0; cdir<3; ++cdir)
     {
     while(decomp.size())
