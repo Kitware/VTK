@@ -32,6 +32,10 @@ public:
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
   void PrintSelf(ostream &os, vtkIndent indent);
 
+  // Description:
+  // Return class name of data type (see vtkType.h for definitions).
+  virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+
   // BTX
   // Description:
   // Retrieve an instance of this class from an information object.
