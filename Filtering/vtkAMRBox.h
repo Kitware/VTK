@@ -364,6 +364,19 @@ private:
   int RealExtent[6];   // Extent of the all the real nodes, i.e., not the ghosts
   int GridDescription; // Defines whether the box is on the XY,YZ planes.
 
+  // Description:
+  // Checks if this instance of vtkAMRBox intersects with the box passed through
+  // the argument list along the given dimension q. True is returned iff the box
+  // intersects successfully. Otherwise, there is no intersection along the
+  // given dimension and false is returned.
+  bool DoesBoxIntersectAlongDimension(const vtkAMRBox &other, const int q);
+
+  // Description:
+  // Intersects this instance of vtkAMRbox with box passed through the argument
+  // list along the given dimension q. True is returned iff the box intersects
+  // successfully. Otherwise, false is returned if there is no intersection at
+  // the given dimension.
+  bool IntersectBoxAlongDimension(const vtkAMRBox &other, const int q);
 
   // Description:
   // This method builds the AMR box with the given dimensions.

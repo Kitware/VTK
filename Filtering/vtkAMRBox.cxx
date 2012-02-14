@@ -1048,6 +1048,24 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkAMRBox::DoesBoxIntersectAlongDimension(
+      const vtkAMRBox &other, const int q)
+{
+  int minVal = 0;
+  int maxVal = 0;
+  minVal = (this->LoCorner[q] < other.LoCorner[q]) ?
+      other.LoCorner[q] : this->LoCorner[q];
+  maxVal = (this->HiCorner[q] > other.HiCorner[q]) ?
+      other.HiCorner[q] : this->HiCorner[q];
+
+  if (minVal >= maxVal)
+    {
+    return false;
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other)
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
@@ -1069,18 +1087,69 @@ bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other)
 
   // Compare each coordinate of the corners.  Stop if at 
   // anytime the box becomes invalid - i.e. there is no intersection
-  int minVal, maxVal;
-  for (int q=0; q<this->Dimension; ++q)
+  switch( this->Dimension )
     {
-    minVal = 
-      (this->LoCorner[q] < other.LoCorner[q]) ? other.LoCorner[q] : this->LoCorner[q];
-    maxVal = 
-      (this->HiCorner[q] > other.HiCorner[q]) ? other.HiCorner[q] : this->HiCorner[q];
-
-    if (minVal >= maxVal)
-      {
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          if( !this->DoesBoxIntersectAlongDimension(other,0) ||
+              !this->DoesBoxIntersectAlongDimension(other,1) )
+            {
+            return false;
+            }
+          break;
+        case VTK_XZ_PLANE:
+          if( !this->DoesBoxIntersectAlongDimension(other,0) ||
+              !this->DoesBoxIntersectAlongDimension(other,2) )
+            {
+            return false;
+            }
+          break;
+        case VTK_YZ_PLANE:
+          if( !this->DoesBoxIntersectAlongDimension(other,1) ||
+              !this->DoesBoxIntersectAlongDimension(other,2) )
+            {
+            return false;
+            }
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+        break;
+    case 3:
+      if( !this->DoesBoxIntersectAlongDimension(other,0) ||
+          !this->DoesBoxIntersectAlongDimension(other,1) ||
+          !this->DoesBoxIntersectAlongDimension(other,2) )
+        {
+        return false;
+        }
+        break;
+    default:
+      vtkGenericWarningMacro( "Can't operate on a " << this->Dimension );
       return false;
-      }
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox &other, const int q)
+{
+  assert( "pre: dimension is out-of-bounds!" && (q >= 0) && (q <= 2) );
+  if( this->LoCorner[q] <= other.LoCorner[q] )
+    {
+    this->LoCorner[q] = other.LoCorner[q];
+    }
+  if (this->HiCorner[q] >= other.HiCorner[q])
+    {
+    this->HiCorner[q] = other.HiCorner[q];
+    }
+  if (this->LoCorner[q] >= this->HiCorner[q])
+    {
+    return false;
     }
   return true;
 }
@@ -1108,20 +1177,50 @@ bool vtkAMRBox::Intersect(const vtkAMRBox &other)
 
   // Compare each coordinate of the corners.  Stop if at 
   // anytime the box becomes invalid - i.e. there is no intersection
-  for (int q=0; q<this->Dimension; ++q)
+  switch( this->Dimension )
     {
-    if (this->LoCorner[q] < other.LoCorner[q])
-      {
-      this->LoCorner[q] = other.LoCorner[q];
-      }
-    if (this->HiCorner[q] > other.HiCorner[q])
-      {
-      this->HiCorner[q] = other.HiCorner[q];
-      }
-    if (this->LoCorner[q] >= this->HiCorner[q])
-      {
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          if( !this->IntersectBoxAlongDimension(other,0) ||
+              !this->IntersectBoxAlongDimension(other,1) )
+            {
+            return false;
+            }
+          break;
+        case VTK_XZ_PLANE:
+          if( !this->IntersectBoxAlongDimension(other,0) ||
+              !this->IntersectBoxAlongDimension(other,2) )
+            {
+            return false;
+            }
+          break;
+        case VTK_YZ_PLANE:
+          if( !this->IntersectBoxAlongDimension(other,1) ||
+              !this->IntersectBoxAlongDimension(other,2) )
+            {
+            return false;
+            }
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+        break;
+    case 3:
+      if( !this->IntersectBoxAlongDimension(other,0) ||
+          !this->IntersectBoxAlongDimension(other,1) ||
+          !this->IntersectBoxAlongDimension(other,2) )
+        {
+        return false;
+        }
+        break;
+    default:
+      vtkGenericWarningMacro( "Can't operate on a " << this->Dimension );
       return false;
-      }
     }
   return true;
 }
