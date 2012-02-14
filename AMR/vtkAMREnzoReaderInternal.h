@@ -23,8 +23,8 @@
 #ifndef VTKAMRENZOREADERINTERNAL_HPP_
 #define VTKAMRENZOREADERINTERNAL_HPP_
 
-#include <vtkstd/vector> // for STL vector
-#include <vtkstd/string> // for STL string
+#include <vector> // for STL vector
+#include <string> // for STL string
 #include <cassert>       // for assert()
 
 
@@ -65,7 +65,7 @@ public:
   int                   Index;
   int                   Level;
   int                   ParentId;
-  vtkstd::vector< int > ChildrenIds;
+  std::vector< int > ChildrenIds;
 
   int                   MinParentWiseIds[3];
   int                   MaxParentWiseIds[3];
@@ -81,12 +81,12 @@ public:
   double                MaxBounds[3];
   double                SubdivisionRatio[3];
 
-  vtkstd::string        BlockFileName;
-  vtkstd::string        ParticleFileName;
+  std::string        BlockFileName;
+  std::string        ParticleFileName;
 
   void   Init();
-  void GetParentWiseIds(  vtkstd::vector< vtkEnzoReaderBlock > & blocks  );
-  void GetLevelBasedIds(  vtkstd::vector< vtkEnzoReaderBlock > & blocks  );
+  void GetParentWiseIds(  std::vector< vtkEnzoReaderBlock > & blocks  );
+  void GetLevelBasedIds(  std::vector< vtkEnzoReaderBlock > & blocks  );
 };
 
 
@@ -121,14 +121,14 @@ public:
   vtkDataArray  * DataArray;
 //  vtkAMREnzoReader * TheReader;
 
-  vtkstd::string                       DirectoryName;
-  vtkstd::string                       MajorFileName;
-  vtkstd::string                       BoundaryFileName;
-  vtkstd::string                       HierarchyFileName;
-  vtkstd::vector< vtkstd::string >     BlockAttributeNames;
-  vtkstd::vector< vtkstd::string >     ParticleAttributeNames;
-  vtkstd::vector< vtkstd::string >     TracerParticleAttributeNames;
-  vtkstd::vector< vtkEnzoReaderBlock > Blocks;
+  std::string                       DirectoryName;
+  std::string                       MajorFileName;
+  std::string                       BoundaryFileName;
+  std::string                       HierarchyFileName;
+  std::vector< std::string >     BlockAttributeNames;
+  std::vector< std::string >     ParticleAttributeNames;
+  std::vector< std::string >     TracerParticleAttributeNames;
+  std::vector< vtkEnzoReaderBlock > Blocks;
 
   void Init();
   void ReleaseDataArray();

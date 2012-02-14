@@ -33,8 +33,8 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <cassert>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <vector>
+#include <map>
 
 #define H5_USE_16_API
 #include <hdf5.h>

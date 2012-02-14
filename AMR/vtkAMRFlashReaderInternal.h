@@ -24,10 +24,10 @@
 #define VTKAMRFLASHREADERINTERNAL_HPP_
 
 #include <cassert>
-#include <vtkstd/vector>
-#include <vtkstd/map>
+#include <vector>
+#include <map>
 #include <cstring>
-#include <vtkstd/string>
+#include <string>
 
 #include "vtkSetGet.h"
 #include "vtkDataSet.h"
@@ -105,17 +105,17 @@ typedef  struct tagFlashReaderSimulationInformation
   char   BuildTimeStamp[80];
 } FlashReaderSimulationInformation;
 
-static vtkstd::string GetSeparatedParticleName( const vtkstd::string & variable )
+static std::string GetSeparatedParticleName( const std::string & variable )
 {
-  vtkstd::string sepaName = variable;
+  std::string sepaName = variable;
 
   if ( sepaName.length() > 9 && sepaName.substr(0,9) == "particle_" )
     {
-    sepaName = vtkstd::string( "Particles/" ) + sepaName.substr( 9 );
+    sepaName = std::string( "Particles/" ) + sepaName.substr( 9 );
     }
   else
     {
-    sepaName = vtkstd::string( "Particles/" ) + sepaName;
+    sepaName = std::string( "Particles/" ) + sepaName;
     }
 
   return sepaName;
@@ -154,15 +154,15 @@ public:
   FlashReaderSimulationInformation    SimulationInformation;  // CFD simulation
 
   // blocks
-  vtkstd::vector< Block >             Blocks;
-  vtkstd::vector<  int  >             LeafBlocks;
-  vtkstd::vector< vtkstd::string >    AttributeNames;
+  std::vector< Block >             Blocks;
+  std::vector<  int  >             LeafBlocks;
+  std::vector< std::string >    AttributeNames;
 
   // particles
-  vtkstd::string                      ParticleName;
-  vtkstd::vector< hid_t >             ParticleAttributeTypes;
-  vtkstd::vector< vtkstd::string >    ParticleAttributeNames;
-  vtkstd::map< vtkstd::string, int >  ParticleAttributeNamesToIds;
+  std::string                      ParticleName;
+  std::vector< hid_t >             ParticleAttributeTypes;
+  std::vector< std::string >    ParticleAttributeNames;
+  std::map< std::string, int >  ParticleAttributeNamesToIds;
 
 
   int      GetCycle();

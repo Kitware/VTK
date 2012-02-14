@@ -40,8 +40,8 @@
 #include <hdf5.h>
 
 #include <sstream>
-#include <vtkstd/vector>
-#include <vtkstd/string>
+#include <vector>
+#include <string>
 #include <cassert>
 
 #include "vtkAMREnzoReaderInternal.h"
@@ -200,9 +200,9 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
   if( fileName && strcmp( fileName, "" ) &&
     ( (this->FileName==NULL) || (strcmp(fileName,this->FileName ) ) ) )
     {
-    vtkstd::string  tempName( fileName );
-    vtkstd::string  bExtName( ".boundary" );
-    vtkstd::string  hExtName( ".hierarchy" );
+    std::string  tempName( fileName );
+    std::string  bExtName( ".boundary" );
+    std::string  hExtName( ".hierarchy" );
 
     if( tempName.length() > hExtName.length() &&
         tempName.substr(tempName.length()-hExtName.length() )== hExtName )

@@ -21,9 +21,9 @@
 #define VTKAMRBASEREADER_H_
 
 #include "vtkHierarchicalBoxDataSetAlgorithm.h"
-#include <vtkstd/vector>    // STL vector header
-#include <vtkstd/map>       // STL map header
-#include <vtkstd/utility>   // for STL pair
+#include <vector>    // STL vector header
+#include <map>       // STL map header
+#include <utility>   // for STL pair
 
 // Forward Declarations
 class vtkHierarchicalBoxDataSet;
@@ -262,7 +262,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 
 
     //BTX
-      vtkstd::vector<int> BlockMap;
+      std::vector<int> BlockMap;
     //ETX
 
   private:

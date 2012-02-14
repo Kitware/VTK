@@ -483,7 +483,7 @@ void vtkAMRBaseReader::AssignAndLoadBlocks( vtkHierarchicalBoxDataSet *output )
   // hierarchical box data-structure. Note that then number of blocks
   // can change based on user constraints, e.g., the number of levels
   // visible.
-  vtkstd::vector< int > idxcounter;
+  std::vector< int > idxcounter;
   idxcounter.resize(this->GetNumberOfLevels()+1, 0);
 
   // Find the number of blocks to be processed. BlockMap.size()

@@ -23,7 +23,7 @@
 
 #include "vtkAMRBaseReader.h"
 
-#include "vtkstd/map"     // For STL map
+#include <map>     // For STL map
 
 class vtkHierarchicalBoxDataSet;
 class vtkEnzoReaderInternal;
@@ -121,8 +121,8 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 
     vtkEnzoReaderInternal *Internal;
 
-    vtkstd::map< vtkstd::string, int > label2idx;
-    vtkstd::map< int, double >    conversionFactors;
+    std::map< std::string, int > label2idx;
+    std::map< int, double >    conversionFactors;
 };
 
 #endif /* VTKAMRENZOREADER_H_ */

@@ -30,9 +30,9 @@ void vtkFlashReaderInternal::GetBlockAttribute(
    }
  // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
  // the actual attribute name
- vtkstd::string  tempName = atribute;
+ std::string  tempName = atribute;
  size_t          slashPos = tempName.find( "/" );
- vtkstd::string  attrName = tempName.substr ( slashPos + 1 );
+ std::string  attrName = tempName.substr ( slashPos + 1 );
  hid_t           dataIndx = H5Dopen
                             ( this->FileIndex, attrName.c_str() );
 
@@ -316,7 +316,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     }
 
   hsize_t        objIndex;
-  vtkstd::string sObjName = "processor number";
+  std::string sObjName = "processor number";
   char           namefromfile[17];
   for ( objIndex = 0; objIndex < numbObjs; objIndex ++ )
     {
@@ -324,7 +324,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     if ( objsize == 16 )
       {
       H5Gget_objname_by_idx( rootIndx, objIndex, namefromfile, 17 );
-      vtkstd::string tempstr = namefromfile;
+      std::string tempstr = namefromfile;
       if ( tempstr == sObjName ) // if this file contains processor numbers
         {
         this->HaveProcessorsInfo = 1;
@@ -1396,7 +1396,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
   for ( int i = 0; i < numMembers; i ++ )
     {
     char  * member_name = H5Tget_member_name( point_raw_type, i );
-    vtkstd::string nice_name = GetSeparatedParticleName( member_name );
+    std::string nice_name = GetSeparatedParticleName( member_name );
     hid_t  member_raw_type = H5Tget_member_type( point_raw_type, i );
     hid_t  member_type = H5Tget_native_type( member_raw_type, H5T_DIR_ASCEND );
     int    index = (int)(this->ParticleAttributeTypes.size());
@@ -1515,13 +1515,13 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   H5Dread( pnameId, string24, H5S_ALL, H5S_ALL, H5P_DEFAULT, cnames );
 
   // Convert the single string to individual variable names.
-  vtkstd::string  snames( cnames );
+  std::string  snames( cnames );
   delete[] cnames;
   cnames = NULL;
 
   for ( int i = 0; i < numNames; i ++ )
     {
-    vtkstd::string name = snames.substr( i * 24, 24 );
+    std::string name = snames.substr( i * 24, 24 );
 
     int sp = (int)(name.find_first_of(' '));
     if ( sp < 24 )
@@ -1534,7 +1534,7 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
           name != "particle_z"
        )
       {
-      vtkstd::string nice_name = GetSeparatedParticleName( name );
+      std::string nice_name = GetSeparatedParticleName( name );
       this->ParticleAttributeTypes.push_back( H5T_NATIVE_DOUBLE );
       this->ParticleAttributeNames.push_back( name );
       this->ParticleAttributeNamesToIds[ nice_name ] = i;
