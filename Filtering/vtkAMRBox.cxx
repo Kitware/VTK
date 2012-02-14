@@ -19,15 +19,13 @@
 #include "vtkType.h"
 #include "vtkStructuredData.h"
 
-#include <vtkstd/vector>
-#include <vtkstd/algorithm>
+#include <vector>
+#include <algorithm>
 #include <cstring>
 #include <cassert>
 #include <sstream>
 #include <fstream>
 
-using vtkstd::vector;
-using vtkstd::copy;
 
 
 //-----------------------------------------------------------------------------
