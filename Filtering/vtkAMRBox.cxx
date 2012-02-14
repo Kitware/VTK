@@ -141,43 +141,42 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   int N1,N2,idx;
   switch( this->Dimension )
     {
-      case 1:
-      case 3:
-        N1  = ndim[0];
-        N2  = ndim[1];
-        idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
-        break;
-      case 2:
-        switch( this->GridDescription )
-          {
-          case VTK_XY_PLANE:
-            N1  = ndim[0];
-            N2  = ndim[1];
-            idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
-            break;
-          case VTK_XZ_PLANE:
-            N1  = ndim[0];
-            N2  = ndim[2];
-            idx = ijk[1]*N1*N2 + ijk[2]*N1 + ijk[0];
-            break;
-          case VTK_YZ_PLANE:
-            N1  = ndim[1];
-            N2  = ndim[2];
-            idx = ijk[0]*N1*N2 + ijk[2]*N1 + ijk[1];
-            break;
-          default:
-            std::cerr << "Invalid 2-D topoly for AMR box!\n";
-            std::cerr << "FILE: " << __FILE__ << std::endl;
-            std::cerr << "LINE: " << __LINE__ << std::endl;
-            std::cerr.flush();
-          }
-        break;
-      default:
-        std::cerr << "Invalid dimension for AMR box!\n";
-        std::cerr << "FILE: " << __FILE__ << std::endl;
-        std::cerr << "LINE: " << __LINE__ << std::endl;
-        std::cerr.flush();
-
+    case 1:
+    case 3:
+      N1  = ndim[0];
+      N2  = ndim[1];
+      idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+      break;
+    case 2:
+      switch( this->GridDescription )
+        {
+        case VTK_XY_PLANE:
+          N1  = ndim[0];
+          N2  = ndim[1];
+          idx = ijk[2]*N1*N2 + ijk[1]*N1 + ijk[0];
+          break;
+        case VTK_XZ_PLANE:
+          N1  = ndim[0];
+          N2  = ndim[2];
+          idx = ijk[1]*N1*N2 + ijk[2]*N1 + ijk[0];
+          break;
+        case VTK_YZ_PLANE:
+          N1  = ndim[1];
+          N2  = ndim[2];
+          idx = ijk[0]*N1*N2 + ijk[2]*N1 + ijk[1];
+          break;
+        default:
+          std::cerr << "Invalid 2-D topoly for AMR box!\n";
+          std::cerr << "FILE: " << __FILE__ << std::endl;
+          std::cerr << "LINE: " << __LINE__ << std::endl;
+          std::cerr.flush();
+        }
+      break;
+    default:
+      std::cerr << "Invalid dimension for AMR box!\n";
+      std::cerr << "FILE: " << __FILE__ << std::endl;
+      std::cerr << "LINE: " << __LINE__ << std::endl;
+      std::cerr.flush();
     }
   return( idx );
 }
@@ -322,8 +321,8 @@ void vtkAMRBox::GetDimensions(int *lo, int *hi) const
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
     {
-      lo[q]=this->LoCorner[q];
-      hi[q]=this->HiCorner[q];
+    lo[q]=this->LoCorner[q];
+    hi[q]=this->HiCorner[q];
     }
 }
 
@@ -625,10 +624,10 @@ void vtkAMRBox::Grow(int byN)
           hi[2] = this->HiCorner[2];
           for( q=0; q < 2; ++q )
             {
-              lo[q] = this->LoCorner[q]-byN;
-              hi[q] = this->HiCorner[q]+byN;
-              this->NG[q*2]++;
-              this->NG[q*2+1]++;
+            lo[q] = this->LoCorner[q]-byN;
+            hi[q] = this->HiCorner[q]+byN;
+            this->NG[q*2]++;
+            this->NG[q*2+1]++;
             }
           break;
         case VTK_XZ_PLANE:
@@ -652,10 +651,10 @@ void vtkAMRBox::Grow(int byN)
           hi[0] = this->HiCorner[0];
           for( q=1; q < 3; ++q )
             {
-              lo[q] = this->LoCorner[q]-byN;
-              hi[q] = this->HiCorner[q]+byN;
-              this->NG[q*2]++;
-              this->NG[q*2+1]++;
+            lo[q] = this->LoCorner[q]-byN;
+            hi[q] = this->HiCorner[q]+byN;
+            this->NG[q*2]++;
+            this->NG[q*2+1]++;
             }
           break;
         default:
@@ -920,7 +919,9 @@ void vtkAMRBox::GetMinBounds( double min[3] ) const
 {
   min[0] = min[1] = min[2] = 0.0;
   for( int i=0; i < 3; ++i )
+    {
     min[ i ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -928,18 +929,20 @@ void vtkAMRBox::GetMaxBounds( double max[3] ) const
 {
   max[0] = max[1] = max[2] = 0.0;
   for( int i=0; i < 3; ++i )
+    {
     max[ i ] =this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRBox::GetBounds( double bounds[6] ) const
 {
   int i, j;
-    for( i=0, j=0; i < 3; ++i )
-      {
-      bounds[ j++ ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
-      bounds[ j++ ] = this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
-      }
+  for( i=0, j=0; i < 3; ++i )
+    {
+    bounds[ j++ ] = this->X0[i]+this->LoCorner[i]*this->DX[i];
+    bounds[ j++ ] = this->X0[i]+(this->HiCorner[i]+1)*this->DX[i];
+    }
 }
 
 //-----------------------------------------------------------------------------
