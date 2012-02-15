@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkScalarsToColorsPainter.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 //----------------------------------------------------------------------------
@@ -121,7 +122,15 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
           (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
            scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
           {
-          return false;
+          vtkUnsignedCharArray* colors =
+            static_cast<vtkUnsignedCharArray*>(scalars);
+          if ((colors->GetNumberOfComponents() == 4 && colors->GetValueRange(3)[0] < 255) ||
+            (colors->GetNumberOfComponents() == 2 && colors->GetValueRange(1)[0] < 255))
+            {
+            // If the opacity is 255, despite the fact that the user specified
+            // RGBA, we know that the Alpha is 100% opaque. So treat as opaque.
+            return false;
+            }
           }
         }
       }

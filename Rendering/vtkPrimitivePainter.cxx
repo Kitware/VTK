@@ -226,7 +226,11 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (c)
     {
     idx |= VTK_PDM_COLORS;
-    if (c->GetNumberOfComponents() == 4 && c->GetValueRange(3)[0] == 255)
+    if (
+      /* RGBA */
+      (c->GetNumberOfComponents() == 4 && c->GetValueRange(3)[0] == 255) ||
+      /* LuminanceAlpha */
+      (c->GetNumberOfComponents() == 2 && c->GetValueRange(1)[0] == 255))
       {
       // If the opacity is 255, don't bother send the opacity values to OpenGL.
       // Treat the colors are opaque colors (which they are).
