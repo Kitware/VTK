@@ -17,7 +17,7 @@
 #include "vtkInformationVector.h"
 #include "vtkDataObject.h"
 #include "vtkMultiProcessController.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkDataArraySelection.h"
 #include "vtkCallbackCommand.h"
 #include "vtkIndent.h"
@@ -68,7 +68,7 @@ vtkAMRBaseReader::~vtkAMRBaseReader()
 int vtkAMRBaseReader::FillOutputPortInformation(
     int vtkNotUsed(port),vtkInformation *info )
 {
-  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkHierarchicalBoxDataSet" );
+  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR" );
   return 1;
 }
 
@@ -251,7 +251,7 @@ int vtkAMRBaseReader::RequestInformation(
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
   if( this->Metadata == NULL )
     {
-    this->Metadata = vtkHierarchicalBoxDataSet::New();
+    this->Metadata = vtkOverlappingAMR::New();
     vtkInformation* info = outputVector->GetInformationObject(0);
     assert( "pre: output information object is NULL" && (info != NULL) );
     this->FillMetaData( );
@@ -422,7 +422,7 @@ void vtkAMRBaseReader::LoadCellData(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRBaseReader::LoadRequestedBlocks( vtkHierarchicalBoxDataSet *output )
+void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
 {
   assert( "pre: AMR data-structure is NULL" && (output != NULL) );
 
@@ -474,7 +474,7 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkHierarchicalBoxDataSet *output )
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRBaseReader::AssignAndLoadBlocks( vtkHierarchicalBoxDataSet *output )
+void vtkAMRBaseReader::AssignAndLoadBlocks( vtkOverlappingAMR *output )
 {
   assert( "pre: AMR data-structure is NULL" && (output != NULL) );
 
@@ -538,8 +538,8 @@ int vtkAMRBaseReader::RequestData(
   this->NumBlocksFromFile  = 0;
 
   vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
-  vtkHierarchicalBoxDataSet *output =
-    vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *output =
+    vtkOverlappingAMR::SafeDownCast(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: output AMR dataset is NULL" && ( output != NULL ) );
 

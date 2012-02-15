@@ -23,7 +23,7 @@
 
 #include "vtkAMRBaseReader.h"
 
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkFlashReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader

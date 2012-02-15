@@ -14,7 +14,7 @@
  =========================================================================*/
 #include "vtkAMRFlashReader.h"
 #include "vtkObjectFactory.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkAMRUtilities.h"
 #include "vtkByteSwap.h"
 #include "vtkUniformGrid.h"

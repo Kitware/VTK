@@ -30,7 +30,7 @@
 
 // Forward declarations
 class vtkAMRBox;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMPIController;
 class vtkMultiProcessController;
 class vtkUniformGrid;
@@ -48,7 +48,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Specifically, this method computes & distributes the AMR box
     // metadata and computes the level refinement ratio.
     static void GenerateMetaData(
-        vtkHierarchicalBoxDataSet *amrData,
+        vtkOverlappingAMR *amrData,
         vtkMultiProcessController *myController=NULL );
 
     // Description:
@@ -59,7 +59,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Upon return of this method, the bounds array consists of the global
     // bounds ordered as follows: {xmin,ymin,zmin,xmax,ymax,zmax}
     static void ComputeGlobalBounds(
-        double bounds[6], vtkHierarchicalBoxDataSet *amrData,
+        double bounds[6], vtkOverlappingAMR *amrData,
         vtkMultiProcessController *myController=NULL );
 
     // Description:
@@ -73,7 +73,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Only level 0 is checked, since the grid(s) at level 0 is guaranteed to
     // cover the entire domain.
     static void ComputeDataSetOrigin(
-        double origin[3], vtkHierarchicalBoxDataSet *amrData,
+        double origin[3], vtkOverlappingAMR *amrData,
         vtkMultiProcessController *myController=NULL );
 
     // Description:
@@ -81,7 +81,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // If the data is distributed, the AMR meta-data is communicated s.t. each
     // process has a complete hierarchical box data-set with meta-data.
     static void CollectAMRMetaData(
-        vtkHierarchicalBoxDataSet *amrData,
+        vtkOverlappingAMR *amrData,
         vtkMultiProcessController *myController=NULL );
 
     // Description:
@@ -96,7 +96,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // 2) Within each level, the refinement ratios are the same for all blocks.
     // 3) The refinement ratio is uniform along each dimension of the block.
     static void ComputeLevelRefinementRatio(
-        vtkHierarchicalBoxDataSet *amrData );
+        vtkOverlappingAMR *amrData );
 
   protected:
     vtkAMRUtilities() {};
@@ -106,7 +106,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // This method serializes all the metadata within the given instance of
     // AMR data-set in to the user-supplied buffer.
     static void SerializeMetaData(
-        vtkHierarchicalBoxDataSet *amrData,
+        vtkOverlappingAMR *amrData,
         unsigned char *&buffer,
         vtkIdType &numBytes );
 
@@ -122,7 +122,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // This method distributes the AMR data to all process. Upon completion,
     // the give AMR data-set has a complete tree with all meta-data.
     static void DistributeMetaData(
-        vtkHierarchicalBoxDataSet *amrData,
+        vtkOverlappingAMR *amrData,
         vtkMultiProcessController *myController );
 
     // Description:
@@ -139,7 +139,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
     // Description:
     // Computes the metadata for the grids that are owned by this process.
     static void ComputeLocalMetaData(
-        double origin[3], vtkHierarchicalBoxDataSet *myAMRData,
+        double origin[3], vtkOverlappingAMR *myAMRData,
         const int process );
 
   private:

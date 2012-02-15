@@ -15,7 +15,7 @@
 
 #include "vtkAMREnzoReader.h"
 #include "vtkObjectFactory.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataArray.h"

@@ -20,13 +20,13 @@
 #ifndef VTKAMRBASEREADER_H_
 #define VTKAMRBASEREADER_H_
 
-#include "vtkHierarchicalBoxDataSetAlgorithm.h"
+#include "vtkOverlappingAMRAlgorithm.h"
 #include <vector>    // STL vector header
 #include <map>       // STL map header
 #include <utility>   // for STL pair
 
 // Forward Declarations
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkDataArraySelection;
 class vtkCallbackCommand;
@@ -36,10 +36,10 @@ class vtkUniformGrid;
 class vtkDataArray;
 
 class VTK_AMR_EXPORT vtkAMRBaseReader :
-  public vtkHierarchicalBoxDataSetAlgorithm
+  public vtkOverlappingAMRAlgorithm
 {
   public:
-     vtkTypeMacro( vtkAMRBaseReader, vtkHierarchicalBoxDataSetAlgorithm );
+     vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
      void PrintSelf(std::ostream &os, vtkIndent indent);
 
      // Description:
@@ -129,14 +129,14 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     // Description:
     // This method assigns blocks to processes using block-cyclic distribution.
     // It is the method that is used to load distributed AMR data by default.
-    void AssignAndLoadBlocks( vtkHierarchicalBoxDataSet *amrds );
+    void AssignAndLoadBlocks( vtkOverlappingAMR *amrds );
 
     // Description:
     // This method loads all the blocks in the BlockMap for the given process.
     // It assumes that the downstream module is doing an upstream request with
     // the flag LOAD_REQUESTED_BLOCKS which indicates that the downstream filter
     // has already assigned which blocks are needed for each process.
-    void LoadRequestedBlocks( vtkHierarchicalBoxDataSet *amrds );
+    void LoadRequestedBlocks( vtkOverlappingAMR *amrds );
 
     // Description:
     // Loads the AMR data corresponding to the given field name.
@@ -257,7 +257,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
     int NumBlocksFromFile;
     int NumBlocksFromCache;
 
-    vtkHierarchicalBoxDataSet *Metadata;
+    vtkOverlappingAMR *Metadata;
     bool LoadedMetaData;
 
 

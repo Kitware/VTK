@@ -15,7 +15,7 @@
 #include "vtkAMRUtilities.h"
 #include "vtkAMRBox.h"
 #include "vtkUniformGrid.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMPIController.h"
 #include "vtkCommunicator.h"
@@ -33,7 +33,7 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::GenerateMetaData(
-    vtkHierarchicalBoxDataSet *amrData,
+    vtkOverlappingAMR *amrData,
     vtkMultiProcessController *controller )
 {
   // Sanity check
@@ -51,7 +51,7 @@ void vtkAMRUtilities::GenerateMetaData(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeDataSetOrigin(
-       double origin[3], vtkHierarchicalBoxDataSet *amrData,
+       double origin[3], vtkOverlappingAMR *amrData,
        vtkMultiProcessController *controller )
 {
   // Sanity check
@@ -107,7 +107,7 @@ void vtkAMRUtilities::ComputeDataSetOrigin(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeGlobalBounds(
-    double bounds[6], vtkHierarchicalBoxDataSet *amrData,
+    double bounds[6], vtkOverlappingAMR *amrData,
     vtkMultiProcessController *myController )
 {
   // Sanity check
@@ -187,7 +187,7 @@ void vtkAMRUtilities::ComputeGlobalBounds(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::CollectAMRMetaData(
-    vtkHierarchicalBoxDataSet *amrData,
+    vtkOverlappingAMR *amrData,
     vtkMultiProcessController *myController )
 {
   // Sanity check
@@ -211,7 +211,7 @@ void vtkAMRUtilities::CollectAMRMetaData(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::SerializeMetaData(
-    vtkHierarchicalBoxDataSet *amrData,
+    vtkOverlappingAMR *amrData,
     unsigned char *&buffer,
     vtkIdType &numBytes )
 {
@@ -288,7 +288,7 @@ void vtkAMRUtilities::DeserializeMetaData(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::DistributeMetaData(
-    vtkHierarchicalBoxDataSet *amrData,
+    vtkOverlappingAMR *amrData,
     vtkMultiProcessController *myController )
 {
   // Sanity check
@@ -443,7 +443,7 @@ void vtkAMRUtilities::CreateAMRBoxForGrid(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeLocalMetaData(
-    double origin[3], vtkHierarchicalBoxDataSet* myAMRData, const int process )
+    double origin[3], vtkOverlappingAMR* myAMRData, const int process )
 {
   // Sanity check
   assert( "Input AMR data is NULL" && (myAMRData != NULL) );
@@ -468,7 +468,7 @@ void vtkAMRUtilities::ComputeLocalMetaData(
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::ComputeLevelRefinementRatio(
-    vtkHierarchicalBoxDataSet *amr )
+    vtkOverlappingAMR *amr )
 {
   // sanity check
   assert( "Input AMR Data is NULL" && (amr != NULL)  );
@@ -485,7 +485,7 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
     {
     // No refinement, data-set has only a single level.
     // The refinement ratio is set to 2 to satisfy the
-    // vtkHierarchicalBoxDataSet requirement.
+    // vtkOverlappingAMR requirement.
     amr->SetRefinementRatio(0,2);
     return;
     }

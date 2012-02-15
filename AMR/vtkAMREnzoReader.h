@@ -25,7 +25,7 @@
 
 #include <map>     // For STL map
 
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkEnzoReaderInternal;
 
 class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
