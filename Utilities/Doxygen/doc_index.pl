@@ -62,6 +62,7 @@ my %default =
   (
    limit => 10,
    dirs => ["../../Charts",
+            "../../Chemistry",
             "../../Common",
             "../../Filtering",
             "../../GenericFiltering",

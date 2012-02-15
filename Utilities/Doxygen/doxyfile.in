@@ -42,6 +42,7 @@ OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Charts" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Chemistry" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering" \
