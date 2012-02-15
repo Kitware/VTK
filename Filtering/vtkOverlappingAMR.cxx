@@ -30,7 +30,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkIdList.h"
-#include "vtkAMRGridIndexEncoder.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkMath.h"
 #include "vtkType.h"
