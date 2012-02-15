@@ -10,24 +10,14 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon vtkFiltering vtkParallel vtkGenericFilteri
 SET(Kit_SRCS
     vtkAMRBaseParticlesReader.cxx
     vtkAMRBaseReader.cxx
-    vtkAMRConnectivityFilter.cxx
-    vtkAMRContourFilter.cxx
     vtkAMRCutPlane.cxx
     vtkAMRDataSetCache.cxx
-    vtkAMRDualMeshExtractor.cxx
     vtkAMREnzoParticlesReader.cxx
     vtkAMREnzoReader.cxx
     vtkAMREnzoReaderInternal.cxx
     vtkAMRFlashParticlesReader.cxx
     vtkAMRFlashReader.cxx
     vtkAMRFlashReaderInternal.cxx
-    vtkAMRGhostCellExtruder.cxx
-    vtkAMRGhostExchange.cxx
-    vtkAMRGridIndexEncoder.cxx
-    vtkAMRHomogenizationFilter.cxx
-    vtkAMRInterBlockConnectivity.cxx
-    vtkAMRLink.cxx
-    vtkAMRProbeFilter.cxx
     vtkAMRResampleFilter.cxx
     vtkAMRSliceFilter.cxx
     vtkAMRToMultiBlockFilter.cxx
@@ -43,8 +33,6 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkAMRGridIndexEncoder
-  vtkAMRLink
   vtkAMREnzoReaderInternal
   vtkAMRFlashReaderInternal
   WRAP_EXCLUDE
