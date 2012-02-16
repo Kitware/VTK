@@ -65,8 +65,8 @@ public:
   ~FileStreamReader();
 
   bool open(const char* fileName);
-  bool is_open()const{return Open;};
-  bool eof()const{return Eof;};
+  bool is_open()const {return Open;}
+  bool eof()const {return Eof;}
 
   void rewind();
   void close();
@@ -81,12 +81,13 @@ protected:
   unsigned int Pos;
   unsigned int BuffEnd;
   gzFile file;
+  std::string FileName;
 
 };
 
 // ----------------------------------------------------------------------------
 FileStreamReader::FileStreamReader()
-: Open(false),Eof(true),Pos(BUFF_SIZE),BuffEnd(BUFF_SIZE)
+  : Open(false),Eof(true),Pos(BUFF_SIZE),BuffEnd(BUFF_SIZE),FileName()
 {
 
 }
@@ -102,6 +103,7 @@ bool FileStreamReader::open( const char* fileName )
   {
   if ( !this->Open )
     {
+    this->FileName = std::string(fileName);
     //zlib handles both compressed and uncompressed file
     //we just have peak into the file and see if it has the magic
     //flags or not
@@ -146,15 +148,16 @@ int FileStreamReader::get()
 }
 
 // ----------------------------------------------------------------------------
-void FileStreamReader::rewind()
+void FileStreamReader::rewind( )
 {
   if ( this->Open )
     {
-    this->Eof = false;
-    this->Pos = this->BUFF_SIZE;
-    this->BuffEnd = this->BUFF_SIZE;
-
-    gzrewind(this->file);
+    //we don't want to use gzrewind as it rewinds to not the start of the
+    //file, but to start of the data in the file, meaning we are past any
+    //comments or headers.
+    std::string fn = this->FileName;
+    this->close();
+    this->open(fn.c_str());
     }
 }
 
@@ -167,6 +170,7 @@ void FileStreamReader::close()
     this->Eof = false;
     this->Pos = this->BUFF_SIZE;
     this->BuffEnd = this->BUFF_SIZE;
+    this->FileName = std::string();
 
     gzclose(this->file);
     }
