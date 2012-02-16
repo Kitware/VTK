@@ -926,7 +926,10 @@ void vtkWrap_DeclareVariable(
     }
 
   /* finish off with a semicolon */
-  fprintf(fp, ";\n");
+  if ((flags & VTK_WRAP_NOSEMI) == 0)
+    {
+    fprintf(fp, ";\n");
+    }
 }
 
 void vtkWrap_DeclareVariableSize(

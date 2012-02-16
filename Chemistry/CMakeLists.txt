@@ -1,9 +1,10 @@
-INCLUDE(vtkDependentOption)
-
 SET(KIT Chemistry)
 SET(UKIT CHEMISTRY)
 
-SET(KIT_LIBS vtkRendering vtkFiltering vtkVolumeRendering)
+SET(KIT_TCL_LIBS vtkFilteringTCL vtkRenderingTCL vtkVolumeRenderingTCL)
+SET(KIT_PYTHON_LIBS vtkFilteringPythonD vtkRenderingPythonD vtkVolumeRenderingPythonD)
+SET(KIT_JAVA_LIBS vtkFilteringJava vtkRenderingJava vtkVolumeRenderingJava)
+SET(KIT_INTERFACE_LIBRARIES vtkFiltering vtkRendering vtkVolumeRendering)
 
 SET(Kit_SRCS
   vtkAbstractElectronicData.cxx
@@ -26,11 +27,14 @@ SET_SOURCE_FILES_PROPERTIES(
   ABSTRACT
   )
 
-SET_SOURCE_FILES_PROPERTIES(
-  vtkAbstractElectronicData.cxx
-  vtkMoleculeToPolyDataFilter.cxx
-  WRAP_EXCLUDE
-  )
+SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS)
+SET(Kit_PYTHON_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_SRCS)
+SET(KIT_TCL_DEPS)
+SET(KIT_PYTHON_DEPS)
+SET(KIT_JAVA_DEPS)
 
 # OpenQube setup
 FIND_PACKAGE(OpenQube QUIET)

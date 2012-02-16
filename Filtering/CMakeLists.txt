@@ -272,8 +272,6 @@ vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
 vtkAbstractPointLocator
-vtkAtom
-vtkBond
 vtkCell
 vtkCell3D
 vtkCompositeDataIterator
@@ -363,6 +361,8 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAtom.cxx
+  vtkBond.cxx
   vtkImageBSplineInternals.cxx
 
   PROPERTIES WRAP_SPECIAL 1
