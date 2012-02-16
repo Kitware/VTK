@@ -27,7 +27,7 @@
     }
 
 
-int TestProgrammableElectronicData(int argc, char *argv[])
+int TestProgrammableElectronicData(int, char *[])
 {
   vtkNew<vtkMolecule> mol;
   vtkNew<vtkProgrammableElectronicData> ed;

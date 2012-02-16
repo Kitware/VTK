@@ -161,7 +161,9 @@ void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
 vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
+    {
     return 0;
+    }
 
   return this->BasisSet->numMOs();
 }
@@ -170,7 +172,9 @@ vtkIdType vtkOpenQubeElectronicData::GetNumberOfMOs()
 unsigned int vtkOpenQubeElectronicData::GetNumberOfElectrons()
 {
   if (!this->BasisSet || !this->BasisSet->isValid())
+    {
     return 0;
+    }
 
   return this->BasisSet->numElectrons();
 }
@@ -186,17 +190,25 @@ vtkImageData * vtkOpenQubeElectronicData::GetMO(vtkIdType orbitalNumber)
     {
     OQEDImageData * data = OQEDImageData::SafeDownCast(dataset);
     if (!data)
+      {
       continue;
+      }
 
     if (data->GetImageType() != OpenQube::Cube::MO)
+      {
       continue;
+      }
 
     if (data->GetOrbitalNumber() != orbitalNumber)
+      {
       continue;
+      }
 
     if (data->GetMetaSpacing() != this->Spacing ||
         data->GetMetaPadding() != this->Padding)
+      {
       continue;
+      }
 
     vtkDebugMacro(<<"Found MO " << orbitalNumber);
     return static_cast<vtkImageData*>(data);
@@ -217,14 +229,20 @@ vtkImageData * vtkOpenQubeElectronicData::GetElectronDensity()
     {
     OQEDImageData * data = OQEDImageData::SafeDownCast(dataset);
     if (!data)
+      {
       continue;
+      }
 
     if (data->GetImageType() != OpenQube::Cube::ElectronDensity)
+      {
       continue;
+      }
 
     if (data->GetMetaSpacing() != this->Spacing ||
         data->GetMetaPadding() != this->Padding)
+      {
       continue;
+      }
 
     return static_cast<vtkImageData*>(data);
     }
@@ -264,7 +282,9 @@ void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject *obj)
 
   // Copy other ivars
   if (oqed->BasisSet)
-    this->BasisSet == oqed->BasisSet->clone();
+    {
+    this->BasisSet = oqed->BasisSet->clone();
+    }
   this->Spacing = oqed->Spacing;
 }
 
@@ -381,8 +401,10 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
     oqedImage->SetImageType(qube->cubeType());
     }
   else
+    {
     vtkWarningMacro(
       <<"Cannot cast input image to internal OQEDImageData type.");
+    }
 
   image->SetNumberOfScalarComponents(1);
   image->SetScalarTypeToDouble();
@@ -397,17 +419,24 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
 
   const size_t qubeSize = qubeVec->size();
 
-  if (qubeSize != dim[0]*dim[1]*dim[2])
+  if (qubeSize != static_cast<size_t>(dim[0]) * dim[1] * dim[2])
+    {
     vtkWarningMacro(<< "Size of qube (" << qubeSize << ") does not equal"
                     << " product of dimensions (" << dim[0]*dim[1]*dim[2]
                     << "). Image may not be accurate.");
+    }
 
   long int qubeInd = -1; // Incremented to 0 on first use.
   for (int i = 0; i < dim[0]; ++i)
+    {
     for (int j = 0; j < dim[1]; ++j)
+      {
       for (int k = 0; k < dim[2]; ++k)
-        dataPtr[(k * dim[1] + j) * dim[0] + i] =
-            (*qubeVec)[++qubeInd];
+        {
+        dataPtr[(k * dim[1] + j) * dim[0] + i] = (*qubeVec)[++qubeInd];
+        }
+      }
+    }
 
   vtkDebugMacro(<< "Copied " << qubeSize
                 << " (actual: " << qubeInd + 1

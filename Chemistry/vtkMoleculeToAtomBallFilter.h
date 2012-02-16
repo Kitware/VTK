@@ -36,7 +36,7 @@
 class vtkMolecule;
 
 class VTK_CHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
-: public vtkMoleculeToPolyDataFilter
+  : public vtkMoleculeToPolyDataFilter
 {
  public:
   vtkTypeMacro(vtkMoleculeToAtomBallFilter,vtkMoleculeToPolyDataFilter);
@@ -44,14 +44,14 @@ class VTK_CHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
 
   static vtkMoleculeToAtomBallFilter *New();
 
-  enum RadiusType {
+  enum {
     CovalentRadius = 0,
     VDWRadius,
     UnitRadius
   }; // TODO Custom radii from array/fieldData
 
-  vtkGetMacro(RadiusSource, RadiusType);
-  vtkSetMacro(RadiusSource, RadiusType);
+  vtkGetMacro(RadiusSource, int);
+  vtkSetMacro(RadiusSource, int);
 
   vtkGetMacro(Resolution, int);
   vtkSetMacro(Resolution, int);
@@ -66,9 +66,9 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
 
-  RadiusType RadiusSource;
   int Resolution;
   double RadiusScale;
+  int RadiusSource;
 
 private:
   vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&);  // Not implemented.

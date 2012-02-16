@@ -19,7 +19,7 @@
 #define TEST(cond)                              \
   if (!(cond)) return EXIT_FAILURE
 
-int TestSimpleBondPerceiver(int argc, char *argv[])
+int TestSimpleBondPerceiver(int , char *[])
 {
   vtkIdType numBonds;
   vtkNew<vtkMolecule> mol;
@@ -46,9 +46,12 @@ int TestSimpleBondPerceiver(int argc, char *argv[])
   bonder->Update();
   numBonds = bonder->GetOutput()->GetNumberOfBonds();
 
-  cout << "Number of bonds in test molecule: "
-       << numBonds << " (should be 13)\n";
-  TEST(numBonds == 13);
+  if (numBonds != 13)
+    {
+    cout << "Number of bonds in test molecule: "
+         << numBonds << " (should be 13)\n";
+    return EXIT_FAILURE;
+    }
 
   return EXIT_SUCCESS;
 }
