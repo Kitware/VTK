@@ -28,7 +28,7 @@
 #include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
 class vtkAMRResampleFilter;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkSmartVolumeMapper;
 class vtkUniformGrid;
 
@@ -42,7 +42,7 @@ public:
   // Description:
   // Set the input data
   virtual void SetInput( vtkDataSet * );
-  virtual void SetInput( vtkHierarchicalBoxDataSet * );
+  virtual void SetInput( vtkOverlappingAMR * );
   virtual void SetInputConnection (int port, vtkAlgorithmOutput *input);   
   virtual void SetInputConnection (vtkAlgorithmOutput *input)
   {this->SetInputConnection(0, input);}
@@ -234,8 +234,8 @@ public:
   void ProcessInformationRequest(vtkRenderer *renderer, vtkInformation*info,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  void UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
-  void UpdateResamplerFrustrumMethod(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr);
+  void UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *amr);
+  void UpdateResamplerFrustrumMethod(vtkRenderer *ren, vtkOverlappingAMR *amr);
 //ETX
 
   // Description:

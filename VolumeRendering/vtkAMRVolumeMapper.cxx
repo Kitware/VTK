@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiThreader.h"
@@ -85,7 +85,7 @@ void vtkAMRVolumeMapper::SetInput(vtkDataSet *genericInput)
   this->Resampler->SetInputConnection(0, 0);
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetInput(vtkHierarchicalBoxDataSet *hdata)
+void vtkAMRVolumeMapper::SetInput(vtkOverlappingAMR *hdata)
 {
   if (!hdata)
     {
@@ -114,9 +114,9 @@ void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input
 //----------------------------------------------------------------------------
 double *vtkAMRVolumeMapper::GetBounds()
 {
-  vtkHierarchicalBoxDataSet*hdata;
+  vtkOverlappingAMR*hdata;
   hdata = 
-    vtkHierarchicalBoxDataSet::SafeDownCast
+    vtkOverlappingAMR::SafeDownCast
     (this->Resampler->GetInputDataObject(0,0));
   if (!hdata)
     {
@@ -132,7 +132,7 @@ double *vtkAMRVolumeMapper::GetBounds()
 int vtkAMRVolumeMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR");
   return 1;
 }
 
@@ -316,7 +316,7 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
     }
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDataSet *amr)
+void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *amr)
 {
   // Set the bias of the resample filter to be the projection direction
   double bvec[3];
@@ -385,7 +385,7 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkHierarchicalBoxDat
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren, 
-                                                       vtkHierarchicalBoxDataSet *amr)
+                                                       vtkOverlappingAMR *amr)
 {
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
@@ -590,8 +590,8 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
     this->HasMetaData = true;    
     this->Resampler->SetDemandDrivenMode(1);
     }
-  vtkHierarchicalBoxDataSet *amrMetaData =
-    vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *amrMetaData =
+    vtkOverlappingAMR::SafeDownCast(
                                             input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()) );
   
   this->UpdateResampler(ren, amrMetaData);
