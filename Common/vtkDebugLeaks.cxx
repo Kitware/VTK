@@ -412,9 +412,7 @@ void vtkDebugLeaks::ClassInitialize()
   vtkDebugLeaks::CriticalSection = new vtkSimpleCriticalSection;
 
   // Default to error when leaks occur while running tests.
-  vtkDebugLeaks::ExitError =
-    (getenv("DASHBOARD_TEST_FROM_CTEST") ||
-     getenv("DART_TEST_FROM_DART"))? 1:0;
+  vtkDebugLeaks::ExitError = 1;
 #else
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
