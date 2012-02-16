@@ -473,8 +473,10 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
           }
 
         if (strcmp(inputType, "vtkCompositeDataSet") == 0 ||
-          strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
-          strcmp(inputType, "vtkMultiBlockDataSet") == 0)
+            strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
+            strcmp(inputType, "vtkOverlappingAMR") == 0 ||
+            strcmp(inputType, "vtkNonOverlappingAMR") == 0 ||
+            strcmp(inputType, "vtkMultiBlockDataSet") == 0)
           {
           vtkDebugMacro(<< "ShouldIterateOverInput return 0 (Composite)");
           return false;
@@ -1446,7 +1448,9 @@ vtkCompositeDataSet* vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
   // pre: the algorithm is a non-composite algorithm.
   // pre: we are not create vtkTemporalDataSet for the output, the question is
   //      whether to create vtkHierarchicalBoxDataSet or vtkMultiBlockDataSet.
-  if (input->IsA("vtkHierarchicalBoxDataSet"))
+  if (input->IsA("vtkHierarchicalBoxDataSet") ||
+      input->IsA("vtkOverlappingAMR") ||
+      input->IsA("vtkNonOverlappingAMR") )
     {
     vtkSmartPointer<vtkUniformGrid> tempInput = vtkSmartPointer<vtkUniformGrid>::New();
 
