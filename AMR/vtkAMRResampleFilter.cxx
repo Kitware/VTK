@@ -80,6 +80,12 @@ vtkAMRResampleFilter::~vtkAMRResampleFilter()
     this->ROI->Delete();
     }
   this->ROI = NULL;
+
+  if( this->AMRMetaData != NULL )
+    {
+    this->AMRMetaData->Delete();
+    }
+  this->AMRMetaData = NULL;
 }
 
 //-----------------------------------------------------------------------------
