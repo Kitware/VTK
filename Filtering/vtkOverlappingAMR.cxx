@@ -1010,6 +1010,21 @@ void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
 }
 
 //----------------------------------------------------------------------------
+void vtkOverlappingAMR::ComputeBounds()
+{
+  vtkAMRBox rootAMRBox;
+  if( this->GetRootAMRBox( rootAMRBox ) )
+    {
+    rootAMRBox.GetBounds( this->Bounds );
+    }
+  else
+    {
+    this->Superclass::ComputeBounds();
+    }
+
+}
+
+//----------------------------------------------------------------------------
 unsigned int *vtkOverlappingAMR::
 GetParents(unsigned int level, unsigned int index)
 {

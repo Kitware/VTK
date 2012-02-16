@@ -294,6 +294,10 @@ protected:
       vtkUnsignedIntArray **dest, vtkUnsignedIntArray *src);
 
 
+  // Description:
+  // See vtkUniformGridAMR::ComputeBounds
+  virtual void ComputeBounds();
+
   bool PadCellVisibility;
 
   // Global Origin
