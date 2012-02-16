@@ -54,7 +54,7 @@ void vtkSimpleBondPerceiver::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkSimpleBondPerceiver::RequestData(
-  vtkInformation* request,
+  vtkInformation* ,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

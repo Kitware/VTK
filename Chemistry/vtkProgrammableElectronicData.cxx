@@ -89,11 +89,13 @@ vtkIdType vtkProgrammableElectronicData::GetNumberOfMOs()
 //----------------------------------------------------------------------------
 void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
 {
-  if (size == this->MOs->size())
-    return;
-  else if (size < this->MOs->size())
+  if (size == static_cast<vtkIdType>(this->MOs->size()))
     {
-    vtkDebugMacro(<<"Resizing MO vector from " << this->MOs->size() << " to "
+    return;
+    }
+  else if (size < static_cast<vtkIdType>(this->MOs->size()))
+    {
+    vtkDebugMacro(<< "Resizing MO vector from " << this->MOs->size() << " to "
                   << size << ".");
     this->MOs->resize(size);
     this->Modified();
@@ -101,23 +103,22 @@ void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
     }
 
   // If control gets to here, then this->MOs is too small. Add NULLs.
-  vtkDebugMacro(<<"Resizing MO vector from " << this->MOs->size() << " to "
+  vtkDebugMacro(<< "Resizing MO vector from " << this->MOs->size() << " to "
                 << size << ".");
   this->MOs->reserve(size);
-  while (this->MOs->size() < size)
+  while (static_cast<vtkIdType>(this->MOs->size()) < size)
     {
     this->MOs->push_back(NULL);
     }
   this->Modified();
-  return;
 }
 
 //----------------------------------------------------------------------------
 vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 {
-  if (orbitalNumber > this->MOs->size())
+  if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
     {
-    vtkWarningMacro(<<"Request for orbital number " << orbitalNumber
+    vtkWarningMacro(<< "Request for orbital number " << orbitalNumber
                     << ", which exceeds the number of MOs ("
                     << this->MOs->size() << ")");
     return NULL;
@@ -125,7 +126,7 @@ vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 
   vtkImageData *result = this->MOs->at(orbitalNumber - 1);
 
-  vtkDebugMacro(<<"Returning '" << result << "' for MO '"
+  vtkDebugMacro(<< "Returning '" << result << "' for MO '"
                 << orbitalNumber << "'");
   return result;
 }
@@ -134,8 +135,10 @@ vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 void vtkProgrammableElectronicData::SetMO(vtkIdType orbitalNumber,
                                           vtkImageData *data)
 {
-  if (orbitalNumber > this->MOs->size())
+  if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
+    {
     this->SetNumberOfMOs(orbitalNumber);
+    }
 
   vtkImageData *previous = this->MOs->at(orbitalNumber - 1);
   if (data == previous)
