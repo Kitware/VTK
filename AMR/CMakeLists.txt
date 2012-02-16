@@ -18,6 +18,7 @@ SET(Kit_SRCS
     vtkAMRFlashParticlesReader.cxx
     vtkAMRFlashReader.cxx
     vtkAMRFlashReaderInternal.cxx
+    vtkAMRGaussianPulseSource.cxx
     vtkAMRResampleFilter.cxx
     vtkAMRSliceFilter.cxx
     vtkAMRToMultiBlockFilter.cxx
