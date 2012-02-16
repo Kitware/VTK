@@ -144,7 +144,6 @@ void FileStreamReader::rewind()
 {
   if ( this->Open )
     {
-    this->Open = false;
     this->Eof = false;
     this->Pos = this->BUFF_SIZE;
     this->BuffEnd = this->BUFF_SIZE;
