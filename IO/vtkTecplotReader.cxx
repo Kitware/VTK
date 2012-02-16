@@ -101,15 +101,19 @@ bool FileStreamReader::open( const char* fileName )
     //flags or not
     unsigned char magic[2];
     FILE *ff = fopen(fileName,"rb");
-    (void) fread(magic,1,2,ff);
+    size_t count = fread(magic,1,2,ff);
     fclose(ff);
 
-    const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";
-    this->file = gzopen(fileName,mode);
+    // only continue if fread succeeded
+    if (count == 2)
+      {
+      const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";
+      this->file = gzopen(fileName,mode);
 
-    this->Eof = (this->file == 0);
-    this->Open = (this->file != 0);
-    this->Pos = BUFF_SIZE;
+      this->Eof = (this->file == 0);
+      this->Open = (this->file != 0);
+      this->Pos = BUFF_SIZE;
+      }
     }
   return this->Open;
   }

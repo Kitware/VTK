@@ -159,7 +159,13 @@ void vtkPLOT3DReader::SkipByteCount(FILE* fp)
   if (this->BinaryFile && this->HasByteCount)
     {
     int tmp;
-    (void) fread(&tmp, sizeof(int), 1, fp);
+    if (fread(&tmp, sizeof(int), 1, fp) != 1)
+      {
+      vtkErrorMacro ("PLOT3DReader error reading file: " << this->XYZFileName
+                     << " Premature EOF while reading skipping byte count.");
+      fclose (fp);
+      return;
+      }
     }
 }
 

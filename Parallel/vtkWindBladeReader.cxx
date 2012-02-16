@@ -700,9 +700,21 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
-  (void) fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  if (fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading tempgData.");
+    }
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
-  (void) fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  if (fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading densityData.");
+    }
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -769,9 +781,21 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
-  (void) fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  if (fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading uData.");
+    }
   fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_SET);
-  (void) fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  if (fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading vData.");
+    }
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -787,7 +811,13 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 
 #ifndef VTK_USE_MPI_IO
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
-  (void) fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+  if (fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading densityData.");
+    }
 #else
   MPICall(MPI_File_set_view(this->Internal->FilePtr, this->VariableOffset[density], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
   MPICall(MPI_File_read_all(this->Internal->FilePtr, densityData, this->BlockSize, MPI_FLOAT, &status));
@@ -903,7 +933,15 @@ void vtkWindBladeReader::LoadVariableData(int var)
     {
     // Read the block of data
 #ifndef VTK_USE_MPI_IO
-    (void) fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr);
+    int cnt;
+    if ((cnt = fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr)) != this->BlockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                     << " Premature EOF while reading block of data."
+                     << " Expected " << this->BlockSize << " but got " << cnt);
+    }
 #else
     MPI_Status status;
     MPICall(MPI_File_read_all(this->Internal->FilePtr, block, this->BlockSize, MPI_FLOAT, &status));
@@ -1251,7 +1289,13 @@ bool vtkWindBladeReader::FindVariableOffsets()
   int byteCount;
 
 #ifndef VTK_USE_MPI_IO
-  (void) fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr);
+  if (fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr) != 1)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading byteCount.");
+    }
 #else
   MPI_Status status;
   char native[7] = "native";
@@ -1493,7 +1537,13 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 
 #ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
-  (void) fread(topoData, sizeof(float), blockSize, filePtr);
+  if(fread(topoData, sizeof(float), blockSize, filePtr) != blockSize)
+    {
+    // This is really and error, but for the time being we report a
+    // warning
+    vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
+                   << " Premature EOF while reading topoData.");
+    }
 #else
   MPI_Status status;
   char native[7] = "native";
