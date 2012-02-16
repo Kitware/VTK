@@ -20,7 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkMultiProcessController.h"
 #include "vtkUniformGrid.h"
 #include "vtkIndent.h"
@@ -94,7 +94,7 @@ int vtkAMRResampleFilter::FillInputPortInformation(
 {
   assert( "pre: information object is NULL" && (info != NULL) );
   info->Set(
-   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet" );
+   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkOverlappingAMR" );
   return 1;
 }
 
@@ -144,9 +144,9 @@ int vtkAMRResampleFilter::RequestInformation(
   if( this->DemandDrivenMode == 1 &&
       input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-    this->AMRMetaData = vtkHierarchicalBoxDataSet::New();
+    this->AMRMetaData = vtkOverlappingAMR::New();
     this->AMRMetaData->ShallowCopy(
-    vtkHierarchicalBoxDataSet::SafeDownCast(
+    vtkOverlappingAMR::SafeDownCast(
       input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) ) );
 
 
@@ -172,8 +172,8 @@ int vtkAMRResampleFilter::RequestData(
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: Null information object!" && (input != NULL) );
-  vtkHierarchicalBoxDataSet *amrds=
-     vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *amrds=
+     vtkOverlappingAMR::SafeDownCast(
       input->Get(vtkDataObject::DATA_OBJECT()));
   assert( "pre: input AMR dataset is NULL" && (amrds != NULL) );
 
@@ -330,7 +330,7 @@ void vtkAMRResampleFilter::ComputeCellCentroid(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::TransferToCellCenters(
-        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
+        vtkUniformGrid *g, vtkOverlappingAMR *amrds )
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
@@ -389,7 +389,7 @@ void vtkAMRResampleFilter::TransferToCellCenters(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
-    double q[3], vtkHierarchicalBoxDataSet *amrds,
+    double q[3], vtkOverlappingAMR *amrds,
     unsigned int level, unsigned int donorGridId, vtkUniformGrid *&donorGrid,
     int &donorCellIdx )
 {
@@ -428,7 +428,7 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 //-----------------------------------------------------------------------------
 int vtkAMRResampleFilter::ProbeGridPointInAMR(
     double q[3], vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
-    vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel )
+    vtkOverlappingAMR *amrds, unsigned int maxLevel )
 {
   assert( "pre: AMR dataset is NULL" && amrds != NULL );
 
@@ -577,7 +577,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SearchGridAncestors(double q[3], 
-                                               vtkHierarchicalBoxDataSet *amrds,
+                                               vtkOverlappingAMR *amrds,
                                                unsigned int &level,
                                                unsigned int &gridId,
                                                vtkUniformGrid *&grid,
@@ -611,7 +611,7 @@ void vtkAMRResampleFilter::SearchGridAncestors(double q[3],
 }
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SearchGridDecendants(double q[3], 
-                                                vtkHierarchicalBoxDataSet *amrds,
+                                                vtkOverlappingAMR *amrds,
                                                 unsigned int maxLevel,
                                                 unsigned int &level,
                                                 unsigned int &gridId,
@@ -661,7 +661,7 @@ void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
 int vtkAMRResampleFilter::
 ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
                          unsigned int &donorLevel,  unsigned int &donorGridId, 
-                         vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel)
+                         vtkOverlappingAMR *amrds, unsigned int maxLevel)
 {
   assert( "pre: AMR dataset is NULL" && amrds != NULL );
 
@@ -704,7 +704,7 @@ ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::TransferToGridNodes(
-    vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds )
+    vtkUniformGrid *g, vtkOverlappingAMR *amrds )
 {
   this->NumberOfBlocksTested = 0;
   this->NumberOfBlocksVisSkipped = 0;
@@ -835,7 +835,7 @@ void vtkAMRResampleFilter::TransferToGridNodes(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::TransferSolution(
-    vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds)
+    vtkUniformGrid *g, vtkOverlappingAMR *amrds)
 {
   assert( "pre: uniform grid is NULL" && (g != NULL) );
   assert( "pre: AMR data-strucutre is NULL" && (amrds != NULL) );
@@ -852,8 +852,8 @@ void vtkAMRResampleFilter::TransferSolution(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::ExtractRegion(
-    vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
-    vtkHierarchicalBoxDataSet *metadata )
+    vtkOverlappingAMR *amrds, vtkMultiBlockDataSet *mbds,
+    vtkOverlappingAMR *metadata )
 {
 
   assert( "pre: input AMR data-structure is NULL" && (amrds != NULL) );
@@ -888,7 +888,7 @@ void vtkAMRResampleFilter::ExtractRegion(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(
-    vtkHierarchicalBoxDataSet *metadata )
+    vtkOverlappingAMR *metadata )
 {
   assert( "pre: metadata is NULL" && (metadata != NULL) );
 
@@ -927,7 +927,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::GetDomainParameters(
-    vtkHierarchicalBoxDataSet *amr,
+    vtkOverlappingAMR *amr,
     double domainMin[3], double domainMax[3], double h[3],
     int dims[3], double &rf )
 {
@@ -1090,7 +1090,7 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::ComputeAndAdjustRegionParameters(
-    vtkHierarchicalBoxDataSet *amrds, double h[3] )
+    vtkOverlappingAMR *amrds, double h[3] )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
 
@@ -1290,7 +1290,7 @@ bool vtkAMRResampleFilter::IsParallel()
 
 //-----------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
-    vtkHierarchicalBoxDataSet *amrds)
+    vtkOverlappingAMR *amrds)
 {
   assert( "pre:AMR dataset is  NULL" && (amrds != NULL) );
 

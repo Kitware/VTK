@@ -26,18 +26,18 @@
 //  Data of the input AMR dataset is assumed to be cell-centered.
 //
 // .SECTION See Also
-//  vtkHierarchicalBoxDataSet, vtkUniformGrid
+//  vtkOverlappingAMR, vtkUniformGrid
 
 #ifndef __vtkAMRResampleFilter_h
 #define __vtkAMRResampleFilter_h
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include <vtkstd/vector> // For STL vector
+#include <vector> // For STL vector
 
 class vtkInformation;
 class vtkInformationVector;
 class vtkUniformGrid;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 class vtkFieldData;
@@ -126,7 +126,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     vtkAMRResampleFilter();
     virtual ~vtkAMRResampleFilter();
 
-    vtkHierarchicalBoxDataSet *AMRMetaData;
+    vtkOverlappingAMR *AMRMetaData;
     vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.
     int NumberOfSamples[3];
     int GridNumberOfSamples[3];
@@ -152,7 +152,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int NumberOfFailedPoints;
     double AverageLevel;
 // BTX
-    vtkstd::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
+    std::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
 // ETX
 
     // Description:
@@ -196,7 +196,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // grid at the given level that contains the point if one exists. If a grid
     // is not found, donorGrid is set to NULL.
     void SearchForDonorGridAtLevel(
-        double q[3], vtkHierarchicalBoxDataSet *amrds,
+        double q[3], vtkOverlappingAMR *amrds,
         unsigned int level, unsigned int gridId, vtkUniformGrid *&donorGrid,
         int &donorCellIdx);
 
@@ -207,7 +207,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // contains the probe point q.
     int ProbeGridPointInAMR(
         double q[3],vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
-        vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel );
+        vtkOverlappingAMR *amrds, unsigned int maxLevel );
 
     // Description:
     // Finds the AMR grid that contains the point q. If donorGrid points to a
@@ -217,30 +217,30 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     int ProbeGridPointInAMRGraph(
         double q[3],vtkUniformGrid *&donorGrid, 
         unsigned int &donorLevel, unsigned int &donorGridId,
-        vtkHierarchicalBoxDataSet *amrds, unsigned int maxLevel );
+        vtkOverlappingAMR *amrds, unsigned int maxLevel );
 
     // Description:
     // Transfers the solution from the AMR dataset to the cell-centers of
     // the given uniform grid.
     void TransferToCellCenters(
-        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds );
+        vtkUniformGrid *g, vtkOverlappingAMR *amrds );
 
     // Description:
     // Transfer the solution from the AMR dataset to the nodes of the
     // given uniform grid.
     void TransferToGridNodes(
-        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds );
+        vtkUniformGrid *g, vtkOverlappingAMR *amrds );
 
     // Description:
     // Transfers the solution
     void TransferSolution(
-        vtkUniformGrid *g, vtkHierarchicalBoxDataSet *amrds);
+        vtkUniformGrid *g, vtkOverlappingAMR *amrds);
 
     // Description:
     // Extract the region (as a multiblock) from the given AMR dataset.
     void ExtractRegion(
-        vtkHierarchicalBoxDataSet *amrds, vtkMultiBlockDataSet *mbds,
-        vtkHierarchicalBoxDataSet *metadata );
+        vtkOverlappingAMR *amrds, vtkMultiBlockDataSet *mbds,
+        vtkOverlappingAMR *metadata );
 
     // Description:
     // Checks if the AMR block, described by a uniform grid, is within the
@@ -251,18 +251,18 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Given a user-supplied region of interest and the metadata by a module
     // upstream, this method generates the list of linear AMR block indices
     // that need to be loaded.
-    void ComputeAMRBlocksToLoad( vtkHierarchicalBoxDataSet *metadata );
+    void ComputeAMRBlocksToLoad( vtkOverlappingAMR *metadata );
 
     // Description:
     // Computes the region parameters
     void ComputeRegionParameters(
-        vtkHierarchicalBoxDataSet *amrds,
+        vtkOverlappingAMR *amrds,
         int N[3], double min[3], double max[3], double h[3] );
 
     // Description:
     // This method accesses the domain boundaries
     void GetDomainParameters(
-        vtkHierarchicalBoxDataSet *amr,
+        vtkOverlappingAMR *amr,
         double domainMin[3], double domainMax[3], double h[3],
         int dims[3], double &rf );
 
@@ -299,7 +299,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // region always fall within the AMR region and the number of samples is
     // adjusted if the region of interest moves outsided the domain.
     void ComputeAndAdjustRegionParameters(
-        vtkHierarchicalBoxDataSet *amrds, double h[3] );
+        vtkOverlappingAMR *amrds, double h[3] );
 
     // Description:
     // This method gets the region of interest as perscribed by the user.
@@ -311,7 +311,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Returns a reference grid from the amrdataset.
-    vtkUniformGrid* GetReferenceGrid( vtkHierarchicalBoxDataSet *amrds );
+    vtkUniformGrid* GetReferenceGrid( vtkOverlappingAMR *amrds );
 
     // Description:
     // Writes a uniform grid to a file. Used for debugging purposes.
@@ -325,7 +325,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // If none is found then the original grid information is returned.
     // The search is limited to levels < maxLevel
     void SearchGridDecendants(double q[3], 
-                              vtkHierarchicalBoxDataSet *amrds,
+                              vtkOverlappingAMR *amrds,
                               unsigned int maxLevel,
                               unsigned int &level,
                               unsigned int &gridId,
@@ -335,7 +335,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
     // Find an ancestor of the specified grid that contains the point.
     // If none is found then the original grid information is returned
     void SearchGridAncestors(double q[3], 
-                             vtkHierarchicalBoxDataSet *amrds,
+                             vtkOverlappingAMR *amrds,
                              unsigned int &level,
                              unsigned int &gridId,
                              vtkUniformGrid *&grid,
