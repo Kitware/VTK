@@ -186,6 +186,7 @@ protected:
     double CameraViewAngle;
     double CameraParallelScale;
     double HeadPose[16];
+    double WandPose[16];
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
