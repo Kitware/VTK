@@ -257,6 +257,22 @@ public:
         }
       }
 
+    //if the token is a comment token, skip the entire line
+    if (!this->NextCharEOF && this->TheNextChar == '#')
+      {
+      while ( (!this->NextCharEOF) &&
+                (this->TheNextChar != '\n') &&
+                (this->TheNextChar != '\r') )
+        {
+        this->TheNextChar = this->ASCIIStream.get();
+        if ( this->TheNextChar == '\n'||
+             this->TheNextChar == '\r' )
+          {
+          this->NextCharEOL = true;
+          }
+        }
+      }
+
     // skip inter-token whitespace
     while ( ! this->NextCharEOF &&
             ( this->TheNextChar == ' '  ||
@@ -1477,20 +1493,6 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
     if ( tok == "" )
       {
       // whitespace: do nothing
-      }
-    else if ( tok == "#" )
-      {
-      while ( (!this->Internal->NextCharEOF) &&
-              (this->Internal->TheNextChar != '\n') &&
-              (this->Internal->TheNextChar != '\r') )
-        {
-        this->Internal->TheNextChar = this->Internal->ASCIIStream.get();
-        if ( this->Internal->TheNextChar == '\n'||
-             this->Internal->TheNextChar == '\r' )
-          {
-          this->Internal->NextCharEOL = true;
-          }
-        }
       }
     else if ( tok == "TITLE" )
       {
