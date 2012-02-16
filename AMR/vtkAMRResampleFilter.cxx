@@ -81,11 +81,11 @@ vtkAMRResampleFilter::~vtkAMRResampleFilter()
     }
   this->ROI = NULL;
 
-  if( this->AMRMetaData != NULL )
-    {
-    this->AMRMetaData->Delete();
-    }
-  this->AMRMetaData = NULL;
+//  if( this->AMRMetaData != NULL )
+//    {
+//    this->AMRMetaData->Delete();
+//    }
+//  this->AMRMetaData = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,10 +150,10 @@ int vtkAMRResampleFilter::RequestInformation(
   if( this->DemandDrivenMode == 1 &&
       input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-    this->AMRMetaData = vtkOverlappingAMR::New();
-    this->AMRMetaData->ShallowCopy(
+//    this->AMRMetaData = vtkOverlappingAMR::New();
+    this->AMRMetaData =
     vtkOverlappingAMR::SafeDownCast(
-      input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) ) );
+      input->Get( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
 
 
     // Get Region
@@ -165,6 +165,8 @@ int vtkAMRResampleFilter::RequestInformation(
     this->ComputeAMRBlocksToLoad( this->AMRMetaData );
     }
 
+// Don't we need to call this->Modified() here?
+// this->Modified();
  return 1;
 }
 
