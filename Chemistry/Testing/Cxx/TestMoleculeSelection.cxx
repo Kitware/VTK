@@ -38,7 +38,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnstructuredGrid.h"
@@ -60,12 +59,22 @@ public:
   MoleculePickCommand() :
     AtomIds(vtkSmartPointer<vtkIdTypeArray>::New()),
     BondIds(vtkSmartPointer<vtkIdTypeArray>::New()),
-    Renderer(vtkSmartPointer<vtkRenderer>::New()),
-    Picker(vtkSmartPointer<vtkAreaPicker>::New()),
-    MoleculeSource(vtkSmartPointer<vtkAlgorithm>::New()),
-    MoleculeMapper(vtkSmartPointer<vtkMoleculeMapper>::New()) {}
+    Renderer(),
+    Picker(),
+    MoleculeSource(),
+    MoleculeMapper()
+  {
+  }
 
-  virtual ~MoleculePickCommand() {}
+  virtual ~MoleculePickCommand()
+  {
+    this->SetRenderer(NULL);
+    this->SetPicker(NULL);
+    this->SetMoleculeSource(NULL);
+    this->SetMoleculeMapper(NULL);
+    this->AtomIds = NULL;
+    this->BondIds = NULL;
+  }
 
   vtkIdTypeArray *GetAtomIds()
   {
@@ -240,6 +249,8 @@ int TestMoleculeSelection(int argc, char *argv[])
     {
     iren->Start();
     }
+
+  picker->RemoveObserver(com.GetPointer());
 
   // Verify pick
   if (com->GetAtomIds()->GetValue(0) != 0  ||

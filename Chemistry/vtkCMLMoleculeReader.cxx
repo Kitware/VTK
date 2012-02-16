@@ -143,6 +143,7 @@ vtkCMLParser::vtkCMLParser()
 
 vtkCMLParser::~vtkCMLParser()
 {
+  this->SetTarget(NULL);
 }
 
 void vtkCMLParser::StartElement(const char *name, const char **attr)
