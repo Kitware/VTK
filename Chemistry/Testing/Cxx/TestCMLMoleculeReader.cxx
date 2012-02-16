@@ -57,13 +57,10 @@ int TestCMLMoleculeReader(int argc, char *argv[])
   win->Render();
   ren->GetActiveCamera()->Zoom(2.0);
 
-  win->Render();
+  // Finally render the scene and compare the image to a reference image
+  win->SetMultiSamples(0);
+  win->GetInteractor()->Initialize();
+  win->GetInteractor()->Start();
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  return retVal;
+  return EXIT_SUCCESS;
 }

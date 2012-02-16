@@ -151,14 +151,11 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   win->SetSize(450,450);
   win->Render();
   ren->GetActiveCamera()->Zoom(2.4);
-  win->Render();
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
+  // Finally render the scene and compare the image to a reference image
+  win->SetMultiSamples(0);
+  win->GetInteractor()->Initialize();
+  win->GetInteractor()->Start();
   cout << volumeMapper->GetLastUsedRenderMode() << "\n";
-  return retVal;
+  return EXIT_SUCCESS;
 }
