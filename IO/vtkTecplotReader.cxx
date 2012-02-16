@@ -1478,6 +1478,20 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       {
       // whitespace: do nothing
       }
+    else if ( tok == "#" )
+      {
+      while ( (!this->Internal->NextCharEOF) &&
+              (this->Internal->TheNextChar != '\n') &&
+              (this->Internal->TheNextChar != '\r') )
+        {
+        this->Internal->TheNextChar = this->Internal->ASCIIStream.get();
+        if ( this->Internal->TheNextChar == '\n'||
+             this->Internal->TheNextChar == '\r' )
+          {
+          this->Internal->NextCharEOL = true;
+          }
+        }
+      }
     else if ( tok == "TITLE" )
       {
       this->DataTitle = this->Internal->GetNextToken();
