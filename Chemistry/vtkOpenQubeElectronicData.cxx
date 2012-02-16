@@ -115,9 +115,6 @@ void vtkOpenQubeElectronicData::PrintSelf(ostream& os, vtkIndent indent)
     // Identify the type of image
     if (oqeddata)
       {
-      cout << oqeddata->GetImageType() << "\n";
-      cout << OpenQube::Cube::MO << "\n";
-      cout << OpenQube::Cube::VdW << "\n";
       switch (oqeddata->GetImageType())
         {
         case OpenQube::Cube::MO:
