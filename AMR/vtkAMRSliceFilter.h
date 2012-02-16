@@ -15,31 +15,31 @@
 // .NAME vtkAMRSliceFilter.h -- Creates slices from AMR datasets
 //
 // .SECTION Description
-//  A concrete instance of vtkHierarchicalBoxDataSetAlgorithm which implements
+//  A concrete instance of vtkOverlappingAMRAlgorithm which implements
 //  functionality for extracting slices from AMR data. Unlike the conventional
 //  slice filter, the output of this filter is a 2-D AMR dataset itself.
 
 #ifndef VTKAMRSLICEFILTER_H_
 #define VTKAMRSLICEFILTER_H_
 
-#include "vtkHierarchicalBoxDataSetAlgorithm.h"
+#include "vtkOverlappingAMRAlgorithm.h"
 
-#include <vtkstd/vector> // For STL vector
+#include <vector> // For STL vector
 
 class vtkInformation;
 class vtkInformationVector;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkPlane;
 class vtkAMRBox;
 class vtkUniformGrid;
 
 class VTK_AMR_EXPORT vtkAMRSliceFilter :
-  public vtkHierarchicalBoxDataSetAlgorithm
+  public vtkOverlappingAMRAlgorithm
 {
   public:
       static vtkAMRSliceFilter* New();
-      vtkTypeMacro( vtkAMRSliceFilter, vtkHierarchicalBoxDataSetAlgorithm );
+      vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
       void PrintSelf( std::ostream &os, vtkIndent indent );
 
       // Inline Gettters & Setters
@@ -127,26 +127,26 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     // this method generates the list of linear AMR block indices that need
     // to be loaded.
     void ComputeAMRBlocksToLoad(
-        vtkPlane *p, vtkHierarchicalBoxDataSet *metadata );
+        vtkPlane *p, vtkOverlappingAMR *metadata );
 
     // Description:
     // Extracts a 2-D AMR slice from the dataset.
     void GetAMRSliceInPlane(
-        vtkPlane *p, vtkHierarchicalBoxDataSet *inp,
-        vtkHierarchicalBoxDataSet *out );
+        vtkPlane *p, vtkOverlappingAMR *inp,
+        vtkOverlappingAMR *out );
 
     // Description:
     // A utility function that checks if the input AMR data is 2-D.
-    bool IsAMRData2D( vtkHierarchicalBoxDataSet *input );
+    bool IsAMRData2D( vtkOverlappingAMR *input );
 
     // Description:
     // Returns the axis-aligned cut plane.
-    vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *input );
+    vtkPlane* GetCutPlane( vtkOverlappingAMR *input );
 
     // Description:
     // Initializes the off-set to be at the center of the input data-set.
     void InitializeOffSet(
-      vtkHierarchicalBoxDataSet *inp, double *min, double *max );
+      vtkOverlappingAMR *inp, double *min, double *max );
 
     double OffSetFromOrigin;
     int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
@@ -157,7 +157,7 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
     int ForwardUpstream;
     int EnablePrefetching;
     // BTX
-      vtkstd::vector< int > blocksToLoad;
+      std::vector< int > blocksToLoad;
     // ETX
 
   private:

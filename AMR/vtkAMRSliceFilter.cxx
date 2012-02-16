@@ -18,7 +18,7 @@
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkCell.h"
 #include "vtkAMRUtilities.h"
 #include "vtkPlane.h"
@@ -69,7 +69,7 @@ int vtkAMRSliceFilter::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   info->Set(
-   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkHierarchicalBoxDataSet" );
+   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR" );
   return 1;
 }
 
@@ -78,12 +78,12 @@ int vtkAMRSliceFilter::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   info->Set(
-    vtkDataObject::DATA_TYPE_NAME(),"vtkHierarchicalBoxDataSet");
+    vtkDataObject::DATA_TYPE_NAME(),"vtkOverlappingAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRSliceFilter::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
+bool vtkAMRSliceFilter::IsAMRData2D( vtkOverlappingAMR *input )
 {
   assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
 
@@ -100,7 +100,7 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
 
 //------------------------------------------------------------------------------
 void vtkAMRSliceFilter::InitializeOffSet(
-    vtkHierarchicalBoxDataSet *inp, double *minBounds, double *maxBounds )
+    vtkOverlappingAMR *inp, double *minBounds, double *maxBounds )
 {
   if( !this->initialRequest )
     {
@@ -132,7 +132,7 @@ void vtkAMRSliceFilter::InitializeOffSet(
 }
 
 //------------------------------------------------------------------------------
-vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkHierarchicalBoxDataSet *inp )
+vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkOverlappingAMR *inp )
 {
   assert( "pre: AMR dataset should not be NULL" && (inp != NULL) );
 
@@ -296,7 +296,7 @@ bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],double bounds[6])
 
 //------------------------------------------------------------------------------
 void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
-    vtkPlane *p, vtkHierarchicalBoxDataSet *metadata )
+    vtkPlane *p, vtkOverlappingAMR *metadata )
 {
   assert( "pre: plane object is NULL" && (p != NULL) );
   assert( "pre: metadata object is NULL" && (metadata != NULL) );
@@ -352,8 +352,8 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
 
 //------------------------------------------------------------------------------
 void vtkAMRSliceFilter::GetAMRSliceInPlane(
-    vtkPlane *p, vtkHierarchicalBoxDataSet *inp,
-    vtkHierarchicalBoxDataSet *out )
+    vtkPlane *p, vtkOverlappingAMR *inp,
+    vtkOverlappingAMR *out )
 {
   assert( "pre: input AMR dataset is NULL" && (inp != NULL) );
   assert( "pre: output AMR dataset is NULL" && (out != NULL) );
@@ -578,8 +578,8 @@ int vtkAMRSliceFilter::RequestInformation(
     // Check if metadata are passed downstream
     if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
       {
-      vtkHierarchicalBoxDataSet *metadata =
-          vtkHierarchicalBoxDataSet::SafeDownCast(
+      vtkOverlappingAMR *metadata =
+          vtkOverlappingAMR::SafeDownCast(
               input->Get(
                   vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
 
@@ -632,15 +632,15 @@ int vtkAMRSliceFilter::RequestData(
   assert( "pre: input information object is NULL" && (input != NULL) );
 
 
-  vtkHierarchicalBoxDataSet *inputAMR=
-      vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *inputAMR=
+      vtkOverlappingAMR::SafeDownCast(
           input->Get(vtkDataObject::DATA_OBJECT() ) );
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
   assert( "pre: output information object is NULL" && (output != NULL) );
-  vtkHierarchicalBoxDataSet *outputAMR=
-      vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *outputAMR=
+      vtkOverlappingAMR::SafeDownCast(
         output->Get( vtkDataObject::DATA_OBJECT() ) );
 
   if( this->IsAMRData2D( inputAMR ) )
