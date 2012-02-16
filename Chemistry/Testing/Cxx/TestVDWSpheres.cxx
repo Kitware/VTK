@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-int TestVDWSpheres(int argc, char *argv[])
+int TestVDWSpheres(int, char *[])
 {
   vtkNew<vtkMolecule> mol;
 
@@ -80,13 +80,10 @@ int TestVDWSpheres(int argc, char *argv[])
   win->Render();
   ren->GetActiveCamera()->Zoom(1.8);
 
-  win->Render();
+  // Finally render the scene and compare the image to a reference image
+  win->SetMultiSamples(0);
+  win->GetInteractor()->Initialize();
+  win->GetInteractor()->Start();
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  return retVal;
+  return EXIT_SUCCESS;
 }
