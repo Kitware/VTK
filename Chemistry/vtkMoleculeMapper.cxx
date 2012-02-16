@@ -171,7 +171,7 @@ void vtkMoleculeMapper::UseVDWSpheresSettings()
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::UseLiqouriceStickSettings()
+void vtkMoleculeMapper::UseLiquoriceStickSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);

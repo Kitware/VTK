@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-int TestLiqouriceSticks(int, char *[])
+int TestLiquoriceSticks(int, char *[])
 {
   vtkNew<vtkMolecule> mol;
 
@@ -62,7 +62,7 @@ int TestLiqouriceSticks(int, char *[])
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInput(mol.GetPointer());
 
-  molmapper->UseLiqouriceStickSettings();
+  molmapper->UseLiquoriceStickSettings();
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());

@@ -72,7 +72,7 @@ public:
   void UseVDWSpheresSettings();
 
   // Description:
-  // Set ivars to default liqourice stick settings. This is
+  // Set ivars to default liquorice stick settings. This is
   // equivalent to the following:
   //   - SetRenderAtoms( true )
   //   - SetRenderBonds( true )
@@ -81,7 +81,7 @@ public:
   //   - SetBondColorMode( DiscreteByAtom )
   //   - SetUseMultiCylindersForBonds( false )
   //   - SetBondRadius( 0.1 )
-  void UseLiqouriceStickSettings();
+  void UseLiquoriceStickSettings();
 
   // Description:
   // Set ivars to use fast settings that may be useful for rendering
