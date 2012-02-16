@@ -155,6 +155,14 @@ public:
   vtkBooleanMacro(SourceIndexing, bool);
 
   // Description:
+  // Turn on/off scaling of source geometry. When turned on, ScaleFactor
+  // controls the scale applied. To scale with some data array, ScaleMode should
+  // be set accordingly.
+  vtkSetMacro(UseSelectionIds, bool);
+  vtkBooleanMacro(UseSelectionIds, bool);
+  vtkGetMacro(UseSelectionIds, bool);
+
+  // Description:
   // Redefined to take into account the bounds of the scaled glyphs.
   virtual double *GetBounds();
 
@@ -341,6 +349,7 @@ protected:
   bool Orient; // boolean controls whether to "orient" data
   bool Clamping; // whether to clamp scale factor
   bool SourceIndexing; // Enable/disable indexing into the glyph table
+  bool UseSelectionIds; // Enable/disable custom pick ids
   bool Masking; // Enable/disable masking.
   int OrientationMode;
   bool NestedDisplayLists; // boolean

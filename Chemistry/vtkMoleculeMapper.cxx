@@ -676,6 +676,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   this->BondGlyphMapper->SetScaleArray("Scale Factors");
   this->BondGlyphMapper->SetOrientationArray("Orientation Vectors");
   this->BondGlyphMapper->SetSelectionIdArray("Selection Ids");
+  this->BondGlyphMapper->UseSelectionIdsOn();
 }
 
 //----------------------------------------------------------------------------
