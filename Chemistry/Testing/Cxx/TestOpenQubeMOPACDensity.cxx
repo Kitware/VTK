@@ -65,7 +65,7 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
 
   vtkNew<vtkMoleculeMapper> molMapper;
   molMapper->SetInput(mol);
-  molMapper->UseLiqouriceStickSettings();
+  molMapper->UseLiquoriceStickSettings();
   molMapper->SetBondRadius(0.1);
   molMapper->SetAtomicRadiusScaleFactor(0.1);
 
