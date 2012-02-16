@@ -537,7 +537,7 @@ int vtkAMRBaseReader::RequestData(
   this->NumBlocksFromCache = 0;
   this->NumBlocksFromFile  = 0;
 
-  vtkInformation            *outInf = outputVector->GetInformationObject( 0 );
+  vtkInformation    *outInf = outputVector->GetInformationObject( 0 );
   vtkOverlappingAMR *output =
     vtkOverlappingAMR::SafeDownCast(
      outInf->Get( vtkDataObject::DATA_OBJECT() ) );
