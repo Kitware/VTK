@@ -79,6 +79,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetScaleArray(vtkDataSetAttributes::SCALARS);
   this->SetMaskArray(vtkDataSetAttributes::SCALARS);
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
+  this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
   this->NestedDisplayLists = true;
 
@@ -214,10 +215,14 @@ void vtkGlyph3DMapper::SetSelectionIdArray(int fieldAttributeType)
 // ---------------------------------------------------------------------------
 vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
 {
-  int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-  vtkDataArray* arr = this->GetInputArrayToProcess(
-        vtkGlyph3DMapper::SELECTIONID, input, association);
-  return arr;
+  if (this->UseSelectionIds)
+    {
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+    vtkDataArray* arr = this->GetInputArrayToProcess(
+          vtkGlyph3DMapper::SELECTIONID, input, association);
+    return arr;
+    }
+  return NULL;
 }
 
 // ---------------------------------------------------------------------------
