@@ -62,7 +62,7 @@ class FileStreamReader
 {
 public:
   FileStreamReader();
-  ~FileStreamReader(){};
+  ~FileStreamReader();
 
   bool open(const char* fileName);
   bool is_open()const{return Open;};
@@ -89,6 +89,12 @@ FileStreamReader::FileStreamReader()
 : Open(false),Eof(true),Pos(BUFF_SIZE),BuffEnd(BUFF_SIZE)
 {
 
+}
+
+// ----------------------------------------------------------------------------
+FileStreamReader::~FileStreamReader()
+{
+  this->close();
 }
 
 // ----------------------------------------------------------------------------
