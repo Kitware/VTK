@@ -86,8 +86,6 @@ vtkOpenQubeElectronicData::vtkOpenQubeElectronicData()
 //----------------------------------------------------------------------------
 vtkOpenQubeElectronicData::~vtkOpenQubeElectronicData()
 {
-  delete this->BasisSet;
-  this->BasisSet = NULL;
 }
 
 //----------------------------------------------------------------------------

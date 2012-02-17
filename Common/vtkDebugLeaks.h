@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Get/Set flag for exiting with an error when leaks are present.
-  // Default is on when testing and off otherwise.
+  // Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
   static int GetExitError();
   static void SetExitError(int);
 
