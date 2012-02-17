@@ -258,6 +258,10 @@ int vtkAMRBaseReader::RequestInformation(
     info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
         this->Metadata );
     }
+  vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::GenerateParentChildInformation");
+  this->Metadata->GenerateParentChildInformation();
+  vtkTimerLog::MarkEndEvent("vtkAMRBaseReader::GenerateParentChildInformation");
+
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
 
   std::cout << "TOTAL NUMBER OF LEVELS: " << this->Metadata->GetNumberOfLevels()
