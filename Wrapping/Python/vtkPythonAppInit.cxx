@@ -57,6 +57,10 @@
 #include "vtkChartsInstantiator.h"
 #endif
 
+#ifdef VTK_USE_CHEMISTRY
+#include "vtkChemistryInstantiator.h"
+#endif
+
 #ifdef VTK_USE_GEOVIS
 #include "vtkGeovisInstantiator.h"
 #endif

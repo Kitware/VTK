@@ -6,10 +6,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_CHEMISTRY)
     TestBallAndStick.cxx
     TestBondColorModeDiscreteByAtom.cxx
     TestBondColorModeSingleColor.cxx
-    TestBondColorModeSmoothByAtom.cxx
     TestCompositeRender.cxx
     TestFastRender.cxx
-    TestLiqouriceSticks.cxx
+    TestLiquoriceSticks.cxx
     TestMolecule.cxx
     TestMoleculeSelection.cxx
     TestMultiCylinderOn.cxx

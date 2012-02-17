@@ -163,6 +163,9 @@ IF(BORLAND)
   IF(VTK_USE_CHARTS)
     SET(KITS ${KITS} Charts)
   ENDIF(VTK_USE_CHARTS)
+  IF(VTK_USE_CHEMISTRY)
+    SET(KITS ${KITS} Chemistry)
+  ENDIF(VTK_USE_CHEMISTRY)
   IF (VTK_USE_GEOVIS)
     SET(KITS ${KITS} Geovis)
   ENDIF(VTK_USE_GEOVIS)
@@ -221,6 +224,14 @@ IF(VTK_USE_CHARTS)
       vtkChartsPython
       )
 ENDIF(VTK_USE_CHARTS)
+
+IF(VTK_USE_CHEMISTRY)
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkChemistry)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkChemistryPython
+      )
+ENDIF(VTK_USE_CHEMISTRY)
 
 IF (VTK_USE_GEOVIS)
   SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkGeovis)
@@ -380,6 +391,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/__init__
     vtk/common
     vtk/charts
+    vtk/chemistry
     vtk/filtering
     vtk/genericfiltering
     vtk/geovis

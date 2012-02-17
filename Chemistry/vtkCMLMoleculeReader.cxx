@@ -143,6 +143,7 @@ vtkCMLParser::vtkCMLParser()
 
 vtkCMLParser::~vtkCMLParser()
 {
+  this->SetTarget(NULL);
 }
 
 void vtkCMLParser::StartElement(const char *name, const char **attr)
@@ -181,11 +182,11 @@ void vtkCMLParser::StartElement(const char *name, const char **attr)
   return;
 }
 
-void vtkCMLParser::EndElement(const char *name)
+void vtkCMLParser::EndElement(const char *)
 {
 }
 
-void vtkCMLParser::NewMolecule(const char **attr)
+void vtkCMLParser::NewMolecule(const char **)
 {
   this->Target->Initialize();
 }
@@ -262,7 +263,8 @@ void vtkCMLParser::NewBond(const char **attr)
         {
         vtkIdType currentAtomId;
         bool found = false;
-        for (currentAtomId = 0; currentAtomId < this->AtomNames.size();
+        for (currentAtomId = 0;
+             currentAtomId < static_cast<vtkIdType>(this->AtomNames.size());
              ++currentAtomId)
           {
           if (this->AtomNames[currentAtomId].compare(nameChar) == 0)

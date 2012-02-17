@@ -180,7 +180,7 @@ void vtkBlueObeliskDataParser::EndElement(const char *name)
 }
 
 //----------------------------------------------------------------------------
-void vtkBlueObeliskDataParser::NewAtomStarted(const char **attr)
+void vtkBlueObeliskDataParser::NewAtomStarted(const char **)
 {
   this->CurrentAtomicNumber = -1;
   this->CurrentSymbol->clear();

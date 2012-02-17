@@ -107,9 +107,10 @@ $PROGNAME =~ s/^.*[\\\/]//;
 # -------------------------------------------------------------------------
 # Defaults  (add options as you want: "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    dirs => ["../../Charts",
+            "../../Chemistry",
             "../../Common",
             "../../Filtering",
             "../../GenericFiltering",

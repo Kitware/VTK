@@ -54,7 +54,7 @@ public:
   //   - SetRenderBonds( true )
   //   - SetAtomicRadiusType( VDWRadius )
   //   - SetAtomicRadiusScaleFactor( 0.3 )
-  //   - SetBondColorMode( SmoothByAtom )
+  //   - SetBondColorMode( DiscreteByAtom )
   //   - SetUseMultiCylindersForBonds( true )
   //   - SetBondRadius( 0.075 )
   void UseBallAndStickSettings();
@@ -66,22 +66,22 @@ public:
   //   - SetRenderBonds( true )
   //   - SetAtomicRadiusType( VDWRadius )
   //   - SetAtomicRadiusScaleFactor( 1.0 )
-  //   - SetBondColorMode( SmoothByAtom )
+  //   - SetBondColorMode( DiscreteByAtom )
   //   - SetUseMultiCylindersForBonds( true )
   //   - SetBondRadius( 0.075 )
   void UseVDWSpheresSettings();
 
   // Description:
-  // Set ivars to default liqourice stick settings. This is
+  // Set ivars to default liquorice stick settings. This is
   // equivalent to the following:
   //   - SetRenderAtoms( true )
   //   - SetRenderBonds( true )
   //   - SetAtomicRadiusType( UnitRadius )
   //   - SetAtomicRadiusScaleFactor( 0.1 )
-  //   - SetBondColorMode( SmoothByAtom )
+  //   - SetBondColorMode( DiscreteByAtom )
   //   - SetUseMultiCylindersForBonds( false )
   //   - SetBondRadius( 0.1 )
-  void UseLiqouriceStickSettings();
+  void UseLiquoriceStickSettings();
 
   // Description:
   // Set ivars to use fast settings that may be useful for rendering
@@ -150,8 +150,7 @@ public:
 
   enum {
     SingleColor = 0,
-    DiscreteByAtom,
-    SmoothByAtom
+    DiscreteByAtom
   };
 
   // Description:
@@ -163,10 +162,6 @@ public:
   // If 'DiscreteByAtom' is selected, each bond is colored using the
   // same lookup table as the atoms at each end, with a sharp color
   // boundary at the bond center.
-  //
-  // If 'SmoothByAtom' is used, the atomic lookup table is used to
-  // determine the color at each end of the bond, but the colors are
-  // smoothly blended along the length of the bond.
   vtkGetMacro(BondColorMode, int);
   vtkSetMacro(BondColorMode, int);
   const char * GetBondColorModeAsString();
@@ -177,10 +172,6 @@ public:
   void SetBondColorModeToDiscreteByAtom()
   {
     this->SetBondColorMode(DiscreteByAtom);
-  }
-  void SetBondColorModeToSmoothByAtom()
-  {
-    this->SetBondColorMode(SmoothByAtom);
   }
 
   // Description:

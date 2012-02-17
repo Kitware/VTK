@@ -448,6 +448,8 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkArrayRange", "vtkArrayRange.h" },
     { "vtkArraySort", "vtkArraySort.h" },
     { "vtkArrayWeights", "vtkArrayWeights.h" },
+    { "vtkAtom", "vtkAtom.h" },
+    { "vtkBond", "vtkBond.h" },
     { "vtkTimeStamp", "vtkTimeStamp.h" },
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
@@ -650,10 +652,6 @@ static void vtkWrapPython_DeclareVariables(
 
   if (theFunc->ReturnValue)
     {
-    /* temp variable for C++-type return value */
-    vtkWrap_DeclareVariable(fp, theFunc->ReturnValue,
-      "tempr", -1, VTK_WRAP_RETURN);
-
     /* the size for a one-dimensional array */
     if (vtkWrap_IsArray(theFunc->ReturnValue))
       {
@@ -1750,6 +1748,34 @@ static void vtkWrapPython_GenerateMethodCall(
     n = 2;
     }
 
+  if (!is_constructor &&
+      !vtkWrap_IsVoid(currentFunction->ReturnValue))
+    {
+    /* temp variable for C++-type return value */
+    fprintf(fp, "  ");
+    vtkWrap_DeclareVariable(fp, currentFunction->ReturnValue,
+      "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
+    fprintf(fp, " =");
+    }
+
+  /* handle both bound and unbound calls */
+  if (n == 2)
+    {
+    if (!is_constructor &&
+        !vtkWrap_IsVoid(currentFunction->ReturnValue))
+      {
+      fprintf(fp, " (ap.IsBound() ?\n"
+             "     ");
+      }
+    else
+      {
+      fprintf(fp,
+              "    if (ap.IsBound())\n"
+              "      {\n"
+              "  ");
+      }
+    }
+
   /* print the code that calls the method */
   for (k = 0; k < n; k++)
     {
@@ -1776,25 +1802,6 @@ static void vtkWrapPython_GenerateMethodCall(
       sprintf(methodname, "op->%s", currentFunction->Name);
       }
 
-    if (n == 2)
-      {
-      /* need to check if it is a bound call or unbound */
-      if (k == 0)
-        {
-        fprintf(fp,
-                "    if (ap.IsBound())\n"
-                "      {\n"
-                "  ");
-        }
-      else
-        {
-        fprintf(fp,
-                "    else\n"
-                "      {\n"
-                "  ");
-        }
-      }
-
     if (is_constructor)
       {
       fprintf(fp,
@@ -1810,13 +1817,13 @@ static void vtkWrapPython_GenerateMethodCall(
     else if (vtkWrap_IsRef(currentFunction->ReturnValue))
       {
       fprintf(fp,
-              "    tempr = &%s(",
+              " &%s(",
               methodname);
       }
     else
       {
       fprintf(fp,
-              "    tempr = %s(",
+              " %s(",
               methodname);
       }
 
@@ -1851,20 +1858,40 @@ static void vtkWrapPython_GenerateMethodCall(
            vtkWrap_IsQtObject(arg)) &&
           !vtkWrap_IsPointer(arg))
         {
-        fprintf(fp,"*temp%i",i);
+        fprintf(fp, "*temp%i", i);
         }
       else
         {
-        fprintf(fp,"temp%i",i);
+        fprintf(fp, "temp%i", i);
         }
       }
-    fprintf(fp,");\n");
+    fprintf(fp, ")");
 
-    /* end the "if (ap.IsBound())" clause */
+    /* handle ternary operator for ap.IsBound() */
     if (n == 2)
       {
-      fprintf(fp,
-              "      }\n");
+      if (!is_constructor &&
+          !vtkWrap_IsVoid(currentFunction->ReturnValue))
+        {
+        fprintf(fp, (k == 0 ? " :\n     " : ");\n"));
+        }
+      else if (k == 0)
+        {
+        fprintf(fp, ";\n"
+                "      }\n"
+                "    else\n"
+                "      {\n"
+                "  ");
+        }
+      else
+        {
+        fprintf(fp, ";\n"
+                "      }\n");
+        }
+      }
+    else
+      {
+      fprintf(fp, ";\n");
       }
     }
 
@@ -3832,11 +3859,16 @@ static void vtkWrapPython_SequenceProtocol(
             "    PyErr_SetString(PyExc_IndexError, \"index out of range\");\n"
             "    }\n"
             "  else\n"
-            "    {\n"
-            "    tempr = %s(*op)[temp0];\n"
-            "\n",
+            "    {\n",
             vtkWrap_GetTypeName(getItemFunc->Arguments[0]),
-            getItemFunc->SizeHint,
+            getItemFunc->SizeHint);
+
+    fprintf(fp, "  ");
+    vtkWrap_DeclareVariable(fp, getItemFunc->ReturnValue,
+      "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
+
+    fprintf(fp, " = %s(*op)[temp0];\n"
+            "\n",
             (vtkWrap_IsRef(getItemFunc->ReturnValue) ? "&" : ""));
 
     vtkWrapPython_ReturnValue(fp, getItemFunc->ReturnValue, 1);

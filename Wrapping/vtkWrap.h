@@ -29,6 +29,7 @@
 /*@{*/
 #define VTK_WRAP_RETURN  1
 #define VTK_WRAP_ARG     2
+#define VTK_WRAP_NOSEMI  4
 /*@}*/
 
 #ifdef __cplusplus
@@ -216,6 +217,7 @@ int vtkWrap_CountRequiredArgs(FunctionInfo *f);
  * Set "flags" to VTK_WRAP_RETURN to write a return value,
  * or to VTK_WRAP_ARG to write a temp argument variable.
  * The following rules apply:
+ * - if VTK_WRAP_NOSEMI is set, then no semicolon/newline is printed
  * - if VTK_WRAP_RETURN is set, then "&" becomes "*"
  * - if VTK_WRAP_ARG is set, "&" becomes "*" only for object
  *   types, and is removed for all other types.

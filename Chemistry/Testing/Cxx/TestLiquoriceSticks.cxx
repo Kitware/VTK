@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-int TestBondColorModeSmoothByAtom(int argc, char *argv[])
+int TestLiquoriceSticks(int, char *[])
 {
   vtkNew<vtkMolecule> mol;
 
@@ -62,9 +62,7 @@ int TestBondColorModeSmoothByAtom(int argc, char *argv[])
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInput(mol.GetPointer());
 
-  molmapper->UseBallAndStickSettings();
-  molmapper->RenderAtomsOff();
-  molmapper->SetBondColorModeToSmoothByAtom();
+  molmapper->UseLiquoriceStickSettings();
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
@@ -82,13 +80,10 @@ int TestBondColorModeSmoothByAtom(int argc, char *argv[])
   win->Render();
   ren->GetActiveCamera()->Zoom(2.2);
 
-  win->Render();
+  // Finally render the scene and compare the image to a reference image
+  win->SetMultiSamples(0);
+  win->GetInteractor()->Initialize();
+  win->GetInteractor()->Start();
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    iren->Start();
-    }
-
-  return retVal;
+  return EXIT_SUCCESS;
 }

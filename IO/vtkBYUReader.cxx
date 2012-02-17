@@ -150,7 +150,15 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   //
   // Read header (not using fixed format! - potential problem in some files.)
   //
-  (void) fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
+  int cnt;
+  cnt = fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
+  if (cnt != 4)
+    {
+    vtkErrorMacro(
+      <<"Error reading geometry file: " << this->GeometryFileName
+      << "Expected 4 values in header, but got " << cnt);
+    return;
+    }
 
   if ( this->PartNumber > numParts )
     {
@@ -163,12 +171,33 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
     vtkDebugMacro(<<"Reading part number: " << this->PartNumber);
     for (i=0; i < (this->PartNumber-1); i++)
       {
-      (void) fscanf (geomFile, "%*d %*d");
+      cnt = fscanf (geomFile, "%*d %*d");
+      if (cnt != 0)
+        {
+        vtkErrorMacro(
+          <<"Error reading geometry file: " << this->GeometryFileName
+          << "Skipping 2 int's, but skipped " << cnt);
+        return;
+        }
       }
-    (void) fscanf (geomFile, "%d %d", &partStart, &partEnd);
+    cnt = fscanf (geomFile, "%d %d", &partStart, &partEnd);
+    if (cnt != 2)
+      {
+      vtkErrorMacro(
+        <<"Error reading geometry file: " << this->GeometryFileName
+        << "Expected 2 values for partStart and partEnd, but got " << cnt);
+      return;
+      }
     for (i=this->PartNumber; i < numParts; i++)
       {
-      (void) fscanf (geomFile, "%*d %*d");
+      cnt = fscanf (geomFile, "%*d %*d");
+      if (cnt != 0)
+        {
+        vtkErrorMacro(
+          <<"Error reading geometry file: " << this->GeometryFileName
+          << "Skipping 2 int's, but skipped " << cnt);
+        return;
+        }
       }
     }
   else // read all parts
@@ -176,7 +205,14 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
     vtkDebugMacro(<<"Reading all parts.");
     for (i=0; i < numParts; i++)
       {
-      (void) fscanf (geomFile, "%*d %*d");
+      cnt = fscanf (geomFile, "%*d %*d");
+      if (cnt != 0)
+        {
+        vtkErrorMacro(
+          <<"Error reading geometry file: " << this->GeometryFileName
+        << "Skipping 2 int's, but skipped " << cnt);
+        return;
+        }
       }
     partStart = 1;
     partEnd = VTK_LARGE_INTEGER;
@@ -201,7 +237,14 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   // read point coordinates
   for (i=0; i<numPts; i++)
     {
-    (void) fscanf(geomFile, "%e %e %e", x, x+1, x+2);
+    cnt = fscanf(geomFile, "%e %e %e", x, x+1, x+2);
+    if (cnt != 3)
+      {
+      vtkErrorMacro(
+        <<"Error reading geometry file: " << this->GeometryFileName
+        << "Expected 3 points, but got " << cnt);
+      return;
+      }
     newPts->InsertPoint(i,x);
     }
   this->UpdateProgress(0.333);
@@ -265,7 +308,14 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    (void) fscanf(dispFp, "%e %e %e", v, v+1, v+2);
+    int cnt = fscanf(dispFp, "%e %e %e", v, v+1, v+2);
+    if (cnt != 3)
+      {
+      vtkErrorMacro(
+        <<"Error reading displacement file: " << this->DisplacementFileName
+        << "Expected 3 floats, but got " << cnt);
+      return;
+      }
     newVectors->SetTuple(i,v);
     }
 
@@ -305,7 +355,15 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    (void) fscanf(scalarFp, "%e", &s);
+    int cnt = fscanf(scalarFp, "%e", &s);
+    if (cnt != 1)
+      {
+      vtkErrorMacro(
+        <<"Error reading scalar file: " << this->ScalarFileName
+        << "Expected 1 float, but got " << cnt);
+      return;
+      }
+
     newScalars->SetTuple(i,&s);
     }
 
@@ -346,7 +404,14 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation *outInfo)
 
   for (i=0; i<numPts; i++)
     {
-    (void) fscanf(textureFp, "%e %e", t, t+1);
+    int cnt = fscanf(textureFp, "%e %e", t, t+1);
+    if (cnt != 2)
+      {
+      vtkErrorMacro(
+        <<"Error reading texture file: " << this->TextureFileName
+        << "Expected 2 texture coordibates, but got " << cnt);
+      return;
+      }
     newTCoords->SetTuple(i,t);
     }
 

@@ -51,7 +51,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
     AtomicRadiusType(VDWRadius),
     AtomicRadiusScaleFactor(0.3),
     RenderBonds(true),
-    BondColorMode(SmoothByAtom),
+    BondColorMode(DiscreteByAtom),
     UseMultiCylindersForBonds(true),
     BondRadius(0.075)
 {
@@ -153,7 +153,7 @@ void vtkMoleculeMapper::UseBallAndStickSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( VDWRadius );
   this->SetAtomicRadiusScaleFactor( 0.3 );
-  this->SetBondColorMode( SmoothByAtom );
+  this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( true );
   this->SetBondRadius( 0.075 );
 }
@@ -165,19 +165,19 @@ void vtkMoleculeMapper::UseVDWSpheresSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( VDWRadius );
   this->SetAtomicRadiusScaleFactor( 1.0 );
-  this->SetBondColorMode( SmoothByAtom );
+  this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( true );
   this->SetBondRadius( 0.075 );
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::UseLiqouriceStickSettings()
+void vtkMoleculeMapper::UseLiquoriceStickSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( UnitRadius );
   this->SetAtomicRadiusScaleFactor( 0.15 );
-  this->SetBondColorMode( SmoothByAtom );
+  this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( false );
   this->SetBondRadius( 0.15 );
 }
@@ -220,8 +220,6 @@ const char * vtkMoleculeMapper::GetBondColorModeAsString()
       return "SingleColor";
     case DiscreteByAtom:
       return "DiscreteByAtom";
-    case SmoothByAtom:
-      return "SmoothByAtom";
     default:
       return "Invalid";
     }
@@ -428,8 +426,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     }
   // If DiscreteByAtom coloring is used, each cylinder is represented
   // by two individual cylinders
-  if (this->BondColorMode == DiscreteByAtom ||
-      this->BondColorMode == SmoothByAtom) // Fallback, not implemented
+  if (this->BondColorMode == DiscreteByAtom)
     {
     numCylinders *= 2;
     }
@@ -461,9 +458,6 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
       this->BondGlyphMapper->SetColorModeToDefault();
       this->BondGlyphMapper->SetScalarModeToUsePointData();
       break;
-    case SmoothByAtom:
-      vtkWarningMacro(<<"'SmoothByAtom' bond color mode not available for "
-                      "glyph rendering. Falling back to 'DiscreteByAtom'.");
     default:
     case DiscreteByAtom:
       cylColors = vtkUnsignedShortArray::New();
@@ -591,7 +585,6 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
       case SingleColor:
         scale.Set( bondLength, this->BondRadius, this->BondRadius);
         break;
-      case SmoothByAtom:
       default:
       case DiscreteByAtom:
         scale.Set( 0.5 * bondLength, this->BondRadius, this->BondRadius);
@@ -623,7 +616,6 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
           orientationVectors->InsertNextTuple(bondVec.GetData());
           selectionIds->InsertNextValue(selectionId);
           break;
-        case SmoothByAtom:
         default:
         case DiscreteByAtom:
           // Cache some scaling factors
@@ -684,6 +676,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   this->BondGlyphMapper->SetScaleArray("Scale Factors");
   this->BondGlyphMapper->SetOrientationArray("Orientation Vectors");
   this->BondGlyphMapper->SetSelectionIdArray("Selection Ids");
+  this->BondGlyphMapper->UseSelectionIdsOn();
 }
 
 //----------------------------------------------------------------------------
