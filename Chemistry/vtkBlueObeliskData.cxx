@@ -22,9 +22,12 @@
 #include "vtkMutexLock.h"
 #include "vtkUnsignedShortArray.h"
 
-// Hidden STL reference: vtkstd::vector<vtkAbstractArray*>
-class MyStdVectorOfVtkAbstractArrays :
-  public vtkstd::vector<vtkAbstractArray*> {};
+#include <vector>
+
+// Hidden STL reference: std::vector<vtkAbstractArray*>
+class MyStdVectorOfVtkAbstractArrays : public std::vector<vtkAbstractArray*>
+{
+};
 
 vtkStandardNewMacro(vtkBlueObeliskData);
 
@@ -204,7 +207,7 @@ void vtkBlueObeliskData::Squeeze()
   for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
          it_end = this->Arrays->end(); it != it_end; ++it)
     {
-      (*it)->Squeeze();
+    (*it)->Squeeze();
     }
 }
 
@@ -214,6 +217,6 @@ void vtkBlueObeliskData::Reset()
   for (MyStdVectorOfVtkAbstractArrays::iterator it = this->Arrays->begin(),
          it_end = this->Arrays->end(); it != it_end; ++it)
     {
-      (*it)->Reset();
+    (*it)->Reset();
     }
 }
