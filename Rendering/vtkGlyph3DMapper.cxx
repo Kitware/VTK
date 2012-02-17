@@ -79,7 +79,6 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetScaleArray(vtkDataSetAttributes::SCALARS);
   this->SetMaskArray(vtkDataSetAttributes::SCALARS);
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
-  this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
   this->NestedDisplayLists = true;
 

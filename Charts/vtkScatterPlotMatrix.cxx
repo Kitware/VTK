@@ -147,7 +147,7 @@ public:
 
   vtkNew<vtkTable> Histogram;
   bool VisibleColumnsModified;
-  vtkChart* BigChart;
+  vtkWeakPointer<vtkChart> BigChart;
   vtkNew<vtkAnnotationLink> Link;
 
   std::map<int, pimplChartSetting*> ChartSettings;
@@ -503,8 +503,7 @@ void vtkScatterPlotMatrix::StartAnimation(
 
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
 {
-  return this->Private->BigChart ?
-    this->Private->BigChart->GetAnnotationLink() : NULL;
+  return this->Private->Link.GetPointer();
 }
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
@@ -1253,7 +1252,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
         }
       }
     }
-  else if(plotType == ACTIVEPLOT)
+  else if(plotType == ACTIVEPLOT && this->Private->BigChart)
     {
     this->Private->UpdateAxis(this->Private->BigChart->GetAxis(
       vtkAxis::TOP), this->Private->ChartSettings[ACTIVEPLOT]);
@@ -1275,7 +1274,10 @@ void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
     return;
     }
   this->SelectionMode = selMode;
-  this->Private->BigChart->SetSelectionMode(selMode);
+  if(this->Private->BigChart)
+    {
+    this->Private->BigChart->SetSelectionMode(selMode);
+    }
 
   this->Modified();
 }
