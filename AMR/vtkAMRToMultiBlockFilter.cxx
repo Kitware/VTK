@@ -18,7 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIndent.h"
 #include "vtkMultiProcessController.h"
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkMultiBlockDataSet.h"
 
@@ -50,7 +50,7 @@ int vtkAMRToMultiBlockFilter::FillInputPortInformation(
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
   info->Set(
-      vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkHierarchicalBoxDataSet");
+      vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
   return 1;
 }
 
@@ -65,7 +65,7 @@ int vtkAMRToMultiBlockFilter::FillOutputPortInformation(
 
 //------------------------------------------------------------------------------
 void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
-    vtkHierarchicalBoxDataSet *amr, vtkMultiBlockDataSet *mbds )
+    vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds )
 {
   assert( "pre: input AMR dataset is NULL" && (amr != NULL) );
   assert( "pre: output multi-block dataset is NULL" && (mbds != NULL) );
@@ -103,8 +103,8 @@ int vtkAMRToMultiBlockFilter::RequestData(
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input information object is NULL" && (input != NULL) );
-  vtkHierarchicalBoxDataSet *amrds=
-      vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *amrds=
+      vtkOverlappingAMR::SafeDownCast(
           input->Get( vtkDataObject::DATA_OBJECT( ) ) );
   assert( "pre: input data-structure is NULL" && (amrds != NULL) );
 

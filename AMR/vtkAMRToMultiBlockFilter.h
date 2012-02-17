@@ -19,7 +19,7 @@
 // vtkMultiBlockDataset as output.
 //
 // .SECTION See Also
-// vtkHierarchicalBoxDataset vtkMultiBlockDataSet
+// vtkOverlappingAMR vtkMultiBlockDataSet
 
 #ifndef VTKAMRTOMULTIBLOCKFILTER_H_
 #define VTKAMRTOMULTIBLOCKFILTER_H_
@@ -30,7 +30,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
 class vtkMultiProcessController;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMultiBlockDataSet;
 
 class VTK_AMR_EXPORT vtkAMRToMultiBlockFilter :
@@ -61,7 +61,7 @@ class VTK_AMR_EXPORT vtkAMRToMultiBlockFilter :
     // Description:
     // Copies the AMR data to the output multi-block datastructure.
     void CopyAMRToMultiBlock(
-        vtkHierarchicalBoxDataSet *amr, vtkMultiBlockDataSet *mbds);
+        vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds);
     vtkMultiProcessController *Controller;
 
   private:
