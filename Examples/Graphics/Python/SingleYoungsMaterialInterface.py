@@ -18,10 +18,10 @@ interactor.SetRenderWindow( window )
 
 # Retrieve data root
 VTK_DATA_ROOT = vtkGetDataRoot()
-
+print VTK_DATA_ROOT
 # Read from AVS UCD data in binary form
 reader = vtkAVSucdReader()
-reader.SetFileName( VTK_DATA_ROOT + "/Data/UCD/UCD_00005.inp" )
+reader.SetFileName( VTK_DATA_ROOT + "/Data/UCD2D/UCD_00005.inp" )
 
 # Update reader and get mesh cell data
 reader.Update()
@@ -59,50 +59,37 @@ meshMat3 = threshold3.GetOutput()
 
 # Make multiblock from extracted submeshes
 meshMB =  vtkMultiBlockDataSet()
-meshMB.SetNumberOfBlocks( 2 )
+meshMB.SetNumberOfBlocks( 1 )
 meshMB.GetMetaData( 0 ).Set( vtkCompositeDataSet.NAME(), "Material 2" )
 meshMB.SetBlock( 0, meshMat2 )
-meshMB.GetMetaData( 1 ).Set( vtkCompositeDataSet.NAME(), "Material 3" )
-meshMB.SetBlock( 1, meshMat3 )
 
-# Create mapper for both submeshes
+# Create mapper for submesh corresponding to material 3
 matRange = cellData.GetScalars().GetRange()
-mat2Mapper = vtkDataSetMapper()
-mat2Mapper.SetInput( meshMat2 )
-mat2Mapper.SetScalarRange( matRange )
-mat2Mapper.SetScalarModeToUseCellData()
-mat2Mapper.SetColorModeToMapScalars()
-mat2Mapper.ScalarVisibilityOn()
-mat2Mapper.SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 )
-mat2Mapper.SetResolveCoincidentTopologyToPolygonOffset()
-mat3Mapper = vtkDataSetMapper()
-mat3Mapper.SetInput( meshMat3 )
-mat3Mapper.SetScalarRange( matRange )
-mat3Mapper.SetScalarModeToUseCellData()
-mat3Mapper.SetColorModeToMapScalars()
-mat3Mapper.ScalarVisibilityOn()
-mat3Mapper.SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 )
-mat3Mapper.SetResolveCoincidentTopologyToPolygonOffset()
+meshMapper = vtkDataSetMapper()
+meshMapper.SetInput( meshMat3 )
+meshMapper.SetScalarRange( matRange )
+meshMapper.SetScalarModeToUseCellData()
+meshMapper.SetColorModeToMapScalars()
+meshMapper.ScalarVisibilityOn()
+meshMapper.SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 )
+meshMapper.SetResolveCoincidentTopologyToPolygonOffset()
 
-# Create wireframe actor for one, surface actor for other, and add both to view
-wireActor = vtkActor()
-wireActor.SetMapper( mat2Mapper )
-wireActor.GetProperty().SetRepresentationToWireframe()
-renderer.AddViewProp( wireActor )
-surfActor = vtkActor()
-surfActor.SetMapper( mat3Mapper )
-surfActor.GetProperty().SetRepresentationToSurface()
-renderer.AddViewProp( surfActor )
+# Create wireframe actor for submesh
+meshActor = vtkActor()
+meshActor.SetMapper( meshMapper )
+meshActor.GetProperty().SetRepresentationToWireframe()
+renderer.AddViewProp( meshActor )
 
 cellData.SetActiveScalars("frac_pres[1]")
 # Reconstruct material interface
 interface = vtkYoungsMaterialInterface()
 interface.SetInput( meshMB )
-interface.SetNumberOfMaterials( 2 )
+interface.SetNumberOfMaterials( 1 )
 interface.SetMaterialVolumeFractionArray( 0, "frac_pres[1]" )
-interface.SetMaterialVolumeFractionArray( 1, "frac_pres[2]" )
+#interface.SetMaterialVolumeFractionArray( 1, "frac_pres[2]" )
 interface.SetMaterialNormalArray( 0, "norme" )
-interface.SetMaterialNormalArray( 1, "norme" )
+#interface.SetMaterialNormalArray( 1, "norme" )
+interface.FillMaterialOn()
 interface.UseAllBlocksOn()
 interface.Update()
 
@@ -121,13 +108,15 @@ while ( interfaceIterator.IsDoneWithTraversal() == 0 ):
     interfaceMapper.SetInput( interfaceIterator.GetCurrentDataObject() )
     interfaceIterator.GoToNextItem()
     interfaceMapper.ScalarVisibilityOff()
+    interfaceMapper.SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 )
+    interfaceMapper.SetResolveCoincidentTopologyToPolygonOffset()
     # Create surface actor and add it to view
     interfaceActor = vtkActor()
     interfaceActor.SetMapper( interfaceMapper )
     if ( idx == 2 ):
         interfaceActor.GetProperty().SetColor( 0, 1, 0 )
     else:
-        interfaceActor.GetProperty().SetColor( 0, 0, 0 )
+        interfaceActor.GetProperty().SetColor( 0, 0, 1 )
     renderer.AddViewProp( interfaceActor )
 
 # Start interaction

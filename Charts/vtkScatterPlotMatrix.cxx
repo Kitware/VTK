@@ -39,6 +39,7 @@
 // STL includes
 #include <map>
 #include <cassert>
+#include <vector>
 
 class vtkScatterPlotMatrix::PIMPL
 {
@@ -227,6 +228,76 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
       output->AddColumn(extents.GetPointer());
       output->AddColumn(populations.GetPointer());
       }
+    }
+  return true;
+}
+
+bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
+{
+  if(!visCols || visCols->GetNumberOfTuples() == 0
+    || fromCol == toCol || fromCol == (toCol-1) || fromCol < 0 || toCol < 0)
+    {
+    return false;
+    }
+  int numCols = visCols->GetNumberOfTuples();
+  if( fromCol >= numCols || toCol > numCols)
+    {
+    return false;
+    }
+
+  std::vector<vtkStdString> newVisCols;
+  vtkIdType c;
+  if(toCol == numCols)
+    {
+    for(c=0; c<numCols; c++)
+      {
+      if(c!=fromCol)
+        {
+        newVisCols.push_back(visCols->GetValue(c));
+        }
+      }
+    // move the fromCol to the end
+    newVisCols.push_back(visCols->GetValue(fromCol));
+    }
+  // insert the fromCol before toCol
+  else if(fromCol < toCol)
+    {
+    // move Cols in the middle up
+    for(c=0; c<fromCol; c++)
+      {
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    for(c=fromCol+1; c<numCols; c++)
+      {
+      if(c == toCol)
+        {
+        newVisCols.push_back(visCols->GetValue(fromCol));
+        }
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    }
+  else
+    {
+    for(c=0; c<toCol; c++)
+      {
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    newVisCols.push_back(visCols->GetValue(fromCol));
+    for(c=toCol; c<numCols; c++)
+      {
+      if(c != fromCol)
+        {
+        newVisCols.push_back(visCols->GetValue(c));
+        }
+      }
+    }
+
+  // repopulate the visCols
+  vtkIdType visId=0;
+  std::vector<vtkStdString>::iterator arrayIt;
+  for(arrayIt=newVisCols.begin(); arrayIt!=newVisCols.end(); ++arrayIt)
+    {
+    visCols->SetValue(visId++, *arrayIt);
     }
   return true;
 }
@@ -457,7 +528,6 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
       this->SetColumnVisibilityAll(true);
       return;
       }
-
     int n = static_cast<int>(this->Input->GetNumberOfColumns());
     this->SetColumnVisibilityAll(true);
     this->SetSize(vtkVector2i(n, n));
@@ -518,6 +588,65 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
     }
 }
 
+void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
+                                               int index)
+{
+  if(!this->Input || !this->Input->GetColumnByName(name.c_str()))
+    {
+    return;
+    }
+
+  // Check if the column is already in the list. If yes,
+  // we may need to rearrange the order of the columns.
+  vtkIdType currIdx = -1;
+  vtkIdType numCols = this->VisibleColumns->GetNumberOfTuples();
+  for (vtkIdType i = 0; i < numCols; ++i)
+    {
+    if (this->VisibleColumns->GetValue(i) == name)
+      {
+      currIdx = i;
+      break;
+      }
+    }
+
+  if(currIdx > 0 && currIdx == index)
+    {
+    //This column is already there.
+    return;
+    }
+
+  if(currIdx < 0)
+    {
+    this->VisibleColumns->SetNumberOfTuples(numCols+1);
+    if(index >= numCols)
+      {
+      this->VisibleColumns->SetValue(numCols, name);
+      }
+    else // move all the values after index down 1
+      {
+      vtkIdType startidx = numCols;
+      vtkIdType idx = (index < 0) ? 0 : index;
+      while (startidx > idx)
+        {
+        this->VisibleColumns->SetValue(startidx,
+          this->VisibleColumns->GetValue(startidx-1));
+        startidx--;
+        }
+      this->VisibleColumns->SetValue(idx, name);
+      }
+    this->Private->VisibleColumnsModified = true;
+    }
+  else // need to rearrange table columns
+    {
+    vtkIdType toIdx = (index < 0) ? 0 : index;
+    toIdx = toIdx>numCols ? numCols : toIdx;
+    this->Private->VisibleColumnsModified =
+      MoveColumn(this->VisibleColumns.GetPointer(), currIdx, toIdx);
+    }
+
+  this->Update();
+}
+
 bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString &name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
@@ -553,6 +682,23 @@ void vtkScatterPlotMatrix::SetColumnVisibilityAll(bool visible)
 vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
 {
   return this->VisibleColumns.GetPointer();
+}
+
+void vtkScatterPlotMatrix::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  if(!visColumns || visColumns->GetNumberOfTuples() == 0)
+    {
+    this->SetSize(vtkVector2i(0, 0));
+    this->VisibleColumns->SetNumberOfTuples(0);
+    }
+  else
+    {
+    this->VisibleColumns->SetNumberOfTuples(
+      visColumns->GetNumberOfTuples());
+    this->VisibleColumns->DeepCopy(visColumns);
+    }
+  this->Private->VisibleColumnsModified = true;
+  this->Update();
 }
 
 void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
@@ -773,6 +919,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
       if (this->GetPlotType(pos) == SCATTERPLOT)
         {
         vtkChart* chart = this->GetChart(pos);
+        chart->ClearPlots();
         chart->SetAnnotationLink(this->Private->Link.GetPointer());
         // Lower-left triangle - scatter plots.
         chart->SetActionToButton(vtkChart::PAN, -1);
@@ -795,7 +942,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
       else if (this->GetPlotType(pos) == HISTOGRAM)
         {
         // We are on the diagonal - need a histogram plot.
-        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+        vtkChart* chart = this->GetChart(pos);
+        chart->ClearPlots();
+        vtkPlot *plot = chart->AddPlot(vtkChart::BAR);
         plot->SetPen(this->Private->ChartSettings[HISTOGRAM]
                      ->PlotPen.GetPointer());
         plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
@@ -803,14 +952,14 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkStdString name(this->VisibleColumns->GetValue(i));
         plot->SetInput(this->Private->Histogram.GetPointer(),
                        name + "_extents", name + "_pops");
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
+        vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         if (i != n - 1)
           {
           axis->SetBehavior(vtkAxis::FIXED);
           }
         // Set the plot corner to the top-right
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
           {
           xy->SetBarWidthFraction(1.0);
