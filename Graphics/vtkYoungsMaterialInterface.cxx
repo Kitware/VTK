@@ -1121,9 +1121,7 @@ int vtkYoungsMaterialInterface::RequestData(
                 {
                 DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
                 }
-
               } // End 3D case
-
 
             //  create output cell
             if( interfaceCellType != VTK_EMPTY_CELL )
@@ -1191,19 +1189,20 @@ int vtkYoungsMaterialInterface::RequestData(
                   }
                 }
 
-              // populate connectivity array
-              // and add extra points from previous edge intersections that are used but not inserted yet
+              // Populate connectivity array and add extra points from previous 
+              // edge intersections that are used but not inserted yet
               int prevMatInterfAdded = 0;
               Mats[m].cells.push_back( nOutCellPoints ); Mats[m].cellArrayCount++;
-              for(int p=0;p<nOutCellPoints;p++)
+              for( int p = 0; p < nOutCellPoints; ++ p )
                 {
                 int nptId;
                 int pointIndex = outCellPointIds[p];
-                if( pointIndex >=0 ) // an original point (not an edge intersection)
+                if( pointIndex >= 0 )
                   {
+                  // An original point is encountered (not an edge intersection)
                   DBG_ASSERT( pointIndex>=0 && pointIndex<cell.np );
                   int ptId = cell.pointIds[ pointIndex ];
-                  if( ptId>=0 )
+                  if( ptId >= 0 )
                     {
                     // Interface from a previous iteration
                     DBG_ASSERT( ptId>=0 && ptId<nPoints );
@@ -1234,18 +1233,18 @@ int vtkYoungsMaterialInterface::RequestData(
 
               Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
 
-              // copy cell arrays
+              // Copy cell arrays
               for(int a = 0;a<nCellData;a++)
                 {
                 Mats[m].outCellArrays[a]->InsertNextTuple( inCellArrays[a]->GetTuple(ci) );
                 }
               Mats[m].cellCount ++;
 
-              // check for equivalence between counters and container sizes
+              // Check for equivalence between counters and container sizes
               DBG_ASSERT( Mats[m].cellCount == Mats[m].cellTypes.size() );
               DBG_ASSERT( Mats[m].cellArrayCount == Mats[m].cells.size() );
 
-              // populate next iteration cell's point coords
+              // Populate next iteration cell point coordinates
               for(int i = 0;i<nextCell.np;i++)
                 {
                 DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
