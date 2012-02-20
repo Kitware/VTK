@@ -155,9 +155,8 @@ public:
   vtkBooleanMacro(SourceIndexing, bool);
 
   // Description:
-  // Turn on/off scaling of source geometry. When turned on, ScaleFactor
-  // controls the scale applied. To scale with some data array, ScaleMode should
-  // be set accordingly.
+  // Turn on/off custom selection ids. If enabled, the id values set with
+  // SetSelectionIdArray are returned from pick events.
   vtkSetMacro(UseSelectionIds, bool);
   vtkBooleanMacro(UseSelectionIds, bool);
   vtkGetMacro(UseSelectionIds, bool);
