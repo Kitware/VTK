@@ -41,8 +41,8 @@ vtkAMRBox::vtkAMRBox(
     int ihi,int jhi)
 {
   this->BuildAMRBox( ilo,jlo,0,ihi,jhi,0);
-  assert( "post: Dimension expected to <= 2" &&
-    ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
+//  assert( "post: Dimension expected to <= 2" &&
+//    ( (this->GetDimensionality()==2) || (this->GetDimensionality()==1) ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -1006,8 +1006,13 @@ bool vtkAMRBox::HasPoint( const double x, const double y, const double z )
 //-----------------------------------------------------------------------------
 bool vtkAMRBox::operator==(const vtkAMRBox &other)
 {
-  // TODO: fix this to check for equality of meta-data as well
-  if ( this->Dimension!=other.Dimension)
+  // TODO: fix this to check for equality of meta-data as well?
+  if ( this->Dimension != other.Dimension)
+    {
+    return false;
+    }
+
+  if( this->BlockLevel != other.BlockLevel )
     {
     return false;
     }

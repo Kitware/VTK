@@ -244,8 +244,17 @@ public:
   bool IsInvalid() const;
 
   // Description:
-  // Test if this box has the same dimensions as another.
+  // Test if this box is equal with the box instance on the rhs.
+  // Note: Two AMR boxes are equal if: (a) they have the same dimensionality
+  // (b) they are at the same level and (c) they occupy the same index space.
   bool operator==(const vtkAMRBox &other);
+
+  // Description:
+  // Test if this box is NOT equal with the box instance on the rhs.
+  // Note: Two AMR boxes are equal if: (a) they have the same dimensionality
+  // (b) they are at the same level and (c) they occupy the same index space.
+  bool operator!=(const vtkAMRBox &other)
+    { return(!(*this == other)); }
 
   // Description:
   // Determine if the boxes intersect but do not compute
