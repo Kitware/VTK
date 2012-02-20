@@ -235,7 +235,7 @@ public:
   // equal to the low bounds, i.e.,
   // LoCorner[ i ] == HiCorner[ i ] for all i.
   bool Empty() const
-  {return this->IsInvalid();}
+   {return this->IsInvalid();}
 
   // Description:
   // Check to see if the AMR box instance is invalid.
@@ -254,7 +254,7 @@ public:
   // Note: Two AMR boxes are equal if: (a) they have the same dimensionality
   // (b) they are at the same level and (c) they occupy the same index space.
   bool operator!=(const vtkAMRBox &other)
-    { return(!(*this == other)); }
+    { return( !(*this == other) ); }
 
   // Description:
   // Determine if the boxes intersect but do not compute
