@@ -2776,13 +2776,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++)
         {
         derivatives[j] += triangleSurfFunc[0];
         }
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += triangleSurfFunc[1];
@@ -2925,13 +2925,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++)
         {
         derivatives[j] += coneVolDeriv[0];
         }
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += coneVolDeriv[1];
@@ -3139,13 +3139,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2<<','<<i3 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++) derivatives[j] += tetraSurfFunc[0] ;
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++) derivatives[j] += tetraSurfFunc[1] ;
 
-      DBG_MESG( "ajout surfFunc sur ["<<i2<<';'<<i3<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i2<<';'<<i3<<"]" );
       for(unsigned int j=i2;j<i3;j++) derivatives[j] += tetraSurfFunc[2] ;
       }
 
