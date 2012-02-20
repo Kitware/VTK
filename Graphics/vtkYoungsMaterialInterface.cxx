@@ -1081,11 +1081,11 @@ int vtkYoungsMaterialInterface::RequestData(
                   //Mats[m].cellTypes.push_back( VTK_POLYGON );
                   }
 
-                /* remaining volume is a convex point set
-                   IMPORTANT NOTE: next iteration cell cannot be entirely built right now.
-                   in this particular case we'll finish it at the end of the material loop */
-                // si on est sur qu'il n'y aura plus d'autre materiaux a extraire, on evite cette etape
-                if( mi<(nmat-1) && processedEfectiveMat<nEffectiveMat )
+                // NB: Remaining volume is a convex point set
+                // IMPORTANT NOTE: next iteration cell cannot be entirely built right now.
+                // in this particular case we'll finish it at the end of the material loop.
+                // If no other material remains to be processed, then skip this step.
+                if( mi < ( nmat - 1 ) && processedEfectiveMat < nEffectiveMat )
                   {
                   nextCell.type = VTK_CONVEX_POINT_SET;
                   nextCell.np = nInterfaceEdges + nOutsidePoints;
@@ -1106,7 +1106,8 @@ int vtkYoungsMaterialInterface::RequestData(
                   {
                   vtkIdType id = - (int) ( prevPointsMap.size() + 1 );
                   DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                  prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
+                  // Interpolated points will be added consecutively
+                  prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+i ) );
                   nextCell.pointIds[i] = id;
                   }
                 for(int i = 0;i<nOutsidePoints;i++)
