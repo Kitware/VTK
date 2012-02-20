@@ -459,7 +459,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
     if( b < 0 ) curmat = (-b) - 1;
     else
       {
-      vtkDebugMacro(<<"Material "<<curmat<<" Ajout block "<<b<<"\n");
+      vtkDebugMacro(<<"Material "<<curmat<<": Adding block "<<b<<"\n");
       this->Internals->Materials[curmat].blocks.insert(b);
       }
     }
