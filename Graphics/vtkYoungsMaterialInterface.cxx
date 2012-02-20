@@ -1406,7 +1406,7 @@ int vtkYoungsMaterialInterface::RequestData(
         delete [] Mats[m].outPointArrays;
 
         // activate attributes similarily to input
-        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+        for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
           {
           vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
           if( attr!=0 )
@@ -1414,7 +1414,7 @@ int vtkYoungsMaterialInterface::RequestData(
             ugOutput->GetCellData()->SetActiveAttribute(attr->GetName(),i);
             }
           }
-        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+        for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
           {
           vtkDataArray* attr = input->GetPointData()->GetAttribute(i);
           if( attr!=0 )
@@ -1432,15 +1432,26 @@ int vtkYoungsMaterialInterface::RequestData(
           }
         }
       delete [] Mats;
-
     } // Iterate over input blocks
 
   delete [] inputsPerMaterial;
 
-  if(debugStats_PrimaryTriangulationfailed != 0 ) { vtkDebugMacro(<<"PrimaryTriangulationfailed "<<debugStats_PrimaryTriangulationfailed<<"\n"); }
-  if(debugStats_Triangulationfailed != 0 ) { vtkDebugMacro(<<"Triangulationfailed "<<debugStats_Triangulationfailed<<"\n"); }
-  if(debugStats_NullNormal != 0 ) { vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n"); }
-  if(debugStats_NoInterfaceFound != 0 ) { vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n"); }
+  if ( debugStats_PrimaryTriangulationfailed )
+    {
+    vtkDebugMacro(<<"PrimaryTriangulationfailed "<<debugStats_PrimaryTriangulationfailed<<"\n");
+    }
+  if ( debugStats_Triangulationfailed )
+    {
+    vtkDebugMacro(<<"Triangulationfailed "<<debugStats_Triangulationfailed<<"\n");
+    }
+  if ( debugStats_NullNormal )
+    {
+    vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n");
+    }
+  if( debugStats_NoInterfaceFound )
+    {
+    vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n");
+    }
 
   // Build final composite output. also tagging blocks with their associated Id
   vtkDebugMacro(<<this->NumberOfDomains<<" Domains, "<<nmat<<" Materials\n");
