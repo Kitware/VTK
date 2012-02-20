@@ -73,6 +73,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->Orient = true;
   this->Clamping = false;
   this->SourceIndexing = false;
+  this->UseSelectionIds = false;
   this->OrientationMode = vtkGlyph3DMapper::DIRECTION;
 
   // Set default arrays.
