@@ -293,12 +293,12 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
 {
   this->NumberOfDomains = -1;
-  if( M<0 )
+  if( M < 0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
     }
-  else if( M>=this->GetNumberOfMaterials() )
+  else if( M >= this->GetNumberOfMaterials() )
     {
     this->SetNumberOfMaterials(M+1);
     }
@@ -853,7 +853,7 @@ int vtkYoungsMaterialInterface::RequestData(
             CellInfo nextCell; // empty cell by default
             int interfaceCellType = VTK_EMPTY_CELL;
 
-            if( mi==0 || ( !this->OnionPeel ) )
+            if( ( ! mi ) || ( ! this->OnionPeel ) )
               {
               normal[0]=0; normal[1]=0; normal[2]=0;
 
@@ -1424,7 +1424,7 @@ int vtkYoungsMaterialInterface::RequestData(
           }
 
         // add material data set to multiblock output
-        if( ugOutput!=0 && ugOutput->GetNumberOfCells()>0 )
+        if( ugOutput && ugOutput->GetNumberOfCells()>0 )
           {
           int domain = inputsPerMaterial[m];
           outputBlocks[ domain * nmat + m ] = ugOutput;
@@ -1433,7 +1433,7 @@ int vtkYoungsMaterialInterface::RequestData(
         }
       delete [] Mats;
 
-    } /* Iterate over input blocks */
+    } // Iterate over input blocks
 
   delete [] inputsPerMaterial;
 
@@ -1442,14 +1442,13 @@ int vtkYoungsMaterialInterface::RequestData(
   if(debugStats_NullNormal != 0 ) { vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n"); }
   if(debugStats_NoInterfaceFound != 0 ) { vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n"); }
 
-  // build final composite output. also tagging blocks with their associated Id
-
+  // Build final composite output. also tagging blocks with their associated Id
   vtkDebugMacro(<<this->NumberOfDomains<<" Domains, "<<nmat<<" Materials\n");
 
   output->SetNumberOfBlocks(0);
   output->SetNumberOfBlocks(nmat);
 
-  for (int m = 0; m < nmat; m++)
+  for ( int m = 0; m < nmat; ++ m )
     {
     vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::New();
     matBlock->SetNumberOfBlocks(this->NumberOfDomains);
@@ -1458,7 +1457,8 @@ int vtkYoungsMaterialInterface::RequestData(
     }
 
   int blockIndex=0;
-  for(std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
+  for( std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin(); 
+       it!=outputBlocks.end(); ++ it, ++ blockIndex )
     {
     if( it->second->GetNumberOfCells() > 0 )
       {
@@ -1473,10 +1473,6 @@ int vtkYoungsMaterialInterface::RequestData(
 }
 
 #undef GET_POINT_DATA
-
-
-
-
 
 /* ------------------------------------------------------------------------------------------
    --- Low level computations including interface placement and intersection line/polygon ---
