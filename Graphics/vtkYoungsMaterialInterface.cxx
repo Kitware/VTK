@@ -651,7 +651,6 @@ int vtkYoungsMaterialInterface::RequestData(
         bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
         if( ! this->UseAllBlocks && ! materialHasBlock )
           {
-          // FIXME: verify the former condition
           Mats[m].fractionArray = 0; // TODO: we certainly can do better to avoid material calculations
           }
 
