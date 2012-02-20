@@ -569,7 +569,7 @@ int vtkYoungsMaterialInterface::RequestData(
   this->Aggregate( nmat, inputsPerMaterial );
 
   // map containing output blocks
-  std::map<int, vtkDataSet*> outputBlocks;
+  std::map<int, vtkSmartPointer<vtkUnstructuredGrid> > outputBlocks;
 
   // iterate over input blocks
   inputIterator->InitTraversal();
@@ -1343,7 +1343,7 @@ int vtkYoungsMaterialInterface::RequestData(
 
         delete [] Mats[m].pointMap;
 
-        vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::New();
+        vtkSmartPointer<vtkUnstructuredGrid> ugOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
 
         // set points
         Mats[m].outPointArrays[nPointData-1]->Squeeze();
@@ -1459,7 +1459,7 @@ int vtkYoungsMaterialInterface::RequestData(
     }
 
   int blockIndex=0;
-  for(std::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
+  for(std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
     {
     if( it->second->GetNumberOfCells() > 0 )
       {
@@ -1467,7 +1467,6 @@ int vtkYoungsMaterialInterface::RequestData(
       int dom = it->first / nmat;
       vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(mat));
       matBlock->SetBlock(dom,it->second);
-      it->second->Delete();
       }
     }
 
