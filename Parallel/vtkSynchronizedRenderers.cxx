@@ -567,7 +567,7 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
       }
     }
   cam->SetEyeTransformMatrix(headMatrix);
-  cam->SetModelTransformMatrix( wandMatrix );
+  cam->SetModelTransformMatrix(wandMatrix);
   headMatrix->Delete();
   wandMatrix->Delete();
 }
