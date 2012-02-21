@@ -22,6 +22,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   quadCellConsistency.cxx
   quadraticEvaluation.cxx
   TestAMRBox.cxx
+  TestAMRBlanking.cxx
   TestInterpolationFunctions.cxx
   TestInterpolationDerivs.cxx
   TestImageDataFindCell.cxx
@@ -44,7 +45,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkFiltering vtkGraphics)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkIO vtkFiltering vtkGraphics vtkParallel)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
