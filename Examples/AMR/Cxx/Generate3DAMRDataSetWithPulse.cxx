@@ -96,7 +96,7 @@ int main( int argc, char **argv )
 void SetPulse()
 {
   Pulse.origin[0] = Pulse.origin[1] = Pulse.origin[2] = -1.0;
-  Pulse.width[0]  = Pulse.width[1]  = Pulse.width[3]  = 6.0;
+  Pulse.width[0]  = Pulse.width[1]  = Pulse.width[2]  = 6.0;
   Pulse.amplitude = 0.0001;
 }
 
