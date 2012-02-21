@@ -1,9 +1,9 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_freetype.h
+  Module:    vtk_oggtheora.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Michael Wild, Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -12,19 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_freetype_h
-#define __vtk_freetype_h
+#ifndef __vtk_oggtheora_h
+#define __vtk_oggtheora_h
 
-/* Use the freetype library configured for VTK.  */
-#include "vtkToolkits.h"
+/* Use the ogg/theora library configured for VTK.  */
+#cmakedefine VTK_USE_SYSTEM_OGGTHEORA
 
-#ifdef VTK_USE_SYSTEM_FREETYPE
-# include <ft2build.h>
+#ifdef VTK_USE_SYSTEM_OGGTHEORA
+# include <ogg/ogg.h>
+# include <theora/theoraenc.h>
 #else
-# include <vtkfreetype/include/ft2build.h>
-#  if defined(VTKFREETYPE)
-#    include "vtkFreeTypeConfig.h"
-#  endif
+# include <vtkoggtheora/include/ogg/ogg.h>
+# include <vtkoggtheora/include/theora/theoraenc.h>
 #endif
 
-#endif // #ifndef __vtk_freetype_h
+#endif
