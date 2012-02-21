@@ -19,6 +19,9 @@
 // .SECTION See Also
 // vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
 
+#ifndef VTKHIERARCHICALBOXDATASET_H_
+#define VTKHIERARCHICALBOXDATASET_H_
+
 #include "vtkOverlappingAMR.h"
 
 class vtkInformation;
@@ -50,3 +53,5 @@ private:
   vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&); // Not implemented
   void operator=(const vtkHierarchicalBoxDataSet&); // Not implemented
 };
+
+#endif
