@@ -52,23 +52,23 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   switch( description )
     {
     case VTK_XY_PLANE:
-     // Root block
-     ndims[2]   = 1;
-     origin[0]  = origin[1]  = origin[2]  = 0.0;
-     spacing[0] = spacing[1] = spacing[2] = 1.0;
-     ndims[0]   = ndims[1]   = 4;
-     gridPtr    = GetGrid(origin,spacing,ndims);
-     amrDataSet->SetDataSet(0,0,gridPtr);
-     gridPtr->Delete();
+       // Root block
+       ndims[2]   = 1;
+       origin[0]  = origin[1]  = origin[2]  = 0.0;
+       spacing[0] = spacing[1] = spacing[2] = 1.0;
+       ndims[0]   = ndims[1]   = 4;
+       gridPtr    = GetGrid(origin,spacing,ndims);
+       amrDataSet->SetDataSet(0,0,gridPtr);
+       gridPtr->Delete();
 
-     // Refined patch that covers entire root domain
-     origin[0]  = origin[1]  = origin[2]  = 0.0;
-     spacing[0] = spacing[1] = spacing[2] = 0.5;
-     ndims[0]   = ndims[1]   = 6;
-     gridPtr    = GetGrid(origin,spacing,ndims);
-     amrDataSet->SetDataSet(1,0,gridPtr);
-     gridPtr->Delete();
-     break;
+       // Refined patch that covers entire root domain
+       origin[0]  = origin[1]  = origin[2]  = 0.0;
+       spacing[0] = spacing[1] = spacing[2] = 0.5;
+       ndims[0]   = ndims[1]   = 6;
+       gridPtr    = GetGrid(origin,spacing,ndims);
+       amrDataSet->SetDataSet(1,0,gridPtr);
+       gridPtr->Delete();
+       break;
     case VTK_XZ_PLANE:
       // Root block
       ndims[1]   = 1;
