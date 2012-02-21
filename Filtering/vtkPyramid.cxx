@@ -82,7 +82,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     }
   for(i=0;i<3;i++)
     {
-    baseMidpoint[j] /= 4.;
+    baseMidpoint[i] /= 4.;
     }
 
   double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
