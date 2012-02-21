@@ -269,13 +269,13 @@ void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 {
 
   unsigned short  *encoded_normals;
-  int       xinc, yinc, zinc;
+  vtkIdType xinc, yinc, zinc;
   int       voxel_x, voxel_y, voxel_z;
   int       end_voxel_x, end_voxel_y, end_voxel_z;
   int       x_voxels, y_voxels, z_voxels;
   int       found_intersection;
   int       tstep_x, tstep_y, tstep_z;
-  int       offset;
+  vtkIdType offset;
   int       steps_this_ray = 0;
   T         A;
   T         *dptr;
@@ -538,14 +538,14 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   LineIntersectInfo  line_info;
   unsigned short  *encoded_normals, *nptr;
   int       loop;
-  int       xinc, yinc, zinc;
+  vtkIdType xinc, yinc, zinc;
   int       voxel_x, voxel_y, voxel_z;
   int       end_voxel_x, end_voxel_y, end_voxel_z;
   int       x_voxels, y_voxels, z_voxels;
   int       Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
   int       found_intersection;
   int       tstep_x, tstep_y, tstep_z;
-  int       offset;
+  vtkIdType offset;
   int       steps_this_ray = 0;
   T         A, B, C, D, E, F, G, H;
   T         *dptr;
