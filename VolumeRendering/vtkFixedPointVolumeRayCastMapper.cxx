@@ -2784,8 +2784,10 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
    this->CurrentScalars->GetRange(scalarRange[c], c);
    }
 
- int sliceSize = dim[0]*dim[1]*((independent)?(components):(1));
- int numSlices = dim[2];
+ vtkIdType sliceSize = (static_cast<vtkIdType>(dim[0])*
+                        static_cast<vtkIdType>(dim[1])*
+                        ((independent)?(components):(1)));
+ vtkIdType numSlices = dim[2];
 
  int i;
 
