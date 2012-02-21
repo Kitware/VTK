@@ -86,6 +86,7 @@ int main( int argc, char **argv )
   assert( "pre: NULL AMR dataset" && ( amrDataSet != NULL ) );
 
   WriteAMRData( amrDataSet, "Gaussian3D" );
+  amrDataSet->Delete();
   return 0;
 }
 
