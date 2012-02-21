@@ -630,11 +630,11 @@ void vtkPyramid::Derivatives(int subId, double pcoords[3],
     // so we don't but we can cheat and do a linear extrapolation of the
     // derivatives which really ends up as the same thing.
     double pcoords1[3] = {.5, .5, 2.*.98-pcoords[2]};
-    double derivs1[3*dim];
-    this->Derivatives(subId, pcoords1, values, dim, derivs1);
+    std::vector<double> derivs1(3*dim);
+    this->Derivatives(subId, pcoords1, values, dim, &(derivs1[0]));
     double pcoords2[3] = {.5, .5, .98};
-    double derivs2[3*dim];
-    this->Derivatives(subId, pcoords2, values, dim, derivs2);
+    std::vector<double> derivs2(3*dim);
+    this->Derivatives(subId, pcoords2, values, dim, &(derivs2[0]));
     for(int i=0;i<dim*3;i++)
       {
       derivs[i] = 2.*derivs2[i] - derivs1[i];
