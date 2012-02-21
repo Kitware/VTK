@@ -46,28 +46,38 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
 
     // Description:
     // Set the refinement ratio
-    void SetRefinementRatio(int r) {this->RefinmentRatio=r;}
+    void SetRefinementRatio(int r)
+     {this->RefinmentRatio=r;this->Modified();}
 
     // Description:
     // Set the root spacing
     void SetRootSpacing(double h0)
-      {this->RootSpacing[0]=this->RootSpacing[1]=this->RootSpacing[2]=h0;}
+      {
+      this->RootSpacing[0]=this->RootSpacing[1]=this->RootSpacing[2]=h0;
+      this->Modified();
+      }
 
     // Description:
     // Set & Get macro for the pulse origin
     vtkSetVector3Macro(PulseOrigin,double);
     vtkGetVector3Macro(PulseOrigin,double);
-    void SetXPulseOrigin(double f){this->PulseOrigin[0]=f;}
-    void SetYPulseOrigin(double f){this->PulseOrigin[1]=f;}
-    void SetZPulseOrigin(double f){this->PulseOrigin[2]=f;}
+    void SetXPulseOrigin(double f)
+     {this->PulseOrigin[0]=f;this->Modified();}
+    void SetYPulseOrigin(double f)
+     {this->PulseOrigin[1]=f;this->Modified();}
+    void SetZPulseOrigin(double f)
+     {this->PulseOrigin[2]=f;this->Modified();}
 
     // Description:
     // Set & Get macro for the pulse width
     vtkSetVector3Macro(PulseWidth,double);
     vtkGetVector3Macro(PulseWidth,double);
-    void SetXPulseWidth(double f){this->PulseWidth[0]=f;}
-    void SetYPulseWidth(double f){this->PulseWidth[1]=f;}
-    void SetZPulseWidth(double f){this->PulseWidth[2]=f;}
+    void SetXPulseWidth(double f)
+      {this->PulseWidth[0]=f;this->Modified();}
+    void SetYPulseWidth(double f)
+      {this->PulseWidth[1]=f;this->Modified();}
+    void SetZPulseWidth(double f)
+      {this->PulseWidth[2]=f;this->Modified();}
 
     // Description:
     // Set & Get macro for the pulse amplitude
@@ -107,10 +117,6 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
     // Constructs a uniform grid path with the given origin/spacing and node
     // dimensions.
     vtkUniformGrid* GetGrid( double origin[3], double h[3], int ndim[3] );
-
-    // Description:
-    // Construct the root uniform grid AMR.
-    vtkUniformGrid* GetRootAMR();
 
     // Description:
     // Generate 2-D or 3-D DataSet

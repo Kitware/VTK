@@ -130,57 +130,51 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::GetGrid(
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRGaussianPulseSource::GetRootAMR()
-{
-  double origin[3];
-  double h[3];
-  int ndim[3];
-
-  vtkUniformGrid *grid = NULL;
-
-  origin[0] = origin[1] = origin[2] = 0.0;
-  h[0] = h[1] = h[2] = 1.0;
-  switch( this->Dimension )
-    {
-    case 2:
-      origin[0] = origin[1] = -5.0;
-      ndim[0] = ndim[1] = 10;
-      ndim[2] = 1;
-      break;
-    case 3:
-      origin[0] = origin[1] = origin[2] = -5.0;
-      ndim[0] = ndim[1] = ndim[2] = 10;
-      break;
-    default:
-      vtkErrorMacro( "ERROR: Invalid grid dimension!\n" );
-      assert("ERROR: code should not reach here!" && false);
-    }
-
-  grid = this->GetGrid( origin, h, ndim );
-  assert("ERROR: cannot create root AMR grid!" && (grid != NULL) );
-  return( grid );
-}
-
-//------------------------------------------------------------------------------
 void vtkAMRGaussianPulseSource::Generate2DDataSet( vtkOverlappingAMR *amr )
 {
-  assert("pre: input amr dataset is NULL" && (amr != NULL));
+  assert( "pre: input amr dataset is NULL" && (amr != NULL) );
 
-  vtkUniformGrid *root = this->GetRootAMR();
-  amr->SetNumberOfLevels( this->NumberOfLevels );
-  amr->SetDataSet(0,0, root);
-  root->Delete();
+  int ndim[3];
+  double origin[3];
+  double h[3];
+  int blockId = 0;
+  int level   = 0;
+
+  // Root Block -- Block 0,0
+  ndim[0] = 6; ndim[1]   = 6; ndim[2] = 1;
+  h[0]      = h[1]  = h[2] = this->RootSpacing[0];
+  origin[0] = origin[1] = -2.0; origin[2] = 0.0;
+  blockId   = 0;
+  level     = 0;
+  vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
+  amr->SetDataSet(level,blockId,grid);
+  grid->Delete();
+  vtkAMRUtilities::GenerateMetaData( amr, NULL );
+  amr->GenerateVisibilityArrays();
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
 {
-  assert("pre: input amr dataset is NULL" && (amr != NULL));
+  assert("pre: input AMR dataset is NULL" && (amr != NULL) );
 
-  vtkUniformGrid *root = this->GetRootAMR();
-  amr->SetNumberOfLevels( this->NumberOfLevels );
-  amr->SetDataSet(0,0, root);
-  root->Delete();
+  int ndim[3];
+  double origin[3];
+  double h[3];
+  int blockId = 0;
+  int level   = 0;
+
+  // Root Block -- Block 0,0
+  ndim[0] = 6; ndim[1]   = 6; ndim[2] = 6;
+  h[0]      = h[1]  = h[2] = this->RootSpacing[0];
+  origin[0] = origin[1] = -2.0; origin[2] = 0.0;
+  blockId   = 0;
+  level     = 0;
+  vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
+  amr->SetDataSet(level,blockId,grid);
+  grid->Delete();
+  vtkAMRUtilities::GenerateMetaData( amr, NULL );
+  amr->GenerateVisibilityArrays();
 }
 
 //------------------------------------------------------------------------------
