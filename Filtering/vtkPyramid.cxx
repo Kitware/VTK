@@ -61,6 +61,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3], 
                                  double& dist2, double *weights)
 {
+  int i, j;
   subId = 0;
   // There are problems searching for the apex point so we check if
   // we are there first before doing the full parametric inversion.
@@ -68,9 +69,26 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   double apexPoint[3];
   points->GetPoint(4, apexPoint);
   dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
-  double origin[3] = {0, 0, 0};
-  double length2 = vtkMath::Distance2BetweenPoints(x, origin);
-  if(dist2 == 0. || ( length2 != 0. && dist2/length2 > .00001) )
+  double baseMidpoint[3];
+  points->GetPoint(0, baseMidpoint);
+  for(i=1;i<4;i++)
+    {
+    double tmp[3];
+    points->GetPoint(i, tmp);
+    for(j=0;j<3;j++)
+      {
+      baseMidpoint[j] += tmp[j];
+      }
+    }
+  for(i=0;i<3;i++)
+    {
+    baseMidpoint[j] /= 4.;
+    }
+
+  double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
+  // we use .001 as the relative tolerance here since that is the same
+  // that is used for the interior cell check below.
+  if(dist2 == 0. || ( length2 != 0. && dist2/length2 > .001) )
     {
     pcoords[0] = pcoords[1] = .5;
     pcoords[2] = 1;
@@ -85,7 +103,6 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   int iteration, converged;
   double  params[3];
   double  fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
   double  d, pt[3];
   double derivs[15];
 
@@ -619,7 +636,7 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
 void vtkPyramid::Derivatives(int subId, double pcoords[3],
                              double *values, int dim, double *derivs)
 {
-  if(pcoords[2] > .99)
+  if(pcoords[2] > .999)
     {
     // If we are at the apex of the pyramid we need to do something special.
     // As we approach the apex, the derivatives of the parametric shape
@@ -629,10 +646,10 @@ void vtkPyramid::Derivatives(int subId, double pcoords[3],
     // functional expression to compute the gradient.  We're on a computer
     // so we don't but we can cheat and do a linear extrapolation of the
     // derivatives which really ends up as the same thing.
-    double pcoords1[3] = {.5, .5, 2.*.98-pcoords[2]};
+    double pcoords1[3] = {.5, .5, 2.*.998-pcoords[2]};
     std::vector<double> derivs1(3*dim);
     this->Derivatives(subId, pcoords1, values, dim, &(derivs1[0]));
-    double pcoords2[3] = {.5, .5, .98};
+    double pcoords2[3] = {.5, .5, .998};
     std::vector<double> derivs2(3*dim);
     this->Derivatives(subId, pcoords2, values, dim, &(derivs2[0]));
     for(int i=0;i<dim*3;i++)
