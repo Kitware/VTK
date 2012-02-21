@@ -129,10 +129,72 @@ class vtkYoungsMaterialInterfaceInternals
 public:
   struct MaterialDescription
   {
-    std::string volume, normal, normalX, normalY, normalZ, ordering;
+private:
+    std::string Volume, Normal, NormalX, NormalY, NormalZ, Ordering;
+public:
     std::set<int> blocks;
+    void setVolume(const std::string& str) { this->Volume = str; }
+    void setNormal(const std::string& str) { this->Normal = str; }
+    void setNormalX(const std::string& str) { this->NormalX = str; }
+    void setNormalY(const std::string& str) { this->NormalY = str; }
+    void setNormalZ(const std::string& str) { this->NormalZ = str; }
+    void setOrdering(const std::string& str) { this->Ordering = str; }
+
+    const std::string& volume() const
+      {
+      return this->Volume;
+      }
+
+    const std::string& normal(const vtkYoungsMaterialInterfaceInternals& storage) const
+      {
+      if (this->Normal.empty() && this->NormalX.empty() &&
+        this->NormalY.empty() && this->NormalZ.empty() &&
+        storage.NormalArrayMap.find(this->Volume) !=
+        storage.NormalArrayMap.end())
+        {
+        return storage.NormalArrayMap.find(this->Volume)->second;
+        }
+      return this->Normal;
+      }
+
+    const std::string& ordering(const vtkYoungsMaterialInterfaceInternals& storage) const
+      {
+      if (this->Ordering.empty() &&
+        storage.OrderingArrayMap.find(this->Volume) !=
+        storage.OrderingArrayMap.end())
+        {
+        return storage.OrderingArrayMap.find(this->Volume)->second;
+        }
+      return this->Ordering;
+      }
+
+    const std::string& normalX() const
+      {
+      return this->NormalX;
+      }
+
+    const std::string& normalY() const
+      {
+      return this->NormalY;
+      }
+
+    const std::string& normalZ() const
+      {
+      return this->NormalZ;
+      }
+
   };
+
   std::vector<MaterialDescription> Materials;
+
+  //  original implementation uses index to save all normal and ordering array
+  //  associations. To make it easier for ParaView, we needed to add an API to
+  //  associate normal and ordering arrays using the volume fraction array names
+  //  and hence we've added these two maps. These are only used if
+  //  MaterialDescription has empty values for normal and ordering.
+  //  Eventually, we may want to consolidate these data-structures.
+  std::map<std::string, std::string> NormalArrayMap;
+  std::map<std::string, std::string> OrderingArrayMap;
 };
 
 // standard constructors and factory
@@ -210,7 +272,7 @@ void vtkYoungsMaterialInterface::SetMaterialVolumeFractionArray( int M,  const c
     this->SetNumberOfMaterials(M+1);
     }
 
-  this->Internals->Materials[M].volume = volume;
+  this->Internals->Materials[M].setVolume(volume);
   this->Modified();
 }
 
@@ -232,19 +294,18 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
   vtkIdType s = n.find(' ');
   if( s == static_cast<int>( std::string::npos ) )
     {
-    this->Internals->Materials[M].normal = n;
-    this->Internals->Materials[M].normalX = "";
-    this->Internals->Materials[M].normalY = "";
-    this->Internals->Materials[M].normalZ = "";
+    this->Internals->Materials[M].setNormal(n);
+    this->Internals->Materials[M].setNormalX("");
+    this->Internals->Materials[M].setNormalY("");
+    this->Internals->Materials[M].setNormalZ("");
     }
   else
     {
     vtkIdType s2 = n.rfind(' ');
-    this->Internals->Materials[M].normal = "";
-    this->Internals->Materials[M].normalX = n.substr(0,s);
-    this->Internals->Materials[M].normalY = n.substr(s+1,s2-s-1);
-    this->Internals->Materials[M].normalZ = n.substr(s2+1);
-    vtkDebugMacro(<<"Nx="<<this->Internals->Materials[M].normalX<<", Ny="<<this->Internals->Materials[M].normalY<<", Nz="<<this->Internals->Materials[M].normalZ<<"\n");
+    this->Internals->Materials[M].setNormal("");
+    this->Internals->Materials[M].setNormalX(n.substr(0,s));
+    this->Internals->Materials[M].setNormalY(n.substr(s+1,s2-s-1));
+    this->Internals->Materials[M].setNormalZ(n.substr(s2+1));
     }
   this->Modified();
 }
@@ -262,10 +323,10 @@ void vtkYoungsMaterialInterface::SetMaterialOrderingArray( int M,  const char* o
     {
     this->SetNumberOfMaterials(M+1);
     }
-  this->Internals->Materials[M].ordering = ordering;
+  this->Internals->Materials[M].setOrdering(ordering);
   this->Modified();
 }
-
+  
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, const char* normal, const char* ordering )
 {
   this->NumberOfDomains = -1;
@@ -280,12 +341,12 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
     }
   vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normal<<","<<ordering<<"\n");
   vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
-  md.volume = volume;
-  md.normal = normal;
-  md.normalX = "";
-  md.normalY = "";
-  md.normalZ = "";
-  md.ordering = ordering;
+  md.setVolume(volume);
+  md.setNormal(normal);
+  md.setNormalX("");
+  md.setNormalY("");
+  md.setNormalZ("");
+  md.setOrdering(ordering);
   this->Internals->Materials[M] = md;
   this->Modified();
 }
@@ -304,20 +365,53 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, 
     }
   vtkDebugMacro(<<"Set Material "<<M<<" : "<<volume<<","<<normalX<<","<<normalY<<","<<normalZ<<","<<ordering<<"\n");
   vtkYoungsMaterialInterfaceInternals::MaterialDescription md;
-  md.volume = volume;
-  md.normal = "";
-  md.normalX = normalX;
-  md.normalY = normalY;
-  md.normalZ = normalZ;
-  md.ordering = ordering;
+  md.setVolume(volume);
+  md.setNormal("");
+  md.setNormalX(normalX);
+  md.setNormalY(normalY);
+  md.setNormalZ(normalZ);
+  md.setOrdering(ordering);
   this->Internals->Materials[M] = md;
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
+void vtkYoungsMaterialInterface::SetMaterialNormalArray(
+  const char* volume, const char* normal)
+{
+  // not sure why this is done, but all SetMaterialNormalArray(int,..) variants
+  // do it, and hence ...
+  this->NumberOfDomains = -1;
+  if (volume && normal &&
+    this->Internals->NormalArrayMap[volume] != normal)
+    {
+    this->Internals->NormalArrayMap[volume] = normal;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkYoungsMaterialInterface::SetMaterialOrderingArray(
+  const char* volume, const char* ordering)
+{
+  // not sure why this is done, but all SetMaterialOrderingArray(int,..) variants
+  // do it, and hence ...
+  this->NumberOfDomains = -1;
+  if (volume && ordering &&
+    this->Internals->OrderingArrayMap[volume] != ordering)
+    {
+    this->Internals->OrderingArrayMap[volume] = ordering;
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkYoungsMaterialInterface::RemoveAllMaterials()
 {
   this->NumberOfDomains = -1;
   vtkDebugMacro(<<"Remove All Materials\n");
+  this->Internals->NormalArrayMap.clear();
+  this->Internals->OrderingArrayMap.clear();
   this->SetNumberOfMaterials(0);
 }
 
@@ -549,7 +643,7 @@ int vtkYoungsMaterialInterface::RequestData(
              it = this->Internals->Materials.begin();
            it!= this->Internals->Materials.end(); ++it, ++m)
         {
-        vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume.c_str());
+        vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume().c_str());
         bool materialHasBlock = ( (*it).blocks.find(composite_index)!= (*it).blocks.end() );
         if ( fraction && 
              ( this->UseAllBlocks || materialHasBlock ) )
@@ -620,32 +714,35 @@ int vtkYoungsMaterialInterface::RequestData(
              != this->Internals->Materials.end(); ++it, ++m)
         {
         Mats[m].fractionArray 
-          = input->GetCellData()->GetArray( (*it).volume.c_str() );
+          = input->GetCellData()->GetArray( (*it).volume().c_str() );
         Mats[m].normalArray 
-          = input->GetCellData()->GetArray( (*it).normal.c_str() );
+          = input->GetCellData()->GetArray( (*it).normal(*this->Internals).c_str() );
         Mats[m].normalXArray 
-          = input->GetCellData()->GetArray( (*it).normalX.c_str() );
+          = input->GetCellData()->GetArray( (*it).normalX().c_str() );
         Mats[m].normalYArray 
-          = input->GetCellData()->GetArray( (*it).normalY.c_str() );
+          = input->GetCellData()->GetArray( (*it).normalY().c_str() );
         Mats[m].normalZArray 
-          = input->GetCellData()->GetArray( (*it).normalZ.c_str() );
+          = input->GetCellData()->GetArray( (*it).normalZ().c_str() );
         Mats[m].orderingArray 
-          = input->GetCellData()->GetArray( (*it).ordering.c_str() );
+          = input->GetCellData()->GetArray( (*it).ordering(*this->Internals).c_str() );
 
         if ( ! Mats[m].fractionArray )
           {
-          vtkDebugMacro(<<"Material "<<m<<": volume fraction array '"<<(*it).volume<<"' not found\n");
+          vtkDebugMacro(<<"Material "<<m<<": volume fraction array '"<<
+            (*it).volume()<<"' not found\n");
           }
         if( ! Mats[m].orderingArray )
           {
-          vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<(*it).ordering<<"' not found\n");
+          vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<
+            (*it).ordering(*this->Internals)<<"' not found\n");
           }
         if( ! Mats[m].normalArray 
             && ! Mats[m].normalXArray 
             && ! Mats[m].normalYArray 
             && ! Mats[m].normalZArray )
           {
-          vtkDebugMacro(<<"Material "<<m<<" normal  array '"<<(*it).normal<<"' not found\n");
+          vtkDebugMacro(<<"Material "<<m<<" normal  array '"<<
+            (*it).normal(*this->Internals)<<"' not found\n");
           }
 
         bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
