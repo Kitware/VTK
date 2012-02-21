@@ -175,10 +175,6 @@ CONFIGURE_FILE(vtk_oggtheora_mangle.h
 CONFIGURE_FILE(${VTKOGGTHEORA_SOURCE_DIR}/.NoDartCoverage
   ${VTKOGGTHEORA_BINARY_DIR}/.NoDartCoverage COPYONLY)
 
-INCLUDE_DIRECTORIES(BEFORE
-  ${VTKOGGTHEORA_BINARY_DIR}/..
-  )
-
 SET(VTKOGGTHEORA_SRCS
   # ogg sources
   libogg-${OGG_VERSION}/src/framing.c libogg-${OGG_VERSION}/src/bitwise.c

@@ -5,7 +5,7 @@
 #define THEORA_CONFIG_H
 
 /* KITWARE_OGGTHEORA_CHANGE - Added to mangle function names */
-#include "vtk_oggtheora_mangle.h"
+#include <vtkoggtheora/include/vtk_oggtheora_mangle.h>
 
 /* Define to exclude floating point code from the build */
 #cmakedefine THEORA_DISABLE_FLOAT
