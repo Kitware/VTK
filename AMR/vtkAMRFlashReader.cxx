@@ -161,7 +161,7 @@ int vtkAMRFlashReader::FillMetaData( )
     {
     // Start numbering levels from 0!
     int level       = this->Internal->Blocks[ i ].Level-1;
-    int id          = b2level[level];
+//    int id          = b2level[level];
     int internalIdx = i;
 
     double blockMin[3];

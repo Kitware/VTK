@@ -23,6 +23,11 @@
 
 #include <cmath> // For std::exp
 
+class vtkOverlappingAMR;
+class vtkUniformGrid;
+class vtkInformation;
+class vtkInformationVector;
+
 class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
   public vtkOverlappingAMRAlgorithm
 {
@@ -84,6 +89,33 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
     // Computes the gaussian pulse at the given location based on the user
     // supplied parameters for pulse width and origin.
     double ComputePulseAt(const double x, const double y, const double z);
+    double ComputePulseAt( double pt[3] )
+     {return( this->ComputePulseAt(pt[0],pt[1],pt[2]) );}
+
+    // Description:
+    // Given the cell index w.r.t. to a uniform grid, this method computes the
+    // cartesian coordinates of the centroid of the cell.
+    void ComputeCellCenter(vtkUniformGrid *grid,
+                           vtkIdType cellIdx,
+                           double centroid[3] );
+
+    // Description:
+    // Generates a pulse field for the given uniform grid
+    void GeneratePulseField(vtkUniformGrid *grid);
+
+    // Description:
+    // Constructs a uniform grid path with the given origin/spacing and node
+    // dimensions.
+    vtkUniformGrid* GetGrid( double origin[3], double h[3], int ndim[3] );
+
+    // Description:
+    // Construct the root uniform grid AMR.
+    vtkUniformGrid* GetRootAMR();
+
+    // Description:
+    // Generate 2-D or 3-D DataSet
+    void Generate2DDataSet(vtkOverlappingAMR* amr);
+    void Generate3DDataSet(vtkOverlappingAMR* amr);
 
     double RootSpacing[3];
     double PulseOrigin[3];
@@ -102,7 +134,7 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
 // INLINE METHODS
 //==============================================================================
 inline double vtkAMRGaussianPulseSource::ComputePulseAt(
-    const double x, const double y, const double z)
+    const double x, const double y, const double vtkNotUsed(z))
 {
   double pulse = 0.0;
 

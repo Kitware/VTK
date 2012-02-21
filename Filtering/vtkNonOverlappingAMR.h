@@ -43,7 +43,7 @@ class VTK_FILTERING_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
      {this->Superclass::ShallowCopy(src);}
     virtual void DeepCopy(vtkDataObject *src)
      {this->Superclass::DeepCopy(src);}
-    virtual void CopyStructure(vtkNonOverlappingAMR* input)
+    virtual void CopyStructure(vtkCompositeDataSet* input)
      {this->Superclass::CopyStructure(input);}
 
   protected:

@@ -117,7 +117,7 @@ int vtkExtractLevel::RequestData(
   // STEP 3: Load the blocks at the selected levels
   if( numBlocksToLoad > 0 )
     {
-    vtkExtractLevel::vtkSet::iterator iter = this->Levels->begin();
+    iter = this->Levels->begin();
     unsigned int blockIdx = 0;
     for( ;iter != this->Levels->end(); ++iter )
       {

@@ -145,7 +145,7 @@ vtkExecutive* vtkUniformGridAMRAlgorithm::CreateDefaultExecutive()
 
 //------------------------------------------------------------------------------
 int vtkUniformGridAMRAlgorithm::FillOutputPortInformation(
-    int port, vtkInformation* info)
+    int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkUniformGridAMR");
   return 1;
@@ -153,7 +153,7 @@ int vtkUniformGridAMRAlgorithm::FillOutputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkUniformGridAMRAlgorithm::FillInputPortInformation(
-    int port, vtkInformation* info)
+    int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUniformGridAMR");
   return 1;

@@ -78,6 +78,10 @@ void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix );
 //
 int main( int argc, char **argv )
 {
+  // Fix compiler warning for unused variables
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+
   // STEP 0: Initialize gaussian pulse parameters
   SetPulse();
 
@@ -129,7 +133,6 @@ vtkHierarchicalBoxDataSet* GetAMRDataSet()
   int    ndim[3];
   int    blockId = -1;
   int    level   = -1;
-  int    rank    = 0;
 
   // Root Block -- Block 0
   ndim[0]   = 6; ndim[1]   = ndim[2]   = 5;

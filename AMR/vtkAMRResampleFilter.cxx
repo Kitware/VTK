@@ -139,7 +139,7 @@ int vtkAMRResampleFilter::RequestUpdateExtent(
 int vtkAMRResampleFilter::RequestInformation(
     vtkInformation* vtkNotUsed(rqst),
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector )
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
 
   assert( "pre: inputVector is NULL" && (inputVector != NULL) );
@@ -408,7 +408,6 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 
   vtkTimerLog::MarkStartEvent( oss.str().c_str() );
 
-  unsigned int dataIdx = 0;
   for(donorGridId = 0; donorGridId < amrds->GetNumberOfDataSets(level); ++donorGridId )
     {
     donorCellIdx = -1;
@@ -443,9 +442,10 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   vtkUniformGrid *currentGrid = NULL;
   int currentCellIdx          = -1;
   int donorCellIdx            = -1;
-  unsigned int currentLevel = 0;;
+  unsigned int currentLevel = 0;
   bool hadDonorGrid = false;
-  unsigned int donorGridId, currentGridId;
+  unsigned int donorGridId = 0;
+  unsigned int currentGridId = 0;
 
   // STEP 0: Check the previously cached donor-grid
   if( donorGrid != NULL )
@@ -768,11 +768,6 @@ void vtkAMRResampleFilter::TransferToGridNodes(
     for(pIdx = 0; pIdx < g->GetNumberOfPoints(); ++pIdx )
       {
       g->GetPoint( pIdx, qPoint );
-      if (pIdx == 50580)
-        {
-        int oops;
-        oops = 1;
-        }
       donorCellIdx =
         this->ProbeGridPointInAMRGraph(qPoint,donorGrid, 
                                        donorLevel, donorGridId,
@@ -1062,8 +1057,7 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
         }
       else
         {
-        int oops;
-        oops =1;
+        assert("ERROR: code should not reach here!" && false );
         }
       }
     }

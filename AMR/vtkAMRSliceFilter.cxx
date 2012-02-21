@@ -100,7 +100,7 @@ bool vtkAMRSliceFilter::IsAMRData2D( vtkOverlappingAMR *input )
 
 //------------------------------------------------------------------------------
 void vtkAMRSliceFilter::InitializeOffSet(
-    vtkOverlappingAMR *inp, double *minBounds, double *maxBounds )
+    vtkOverlappingAMR* vtkNotUsed(inp), double *minBounds, double *maxBounds )
 {
   if( !this->initialRequest )
     {
@@ -318,7 +318,7 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
       (this->EnablePrefetching==1)? this->MaxResolution+1 : this->MaxResolution;
 
   unsigned int level=0;
-  for( ; level <= maxLevelToLoad; ++level )
+  for( ; level <= static_cast<unsigned int>(maxLevelToLoad); ++level )
     {
     unsigned int dataIdx = 0;
     for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
@@ -373,12 +373,13 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   // Storage for the AMR box bounds
   double bounds[6];
 
+  int NumLevels = inp->GetNumberOfLevels();
   int maxLevel =
-    (this->MaxResolution < inp->GetNumberOfLevels() )?
-        this->MaxResolution+1 : inp->GetNumberOfLevels();
+    (this->MaxResolution < NumLevels )?
+        this->MaxResolution+1 : NumLevels;
 
   unsigned int level=0;
-  for( ; level < maxLevel; ++level )
+  for( ; level < static_cast<unsigned int>(maxLevel); ++level )
     {
     unsigned int dataIdx=0;
     for( ; dataIdx < inp->GetNumberOfDataSets(level); ++dataIdx )
@@ -598,7 +599,7 @@ int vtkAMRSliceFilter::RequestInformation(
 //------------------------------------------------------------------------------
 int vtkAMRSliceFilter::RequestUpdateExtent(
     vtkInformation*, vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector )
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
 
   if( this->ForwardUpstream == 1 )

@@ -403,7 +403,7 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
 
 //------------------------------------------------------------------------------
 void vtkAMRBaseReader::LoadPointData(
-    const int blockIdx, vtkUniformGrid *block )
+    const int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block) )
 {
   // TODO: implement this
   //vtkErrorMacro( "Node-centered AMR data are not currently supported" );

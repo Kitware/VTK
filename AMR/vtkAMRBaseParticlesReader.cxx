@@ -228,28 +228,29 @@ int vtkAMRBaseParticlesReader::RequestData(
 
   // STEP 2: Read blocks
   mbds->SetNumberOfBlocks( this->NumberOfBlocks );
-  for( unsigned int blkidx=0; blkidx < this->NumberOfBlocks; ++blkidx )
+  unsigned int blkidx=0;
+  for(  ;blkidx < static_cast<unsigned int>(this->NumberOfBlocks); ++blkidx )
     {
+    if( this->IsBlockMine( blkidx ) )
+      {
+      vtkPolyData *particles = this->ReadParticles( blkidx );
+      assert( "particles dataset should not be NULL!" &&
+               (particles != NULL) );
 
-      if( this->IsBlockMine( blkidx ) )
-        {
-          vtkPolyData *particles = this->ReadParticles( blkidx );
-          assert( "particles dataset should not be NULL!" &&
-                   (particles != NULL) );
-
-          mbds->SetBlock( blkidx, particles );
-          particles->Delete();
-        }
-      else
-        {
-          mbds->SetBlock( blkidx, NULL );
-        }
-
+      mbds->SetBlock( blkidx, particles );
+      particles->Delete();
+      }
+    else
+      {
+      mbds->SetBlock( blkidx, NULL );
+      }
     } // END for all blocks
 
   // STEP 3: Synchronize
   if( this->IsParallel( ) )
+    {
     this->Controller->Barrier();
+    }
 
   return 1;
 }

@@ -56,7 +56,7 @@ vtkOverlappingAMR* vtkOverlappingAMRAlgorithm::GetOutput(int port)
 
 //------------------------------------------------------------------------------
 int vtkOverlappingAMRAlgorithm::FillOutputPortInformation(
-    int port,vtkInformation* info)
+    int vtkNotUsed(port),vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkOverlappingAMR");
   return 1;
@@ -64,7 +64,7 @@ int vtkOverlappingAMRAlgorithm::FillOutputPortInformation(
 
 //------------------------------------------------------------------------------
 int vtkOverlappingAMRAlgorithm::FillInputPortInformation(
-    int port, vtkInformation* info )
+    int vtkNotUsed(port), vtkInformation* info )
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
   return 1;

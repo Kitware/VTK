@@ -809,7 +809,6 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
       }
     }
 
-  vtkIdType cellIdx = this->ComputeCellId( idx );
   if (weights)
     {
     // Shift parametric coordinates for XZ/YZ planes

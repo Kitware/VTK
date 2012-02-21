@@ -54,11 +54,11 @@ vtkAMRCutPlane::vtkAMRCutPlane()
   this->initialRequest    = true;
   for( int i=0; i < 3; ++i )
     {
-      this->Center[i] = 0.0;
-      this->Normal[i] = 0.0;
+    this->Center[i] = 0.0;
+    this->Normal[i] = 0.0;
     }
   this->Controller       = vtkMultiProcessController::GetGlobalController();
-  this->plane            = NULL;
+  this->Plane            = NULL;
   this->UseNativeCutter  = 1;
   this->contourValues    = vtkContourValues::New();
 }
@@ -73,9 +73,9 @@ vtkAMRCutPlane::~vtkAMRCutPlane()
     this->contourValues->Delete();
   this->contourValues = NULL;
 
-  if( this->plane != NULL )
-    this->plane->Delete();
-  this->plane = NULL;
+  if( this->Plane != NULL )
+    this->Plane->Delete();
+  this->Plane = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -108,12 +108,12 @@ int vtkAMRCutPlane::FillOutputPortInformation(
 //------------------------------------------------------------------------------
 int vtkAMRCutPlane::RequestInformation(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector )
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
   this->blocksToLoad.clear();
 
-  if( this->plane != NULL )
-    this->plane->Delete();
+  if( this->Plane != NULL )
+    this->Plane->Delete();
 
   vtkInformation *input = inputVector[0]->GetInformationObject(0);
   assert( "pre: input information object is NULL" && (input != NULL) );
@@ -125,10 +125,10 @@ int vtkAMRCutPlane::RequestInformation(
               input->Get(
                   vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
 
-      this->plane = this->GetCutPlane( metadata );
-      assert( "Cut plane is NULL" && (this->plane != NULL) );
+      this->Plane = this->GetCutPlane( metadata );
+      assert( "Cut plane is NULL" && (this->Plane != NULL) );
 
-      this->ComputeAMRBlocksToLoad( this->plane, metadata );
+      this->ComputeAMRBlocksToLoad( this->Plane, metadata );
     }
 
   this->Modified();
@@ -138,7 +138,7 @@ int vtkAMRCutPlane::RequestInformation(
 //------------------------------------------------------------------------------
 int vtkAMRCutPlane::RequestUpdateExtent(
     vtkInformation* vtkNotUsed(rqst), vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector)
+    vtkInformationVector* vtkNotUsed(outputVector) )
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   assert( "pre: inInfo is NULL" && (inInfo != NULL) );
@@ -190,7 +190,7 @@ int vtkAMRCutPlane::RequestData(
                 {
                   vtkCutter *myCutter = vtkCutter::New();
                   myCutter->SetInput( grid );
-                  myCutter->SetCutFunction( this->plane );
+                  myCutter->SetCutFunction( this->Plane );
                   myCutter->Update();
                   mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );
                   ++blockIdx;
@@ -230,7 +230,7 @@ int vtkAMRCutPlane::RequestData(
 //  vtkIdType ptIdx = 0;
 //  for( ; ptIdx < grid->GetNumberOfPoints(); ++ptIdx )
 //    {
-//     double val = this->plane->EvaluateFunction( grid->GetPoint(ptIdx) );
+//     double val = this->Plane->EvaluateFunction( grid->GetPoint(ptIdx) );
 //     cutScalars->SetComponent( ptIdx, 0, val );
 //    } // END for all cells
 //  grid->GetPointData()->AddArray( cutScalars );
@@ -249,7 +249,6 @@ void vtkAMRCutPlane::CutAMRBlock(
 
   vtkPolyData *mesh   = vtkPolyData::New();
   vtkPoints *meshPts  = vtkPoints::New();
-  vtkCellArray *verts = vtkCellArray::New();
   vtkCellArray *cells = vtkCellArray::New();
 
 
@@ -331,12 +330,13 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
 
   double bounds[6];
 
+  int NumLevels = m->GetNumberOfLevels();
   int maxLevelToLoad =
-     (this->LevelOfResolution < m->GetNumberOfLevels() )?
-         this->LevelOfResolution : m->GetNumberOfLevels();
+     (this->LevelOfResolution < NumLevels )?
+         this->LevelOfResolution : NumLevels;
 
   unsigned int level = 0;
-  for( ; level <= maxLevelToLoad; ++level )
+  for( ; level <= static_cast<unsigned int>(maxLevelToLoad); ++level )
     {
       unsigned int dataIdx = 0;
       for( ; dataIdx < m->GetNumberOfDataSets( level ); ++dataIdx )
@@ -385,12 +385,12 @@ bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double bounds[6] )
 {
   // Store A,B,C,D from the plane equation
   double plane[4];
-  plane[0] = this->plane->GetNormal()[0];
-  plane[1] = this->plane->GetNormal()[1];
-  plane[2] = this->plane->GetNormal()[2];
-  plane[3] = this->plane->GetNormal()[0]*this->plane->GetOrigin()[0] +
-             this->plane->GetNormal()[1]*this->plane->GetOrigin()[1] +
-             this->plane->GetNormal()[2]*this->plane->GetOrigin()[2];
+  plane[0] = this->Plane->GetNormal()[0];
+  plane[1] = this->Plane->GetNormal()[1];
+  plane[2] = this->Plane->GetNormal()[2];
+  plane[3] = this->Plane->GetNormal()[0]*this->Plane->GetOrigin()[0] +
+             this->Plane->GetNormal()[1]*this->Plane->GetOrigin()[1] +
+             this->Plane->GetNormal()[2]*this->Plane->GetOrigin()[2];
 
  return( this->PlaneIntersectsAMRBox( plane,bounds) );
 }

@@ -182,7 +182,7 @@ int vtkAMRFlashParticlesReader::GetTotalNumberOfParticles()
 
 //------------------------------------------------------------------------------
 vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
-    const char *file, const int blkidx )
+    const char *file, const int vtkNotUsed(blkidx) )
 {
   hid_t dataIdx = H5Dopen( this->Internal->FileIndex, file );
   if( dataIdx < 0 )
