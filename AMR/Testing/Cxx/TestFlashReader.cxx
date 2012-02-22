@@ -14,13 +14,66 @@
 =========================================================================*/
 #include "vtkAMRFlashReader.h"
 #include "vtkSetGet.h"
+#include "vtkTestUtilities.h"
+#include "vtkOverlappingAMR.h"
 
-int TestFlashReader( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
+namespace FlashReaderTest {
+
+//------------------------------------------------------------------------------
+template<class T>
+int CheckValue( std::string name, T actualValue, T expectedValue )
+{
+    if( actualValue != expectedValue )
+      {
+      std::cerr << "ERROR: " << name << " value mismatch! ";
+      std::cerr << "Expected: " << expectedValue << " Actual: " << actualValue;
+      std::cerr << std::endl;
+      return 1;
+      }
+    return 0;
+}
+
+} // END namespace
+
+int TestFlashReader( int argc, char *argv[] )
 {
   int rc = 0;
+  int NumBlocksPerLevel[] = {1,8,64,512,3456,15344,78208};
 
   vtkAMRFlashReader *flashReader = vtkAMRFlashReader::New();
 
+  char *fileName =
+    vtkTestUtilities::ExpandDataFileName(argc,argv,
+        "Data/AMR/Flash/smooth/smooth.flash");
+  std::cout << "Filename: " << fileName << std::endl;
+  std::cout.flush();
+
+  vtkOverlappingAMR *amr = NULL;
+  flashReader->SetFileName( fileName );
+  for(int level = 0; level < flashReader->GetNumberOfLevels(); ++level )
+    {
+    flashReader->SetMaxLevel( level );
+    flashReader->Update();
+    rc+=FlashReaderTest::CheckValue("LEVEL",flashReader->GetNumberOfLevels(),7);
+    rc+=FlashReaderTest::CheckValue("BLOCKS",flashReader->GetNumberOfBlocks(),97593);
+
+    amr = flashReader->GetOutput();
+    if( amr != NULL )
+      {
+      rc+=FlashReaderTest::CheckValue(
+         "OUTPUT LEVELS",static_cast<int>(amr->GetNumberOfLevels()),level+1);
+      rc+=FlashReaderTest::CheckValue(
+         "NUMBER OF BLOCKS AT LEVEL",
+         static_cast<int>(amr->GetNumberOfDataSets(level)),
+         NumBlocksPerLevel[level]
+         );
+      }
+    else
+      {
+      std::cerr << "ERROR: output AMR dataset is NULL!";
+      return 1;
+      }
+    } // END for all levels
   flashReader->Delete();
   return( rc );
 }
