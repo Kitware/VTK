@@ -34,6 +34,14 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
     void PrintSelf(ostream &os, vtkIndent indent );
 
     // Description:
+    // See vtkAMRBaseReader::GetNumberOfBlocks
+    int GetNumberOfBlocks();
+
+    // Description:
+    // See vtkAMRBaseReader::GetNumberOfLevels
+    int GetNumberOfLevels();
+
+    // Description:
     // See vtkAMRBaseReader::SetFileName
     void SetFileName( const char* fileName );
 
@@ -52,14 +60,6 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
     // Description:
     // See vtkAMRBaseReader::GetBlockLevel
     int GetBlockLevel( const int blockIdx );
-
-    // Description:
-    // See vtkAMRBaseReader::GetNumberOfBlocks
-    int GetNumberOfBlocks();
-
-    // Description:
-    // See vtkAMRBaseReader::GetNumberOfLevels
-    int GetNumberOfLevels();
 
     // Description:
     // See vtkAMRBaseReader::FillMetaData
