@@ -18,5 +18,5 @@ TARGET_LINK_LIBRARIES( ${KIT}CxxTests vtkAMR vtkFiltering vtkParallel )
 ## Add all executables
 FOREACH(test ${MyTests})
   GET_FILENAME_COMPONENT(t ${test} NAME_WE)
-  ADD_TEST(${t} ${CXX_TEST_PATH}/${KIT}CxxTests ${t})
+  ADD_TEST(${t} ${CXX_TEST_PATH}/${KIT}CxxTests ${t} -D ${VTK_DATA_ROOT})
 ENDFOREACH(test)
