@@ -1,24 +1,22 @@
 ## Set the name of the KIT being tested
-set(KIT AMR)
+SET(KIT AMR)
 
 ## List all test sources
-set(MyTests
+SET(MyTests
     TestFlashReader.cxx
     TestEnzoReader.cxx 
     )
     
 ## Create test source list
-create_test_sourcelist(Tests ${KIT}CxxTests.cxx
+CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
     ${MyTests}    
     EXTRA_INCLUDE vtkTestDriver.h
     )
-add_executable( ${KIT}CxxTests ${Tests})
-target_link_libraries( ${KIT}CxxTests vtkAMR vtkFiltering vtkParallel )
+ADD_EXECUTABLE( ${KIT}CxxTests ${Tests})
+TARGET_LINK_LIBRARIES( ${KIT}CxxTests vtkAMR vtkFiltering vtkParallel )
     
-set(TestsToRun ${MyTests})
-
 ## Add all executables
-foreach(test ${MyTests})
-  get_filename_component(t ${test} NAME_WE)
-  add_test(${t} ${CXX_TEST_PATH}/${KIT}CxxTests ${t})
-endforeach(test)
+FOREACH(test ${MyTests})
+  GET_FILENAME_COMPONENT(t ${test} NAME_WE)
+  ADD_TEST(${t} ${CXX_TEST_PATH}/${KIT}CxxTests ${t})
+ENDFOREACH(test)

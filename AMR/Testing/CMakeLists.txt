@@ -1,4 +1,4 @@
-add_subdirectory(Cxx)
+ADD_SUBDIRECTORY(Cxx)
 
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-AMR ${PYTHON_EXECUTABLE}
