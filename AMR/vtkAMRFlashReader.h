@@ -31,7 +31,7 @@ class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
   public:
     static vtkAMRFlashReader* New();
     vtkTypeMacro( vtkAMRFlashReader, vtkAMRBaseReader );
-    void PrintSelf( std::ostream &os, vtkIndent indent );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
     // Description:
     // See vtkAMRBaseReader::SetFileName

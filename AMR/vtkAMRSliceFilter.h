@@ -40,7 +40,7 @@ class VTK_AMR_EXPORT vtkAMRSliceFilter :
   public:
       static vtkAMRSliceFilter* New();
       vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
-      void PrintSelf( std::ostream &os, vtkIndent indent );
+      void PrintSelf(ostream &os, vtkIndent indent );
 
       // Inline Gettters & Setters
       vtkSetMacro(OffSetFromOrigin,double);

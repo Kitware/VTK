@@ -36,7 +36,7 @@ class VTK_AMR_EXPORT vtkAMRBaseParticlesReader :
 {
   public:
       vtkTypeMacro( vtkAMRBaseParticlesReader, vtkMultiBlockDataSetAlgorithm );
-      void PrintSelf( std::ostream &os, vtkIndent indent );
+      void PrintSelf(ostream &os, vtkIndent indent );
 
       // Description:
       // Set & Get the frequency.

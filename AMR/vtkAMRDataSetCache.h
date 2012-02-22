@@ -34,7 +34,7 @@ class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
   public:
     static vtkAMRDataSetCache* New();
     vtkTypeMacro( vtkAMRDataSetCache, vtkObject );
-    void PrintSelf( std::ostream &os, vtkIndent indent );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
     // Description:
     // Inserts an AMR block to the cache

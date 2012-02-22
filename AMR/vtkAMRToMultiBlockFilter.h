@@ -39,7 +39,7 @@ class VTK_AMR_EXPORT vtkAMRToMultiBlockFilter :
   public:
     static vtkAMRToMultiBlockFilter* New();
     vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
-    void PrintSelf( std::ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent );
 
     // Description:
     // Set/Get a multiprocess controller for paralle processing.

@@ -33,7 +33,7 @@ class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
   public:
     static vtkAMREnzoReader* New();
     vtkTypeMacro(vtkAMREnzoReader,vtkAMRBaseReader);
-    void PrintSelf(std::ostream &os, vtkIndent indent );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
     // Description:
     // Set/Get whether data should be converted to CGS

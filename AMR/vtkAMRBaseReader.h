@@ -40,7 +40,7 @@ class VTK_AMR_EXPORT vtkAMRBaseReader :
 {
   public:
      vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
-     void PrintSelf(std::ostream &os, vtkIndent indent);
+     void PrintSelf(ostream &os, vtkIndent indent);
 
      // Description:
      // Initializes the AMR reader.

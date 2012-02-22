@@ -38,7 +38,7 @@ class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
   public:
     static vtkAMREnzoParticlesReader* New();
     vtkTypeMacro( vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader );
-    void PrintSelf( std::ostream &os, vtkIndent indent );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
     // Description:
     // Returns the requested particle type.

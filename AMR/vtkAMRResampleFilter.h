@@ -50,7 +50,7 @@ class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
   public:
     static vtkAMRResampleFilter *New();
     vtkTypeMacro(vtkAMRResampleFilter,vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf( std::ostream &oss, vtkIndent indent);
+    void PrintSelf(ostream &oss, vtkIndent indent);
 
     // Description:
     // Set & Get macro for the number of samples (cells) in each dimension.

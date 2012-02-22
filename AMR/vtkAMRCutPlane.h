@@ -44,7 +44,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
   public:
     static vtkAMRCutPlane *New();
     vtkTypeMacro(vtkAMRCutPlane, vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf( std::ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent );
 
     // Description:
     // Sets the center
