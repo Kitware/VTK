@@ -165,12 +165,6 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
 #
-# Do not cover this lib
-#
-CONFIGURE_FILE (${VTKFTGL_SOURCE_DIR}/.NoDartCoverage
-                ${VTKFTGL_BINARY_DIR}/.NoDartCoverage)
-
-#
 # Create the configuration file
 #
 ADD_DEFINITIONS (-DVTKFTGL)

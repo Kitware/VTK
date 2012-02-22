@@ -40,8 +40,6 @@ IF (WIN32)
 ENDIF (WIN32)
 
 
-CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/.NoDartCoverage
-               ${VTKJPEG_BINARY_DIR}/.NoDartCoverage)
 CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
                ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h)
 
