@@ -824,7 +824,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 #endif
 
   // Divide U and V components by Density
-  for (int i = 0; i < this->BlockSize; i++)
+  for (unsigned int i = 0; i < this->BlockSize; i++)
     {
     uData[i] /= densityData[i];
     vData[i] /= densityData[i];
@@ -933,8 +933,9 @@ void vtkWindBladeReader::LoadVariableData(int var)
     {
     // Read the block of data
 #ifndef VTK_USE_MPI_IO
-    int cnt;
-    if ((cnt = fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr)) != this->BlockSize)
+    size_t cnt;
+    if ((cnt = fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr)) !=
+        static_cast<size_t>(this->BlockSize) )
     {
     // This is really and error, but for the time being we report a
     // warning
@@ -1497,7 +1498,7 @@ void vtkWindBladeReader::CreateCoordinates()
     this->CreateZTopography(this->ZTopographicValues);
 
     this->ZMinValue = this->ZTopographicValues[0];
-    for (int k = 0; k < this->BlockSize; k++)
+    for (unsigned int k = 0; k < this->BlockSize; k++)
       {
       if (this->ZMinValue > this->ZTopographicValues[k])
         {
@@ -1537,7 +1538,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 
 #ifndef VTK_USE_MPI_IO
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
-  if(fread(topoData, sizeof(float), blockSize, filePtr) != blockSize)
+  if(fread(topoData, sizeof(float), blockSize, filePtr) != static_cast<size_t>(blockSize) )
     {
     // This is really and error, but for the time being we report a
     // warning
