@@ -231,7 +231,13 @@ int vtkAVSucdReader::RequestInformation(
       // skip comment lines
       if (FileStream->peek() == '#')
         {
-        while(this->FileStream->get(c) && c != '\n');
+        while(this->FileStream->get(c))
+          {
+          if (c == '\n')
+            {
+            break;
+            }
+          }
         }
       else
         {
