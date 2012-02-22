@@ -824,7 +824,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 #endif
 
   // Divide U and V components by Density
-  for (int i = 0; i < this->BlockSize; i++)
+  for (unsigned int i = 0; i < this->BlockSize; i++)
     {
     uData[i] /= densityData[i];
     vData[i] /= densityData[i];
