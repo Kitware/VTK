@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_tiff.h
+  Module:    vtk_gl2ps.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_tiff_h
-#define __vtk_tiff_h
+#ifndef __vtk_gl2ps_h
+#define __vtk_gl2ps_h
 
-/* Use the tiff library configured for VTK.  */
-#include "vtkToolkits.h"
-#ifdef VTK_USE_SYSTEM_TIFF
-# include <tiffio.h>
+/* Use the gl2ps library configured for VTK.  */
+#cmakedefine VTK_USE_SYSTEM_GL2PS
+#ifdef VTK_USE_SYSTEM_GL2PS
+# include <gl2ps.h>
 #else
-# include <vtktiff/tiffio.h>
+# include <vtkgl2ps/gl2ps.h>
 #endif
 
 #endif

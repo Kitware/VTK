@@ -16,7 +16,7 @@
 #define __vtk_libxml2_h
 
 /* Use the libxml2 library configured for VTK.  */
-#include "vtkToolkits.h"
+#cmakedefine VTK_USE_SYSTEM_LIBXML2
 #ifdef VTK_USE_SYSTEM_LIBXML2
 # define VTKLIBXML2_HEADER_DIR libxml
 #else
