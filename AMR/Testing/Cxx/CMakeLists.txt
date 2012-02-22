@@ -13,12 +13,12 @@ create_test_sourcelist(Tests ${KIT}CxxTests.cxx
     EXTRA_INCLUDE vtkTestDriver.h
     )
 add_executable( ${KIT}CxxTests ${Tests})
-target_link_libraries( ${KIT}CxxTests vtkFiltering vtkParallel )
+target_link_libraries( ${KIT}CxxTests vtkAMR vtkFiltering vtkParallel )
     
 set(TestsToRun ${MyTests})
 
 ## Add all executables
-foreach(test ${TestToRun})
+foreach(test ${MyTests})
   get_filename_component(t ${test} NAME_WE)
   add_test(${t} ${CXX_TEST_PATH}/${KIT}CxxTests ${t})
-end foreach(test)
+endforeach(test)
