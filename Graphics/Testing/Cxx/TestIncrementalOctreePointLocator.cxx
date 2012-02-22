@@ -148,6 +148,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkUnstructuredGrid *              unstruct = NULL;
   vtkUnstructuredGridReader *        ugReader = NULL;
   vtkIncrementalOctreePointLocator * octLocat = NULL;
+  size_t      n;
   
   
   // load an unstructured grid dataset
@@ -323,7 +324,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       #else  
       // ---------------------------------------------------------------------
       // rapid point index-based verification
-      fread(  &numInsrt,  sizeof( int ),  1,  diskFile  );
+      n = fread(  &numInsrt,  sizeof( int ),  1,  diskFile  );
+      if (n != 1)
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
       #ifdef VTK_WORDS_BIGENDIAN
       SwapForBigEndian
         (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
@@ -332,7 +338,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       if (  numInsrt  ==  ptIdList->GetNumberOfIds()  )
         {
         int  samePtId = 1;
-        fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+        n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+        if (n != static_cast<size_t>(numInsrt))
+          {
+          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+          return 1;
+          }
         #ifdef VTK_WORDS_BIGENDIAN
         SwapForBigEndian
           (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
@@ -355,9 +366,19 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       if ( retValue == 0 )
         {
         numInsrt = ptIdList->GetNumberOfIds();
-        fwrite( &numInsrt,  sizeof( int ),  1,  diskFile  );
-        fwrite(  ptIdList->GetPointer( 0 ), 
+        n = fwrite( &numInsrt,  sizeof( int ),  1,  diskFile  );
+        if (n != 1)
+          {
+          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+          return 1;
+          }
+        n = fwrite(  ptIdList->GetPointer( 0 ),
                  sizeof( vtkIdType ), numInsrt, diskFile  );
+        if (n != static_cast<size_t>(numInsrt))
+          {
+          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+          return 1;
+          }
         }
       #endif
       // -------------------------------------------------------------------//
@@ -425,7 +446,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
   pntsFile = fopen( fileName, "rb" );
   delete []  fileName;  fileName = NULL;
-  (void) fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
+  n = fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
+  if (n != 1)
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
   #ifdef VTK_WORDS_BIGENDIAN
   SwapForBigEndian
     (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
@@ -433,7 +459,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   pLocPnts = ( double * ) realloc( pLocPnts, sizeof( double ) * nLocPnts * 3 );
   minDist2 = ( double * ) realloc( minDist2, sizeof( double ) * nLocPnts     );
   maxDist2 = ( double * ) realloc( maxDist2, sizeof( double ) * nLocPnts     );
-  (void) fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
+  n = fread( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
+  if (n != static_cast<size_t>(nLocPnts * 3))
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
   //fread( minDist2, sizeof( double ), nLocPnts,     pntsFile );
   //fread( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
   #ifdef VTK_WORDS_BIGENDIAN
@@ -505,13 +536,23 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     #else
     // -----------------------------------------------------------------------
     // rapid point index-based verification
-    fread( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
+    n = fread( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
+    if (n != 1)
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
     #endif
       
-    fread(  truthIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
+    n = fread(  truthIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
+    if (n != static_cast<size_t>(nLocPnts))
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  nLocPnts  );
@@ -529,8 +570,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
     if ( retValue == 0 )
       {
-      fwrite( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
-      fwrite(  resltIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
+      n = fwrite( &nLocPnts,  sizeof( int       ),  1,         diskFile  );
+      if (n != 1)
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
+      n = fwrite(  resltIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
+      if (n != static_cast<size_t>(nLocPnts))
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
       }
     #endif
     // ---------------------------------------------------------------------//
@@ -550,13 +601,23 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     #ifndef _BRUTE_FORCE_VERIFICATION_
     truthIds = ( vtkIdType * ) 
                realloc( truthIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
-    fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+    n = fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+    if (n != 1)
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
     #endif
       
-    fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+    n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+    if (n != static_cast<size_t>(numInsrt))
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
@@ -625,8 +686,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     if ( retValue == 0 )
       {
       numInsrt = nClzNpts * nLocPnts;
-      fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-      fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      n = fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+      if (n != 1)
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
+      n = fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      if (n != static_cast<size_t>(numInsrt))
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
       }
     #endif
     // ---------------------------------------------------------------------//
@@ -698,8 +769,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     if ( retValue == 0 )
       {
       numInsrt = nLocPnts * 3;                       // as we test three radii
-      fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
-      fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      n = fwrite( &numInsrt,  sizeof( int       ),  1,         diskFile  );
+      if (n != 1)
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
+      n = fwrite(  resltIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      if (n != static_cast<size_t>(numInsrt))
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
       }
     #endif
     // ---------------------------------------------------------------------//
@@ -707,7 +788,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // -----------------------------------------------------------------------
     // rapid point index-based verification 
     #ifndef _BRUTE_FORCE_VERIFICATION_
-    fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
+    n = fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
+    if (n != 1)
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
@@ -715,7 +801,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
    
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
-    fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );  
+    n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+    if (n != static_cast<size_t>(numInsrt))
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
@@ -864,9 +955,19 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     if ( retValue == 0 )
       {
       numInsrt = ptIdList->GetNumberOfIds();
-      fwrite( &numInsrt, sizeof( int ),  1,  diskFile  );
-      fwrite(  ptIdList->GetPointer( 0 ), 
+      n = fwrite( &numInsrt, sizeof( int ),  1,  diskFile  );
+      if (n != 1)
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
+      n = fwrite(  ptIdList->GetPointer( 0 ),
                sizeof( vtkIdType ),  numInsrt,  diskFile  );
+      if (n != static_cast<size_t>(numInsrt))
+        {
+        cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+        return 1;
+        }
       }
     #endif
     // ---------------------------------------------------------------------//
@@ -874,7 +975,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // -----------------------------------------------------------------------
     // rapid point index-based verification 
     #ifndef _BRUTE_FORCE_VERIFICATION_
-    fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
+    n = fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
+    if (n != 1)
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
@@ -882,7 +988,12 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
-    fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );  
+    n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
+    if (n != static_cast<size_t>(numInsrt))
+      {
+      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      return 1;
+      }
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
@@ -908,10 +1019,30 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
   pntsFile = fopen( fileName, "wb" );
   delete []  fileName;  fileName = NULL;
-  fwrite(&nLocPnts, sizeof( int    ), 1,            pntsFile );
-  fwrite( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
-  fwrite( minDist2, sizeof( double ), nLocPnts,     pntsFile );
-  fwrite( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
+  n = fwrite(&nLocPnts, sizeof( int    ), 1,            pntsFile );
+  if (n != 1)
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
+  n = fwrite( pLocPnts, sizeof( double ), nLocPnts * 3, pntsFile );
+  if (n != static_cast<size_t>(nLocPnts) * 3)
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
+  n = fwrite( minDist2, sizeof( double ), nLocPnts,     pntsFile );
+  if (n != static_cast<size_t>(nLocPnts))
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
+  n = fwrite( maxDist2, sizeof( double ), nLocPnts,     pntsFile );
+  if (n != static_cast<size_t>(nLocPnts))
+    {
+    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 1;
+    }
   fclose( pntsFile );                 pntsFile = NULL;
   #endif
   // =======================================================================//
