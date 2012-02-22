@@ -1384,6 +1384,7 @@ IF(BUILD_TESTING)
   MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
   # Build scripts to convert tcl tests to python
   ADD_SUBDIRECTORY(Utilities/vtkTclTest2Py)
+  ADD_SUBDIRECTORY(AMR/Testing)
   ADD_SUBDIRECTORY(Common/Testing)
   ADD_SUBDIRECTORY(Filtering/Testing)
   ADD_SUBDIRECTORY(Graphics/Testing)
