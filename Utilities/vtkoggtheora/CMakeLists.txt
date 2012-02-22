@@ -172,9 +172,6 @@ CONFIGURE_FILE(libtheora-${THEORA_VERSION}/include/theora/theoraenc.h
 CONFIGURE_FILE(vtk_oggtheora_mangle.h
   ${VTKOGGTHEORA_BINARY_DIR}/include/vtk_oggtheora_mangle.h COPYONLY)
 
-CONFIGURE_FILE(${VTKOGGTHEORA_SOURCE_DIR}/.NoDartCoverage
-  ${VTKOGGTHEORA_BINARY_DIR}/.NoDartCoverage COPYONLY)
-
 SET(VTKOGGTHEORA_SRCS
   # ogg sources
   libogg-${OGG_VERSION}/src/framing.c libogg-${OGG_VERSION}/src/bitwise.c
