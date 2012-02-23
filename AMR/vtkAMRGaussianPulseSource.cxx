@@ -21,7 +21,9 @@
 #include "vtkAMRUtilities.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkStructuredExtent.h"
 #include "vtkCell.h"
+#include "vtkMath.h"
 
 #include <cassert>
 
@@ -116,29 +118,95 @@ void vtkAMRGaussianPulseSource::GeneratePulseField(vtkUniformGrid* grid)
 }
 
 //------------------------------------------------------------------------------
+vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
+    vtkUniformGrid* parent, int patchExtent[6] )
+{
+  assert("pre: parent grid is NULL!" && (parent!=NULL) );
+
+  int ext[6];
+  parent->GetExtent(ext);
+  assert("pre: patchExtent must be within the parent extent!" &&
+         vtkStructuredExtent::Smaller(patchExtent,ext));
+
+  double min[3];
+  double max[3];
+  double h[3];
+  double h0[3];
+  int ndim[3];
+
+  // Set some nominal values to ensure proper initialization
+  ndim[0] = ndim[1] = ndim[2] = 1;
+  min[0]  = min[1]  = min[2]  =
+  max[0]  = max[1]  = max[2]  = 0.0;
+  h[0]    = h[1]    = h[2]    =
+  h0[0]   = h0[1]   = h0[2]   = 0.5;
+
+  // STEP 0: Get min
+  int minIJK[3];
+  minIJK[0] = patchExtent[0];
+  minIJK[1] = patchExtent[2];
+  minIJK[2] = patchExtent[4];
+  vtkIdType minIdx = vtkStructuredData::ComputePointIdForExtent(ext,minIJK);
+  parent->GetPoint( minIdx, min );
+
+  // STEP 1: Get max
+  int maxIJK[3];
+  maxIJK[0] = patchExtent[1];
+  maxIJK[1] = patchExtent[3];
+  maxIJK[2] = patchExtent[5];
+  vtkIdType maxIdx = vtkStructuredData::ComputePointIdForExtent(ext,maxIJK);
+  parent->GetPoint( maxIdx, max );
+
+  // STEP 2: Compute the spacing of the refined patch and its dimensions
+  parent->GetSpacing( h0 );
+  for( int i=0; i < this->Dimension; ++i )
+    {
+    h[i]    = h0[i]/static_cast<double>(this->RefinmentRatio);
+    ndim[i] = vtkMath::Floor(max[i]-min[i]/h[i]);
+    } // END for all dimensions
+
+  // STEP 3: Construct uniform grid for requested patch
+  vtkUniformGrid *grid = vtkUniformGrid::New();
+  grid->Initialize();
+  grid->SetOrigin( min );
+  grid->SetSpacing( h );
+  grid->SetDimensions(ndim);
+
+  // STEP 4: Compute Gaussian-Pulse field on patch
+  this->GeneratePulseField(grid);
+  return(grid);
+}
+
+//------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRGaussianPulseSource::GetGrid(
     double origin[3], double h[3], int ndim[3] )
 {
   vtkUniformGrid *grid = vtkUniformGrid::New();
   grid->Initialize();
-  grid->SetOrigin( origin );
-  grid->SetSpacing( h );
-  grid->SetDimensions( ndim );
+  grid->SetOrigin(origin);
+  grid->SetSpacing(h);
+  grid->SetDimensions(ndim);
 
-  this->GeneratePulseField( grid );
-  return( grid );
+  this->GeneratePulseField(grid);
+  return(grid);
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRGaussianPulseSource::Generate2DDataSet( vtkOverlappingAMR *amr )
 {
-  assert( "pre: input amr dataset is NULL" && (amr != NULL) );
+  assert( "pre: input amr dataset is NULL" && (amr!=NULL) );
 
   int ndim[3];
   double origin[3];
   double h[3];
   int blockId = 0;
   int level   = 0;
+
+  // Define the patches to be refined apriori
+  int patches[2][6] = {
+      {0,2,0,3,0,0},
+      {3,5,2,5,0,0}
+  };
 
   // Root Block -- Block 0,0
   ndim[0] = 6; ndim[1]   = 6; ndim[2] = 1;
@@ -148,6 +216,17 @@ void vtkAMRGaussianPulseSource::Generate2DDataSet( vtkOverlappingAMR *amr )
   level     = 0;
   vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
   amr->SetDataSet(level,blockId,grid);
+
+  vtkUniformGrid *refinedPatch = NULL;
+  for( int patchIdx=0; patchIdx < 2; ++patchIdx )
+    {
+    refinedPatch = RefinePatch( grid, patches[patchIdx] );
+    assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
+    amr->SetDataSet(level+1,patchIdx,refinedPatch);
+    refinedPatch->Delete();
+    refinedPatch = NULL;
+    }
+
   grid->Delete();
   vtkAMRUtilities::GenerateMetaData( amr, NULL );
   amr->GenerateVisibilityArrays();
@@ -173,6 +252,8 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
   vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
   amr->SetDataSet(level,blockId,grid);
   grid->Delete();
+
+
   vtkAMRUtilities::GenerateMetaData( amr, NULL );
   amr->GenerateVisibilityArrays();
 }

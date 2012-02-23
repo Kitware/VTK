@@ -98,9 +98,12 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
     // Description:
     // Computes the gaussian pulse at the given location based on the user
     // supplied parameters for pulse width and origin.
-    double ComputePulseAt(const double x, const double y, const double z);
-    double ComputePulseAt( double pt[3] )
-     {return( this->ComputePulseAt(pt[0],pt[1],pt[2]) );}
+    double ComputePulseAt(const double x, const double y, const double z)
+      {
+      double xyz[3]; xyz[0]=x; xyz[1]=y; xyz[2]=z;
+      return( this->ComputePulseAt(xyz) );
+      }
+    double ComputePulseAt( double pt[3] );
 
     // Description:
     // Given the cell index w.r.t. to a uniform grid, this method computes the
@@ -115,8 +118,12 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
 
     // Description:
     // Constructs a uniform grid path with the given origin/spacing and node
-    // dimensions.
+    // dimensions. The return grid serves as the root grid for the domain.
     vtkUniformGrid* GetGrid( double origin[3], double h[3], int ndim[3] );
+
+    // Description:
+    // Constructs a refined patch from the given parent grid.
+    vtkUniformGrid* RefinePatch(vtkUniformGrid* parent, int patchExtent[6]);
 
     // Description:
     // Generate 2-D or 3-D DataSet
@@ -139,18 +146,18 @@ class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
 //==============================================================================
 // INLINE METHODS
 //==============================================================================
-inline double vtkAMRGaussianPulseSource::ComputePulseAt(
-    const double x, const double y, const double vtkNotUsed(z))
+inline double vtkAMRGaussianPulseSource::ComputePulseAt(double pt[3])
 {
   double pulse = 0.0;
 
   double r  = 0.0;
-  double dx = x-this->PulseOrigin[0];
-  r += (dx*dx) / (this->PulseWidth[0]*this->PulseWidth[0]);
-
-  double dy = y-this->PulseOrigin[1];
-  r += (dy*dy) / (this->PulseWidth[1]*this->PulseWidth[1]);
-
+  for( int i=0; i < this->Dimension; ++i )
+    {
+    double d  = pt[i]-this->PulseOrigin[i];
+    double d2 = d*d;
+    double L2 = this->PulseWidth[i]*this->PulseWidth[i];
+    r += d2/L2;
+    }
   pulse = this->PulseAmplitude*std::exp( -r );
   return( pulse );
 }
