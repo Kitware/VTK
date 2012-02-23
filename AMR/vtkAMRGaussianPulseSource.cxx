@@ -117,6 +117,16 @@ void vtkAMRGaussianPulseSource::GeneratePulseField(vtkUniformGrid* grid)
   pulseField->Delete();
 }
 
+#define PRINTEXT( extName, ext ) { \
+  std::cout << extName << ": ";    \
+  std::cout.flush();               \
+  for( int ii=0; ii < 6; ++ii ) {  \
+    std::cout << ext[ii] << " ";   \
+  }                                \
+  std::cout << std::endl;          \
+  std::cout.flush();               \
+}
+
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
     vtkUniformGrid* parent, int patchExtent[6] )
@@ -127,6 +137,9 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
   parent->GetExtent(ext);
   assert("pre: patchExtent must be within the parent extent!" &&
          vtkStructuredExtent::Smaller(patchExtent,ext));
+
+//  PRINTEXT("Parent",ext);
+//  PRINTEXT("Patch", patchExtent);
 
   double min[3];
   double max[3];
@@ -147,6 +160,8 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
   minIJK[1] = patchExtent[2];
   minIJK[2] = patchExtent[4];
   vtkIdType minIdx = vtkStructuredData::ComputePointIdForExtent(ext,minIJK);
+//  std::cout << "min: " << minIdx << std::endl;
+//  std::cout.flush();
   parent->GetPoint( minIdx, min );
 
   // STEP 1: Get max
@@ -155,15 +170,27 @@ vtkUniformGrid* vtkAMRGaussianPulseSource::RefinePatch(
   maxIJK[1] = patchExtent[3];
   maxIJK[2] = patchExtent[5];
   vtkIdType maxIdx = vtkStructuredData::ComputePointIdForExtent(ext,maxIJK);
+//  std::cout << "max: " << maxIdx << std::endl;
+//  std::cout.flush();
   parent->GetPoint( maxIdx, max );
+
+  int patchdims[3];
+  patchdims[0] = patchExtent[1]-patchExtent[0]+1;
+  patchdims[1] = patchExtent[3]-patchExtent[2]+1;
+  patchdims[2] = patchExtent[5]-patchExtent[4]+1;
 
   // STEP 2: Compute the spacing of the refined patch and its dimensions
   parent->GetSpacing( h0 );
   for( int i=0; i < this->Dimension; ++i )
     {
     h[i]    = h0[i]/static_cast<double>(this->RefinmentRatio);
-    ndim[i] = vtkMath::Floor(max[i]-min[i]/h[i]);
+    ndim[i] = this->RefinmentRatio*patchdims[i]-(this->RefinmentRatio-1);
     } // END for all dimensions
+
+//  std::cout << "Computed h:"    << h[0] << " " << h[1] << " " << h[2] << "\n";
+//  std::cout << "Computed ndim:" << ndim[0] << " " << ndim[1] << " " << ndim[2];
+//  std::cout << std::endl;
+//  std::cout.flush();
 
   // STEP 3: Construct uniform grid for requested patch
   vtkUniformGrid *grid = vtkUniformGrid::New();
@@ -243,6 +270,12 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
   int blockId = 0;
   int level   = 0;
 
+  // Define the patches to be refined apriori
+  int patches[2][6] = {
+      {0,2,0,3,0,5},
+      {3,5,2,5,0,5}
+  };
+
   // Root Block -- Block 0,0
   ndim[0] = 6; ndim[1]   = 6; ndim[2] = 6;
   h[0]      = h[1]  = h[2] = this->RootSpacing[0];
@@ -251,9 +284,18 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
   level     = 0;
   vtkUniformGrid *grid = this->GetGrid(origin, h, ndim);
   amr->SetDataSet(level,blockId,grid);
+
+  vtkUniformGrid *refinedPatch = NULL;
+  for( int patchIdx=0; patchIdx < 2; ++patchIdx )
+    {
+    refinedPatch = RefinePatch( grid, patches[patchIdx] );
+    assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
+    amr->SetDataSet(level+1,patchIdx,refinedPatch);
+    refinedPatch->Delete();
+    refinedPatch = NULL;
+    }
+
   grid->Delete();
-
-
   vtkAMRUtilities::GenerateMetaData( amr, NULL );
   amr->GenerateVisibilityArrays();
 }
