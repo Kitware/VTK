@@ -28,46 +28,10 @@ IF(NOT CMAKE_SKIP_COMPATIBILITY_TESTS)
   SET (CMAKE_X_LIBS "${X11_LIBRARIES}" CACHE STRING
        "Libraries and options used in X11 programs.")
   SET (CMAKE_HAS_X "${X11_FOUND}" CACHE INTERNAL "Is X11 around.")
-
-  INCLUDE (FindThreads)
-
-  SET (CMAKE_THREAD_LIBS        "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING 
-    "Thread library used.")
-
-  SET (CMAKE_USE_PTHREADS       "${CMAKE_USE_PTHREADS_INIT}" CACHE BOOL
-     "Use the pthreads library.")
-
-  SET (CMAKE_USE_WIN32_THREADS  "${CMAKE_USE_WIN32_THREADS_INIT}" CACHE BOOL
-       "Use the win32 thread library.")
-
-  SET (CMAKE_HP_PTHREADS        ${CMAKE_HP_PTHREADS_INIT} CACHE BOOL
-     "Use HP pthreads.")
-
-  SET (CMAKE_USE_SPROC          ${CMAKE_USE_SPROC_INIT} CACHE BOOL 
-     "Use sproc libs.")
-
-  IF(MINGW AND CMAKE_USE_PTHREADS AND CMAKE_USE_WIN32_THREADS)
-    MESSAGE(STATUS
-      "Forcing CMAKE_USE_PTHREADS OFF as only one threading library should be used.")
-    SET(CMAKE_USE_PTHREADS OFF CACHE BOOL
-      "Force pthreads off if WIN32 threads are enabled" FORCE)
-    SET(CMAKE_THREAD_LIBS "" CACHE STRING "Thread library used." FORCE)
-  ELSE()
-    SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
-  ENDIF()
 ENDIF(NOT CMAKE_SKIP_COMPATIBILITY_TESTS)
 
-SET (VTK_MAX_THREADS          "64" CACHE STRING
-     "Max number of threads vktMultiThreader will allocate.")
-
 MARK_AS_ADVANCED(
-CMAKE_HP_PTHREADS
-CMAKE_THREAD_LIBS
-CMAKE_USE_PTHREADS
-CMAKE_USE_SPROC
-CMAKE_USE_WIN32_THREADS
 CMAKE_X_CFLAGS
 CMAKE_X_LIBS
-VTK_MAX_THREADS
 )
 
