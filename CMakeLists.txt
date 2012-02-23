@@ -499,7 +499,9 @@ ADD_DEFINITIONS(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
-INCLUDE(CMakeBackwardCompatibilityC)
+
+INCLUDE (TestBigEndian)
+TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
 
 include(FindThreads)
 set(VTK_USE_WIN32_THREADS 0)
