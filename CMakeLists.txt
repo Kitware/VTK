@@ -503,7 +503,6 @@ INCLUDE(CMakeBackwardCompatibilityC)
 INCLUDE(TestForANSIStreamHeaders)
 INCLUDE(TestForSTDNamespace)
 INCLUDE(TestForANSIForScope)
-INCLUDE(CheckTypeSize)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
 INCLUDE(TestForSSTREAM)
