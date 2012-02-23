@@ -251,7 +251,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
       {
       for (i=0; i<npts; i++)
         {
-        if (fscanf(file, "%*f") != 1)
+        if (fscanf(file, "%*f") != 0)
           {
           cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
           return 0;
