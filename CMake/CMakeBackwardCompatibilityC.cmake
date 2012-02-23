@@ -9,14 +9,6 @@ IF(CMAKE_GENERATOR MATCHES "Visual Studio 6")
 ENDIF(CMAKE_GENERATOR MATCHES "Visual Studio 6")
 
 IF(NOT CMAKE_SKIP_COMPATIBILITY_TESTS)
-  INCLUDE (CheckIncludeFiles)
-  CHECK_INCLUDE_FILES("limits.h"       CMAKE_HAVE_LIMITS_H)
-  CHECK_INCLUDE_FILES("unistd.h"       CMAKE_HAVE_UNISTD_H)
-  CHECK_INCLUDE_FILES("pthread.h"      CMAKE_HAVE_PTHREAD_H)
-  CHECK_INCLUDE_FILES("sys/types.h;sys/prctl.h"    CMAKE_HAVE_SYS_PRCTL_H)
-  # include the following file to keep stuff which relies on the fact that it 
-  # is included here, keeps working
-  INCLUDE (CheckIncludeFile)
 
   INCLUDE (TestBigEndian)
   TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
