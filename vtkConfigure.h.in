@@ -96,7 +96,6 @@
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
 #cmakedefine VTK_NO_ANSI_STRING_STREAM
-#cmakedefine VTK_NO_STD_NAMESPACE
 #cmakedefine VTK_COMPILER_HAS_BOOL
 #cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
@@ -177,11 +176,7 @@
 
 /* Setup vtkstd, a portable namespace for std.  */
 #ifndef VTK_LEGACY_REMOVE
-# ifndef VTK_NO_STD_NAMESPACE
-#  define vtkstd std
-# else
-#  define vtkstd
-# endif
+# define vtkstd std
 #endif
 
 /* Define a "vtkstd_bool" type.  This should be used as the
