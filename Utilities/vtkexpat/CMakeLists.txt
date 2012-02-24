@@ -19,8 +19,6 @@ CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/expatConfig.h.in
                ${VTKEXPAT_BINARY_DIR}/expatConfig.h)
 CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/expatDllConfig.h.in
                ${VTKEXPAT_BINARY_DIR}/expatDllConfig.h)
-CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/.NoDartCoverage
-               ${VTKEXPAT_BINARY_DIR}/.NoDartCoverage)
 
 VTK_ADD_LIBRARY(vtkexpat ${expat_SRCS})
 

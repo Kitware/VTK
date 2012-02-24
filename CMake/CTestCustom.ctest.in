@@ -304,16 +304,13 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
   "vtk.*TCLInit.cxx"
   "vtk[^\\.]+(Java|Python|Tcl).cxx"
-  "Utilities.kwsys"
-  "Utilities.vtksys"
-  "Utilities.vtkmetaio"
-  "Utilities.vtklibproj4"
-  "Utilities.vtkalglib"
-  "Utilities.octree"
   ".*vtkOpenGLState.*" # debugging class
   ".*Testing.Cxx.*cxx"
   ".*Testing.Cxx.*h"
   ".*moc_.*cxx"
+
+  # Exclude files from the Utilities directories
+  ".*/Utilities/.*"
   )
 
 IF(@CMAKE_COMPILER_IS_GNUCXX@)

@@ -23,8 +23,6 @@ IF(WIN32)
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF(WIN32)
 
-CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage
-               ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
 CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
                ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
 
