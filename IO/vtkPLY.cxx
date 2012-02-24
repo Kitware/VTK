@@ -2136,9 +2136,9 @@ void vtkPLY::get_stored_item(
     {
       vtkTypeInt8 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_UCHAR:
@@ -2146,27 +2146,27 @@ void vtkPLY::get_stored_item(
     {
       vtkTypeUInt8 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_SHORT:
     {
       vtkTypeInt16 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_USHORT:
     {
       vtkTypeUInt16 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_INT:
@@ -2174,18 +2174,18 @@ void vtkPLY::get_stored_item(
     {
       vtkTypeInt32 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_UINT:
     {
       vtkTypeUInt32 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_FLOAT:
@@ -2193,18 +2193,18 @@ void vtkPLY::get_stored_item(
     {
       vtkTypeFloat32 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     case PLY_DOUBLE:
     {
       vtkTypeFloat64 value;
       memcpy(&value, ptr, sizeof(value));
-      *uint_val = value;
-      *int_val = value;
-      *double_val = value;
+      *uint_val = static_cast<unsigned int>(value);
+      *int_val = static_cast<int>(value);
+      *double_val = static_cast<double>(value);
       break;
     }
     default:
