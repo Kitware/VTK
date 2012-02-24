@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_libproj4.h
+  Module:    vtk_freetype.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_libproj4_h
-#define __vtk_libproj4_h
+#ifndef __vtk_freetype_h
+#define __vtk_freetype_h
 
-/* Use the libproj4 library configured for VTK.  */
-#include "vtkToolkits.h"
-#ifdef VTK_USE_SYSTEM_LIBPROJ4
-# include <lib_proj.h>
+/* Use the freetype library configured for VTK.  */
+#cmakedefine VTK_USE_SYSTEM_FREETYPE
+
+#ifdef VTK_USE_SYSTEM_FREETYPE
+# include <ft2build.h>
 #else
-# include <vtklibproj4/lib_proj.h>
+# include <vtkfreetype/include/ft2build.h>
+#  if defined(VTKFREETYPE)
+#    include "vtkFreeTypeConfig.h"
+#  endif
 #endif
 
-#endif
+#endif // #ifndef __vtk_freetype_h
