@@ -719,7 +719,7 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
                        this->ChartPrivate->Borders[2],
                        this->ChartPrivate->Borders[3]);
       // Get the screen coordinates for the origin, and move the axes there.
-      vtkVector2f origin;
+      vtkVector2f origin(0.0);
       vtkTransform2D* transform =
           this->ChartPrivate->PlotCorners[0]->GetTransform();
       transform->TransformPoints(origin.GetData(), origin.GetData(), 1);
