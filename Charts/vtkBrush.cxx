@@ -24,7 +24,7 @@
 vtkStandardNewMacro(vtkBrush);
 
 //-----------------------------------------------------------------------------
-vtkBrush::vtkBrush()
+vtkBrush::vtkBrush() : BrushColor(0, 0, 0, 255)
 {
   this->Color = this->BrushColor.GetData();
   this->Texture = 0;
