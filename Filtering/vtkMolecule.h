@@ -81,7 +81,7 @@ class vtkUnsignedShortArray;
 
 class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 {
- public:
+public:
   static vtkMolecule *New();
   vtkTypeMacro(vtkMolecule,vtkUndirectedGraph);
   void PrintSelf(ostream &os, vtkIndent indent);
@@ -212,8 +212,7 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 
   // Description:
   // Obtain the plane that passes through the indicated bond with the given
-  // normal. If the plane is set successfully, the function return true.
-  //
+  // normal. If the plane is set successfully, the function returns true.
   //
   // If the normal is not orthogonal to the bond, a new normal will be
   // constructed in such a way that the plane will be orthogonal to
@@ -237,72 +236,10 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   //
   // If n_i is parallel to v, a warning will be printed and no plane will be
   // added. Obviously, n_i must not be parallel to v.
-  static bool GetPlaneFromBond(vtkBond bond, const double normal[3],
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond.GetBeginAtom(),
-                                         bond.GetEndAtom(), normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, const float normal[3],
-                               vtkPlane *plane)
-  {
-    double normald[3];
-    normald[0] = static_cast<double>(normal[0]);
-    normald[1] = static_cast<double>(normal[1]);
-    normald[2] = static_cast<double>(normal[2]);
-    return vtkMolecule::GetPlaneFromBond(bond, normald, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond,
-                               double n_x, double n_y, double n_z,
-                               vtkPlane *plane)
-  {
-    double normal[3];
-    normal[0] = n_x;
-    normal[1] = n_y;
-    normal[2] = n_z;
-    return vtkMolecule::GetPlaneFromBond(bond, normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, vtkVector3d normal,
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond, normal.GetData(), plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, vtkVector3f normal,
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond, normal.GetData(), plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             const double normal[3], vtkPlane *plane);
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             const float normal[3], vtkPlane *plane)
-  {
-    double normald[3];
-    normald[0] = static_cast<double>(normal[0]);
-    normald[1] = static_cast<double>(normal[1]);
-    normald[2] = static_cast<double>(normal[2]);
-    return vtkMolecule::GetPlaneFromBond(atom1, atom2, normald, plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                               double n_x, double n_y, double n_z,
-                               vtkPlane *plane)
-  {
-    double normal[3];
-    normal[0] = n_x;
-    normal[1] = n_y;
-    normal[2] = n_z;
-    return vtkMolecule::GetPlaneFromBond(atom1, atom2, normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             vtkVector3d normal, vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(atom1,atom2,normal.GetData(),plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             vtkVector3f normal, vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(atom1,atom2,normal.GetData(),plane);
-  }
+  static bool GetPlaneFromBond(const vtkBond &bond, const vtkVector3f &normal,
+                               vtkPlane *plane);
+  static bool GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
+                               const vtkVector3f &normal, vtkPlane *plane);
 
  protected:
   vtkMolecule();
@@ -330,7 +267,7 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 
   vtkAbstractElectronicData *ElectronicData;
 
- private:
+private:
   vtkMolecule(const vtkMolecule&);    // Not implemented.
   void operator=(const vtkMolecule&); // Not implemented.
 };

@@ -42,7 +42,7 @@ void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned short vtkAtom::GetAtomicNumber()
+unsigned short vtkAtom::GetAtomicNumber() const
 {
   return this->Molecule->GetAtomAtomicNumber(this->Id);
 }
@@ -54,13 +54,13 @@ void vtkAtom::SetAtomicNumber(unsigned short atomicNum)
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::GetPosition(float pos[3])
+void vtkAtom::GetPosition(float pos[3]) const
 {
   this->Molecule->GetAtomPosition(this->Id, pos);
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::GetPosition(double pos[3])
+void vtkAtom::GetPosition(double pos[3]) const
 {
   vtkVector3f position = this->GetPosition();
   pos[0] = position.X();
@@ -81,7 +81,7 @@ void vtkAtom::SetPosition(float x, float y, float z)
 }
 
 //----------------------------------------------------------------------------
-vtkVector3f vtkAtom::GetPosition()
+vtkVector3f vtkAtom::GetPosition() const
 {
   return this->Molecule->GetAtomPosition(this->Id);
 }

@@ -31,34 +31,24 @@ public:
 
   // Description:
   // Return the Id used to identify this bond in the parent molecule.
-  vtkIdType GetId()
-  {
-    return this->Id;
-  }
+  vtkIdType GetId() const;
 
   // Description:
   // Return the parent molecule of this bond.
-  vtkMolecule * GetMolecule()
-  {
-    return this->Molecule;
-  }
+  vtkMolecule * GetMolecule();
 
   // Description:
   // Get the starting / ending atom ids for this bond.
-  vtkIdType GetBeginAtomId()
-  {
-    return this->BeginAtomId;
-  }
-  vtkIdType GetEndAtomId()
-  {
-    return this->EndAtomId;
-  }
+  vtkIdType GetBeginAtomId() const;
+  vtkIdType GetEndAtomId() const;
 
   // Description:
   // Get a vtkAtom object that refers to the starting / ending atom
   // for this bond.
   vtkAtom GetBeginAtom();
   vtkAtom GetEndAtom();
+  const vtkAtom GetBeginAtom() const;
+  const vtkAtom GetEndAtom() const;
 
   // Description:
   // Get the bond order for this bond.
@@ -69,7 +59,7 @@ public:
   //
   // @note This function is faster than vtkMolecule::GetBondLength and
   // should be used when possible.
-  double GetLength();
+  double GetLength() const;
 
 protected:
   friend class vtkMolecule;
@@ -82,5 +72,15 @@ protected:
   vtkIdType BeginAtomId;
   vtkIdType EndAtomId;
 };
+
+inline vtkIdType vtkBond::GetId() const
+{
+  return this->Id;
+}
+
+inline vtkMolecule * vtkBond::GetMolecule()
+{
+  return this->Molecule;
+}
 
 #endif

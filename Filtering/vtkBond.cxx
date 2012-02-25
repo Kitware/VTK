@@ -48,7 +48,7 @@ void vtkBond::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-double vtkBond::GetLength()
+double vtkBond::GetLength() const
 {
   // Reimplement here to avoid the potential cost of building the EdgeList
   // (We already know the atomIds, no need to look them up)
@@ -59,6 +59,18 @@ double vtkBond::GetLength()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkBond::GetBeginAtomId() const
+{
+  return this->BeginAtomId;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBond::GetEndAtomId() const
+{
+  return this->EndAtomId;
+}
+
+//----------------------------------------------------------------------------
 vtkAtom vtkBond::GetBeginAtom()
 {
   return this->Molecule->GetAtom(this->BeginAtomId);
@@ -66,6 +78,18 @@ vtkAtom vtkBond::GetBeginAtom()
 
 //----------------------------------------------------------------------------
 vtkAtom vtkBond::GetEndAtom()
+{
+  return this->Molecule->GetAtom(this->EndAtomId);
+}
+
+//----------------------------------------------------------------------------
+const vtkAtom vtkBond::GetBeginAtom() const
+{
+  return this->Molecule->GetAtom(this->BeginAtomId);
+}
+
+//----------------------------------------------------------------------------
+const vtkAtom vtkBond::GetEndAtom() const
 {
   return this->Molecule->GetAtom(this->EndAtomId);
 }

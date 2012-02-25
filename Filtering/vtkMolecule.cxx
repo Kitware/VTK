@@ -399,8 +399,18 @@ void vtkMolecule::UpdateBondList()
   this->BondListIsDirty = false;
 }
 
-bool vtkMolecule::GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                                   const double normal[3], vtkPlane *plane)
+//----------------------------------------------------------------------------
+bool vtkMolecule::GetPlaneFromBond(const vtkBond &bond,
+                                   const vtkVector3f &normal,
+                                   vtkPlane *plane)
+{
+  return vtkMolecule::GetPlaneFromBond(bond.GetBeginAtom(), bond.GetEndAtom(),
+                                       normal, plane);
+}
+
+//----------------------------------------------------------------------------
+bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
+                                   const vtkVector3f &normal, vtkPlane *plane)
 {
   if (plane == NULL)
     {
@@ -409,7 +419,7 @@ bool vtkMolecule::GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
 
   vtkVector3f v(atom1.GetPosition() - atom2.GetPosition());
 
-  vtkVector3f n_i(vtkVector3d(normal).Cast<float>().GetData());
+  vtkVector3f n_i(normal);
   vtkVector3f unitV(v.Normalized());
 
   // Check if vectors are (nearly) parallel
@@ -427,10 +437,7 @@ bool vtkMolecule::GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
   // end vtkVector reimplementation TODO
 
   // Calculate actual normal:
-  // TODO Remove/restore this when subtraction is supported again
-  // vtkVector3d realNormal (n_i - proj);
-  vtkVector3f realNormal (n_i[0]-proj[0], n_i[1]-proj[1], n_i[2]-proj[2]);
-  // end vtkVector reimplementation TODO
+  vtkVector3f realNormal(n_i - proj);
 
   // Create plane:
   vtkVector3f pos(atom1.GetPosition());
