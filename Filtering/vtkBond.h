@@ -22,12 +22,10 @@
 #include "vtkAtom.h" // For vtkAtom
 
 class vtkMolecule;
-class vtkVector3d;
-class vtkVector3f;
 
 class VTK_FILTERING_EXPORT vtkBond
 {
- public:
+public:
   ~vtkBond();
   void PrintSelf(ostream &os, vtkIndent indent);
 
@@ -64,37 +62,16 @@ class VTK_FILTERING_EXPORT vtkBond
 
   // Description:
   // Get the bond order for this bond.
-  unsigned short GetBondOrder();
+  unsigned short GetOrder();
 
   // Description:
-  // Get the distance between the bonded atoms
+  // Get the distance between the bonded atoms.
   //
   // @note This function is faster than vtkMolecule::GetBondLength and
   // should be used when possible.
-  double GetBondLength();
+  double GetLength();
 
-  // Description:
-  // Get/Set the positions of the starting/ending atoms
-  void GetBeginAtomPosition(double pos[3]);
-  void SetBeginAtomPosition(const double pos[3]);
-  void GetEndAtomPosition(double pos[3]);
-  void SetEndAtomPosition(const double pos[3]);
-  void GetBeginAtomPosition(float pos[3]);
-  void SetBeginAtomPosition(const float pos[3]);
-  void GetEndAtomPosition(float pos[3]);
-  void SetEndAtomPosition(const float pos[3]);
-  void SetBeginAtomPosition(double x, double y, double z);
-  void SetEndAtomPosition(double x, double y, double z);
-  void SetBeginAtomPosition(const vtkVector3f &pos);
-  vtkVector3f GetBeginAtomPositionAsVector3f();
-  void SetEndAtomPosition(const vtkVector3f &pos);
-  vtkVector3f GetEndAtomPositionAsVector3f();
-  void SetBeginAtomPosition(const vtkVector3d &pos);
-  vtkVector3d GetBeginAtomPositionAsVector3d();
-  void SetEndAtomPosition(const vtkVector3d &pos);
-  vtkVector3d GetEndAtomPositionAsVector3d();
-
- protected:
+protected:
   friend class vtkMolecule;
 
   vtkBond(vtkMolecule *parent, vtkIdType id,

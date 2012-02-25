@@ -98,9 +98,9 @@ int vtkMoleculeToBondStickFilter::RequestData(
     {
     // Extract bond info
     vtkBond bond = input->GetBond(bondInd);
-    bondOrder = bond.GetBondOrder();
-    bond.GetBeginAtomPosition(pos1);
-    bond.GetEndAtomPosition(pos2);
+    bondOrder = bond.GetOrder();
+    bond.GetBeginAtom().GetPosition(pos1);
+    bond.GetEndAtom().GetPosition(pos2);
 
     // Compute additional bond info
     // - Normalized vector in direction of bond

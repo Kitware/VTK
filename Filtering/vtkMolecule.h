@@ -93,36 +93,21 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   // a vtkAtom that refers to the new atom.
   vtkAtom AppendAtom()
   {
-    const double pos[3] = {0.0, 0.0, 0.0};
-    return this->AppendAtom(0, pos);
+    return this->AppendAtom(0, vtkVector3f(0, 0, 0));
   }
 
   // Description:
-  // Add new atom with the specified atomic number and
-  // position. Return a vtkAtom that refers to the new atom.
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const vtkVector3d &pos)
+  // Add new atom with the specified atomic number and position. Return a
+  // vtkAtom that refers to the new atom.
+  vtkAtom AppendAtom(unsigned short atomicNumber, const vtkVector3f &pos);
+
+  // Description:
+  // Convenience methods to append a new atom with the specified atomic number
+  // and position.
+  vtkAtom AppendAtom(unsigned short atomicNumber, double x, double y, double z)
   {
-    return this->AppendAtom(atomicNumber, pos.GetData());
+    return this->AppendAtom(atomicNumber, vtkVector3f(x, y, z));
   }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const vtkVector3f &pos)
-  {
-    return this->AppendAtom(atomicNumber, pos.GetData());
-  }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     double x, double y, double z)
-  {
-    double pos[3];
-    pos[0] = x;
-    pos[1] = y;
-    pos[2] = z;
-    return this->AppendAtom(atomicNumber, pos);
-  }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const float pos[3]);
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const double pos[3]);
 
   // Description:
   // Return a vtkAtom that refers to the atom with the specified id.
@@ -163,32 +148,14 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
                            unsigned short atomicNum);
 
   // Description:
-  // Get/Set the position of the atom with the specified id
-  void GetAtomPosition(vtkIdType atomId, double pos[3]);
-  void SetAtomPosition(vtkIdType atomId, const double pos[3]);
-  void GetAtomPosition(vtkIdType atomId, float pos[3]);
-  void SetAtomPosition(vtkIdType atomId, const float pos[3]);
+  // Set the position of the atom with the specified id.
+  void SetAtomPosition(vtkIdType atomId, const vtkVector3f &pos);
   void SetAtomPosition(vtkIdType atomId, double x, double y, double z);
-  vtkVector3d GetAtomPositionAsVector3d(vtkIdType atomId)
-  {
-    double pos[3];
-    this->GetAtomPosition(atomId, pos);
-    return vtkVector3d(pos);
-  }
-  void SetAtomPosition(vtkIdType atomId, const vtkVector3d &pos)
-  {
-    return this->SetAtomPosition(atomId, pos.GetData());
-  }
-  vtkVector3f GetAtomPositionAsVector3f(vtkIdType atomId)
-  {
-    float pos[3];
-    this->GetAtomPosition(atomId, pos);
-    return vtkVector3f(pos);
-  }
-  void SetAtomPosition(vtkIdType atomId, const vtkVector3f &pos)
-  {
-    return this->SetAtomPosition(atomId, pos.GetData());
-  }
+
+  // Description:
+  // Get the position of the atom with the specified id.
+  vtkVector3f GetAtomPosition(vtkIdType atomId);
+  void GetAtomPosition(vtkIdType atomId, float pos[3]);
 
   // Description
   // Get/Set the bond order of the bond with the specified id

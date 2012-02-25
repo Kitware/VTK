@@ -54,27 +54,24 @@ void vtkAtom::SetAtomicNumber(unsigned short atomicNum)
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::GetPosition(double pos[3])
-{
-  return this->Molecule->GetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkAtom::SetPosition(const double pos[3])
-{
-  this->Molecule->SetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
 void vtkAtom::GetPosition(float pos[3])
 {
   this->Molecule->GetAtomPosition(this->Id, pos);
 }
 
 //----------------------------------------------------------------------------
+void vtkAtom::GetPosition(double pos[3])
+{
+  vtkVector3f position = this->GetPosition();
+  pos[0] = position.X();
+  pos[1] = position.Y();
+  pos[2] = position.Z();
+}
+
+//----------------------------------------------------------------------------
 void vtkAtom::SetPosition(const float pos[3])
 {
-  this->Molecule->SetAtomPosition(this->Id, pos);
+  this->Molecule->SetAtomPosition(this->Id, vtkVector3f(pos));
 }
 
 //----------------------------------------------------------------------------
@@ -86,7 +83,7 @@ void vtkAtom::SetPosition(float x, float y, float z)
 //----------------------------------------------------------------------------
 vtkVector3f vtkAtom::GetPosition()
 {
-  return this->Molecule->GetAtomPositionAsVector3f(this->Id);
+  return this->Molecule->GetAtomPosition(this->Id);
 }
 
 //----------------------------------------------------------------------------

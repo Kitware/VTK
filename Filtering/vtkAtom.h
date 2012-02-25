@@ -52,9 +52,8 @@ class VTK_FILTERING_EXPORT vtkAtom
 
   // Description:
   // Get/Set the position of this atom
-  void GetPosition(double pos[3]);
-  void SetPosition(const double pos[3]);
   void GetPosition(float pos[3]);
+  void GetPosition(double pos[3]);
   void SetPosition(const float pos[3]);
   void SetPosition(float x, float y, float z);
   vtkVector3f GetPosition();
