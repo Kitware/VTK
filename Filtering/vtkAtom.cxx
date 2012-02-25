@@ -38,7 +38,7 @@ void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Molecule: " << this->Molecule
      << " Id: " << this->Id
      << " Element: " << this->GetAtomicNumber()
-     << " Position: " << this->GetPositionAsVector3f() << endl;
+     << " Position: " << this->GetPosition() << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -84,25 +84,13 @@ void vtkAtom::SetPosition(float x, float y, float z)
 }
 
 //----------------------------------------------------------------------------
-vtkVector3f vtkAtom::GetPositionAsVector3f()
+vtkVector3f vtkAtom::GetPosition()
 {
   return this->Molecule->GetAtomPositionAsVector3f(this->Id);
 }
 
 //----------------------------------------------------------------------------
 void vtkAtom::SetPosition(const vtkVector3f &pos)
-{
-  this->Molecule->SetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3d vtkAtom::GetPositionAsVector3d()
-{
-  return this->Molecule->GetAtomPositionAsVector3d(this->Id);
-}
-
-//----------------------------------------------------------------------------
-void vtkAtom::SetPosition(const vtkVector3d &pos)
 {
   this->Molecule->SetAtomPosition(this->Id, pos);
 }

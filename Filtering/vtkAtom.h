@@ -57,10 +57,8 @@ class VTK_FILTERING_EXPORT vtkAtom
   void GetPosition(float pos[3]);
   void SetPosition(const float pos[3]);
   void SetPosition(float x, float y, float z);
-  vtkVector3f GetPositionAsVector3f();
+  vtkVector3f GetPosition();
   void SetPosition(const vtkVector3f &pos);
-  vtkVector3d GetPositionAsVector3d();
-  void SetPosition(const vtkVector3d &pos);
 
  protected:
   friend class vtkMolecule;

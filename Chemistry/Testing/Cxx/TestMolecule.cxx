@@ -39,8 +39,8 @@ bool MoleculeExampleCode1()
   vtkBond b  = mol->AppendBond(h1, h2, 1);
 
   TEST(fabs(b.GetBondLength() - 1.0) < 1e-8);
-  TEST(h1.GetPositionAsVector3d().Compare(vtkVector3d(0.0, 0.0,-0.5), 1e-8));
-  TEST(h2.GetPositionAsVector3d().Compare(vtkVector3d(0.0, 0.0, 0.5), 1e-8));
+  TEST(h1.GetPosition().Compare(vtkVector3f(0.0, 0.0,-0.5), 1e-8));
+  TEST(h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8));
   TEST(h1.GetAtomicNumber() == 1);
   TEST(h2.GetAtomicNumber() == 1);
 
@@ -61,14 +61,14 @@ bool MoleculeExampleCode2()
 
   vtkAtom h2 = mol->AppendAtom();
   h2.SetAtomicNumber(1);
-  vtkVector3d displacement (0.0, 0.0, 1.0);
-  h2.SetPosition(h1.GetPositionAsVector3d() + displacement);
+  vtkVector3f displacement(0.0, 0.0, 1.0);
+  h2.SetPosition(h1.GetPosition() + displacement);
 
   vtkBond b  = mol->AppendBond(h1, h2, 1);
 
   TEST(fabs(b.GetBondLength() - 1.0) < 1e-8);
-  TEST(h1.GetPositionAsVector3d().Compare(vtkVector3d(0.0, 0.0,-0.5), 1e-8));
-  TEST(h2.GetPositionAsVector3d().Compare(vtkVector3d(0.0, 0.0, 0.5), 1e-8));
+  TEST(h1.GetPosition().Compare(vtkVector3f(0.0, 0.0,-0.5), 1e-8));
+  TEST(h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8));
   TEST(h1.GetAtomicNumber() == 1);
   TEST(h2.GetAtomicNumber() == 1);
 
