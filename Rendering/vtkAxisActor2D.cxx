@@ -24,6 +24,9 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
+#include <cmath>
+#include <limits>
+
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
