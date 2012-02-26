@@ -438,62 +438,69 @@ vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
   return this->ActivePlot;
 }
 
-void vtkScatterPlotMatrix::UpdateAnimationPath(
-  const vtkVector2i& newActivePos)
+void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
 {
   this->Private->AnimationPath.clear();
-  if(newActivePos[0] != this->ActivePlot[0] ||
-    newActivePos[1] != this->ActivePlot[1])
+  if (newActivePos[0] != this->ActivePlot[0] ||
+      newActivePos[1] != this->ActivePlot[1])
     {
-    if(newActivePos[1] >= this->ActivePlot[1])
+    if (newActivePos[1] >= this->ActivePlot[1])
       {
       // x direction first
-      if(this->ActivePlot[0]>newActivePos[0])
+      if (this->ActivePlot[0]>newActivePos[0])
         {
-        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
-          this->Private->AnimationPath.push_back(
-          vtkVector2i(r, this->ActivePlot[1]));
+        for(int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
+          {
+          this->Private->AnimationPath.push_back(vtkVector2i(r,
+                                                             this->ActivePlot[1]));
+          }
         }
       else
         {
-        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
-          this->Private->AnimationPath.push_back(
-          vtkVector2i(r, this->ActivePlot[1]));
+        for (int r = this->ActivePlot[0] + 1; r <= newActivePos[0]; r++)
+          {
+          this->Private->AnimationPath.push_back(vtkVector2i(r,
+                                                             this->ActivePlot[1]));
+          }
         }
       // then y direction
-      for(int c=this->ActivePlot[1]+1; c<=newActivePos[1]; c++)
-        this->Private->AnimationPath.push_back(
-          vtkVector2i(newActivePos[0], c));
+      for (int c = this->ActivePlot[1] + 1; c <= newActivePos[1]; c++)
+        {
+        this->Private->AnimationPath.push_back(vtkVector2i(newActivePos[0], c));
+        }
       }
     else
       {
       // y direction first
-      for(int c=this->ActivePlot[1]-1; c>=newActivePos[1]; c--)
-        this->Private->AnimationPath.push_back(
-        vtkVector2i(this->ActivePlot[0], c));       
-      // then x direction
-      if(this->ActivePlot[0]>newActivePos[0])
+      for (int c = this->ActivePlot[1] - 1; c >= newActivePos[1]; c--)
         {
-        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
-          this->Private->AnimationPath.push_back(
-          vtkVector2i(r, newActivePos[1]));
+        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0],
+                                                           c));
+        }
+      // then x direction
+      if (this->ActivePlot[0]>newActivePos[0])
+        {
+        for (int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
+          {
+          this->Private->AnimationPath.push_back(vtkVector2i(r,
+                                                             newActivePos[1]));
+          }
         }
       else
         {
-        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
-          this->Private->AnimationPath.push_back(
-          vtkVector2i(r, newActivePos[1]));
+        for (int r = this->ActivePlot[0] + 1; r <= newActivePos[0]; r++)
+          {
+          this->Private->AnimationPath.push_back(vtkVector2i(r, newActivePos[1]));
+          }
         }
       }
     }
 }
-
-void vtkScatterPlotMatrix::StartAnimation(
-  vtkRenderWindowInteractor* interactor)
+void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
 {
   for(std::vector<vtkVector2i>::iterator iter =
-    this->Private->AnimationPath.begin();
-    iter != this->Private->AnimationPath.end(); iter++)
+      this->Private->AnimationPath.begin();
+      iter != this->Private->AnimationPath.end(); iter++)
     {
     this->SetActivePlot(*iter);
     this->GetScene()->SetDirty(true);
