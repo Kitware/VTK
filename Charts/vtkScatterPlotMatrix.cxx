@@ -402,7 +402,19 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
         if (xy)
           {
+          // Set plot corner, and axis visibility
           xy->SetPlotCorner(plot, 2);
+          xy->SetAutoAxes(false);
+          xy->GetAxis(vtkAxis::TOP)->SetVisible(true);
+          xy->GetAxis(vtkAxis::RIGHT)->SetVisible(true);
+          xy->GetAxis(vtkAxis::BOTTOM)->SetLabelsVisible(false);
+          xy->GetAxis(vtkAxis::BOTTOM)->SetGridVisible(false);
+          xy->GetAxis(vtkAxis::BOTTOM)->SetTicksVisible(false);
+          xy->GetAxis(vtkAxis::BOTTOM)->SetVisible(true);
+          xy->GetAxis(vtkAxis::LEFT)->SetLabelsVisible(false);
+          xy->GetAxis(vtkAxis::LEFT)->SetGridVisible(false);
+          xy->GetAxis(vtkAxis::LEFT)->SetTicksVisible(false);
+          xy->GetAxis(vtkAxis::LEFT)->SetVisible(true);
           }
         if (xy && active)
           {
@@ -430,6 +442,10 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
       this->Private->BigChart->SetBackgroundBrush(
             this->Private->ChartSettings[ACTIVEPLOT]
             ->BackgroundBrush.GetPointer());
+      this->Private->BigChart->GetAxis(vtkAxis::TOP)->SetTitle(
+            this->VisibleColumns->GetValue(pos.X()));
+      this->Private->BigChart->GetAxis(vtkAxis::RIGHT)->SetTitle(
+            this->VisibleColumns->GetValue(this->GetSize().X() - pos.Y() - 1));
       // Calculate the ideal range.
       this->Private->BigChart->RecalculateBounds();
       }
