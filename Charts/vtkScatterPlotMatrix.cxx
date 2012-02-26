@@ -35,6 +35,7 @@
 #include "vtkTextProperty.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkCallbackCommand.h"
 
 // STL includes
 #include <map>
@@ -44,7 +45,8 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true), BigChart(NULL)
+  PIMPL() : VisibleColumnsModified(true), BigChart(NULL), TimerId(0),
+    TimerCallbackInitialized(false), AnimationCallbackInitialized(false)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
     scatterplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
@@ -155,7 +157,13 @@ public:
 
   vtkNew<vtkBrush> SelectedRowColumnBGBrush;
   vtkNew<vtkBrush> SelectedChartBGBrush;
-  std::vector< vtkVector2i > AnimationPath;
+  std::vector<vtkVector2i>           AnimationPath;
+  std::vector<vtkVector2i>::iterator AnimationIter;
+  vtkRenderWindowInteractor* Interactor;
+  vtkNew<vtkCallbackCommand> AnimationCallback;
+  bool                       AnimationCallbackInitialized;
+  unsigned long int          TimerId;
+  bool                       TimerCallbackInitialized;
 };
 
 namespace
@@ -496,15 +504,70 @@ void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
       }
     }
 }
+
 void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
 {
-  for(std::vector<vtkVector2i>::iterator iter =
-      this->Private->AnimationPath.begin();
-      iter != this->Private->AnimationPath.end(); iter++)
+  // Start a simple repeating timer to advance along the path until completion.
+  if (!this->Private->TimerCallbackInitialized && interactor)
     {
-    this->SetActivePlot(*iter);
+    if (!this->Private->AnimationCallbackInitialized)
+      {
+      this->Private->AnimationCallback->SetClientData(this);
+      this->Private->AnimationCallback->SetCallback(
+            vtkScatterPlotMatrix::ProcessEvents);
+      interactor->AddObserver(vtkCommand::TimerEvent,
+                              this->Private->AnimationCallback.GetPointer(),
+                              0);
+      this->Private->Interactor = interactor;
+      this->Private->AnimationCallbackInitialized = true;
+      }
+    this->Private->TimerCallbackInitialized = true;
+    this->Private->TimerId = interactor->CreateRepeatingTimer(1000 / 2);
+    this->Private->AnimationIter = this->Private->AnimationPath.begin();
+    }
+}
+
+void vtkScatterPlotMatrix::AdvanceAnimation()
+{
+  if (this->Private->AnimationIter != this->Private->AnimationPath.end())
+    {
+    this->SetActivePlot(*this->Private->AnimationIter);
     this->GetScene()->SetDirty(true);
-    interactor->Render();
+    ++this->Private->AnimationIter;
+    }
+  else
+    {
+    // Terminate the animation, and clean up.
+    this->Private->Interactor->DestroyTimer(this->Private->TimerId);
+    this->Private->TimerId = 0;
+    this->Private->TimerCallbackInitialized = false;
+    }
+}
+
+void vtkScatterPlotMatrix::ProcessEvents(vtkObject *caller, unsigned long event,
+                                         void *clientData, void *callerData)
+{
+  vtkScatterPlotMatrix *self =
+      reinterpret_cast<vtkScatterPlotMatrix *>(clientData);
+  vtkRenderWindowInteractor *interactor =
+      reinterpret_cast<vtkRenderWindowInteractor *>(caller);
+  switch (event)
+    {
+    case vtkCommand::TimerEvent:
+      {
+      // We must filter the events to ensure we actually get the timer event we
+      // created. I would love signals and slots...
+      unsigned long int id = interactor->GetTimerEventId(); // broken???
+      int timerId = *reinterpret_cast<int *>(callerData);   // Seems to work.
+      if (self->Private->TimerCallbackInitialized &&
+          timerId == self->Private->TimerId)
+        {
+        self->AdvanceAnimation();
+        }
+      break;
+      }
+    default:
+      break;
     }
 }
 

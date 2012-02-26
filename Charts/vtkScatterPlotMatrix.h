@@ -279,8 +279,18 @@ protected:
   // animation path calculated above.
   virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
 
+  // Description:
+  // Advance the animation in response to the timer events.
+  virtual void AdvanceAnimation();
+
+  // Description:
+  // Process events and dispatch to the appropriate member functions.
+  static void ProcessEvents(vtkObject *caller, unsigned long event,
+                            void *clientData, void *callerData);
+
   class PIMPL;
   PIMPL *Private;
+  friend class PIMPL;
 
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
