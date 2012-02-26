@@ -74,7 +74,13 @@ public:
   // Description:
   // Get the active AnnotationLink from the big chart, which
   // is the only active AnnotationLink in the matrix.
-  vtkAnnotationLink* GetActiveAnnotationLink();
+  // @deprecated Replaced by GetAnnotationLink(), never in a VTK release.
+  VTK_LEGACY(vtkAnnotationLink* GetActiveAnnotationLink());
+
+  // Description:
+  // Get the AnnotationLink for the scatter plot matrix, this gives you access
+  // to the currently selected points in the scatter plot matrix.
+  vtkAnnotationLink* GetAnnotationLink();
 
   // Description:
   // Set the input table for the scatter plot matrix. This will cause all
