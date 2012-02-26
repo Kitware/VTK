@@ -37,7 +37,17 @@ public:
   {
   }
 
-  vtkVector(const T* init) : vtkTuple<T, Size>(init)
+  // Description:
+  // Initialize all of the vector's elements with the supplied scalar.
+  explicit vtkVector(const T& scalar) : vtkTuple<T, Size>(scalar)
+  {
+  }
+
+  // Description:
+  // Initalize the vector's elements with the elements of the supplied array.
+  // Note that the supplied pointer must contain at least as many elements as
+  // the vector, or it will result in access to out of bounds memory.
+  explicit vtkVector(const T* init) : vtkTuple<T, Size>(init)
   {
   }
 
@@ -116,14 +126,22 @@ template<typename T>
 class vtkVector2 : public vtkVector<T, 2>
 {
 public:
-  vtkVector2(const T& x = 0, const T& y = 0)
+  vtkVector2()
   {
-    this->Data[0] = x;
-    this->Data[1] = y;
+  }
+
+  explicit vtkVector2(const T& scalar) : vtkVector<T, 2>(scalar)
+  {
   }
 
   explicit vtkVector2(const T* init) : vtkVector<T, 2>(init)
   {
+  }
+
+  vtkVector2(const T& x, const T& y)
+  {
+    this->Data[0] = x;
+    this->Data[1] = y;
   }
 
   // Description:
@@ -159,14 +177,24 @@ template<typename T>
 class vtkVector3 : public vtkVector<T, 3>
 {
 public:
-  vtkVector3(const T& x = 0, const T& y = 0, const T& z = 0)
+  vtkVector3()
+  {
+  }
+
+  explicit vtkVector3(const T& scalar) : vtkVector<T, 3>(scalar)
+  {
+  }
+
+  explicit vtkVector3(const T* init) : vtkVector<T, 3>(init)
+  {
+  }
+
+  vtkVector3(const T& x, const T& y, const T& z)
   {
     this->Data[0] = x;
     this->Data[1] = y;
     this->Data[2] = z;
   }
-
-  explicit vtkVector3(const T* init) : vtkVector<T, 3>(init) { }
 
   // Description:
   // Set the x, y and z components of the vector.
@@ -233,7 +261,9 @@ vtkVectorNormalized(vectorType, type, size) \
 class vtkVector2i : public vtkVector2<int>
 {
 public:
-  vtkVector2i(int x = 0, int y = 0) : vtkVector2<int>(x, y) {}
+  vtkVector2i() {}
+  vtkVector2i(int x, int y) : vtkVector2<int>(x, y) {}
+  explicit vtkVector2i(int scalar) : vtkVector2<int>(scalar) {}
   explicit vtkVector2i(const int *init) : vtkVector2<int>(init) {}
   vtkVectorDerivedMacro(vtkVector2i, int, 2)
 };
@@ -241,15 +271,19 @@ public:
 class vtkVector2f : public vtkVector2<float>
 {
 public:
-  vtkVector2f(float x = 0.0, float y = 0.0) : vtkVector2<float>(x, y) {}
-  vtkVector2f(const float* i) : vtkVector2<float>(i) {}
+  vtkVector2f() {}
+  vtkVector2f(float x, float y) : vtkVector2<float>(x, y) {}
+  explicit vtkVector2f(float scalar) : vtkVector2<float>(scalar) {}
+  explicit vtkVector2f(const float* i) : vtkVector2<float>(i) {}
   vtkVectorDerivedMacro(vtkVector2f, float, 2)
 };
 
 class vtkVector2d : public vtkVector2<double>
 {
 public:
-  vtkVector2d(double x = 0.0, double y = 0.0) : vtkVector2<double>(x, y) {}
+  vtkVector2d() {}
+  vtkVector2d(double x, double y) : vtkVector2<double>(x, y) {}
+  explicit vtkVector2d(double scalar) : vtkVector2<double>(scalar) {}
   explicit vtkVector2d(const double *init) : vtkVector2<double>(init) {}
   vtkVectorDerivedMacro(vtkVector2d, double, 2)
 };
@@ -263,7 +297,9 @@ vectorType Cross(const vectorType& other) \
 class vtkVector3i : public vtkVector3<int>
 {
 public:
-  vtkVector3i(int x = 0, int y = 0, int z = 0) : vtkVector3<int>(x, y, z) {}
+  vtkVector3i() {}
+  vtkVector3i(int x, int y, int z) : vtkVector3<int>(x, y, z) {}
+  explicit vtkVector3i(int scalar) : vtkVector3<int>(scalar) {}
   explicit vtkVector3i(const int *init) : vtkVector3<int>(init) {}
   vtkVectorDerivedMacro(vtkVector3i, int, 3)
   vtkVector3Cross(vtkVector3i, int)
@@ -272,8 +308,9 @@ public:
 class vtkVector3f : public vtkVector3<float>
 {
 public:
-  vtkVector3f(float x = 0.0, float y = 0.0, float z = 0.0)
-    : vtkVector3<float>(x, y, z) {}
+  vtkVector3f() {}
+  vtkVector3f(float x, float y, float z) : vtkVector3<float>(x, y, z) {}
+  explicit vtkVector3f(float scalar) : vtkVector3<float>(scalar) {}
   explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
   vtkVectorDerivedMacro(vtkVector3f, float, 3)
   vtkVector3Cross(vtkVector3f, float)
@@ -282,8 +319,9 @@ public:
 class vtkVector3d : public vtkVector3<double>
 {
 public:
-  vtkVector3d(double x = 0.0, double y = 0.0, double z = 0.0)
-    : vtkVector3<double>(x, y, z) {}
+  vtkVector3d() {}
+  vtkVector3d(double x, double y, double z) : vtkVector3<double>(x, y, z) {}
+  explicit vtkVector3d(double scalar) : vtkVector3<double>(scalar) {}
   explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)

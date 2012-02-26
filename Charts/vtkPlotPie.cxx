@@ -202,7 +202,7 @@ vtkColorSeries *vtkPlotPie::GetColorSeries()
 //-----------------------------------------------------------------------------
 vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
                                       const vtkVector2f&,
-                                      vtkVector2f* values)
+                                      vtkVector2f*)
 {
   float x = point.X() - this->Private->CenterX;
   float y = point.Y() - this->Private->CenterY;
@@ -218,17 +218,10 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
     float *lbound = std::lower_bound(angles,
                                      angles + (this->Points->GetNumberOfPoints() * 2),
                                      pointAngle);
-    int ret = lbound - angles;  // Location in the array
-    ret = ret / 2;              // There are two of each angle in the array (start,end for each point)
-
-    vtkDataArray* data = this->Data->GetInputArrayToProcess(0,
-                                                            this->Data->GetInput());
-
-    if (data)
-      {
-      *values = static_cast<float>(*data->GetTuple(ret));
-      }
-
+    // Location in the array
+    int ret = lbound - angles;
+    // There are two of each angle in the array (start,end for each point)
+    ret = ret / 2;
     return ret;
     }
 
