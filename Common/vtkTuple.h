@@ -27,6 +27,10 @@ template<typename T, int Size>
 class vtkTuple
 {
 public:
+  // Description:
+  // The default constructor does not initialize values. If initializtion is
+  // desired, this should be done explicitly using the constructors for scalar
+  // initialization, or other suitable constructors taking arguments.
   vtkTuple()
   {
   }
