@@ -99,6 +99,8 @@ protected Q_SLOTS:
   virtual void SupportsOpenGL(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data);
 
 protected:
+  // overloaded initialize handler
+  virtual void initializeGL();
   // overloaded resize handler
   virtual void resizeGL(int, int);
   // overloaded paint handler
