@@ -19,6 +19,7 @@
 #include "vtkDataObject.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkSmartPointer.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
@@ -62,8 +63,6 @@ int vtkMassProperties::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed( outputVector ))
 {
-  vtkIdList *ptIds;
-
   vtkInformation *inInfo =
     inputVector[0]->GetInformationObject(0);
 
@@ -82,7 +81,7 @@ int vtkMassProperties::RequestData(
     return 1;
     }
 
-  ptIds = vtkIdList::New();
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->Allocate(VTK_CELL_SIZE);
 
   // Traverse all cells, obtaining node coordinates.
@@ -258,7 +257,6 @@ int vtkMassProperties::RequestData(
   this->VolumeProjected = volumeproj;
   this->NormalizedShapeIndex =
     (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
-  ptIds->Delete();
 
   return 1;
 }
