@@ -34,6 +34,7 @@ SET(Kit_SRCS
   vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
   vtkContext2D.cxx
+  vtkContext3D.cxx
   vtkContextActor.cxx
   vtkContextBufferId.cxx
   vtkContextClip.cxx

@@ -17,6 +17,8 @@
 #include "vtkContext2D.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkOpenGL2ContextDevice2D.h"
+
+#include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkTransform2D.h"
 
@@ -36,8 +38,6 @@ vtkCxxSetObjectMacro(vtkContextActor, Scene, vtkContextScene);
 //----------------------------------------------------------------------------
 vtkContextActor::vtkContextActor()
 {
-  this->Context = vtkContext2D::New();
-  this->Scene = vtkContextScene::New();
   this->Initialized = false;
 }
 
@@ -48,14 +48,10 @@ vtkContextActor::~vtkContextActor()
   if (this->Context)
     {
     this->Context->End();
-    this->Context->Delete();
-    this->Context = NULL;
     }
-
-  if (this->Scene)
+  if (this->Context3D)
     {
-    this->Scene->Delete();
-    this->Scene = NULL;
+    this->Context3D->End();
     }
 }
 

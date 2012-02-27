@@ -22,8 +22,10 @@
 #define __vtkContextActor_h
 
 #include "vtkProp.h"
+#include "vtkNew.h"  // For ivars
 
 class vtkContext2D;
+class vtkContext3D;
 class vtkContextScene;
 
 class VTK_CHARTS_EXPORT vtkContextActor : public vtkProp
@@ -44,11 +46,11 @@ public:
 
   // Description:
   // Set/Get the vtk2DPainter.
-  vtkGetObjectMacro(Context, vtkContext2D);
+  vtkGetNewMacro(Context, vtkContext2D)
 
   // Description:
   // Get the chart object for the Actor.
-  vtkGetObjectMacro(Scene, vtkContextScene);
+  vtkGetNewMacro(Scene, vtkContextScene)
 
   // Description:
   // Set the chart object for the Actor.
@@ -68,8 +70,9 @@ protected:
   // Initialize the actor - right now we just decide which device to initialize.
   void Initialize(vtkViewport* viewport);
 
-  vtkContextScene *Scene;
-  vtkContext2D *Context;
+  vtkNew<vtkContextScene> Scene;
+  vtkNew<vtkContext2D> Context;
+  vtkNew<vtkContext3D> Context3D;
   bool Initialized;
 
 private:
