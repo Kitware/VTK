@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkFloatArray.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
@@ -112,7 +113,8 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, const float pos[3])
+vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
+                                const vtkVector3f &pos)
 {
   vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
     (this->GetVertexData()->GetScalars());
@@ -123,27 +125,7 @@ vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, const float pos[3])
   this->AddVertexInternal(0, &id);
 
   atomicNums->InsertValue(id, atomicNumber);
-  vtkIdType coordID = this->Points->InsertNextPoint(pos);
-  (void)coordID;
-  assert("point ids synced with vertex ids" && coordID == id);
-
-  this->Modified();
-  return vtkAtom(this, id);
-}
-
-//----------------------------------------------------------------------------
-vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, const double pos[3])
-{
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
-    (this->GetVertexData()->GetScalars());
-
-  assert(atomicNums);
-
-  vtkIdType id;
-  this->AddVertexInternal(0, &id);
-
-  atomicNums->InsertValue(id, atomicNumber);
-  vtkIdType coordID = this->Points->InsertNextPoint(pos);
+  vtkIdType coordID = this->Points->InsertNextPoint(pos.GetData());
   (void)coordID;
   assert("point ids synced with vertex ids" && coordID == id);
 
@@ -188,35 +170,10 @@ void vtkMolecule::SetAtomAtomicNumber(vtkIdType id, unsigned short atomicNum)
 }
 
 //----------------------------------------------------------------------------
-void vtkMolecule::GetAtomPosition(vtkIdType id, double pos[3])
+void vtkMolecule::SetAtomPosition(vtkIdType id, const vtkVector3f &pos)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
-  this->Points->GetPoint(id, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkMolecule::SetAtomPosition(vtkIdType id, const double pos[3])
-{
-  assert(id >= 0 && id < this->GetNumberOfAtoms());
-  this->Points->SetPoint(id, pos);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkMolecule::GetAtomPosition(vtkIdType id, float pos[3])
-{
-  assert(id >= 0 && id < this->GetNumberOfAtoms());
-  double posd[3];
-  // There is no float overload of vtkPoints::GetPoint
-  this->Points->GetPoint(id, posd);
-  pos[0] = posd[0]; pos[1] = posd[1]; pos[2] = posd[2];
-}
-
-//----------------------------------------------------------------------------
-void vtkMolecule::SetAtomPosition(vtkIdType id, const float pos[3])
-{
-  assert(id >= 0 && id < this->GetNumberOfAtoms());
-  this->Points->SetPoint(id, pos);
+  this->Points->SetPoint(id, pos.GetData());
   this->Modified();
 }
 
@@ -226,6 +183,25 @@ void vtkMolecule::SetAtomPosition(vtkIdType id, double x, double y, double z)
   assert(id >= 0 && id < this->GetNumberOfAtoms());
   this->Points->SetPoint(id, x, y, z);
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
+{
+  assert(id >= 0 && id < this->GetNumberOfAtoms());
+  vtkFloatArray *positions = vtkFloatArray::SafeDownCast(this->Points->GetData());
+  assert(positions != NULL);
+  float *data = static_cast<float *>(positions->GetVoidPointer(id * 3));
+  return vtkVector3f(data);
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::GetAtomPosition(vtkIdType id, float pos[3])
+{
+  vtkVector3f position = this->GetAtomPosition(id);
+  pos[0] = position.X();
+  pos[1] = position.Y();
+  pos[2] = position.Z();
 }
 
 //----------------------------------------------------------------------------
@@ -305,8 +281,8 @@ double vtkMolecule::GetBondLength(vtkIdType bondId)
   vtkIdType *ids = bonds->GetPointer(bondId);
 
   // Get positions
-  vtkVector3d pos1 = this->GetAtomPositionAsVector3d(ids[0]);
-  vtkVector3d pos2 = this->GetAtomPositionAsVector3d(ids[1]);
+  vtkVector3f pos1 = this->GetAtomPosition(ids[0]);
+  vtkVector3f pos2 = this->GetAtomPosition(ids[1]);
 
   return (pos2 - pos1).Norm();
 }
@@ -423,47 +399,49 @@ void vtkMolecule::UpdateBondList()
   this->BondListIsDirty = false;
 }
 
-bool vtkMolecule::GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                                   const double normal[3], vtkPlane *plane)
+//----------------------------------------------------------------------------
+bool vtkMolecule::GetPlaneFromBond(const vtkBond &bond,
+                                   const vtkVector3f &normal,
+                                   vtkPlane *plane)
+{
+  return vtkMolecule::GetPlaneFromBond(bond.GetBeginAtom(), bond.GetEndAtom(),
+                                       normal, plane);
+}
+
+//----------------------------------------------------------------------------
+bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
+                                   const vtkVector3f &normal, vtkPlane *plane)
 {
   if (plane == NULL)
+    {
     return false;
+    }
 
-  // TODO Remove or restore this when subtracting vectors is supported again
-  // vtkVector3d v (atom1.GetPositionAsVector3d() -
-  //                atom2.GetPositionAsVector3d());
-  double pos1[3];
-  double pos2[3];
-  atom1.GetPosition(pos1);
-  atom2.GetPosition(pos2);
-  vtkVector3d v (pos1[0] - pos2[0], pos1[1] - pos2[1], pos1[2] - pos2[2]);
-  // end vtkVector reimplementation TODO
+  vtkVector3f v(atom1.GetPosition() - atom2.GetPosition());
 
-  vtkVector3d n_i (normal);
-  vtkVector3d unitV (v.Normalized());
+  vtkVector3f n_i(normal);
+  vtkVector3f unitV(v.Normalized());
 
   // Check if vectors are (nearly) parallel
   if (unitV.Compare(n_i.Normalized(), 1e-7))
+    {
     return false;
+    }
 
   // calculate projection of n_i onto v
   // TODO Remove or restore this when scalar mult. is supported again
   // vtkVector3d proj (unitV * n_i.Dot(unitV));
   double n_iDotUnitV = n_i.Dot(unitV);
-  vtkVector3d proj (unitV[0] * n_iDotUnitV, unitV[1] * n_iDotUnitV,
+  vtkVector3f proj (unitV[0] * n_iDotUnitV, unitV[1] * n_iDotUnitV,
                     unitV[2] * n_iDotUnitV);
   // end vtkVector reimplementation TODO
 
   // Calculate actual normal:
-  // TODO Remove/restore this when subtraction is supported again
-  // vtkVector3d realNormal (n_i - proj);
-  vtkVector3d realNormal (n_i[0]-proj[0], n_i[1]-proj[1], n_i[2]-proj[2]);
-  // end vtkVector reimplementation TODO
+  vtkVector3f realNormal(n_i - proj);
 
   // Create plane:
-  double pos[3];
-  atom1.GetPosition(pos);
-  plane->SetOrigin(pos);
-  plane->SetNormal(realNormal.GetData());
+  vtkVector3f pos(atom1.GetPosition());
+  plane->SetOrigin(pos.Cast<double>().GetData());
+  plane->SetNormal(realNormal.Cast<double>().GetData());
   return true;
 }
