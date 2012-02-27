@@ -741,7 +741,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
     return vtkVector2f();
     }
 
-  vtkVector2f p;
+  vtkVector2f p(0, 0);
   float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
 
   if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_LEFT)

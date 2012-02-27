@@ -257,7 +257,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     return false;
     }
 
-  vtkVector2i geometry;
+  vtkVector2i geometry(0, 0);
   bool recalculateTransform = false;
   if (this->LayoutStrategy == vtkChart::FILL_SCENE)
     {
@@ -801,7 +801,7 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
     }
 
   int padding = 10;
-  vtkVector2i legendSize;
+  vtkVector2i legendSize(0, 0);
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
   this->Legend->Update();
@@ -846,7 +846,7 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
 void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
 {
   // Put the legend in the top corner of the chart
-  vtkVector2f pos;
+  vtkVector2f pos(0, 0);
   int padding = 5;
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
