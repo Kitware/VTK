@@ -231,7 +231,7 @@ public:
   vtkColor4d() {}
   explicit vtkColor4d(double scalar) : vtkColor4<double>(scalar) {}
   explicit vtkColor4d(const double* init) : vtkColor4<double>(init) {}
-  vtkColor4d(double r, double g, double b, float a = 1.0)
+  vtkColor4d(double r, double g, double b, double a = 1.0)
     : vtkColor4<double>(r, g, b, a) {}
 };
 
