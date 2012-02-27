@@ -30,8 +30,11 @@ template<typename T>
 class vtkRect : public vtkVector<T, 4>
 {
 public:
-  vtkRect(const T& x = 0, const T& y = 0, const T& width = 0,
-          const T& height = 0 )
+  vtkRect()
+  {
+  }
+
+  vtkRect(const T& x, const T& y, const T& width, const T& height)
   {
     this->Data[0] = x;
     this->Data[1] = y;
@@ -92,7 +95,8 @@ public:
 class vtkRecti : public vtkRect<int>
 {
 public:
-  vtkRecti(int x = 0, int y = 0, int width = 0, int height = 0)
+  vtkRecti() {}
+  vtkRecti(int x, int y, int width, int height)
     : vtkRect<int>(x, y, width, height) {}
   explicit vtkRecti(const int *init) : vtkRect<int>(init) {}
 };
@@ -100,7 +104,8 @@ public:
 class vtkRectf : public vtkRect<float>
 {
 public:
-  vtkRectf(float x = 0.0, float y = 0.0, float width = 0.0, float height = 0.0)
+  vtkRectf() {}
+  vtkRectf(float x, float y, float width, float height)
     : vtkRect<float>(x, y, width, height) {}
   explicit vtkRectf(const float *init) : vtkRect<float>(init) {}
 };
@@ -108,8 +113,8 @@ public:
 class vtkRectd : public vtkRect<double>
 {
 public:
-  vtkRectd(double x = 0.0, double y = 0.0, double width = 0.0,
-           double height = 0.0)
+  vtkRectd() {}
+  vtkRectd(double x, double y, double width, double height)
     : vtkRect<double>(x, y, width, height) {}
   explicit vtkRectd(const double *init) : vtkRect<double>(init) {}
 };
