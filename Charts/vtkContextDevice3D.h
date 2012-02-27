@@ -29,11 +29,13 @@
 
 class vtkMatrix4x4;
 class vtkViewport;
+class vtkPen;
+class vtkBrush;
 
 class VTK_CHARTS_EXPORT vtkContextDevice3D : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkContextDevice3D, vtkObject)
+  vtkTypeMacro(vtkContextDevice3D, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -98,6 +100,13 @@ public:
   // End drawing, clean up the view.
   virtual void End() { }
 
+protected:
+  vtkContextDevice3D();
+  ~vtkContextDevice3D();
+
+private:
+  vtkContextDevice3D(const vtkContextDevice3D &); // Not implemented.
+  void operator=(const vtkContextDevice3D &);   // Not implemented.
 };
 
 #endif

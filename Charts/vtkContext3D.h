@@ -21,8 +21,8 @@
 // to facilitate the low level calls to the context. Currently only an OpenGL
 // based device is provided.
 
-#ifndef __vtkContext2D_h
-#define __vtkContext2D_h
+#ifndef __vtkContext3D_h
+#define __vtkContext3D_h
 
 #include "vtkObject.h"
 #include "vtkVector.h" // For the vector coordinates.
@@ -36,7 +36,7 @@ class vtkTransform;
 class VTK_CHARTS_EXPORT vtkContext3D : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkContext3D, vtkObject)
+  vtkTypeMacro(vtkContext3D, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:

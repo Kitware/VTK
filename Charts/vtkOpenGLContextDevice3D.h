@@ -24,11 +24,15 @@
 
 #include "vtkContextDevice3D.h"
 
+class vtkRenderer;
+
 class VTK_CHARTS_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
 public:
-  vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D)
+  vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D);
   void PrintSelf(ostream &os, vtkIndent indent);
+
+  static vtkOpenGLContextDevice3D * New();
 
   // Description:
   // Draw a line between the specified points.
@@ -86,6 +90,16 @@ public:
   // Description:
   // End drawing, clean up the view.
   virtual void End();
+
+protected:
+  vtkOpenGLContextDevice3D();
+  ~vtkOpenGLContextDevice3D();
+
+  // Description:
+  // We need to store a pointer to the renderer for the text rendering
+  vtkRenderer *Renderer;
+
+  bool InRender;
 
 private:
   vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.

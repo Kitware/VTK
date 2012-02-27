@@ -151,6 +151,11 @@ void vtkOpenGLContextDevice3D::GetMatrix(vtkMatrix4x4 *m)
 
 }
 
+void vtkOpenGLContextDevice3D::MultiplyMatrix(vtkMatrix4x4 *m)
+{
+
+}
+
 void vtkOpenGLContextDevice3D::PushMatrix()
 {
   glMatrixMode(GL_MODELVIEW);
@@ -234,21 +239,6 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
 
-  vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
-  if (gl)
-    {
-    this->RenderWindow = vtkOpenGLRenderWindow::SafeDownCast(
-        gl->GetRenderWindow());
-    }
-
-  if (!this->Storage->GLExtensionsLoaded)
-    {
-    if (this->RenderWindow)
-      {
-      this->LoadExtensions(this->RenderWindow->GetExtensionManager());
-      }
-    }
-
   // Enable simple line, point and polygon antialiasing if multisampling is on.
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
     {
@@ -260,7 +250,6 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
   this->InRender = true;
 }
 
-//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice3D::End()
 {
   if (!this->InRender)
@@ -285,10 +274,13 @@ void vtkOpenGLContextDevice3D::End()
     glDisable(GL_POLYGON_SMOOTH);
     }
 
-  this->RenderWindow = NULL;
   this->InRender = false;
 }
 
 vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D()
+{
+}
+
+vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
 {
 }

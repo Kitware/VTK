@@ -37,6 +37,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCallbackCommand.h"
 
+#include "vtkChartXYZ.h"
+
 // STL includes
 #include <map>
 #include <cassert>
@@ -164,6 +166,13 @@ public:
   bool                       AnimationCallbackInitialized;
   unsigned long int          TimerId;
   bool                       TimerCallbackInitialized;
+  int                        AnimationPhase;
+  float                      CurrentAngle;
+  float                      IncAngle;
+  float                      FinalAngle;
+  vtkVector2i                NextActivePlot;
+
+  vtkNew<vtkChartXYZ> BigChart3D;
 };
 
 namespace
@@ -538,13 +547,129 @@ void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
       this->Private->AnimationCallbackInitialized = true;
       }
     this->Private->TimerCallbackInitialized = true;
-    this->Private->TimerId = interactor->CreateRepeatingTimer(1000 / 2);
+    // This defines the interval at which the animation will proceed. 25Hz?
+    this->Private->TimerId = interactor->CreateRepeatingTimer(1000 / 50);
     this->Private->AnimationIter = this->Private->AnimationPath.begin();
+    this->Private->AnimationPhase = 0;
     }
 }
 
 void vtkScatterPlotMatrix::AdvanceAnimation()
 {
+  if (this->Private->AnimationIter == this->Private->AnimationPath.end())
+    {
+    // Terminate the animation, and clean up.
+    this->Private->Interactor->DestroyTimer(this->Private->TimerId);
+    this->Private->TimerId = 0;
+    this->Private->TimerCallbackInitialized = false;
+    return;
+    }
+
+  // The animation has several phases, and we must track where we are.
+
+  // 1: Remove decoration from the big chart.
+  // 2: Set three dimensions to plot in the BigChart3D.
+  // 3: Make BigChart inivisible, and BigChart3D visible.
+  // 4: Rotate between the two dimensions we are transitioning between.
+  //    -> Loop from start to end angle to complete the effect.
+  // 5: Make the new dimensionality active, update BigChart.
+  // 5: Make BigChart3D invisible and BigChart visible.
+  // 6: Stop the timer.
+
+  cout << "Animation Phase: " << this->Private->AnimationPhase << endl;
+
+  switch (this->Private->AnimationPhase)
+    {
+  case 0: // Remove decoration from the big chart, load up the 3D chart
+  {
+    this->Private->BigChart->GetAxis(vtkAxis::TOP)->SetLabelsVisible(false);
+    this->Private->BigChart->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(false);
+    this->Private->NextActivePlot = *this->Private->AnimationIter;
+    this->Private->BigChart3D->SetVisible(false);
+    vtkRectf size = this->Private->BigChart->GetSize();
+    cout << "Big chart dimensions: " << size.X() << ", "
+         << size.Y() << ", " << size.Width() << ", " << size.Height() << endl;
+    this->Private->BigChart3D->SetGeometry(size);
+    int yColumn = this->GetSize().Y() - this->ActivePlot.Y() - 1;
+
+    bool isX = false;
+    int zColumn = 0;
+    if (this->Private->NextActivePlot.Y() == this->ActivePlot.Y())
+      {
+      zColumn = this->Private->NextActivePlot.X();
+      isX = false;
+      if (this->ActivePlot.X() < zColumn)
+        {
+        this->Private->IncAngle = 1.0;
+        this->Private->FinalAngle = 90.0;
+        }
+      else
+        {
+        this->Private->IncAngle = -1.0;
+        this->Private->FinalAngle = -90.0;
+        }
+      }
+    else
+      {
+      zColumn = this->GetSize().Y() - this->Private->NextActivePlot.Y() - 1;
+      isX = true;
+      if (this->ActivePlot.Y() < zColumn)
+        {
+        this->Private->IncAngle = 1.0;
+        this->Private->FinalAngle = 90.0;
+        }
+      else
+        {
+        this->Private->IncAngle = -1.0;
+        this->Private->FinalAngle = -90.0;
+        }
+      }
+
+    this->Private->BigChart3D->SetAroundX(isX);
+    this->Private->BigChart3D->SetInput(this->Input.GetPointer(),
+                                        this->VisibleColumns->GetValue(
+                                          this->ActivePlot.X()),
+                                        this->VisibleColumns->GetValue(
+                                          yColumn),
+                                        this->VisibleColumns->GetValue(
+                                          zColumn));
+    this->GetScene()->SetDirty(true);
+    ++this->Private->AnimationPhase;
+    return;
+  }
+  case 1: // Make BigChart inivisible, and BigChart3D visible.
+    this->Private->BigChart->SetVisible(false);
+    this->AddItem(this->Private->BigChart3D.GetPointer());
+    this->Private->BigChart3D->SetVisible(true);
+    this->GetScene()->SetDirty(true);
+    ++this->Private->AnimationPhase;
+    this->Private->CurrentAngle = 0.0;
+    return;
+  case 2: // Rotation of the 3D chart from start to end angle.
+    if (fabs(this->Private->CurrentAngle) < 90)
+      {
+      this->Private->CurrentAngle += this->Private->IncAngle;
+      this->Private->BigChart3D->SetAngle(this->Private->CurrentAngle);
+      }
+    else
+      {
+      ++this->Private->AnimationPhase;
+      }
+    this->GetScene()->SetDirty(true);
+    return;
+  case 3: // Transition to new dimensionality, update the big chart.
+    this->SetActivePlot(this->Private->NextActivePlot);
+    this->GetScene()->SetDirty(true);
+    ++this->Private->AnimationIter;
+    this->Private->BigChart->SetVisible(true);
+    this->RemoveItem(this->Private->BigChart3D.GetPointer());
+    this->Private->BigChart3D->SetVisible(false);
+    this->GetScene()->SetDirty(true);
+    // Move to the next transition, top will catch it if we are done.
+    this->Private->AnimationPhase = 0;
+    return;
+    }
+/*
   if (this->Private->AnimationIter != this->Private->AnimationPath.end())
     {
     this->SetActivePlot(*this->Private->AnimationIter);
@@ -557,7 +682,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     this->Private->Interactor->DestroyTimer(this->Private->TimerId);
     this->Private->TimerId = 0;
     this->Private->TimerCallbackInitialized = false;
-    }
+    } */
 }
 
 void vtkScatterPlotMatrix::ProcessEvents(vtkObject *caller, unsigned long event,

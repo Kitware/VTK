@@ -23,6 +23,11 @@
 
 vtkStandardNewMacro(vtkContext3D)
 
+void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
+{
+
+}
+
 bool vtkContext3D::Begin(vtkContextDevice3D *device)
 {
   if (this->Device == device)

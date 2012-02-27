@@ -54,7 +54,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLContextDevice2D);
+vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
@@ -92,7 +92,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   float offset = 0.5;
   glOrtho(offset, vp[2]+offset-1.0,
           offset, vp[3]+offset-1.0,
-          -1, 1);
+          -2000, 2000);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
