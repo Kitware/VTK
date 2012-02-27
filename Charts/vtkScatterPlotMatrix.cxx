@@ -501,6 +501,7 @@ void vtkScatterPlotMatrix::StartAnimation(
     }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
 {
   // Never made it into a release, deprecating for shorter, more consistent
@@ -510,6 +511,7 @@ vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
                            vtkScatterPlotMatrix::GetAnnotationLink);
   return this->GetAnnotationLink();
 }
+#endif
 
 vtkAnnotationLink* vtkScatterPlotMatrix::GetAnnotationLink()
 {
