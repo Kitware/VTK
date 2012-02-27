@@ -38,7 +38,7 @@
 class vtkChartLegend::Private
 {
 public:
-  Private()
+  Private() : Point(0, 0)
   {
   }
   ~Private()

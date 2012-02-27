@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -44,8 +43,8 @@ vtkAxis::vtkAxis()
   this->Position = -1;
   this->Point1 = this->Position1.GetData();
   this->Point2 = this->Position2.GetData();
-  this->Position1.SetY(10.0);
-  this->Position2.SetY(10.0);
+  this->Position1.Set(0.0, 10.0);
+  this->Position2.Set(0.0, 10.0);
   this->TickInterval = 1.0;
   this->NumberOfTicks = -1;
   this->LabelProperties = vtkTextProperty::New();
