@@ -51,6 +51,7 @@ vtkChart::vtkChart()
   this->Point1[1] = 0;
   this->Point2[0] = 0;
   this->Point2[1] = 0;
+  this->Size.Set(0, 0, 0, 0);
   this->ShowLegend = false;
   this->TitleProperties = vtkTextProperty::New();
   this->TitleProperties->SetJustificationToCentered();

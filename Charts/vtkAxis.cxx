@@ -657,7 +657,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
   float widest = 0.0;
   // Second, calculate the tallest tick label
   float tallest = 0.0;
-  vtkRectf bounds;
+  vtkRectf bounds(0, 0, 0, 0);
   for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
     {
     painter->ApplyTextProp(this->LabelProperties);
@@ -670,7 +670,7 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
   this->MaxLabel[1] = tallest;
 
   // Then, if there is an axis label, add that in.
-  vtkRectf titleBounds;
+  vtkRectf titleBounds(0, 0, 0, 0);
   if (this->Title && !this->Title.empty())
     {
     painter->ApplyTextProp(this->TitleProperties);
