@@ -27,6 +27,26 @@
 
 vtkStandardNewMacro(vtkImplicitPlaneWidget2);
 
+// The implicit plane widget observes its representation. The representation
+// may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
+// is enabled.
+class vtkInteractionCallback : public vtkCommand
+{
+public:
+  static vtkInteractionCallback *New()
+    { return new vtkInteractionCallback; }
+  virtual void Execute(vtkObject*, unsigned long eventId, void*)
+    {
+      switch (eventId)
+        {
+        case vtkCommand::InteractionEvent:
+          this->ImplicitPlaneWidget->InvokeInteractionCallback();
+          break;
+        }
+    }
+  vtkImplicitPlaneWidget2 *ImplicitPlaneWidget;
+};
+
 //----------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
 {
@@ -54,11 +74,27 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkImplicitPlaneWidget2::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::AnyModifier, 60, 1, "less",
+                                          vtkWidgetEvent::Up,
+                                          this, vtkImplicitPlaneWidget2::MovePlaneAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::AnyModifier, 62, 1, "greater",
+                                          vtkWidgetEvent::Down,
+                                          this, vtkImplicitPlaneWidget2::MovePlaneAction);
+
+  this->InteractionCallback = vtkInteractionCallback::New();
+  this->InteractionCallback->ImplicitPlaneWidget = this;
 }
 
 //----------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::~vtkImplicitPlaneWidget2()
 {  
+  if ( this->WidgetRep )
+    {
+    this->WidgetRep->RemoveObserver(this->InteractionCallback);
+    }
+  this->InteractionCallback->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -235,6 +271,56 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
+void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
+{
+  vtkImplicitPlaneWidget2 *self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
+
+  reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
+    SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
+
+  int X = self->Interactor->GetEventPosition()[0];
+  int Y = self->Interactor->GetEventPosition()[1];
+  int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
+//   if ( interactionState == vtkImplicitPlaneRepresentation::Outside )
+//     {
+//     return;
+//     }
+
+  // Move the plane
+  double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
+  if ( self->Interactor->GetKeyCode() == '<' )
+    {
+    self->GetImplicitPlaneRepresentation()->BumpPlane(-1,factor);
+    }
+  else
+    {
+    self->GetImplicitPlaneRepresentation()->BumpPlane(1,factor);
+    }
+
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::UpdateEvent,NULL);
+  self->Render();
+}
+
+//----------------------------------------------------------------------
+void vtkImplicitPlaneWidget2::
+SetRepresentation(vtkImplicitPlaneRepresentation *r)
+{
+  // Add observer to support normal locking
+  if ( this->WidgetRep != NULL )
+    {
+    this->WidgetRep->RemoveObserver(this->InteractionCallback);
+    }
+  if ( r != NULL )
+    {
+    r->AddObserver(vtkCommand::InteractionEvent, this->InteractionCallback,
+                   this->Priority);
+    }
+
+  this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+}
+
+//----------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
@@ -265,6 +351,12 @@ int vtkImplicitPlaneWidget2::UpdateCursorShape( int state )
     }
 
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
+{
+  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 }
 
 //----------------------------------------------------------------------------

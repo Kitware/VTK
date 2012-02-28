@@ -99,6 +99,14 @@ public:
   vtkBooleanMacro(NormalToZAxis,int);
 
   // Description:
+  // If enabled, and a vtkCamera is available through the renderer, then
+  // SlaveNormalToCamera will cause the normal to follow the camera's
+  // notmal.
+  virtual void SetSlaveNormalToCamera(int);
+  vtkGetMacro(SlaveNormalToCamera,int);
+  vtkBooleanMacro(SlaveNormalToCamera,int);
+
+  // Description:
   // Turn on/off tubing of the wire outline of the plane. The tube thickens
   // the line by wrapping with a vtkTubeFilter.
   vtkSetMacro(Tubing,int);
@@ -178,6 +186,29 @@ public:
   vtkGetObjectMacro(EdgesProperty,vtkProperty);
 
   // Description:
+  // Specify a translation distance used by the BumpPlane() method. Note that the
+  // distance is normalized; it is the fraction of the length of the bounding
+  // box of the wire outline.
+  vtkSetClampMacro(BumpDistance,double,0.000001,1);
+  vtkGetMacro(BumpDistance,double);
+
+  // Description:
+  // Translate the plane in the direction of the normal by the
+  // specified BumpDistance.  The dir parameter controls which
+  // direction the pushing occurs, either in the same direction
+  // as the normal, or when negative, in the opposite direction.
+  // The factor controls whether what percentage of the bump is
+  // used.
+  void BumpPlane(int dir, double factor);
+
+  // Description:
+  // Push the plane the distance specified along the normal. Positive
+  // values are in the direction of the normal; negative values are
+  // in the opposite direction of the normal. The distance value is
+  // expressed in world coordinates.
+  void PushPlane(double distance);
+
+  // Description:
   // Methods to interface with the vtkSliderWidget.
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void PlaceWidget(double bounds[6]);
@@ -185,7 +216,6 @@ public:
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double newEventPos[2]);
   virtual void EndWidgetInteraction(double newEventPos[2]);
-
   // Decsription:
   // Methods supporting the rendering process.
   virtual double *GetBounds();
@@ -204,7 +234,6 @@ public:
     MovingOrigin,
     Rotating,
     Pushing,
-    MovingPlane,
     Scaling
   };
 //ETX
@@ -238,6 +267,13 @@ protected:
   int NormalToXAxis;
   int NormalToYAxis;
   int NormalToZAxis;
+
+  // Locking normal to camera
+  int SlaveNormalToCamera;
+  void UpdateSlavedNormal();
+
+  // Controlling the push operation
+  double BumpDistance;
 
   // The actual plane which is being manipulated
   vtkPlane *Plane;
