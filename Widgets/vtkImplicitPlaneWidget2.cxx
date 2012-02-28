@@ -17,6 +17,9 @@
 #include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStdString.h"
+#include "vtkCamera.h"
+#include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h" 
@@ -39,7 +42,7 @@ public:
     {
       switch (eventId)
         {
-        case vtkCommand::InteractionEvent:
+        case vtkCommand::ModifiedEvent:
           this->ImplicitPlaneWidget->InvokeInteractionCallback();
           break;
         }
@@ -75,11 +78,19 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
                                           vtkWidgetEvent::Move,
                                           this, vtkImplicitPlaneWidget2::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
-                                          vtkEvent::AnyModifier, 60, 1, "less",
+                                          vtkEvent::AnyModifier, 30, 1, "Up",
                                           vtkWidgetEvent::Up,
                                           this, vtkImplicitPlaneWidget2::MovePlaneAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
-                                          vtkEvent::AnyModifier, 62, 1, "greater",
+                                          vtkEvent::AnyModifier, 28, 1, "Right",
+                                          vtkWidgetEvent::Up,
+                                          this, vtkImplicitPlaneWidget2::MovePlaneAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::AnyModifier, 31, 1, "Down",
+                                          vtkWidgetEvent::Down,
+                                          this, vtkImplicitPlaneWidget2::MovePlaneAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::AnyModifier, 29, 1, "Left",
                                           vtkWidgetEvent::Down,
                                           this, vtkImplicitPlaneWidget2::MovePlaneAction);
 
@@ -90,10 +101,6 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
 //----------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::~vtkImplicitPlaneWidget2()
 {  
-  if ( this->WidgetRep )
-    {
-    this->WidgetRep->RemoveObserver(this->InteractionCallback);
-    }
   this->InteractionCallback->Delete();
 }
 
@@ -212,10 +219,10 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
   int changed = 0;
 
-  if (self->ManagesCursor)
+  if (self->ManagesCursor && self->WidgetState != vtkImplicitPlaneWidget2::Active)
     {
     int oldInteractionState = reinterpret_cast<vtkImplicitPlaneRepresentation*>(
-        self->WidgetRep)->GetInteractionState();
+      self->WidgetRep)->GetInteractionState();
 
     reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
@@ -223,6 +230,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
     changed = self->UpdateCursorShape(state);
     reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
       SetInteractionState(oldInteractionState);
+    changed = (changed || state != oldInteractionState) ? 1 : 0;
     }
 
   // See whether we're active
@@ -264,6 +272,10 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget *w)
   self->WidgetState = vtkImplicitPlaneWidget2::Start;
   self->ReleaseFocus();
 
+  // Update cursor if managed
+  self->UpdateCursorShape(reinterpret_cast<vtkImplicitPlaneRepresentation*>
+    (self->WidgetRep)->GetRepresentationState());
+
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -280,15 +292,12 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
 
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
-//   if ( interactionState == vtkImplicitPlaneRepresentation::Outside )
-//     {
-//     return;
-//     }
+  self->WidgetRep->ComputeInteractionState(X, Y);
 
   // Move the plane
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
-  if ( self->Interactor->GetKeyCode() == '<' )
+  if (vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Down") ||
+      vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Left"))
     {
     self->GetImplicitPlaneRepresentation()->BumpPlane(-1,factor);
     }
@@ -303,21 +312,19 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
-void vtkImplicitPlaneWidget2::
-SetRepresentation(vtkImplicitPlaneRepresentation *r)
+void vtkImplicitPlaneWidget2::SetEnabled(int enabling)
 {
-  // Add observer to support normal locking
-  if ( this->WidgetRep != NULL )
+  if(this->Enabled == enabling)
     {
-    this->WidgetRep->RemoveObserver(this->InteractionCallback);
-    }
-  if ( r != NULL )
-    {
-    r->AddObserver(vtkCommand::InteractionEvent, this->InteractionCallback,
-                   this->Priority);
+    return;
     }
 
-  this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  if(this->GetCurrentRenderer() && !enabling)
+    {
+    this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(this->InteractionCallback);
+    }
+
+  Superclass::SetEnabled(enabling);
 }
 
 //----------------------------------------------------------------------
@@ -327,6 +334,14 @@ void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
     {
     this->WidgetRep = vtkImplicitPlaneRepresentation::New();
     }
+}
+
+//----------------------------------------------------------------------
+void vtkImplicitPlaneWidget2::
+SetRepresentation(vtkImplicitPlaneRepresentation*rep)
+{
+  this->Superclass::SetWidgetRepresentation(
+    reinterpret_cast<vtkWidgetRepresentation*>(rep));
 }
 
 //----------------------------------------------------------------------
@@ -354,16 +369,56 @@ int vtkImplicitPlaneWidget2::UpdateCursorShape( int state )
 }
 
 //----------------------------------------------------------------------------
+void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
+{
+  if (!this->GetImplicitPlaneRepresentation() ||
+      !this->Enabled ||
+      !this->GetCurrentRenderer())
+    {
+    return;
+    }
+
+  this->GetImplicitPlaneRepresentation()->SetLockNormalToCamera(lock);
+
+  // We assume that the renderer of the Widget cannot be changed without
+  // previously being disabled.
+  if (lock)
+    {
+    // We Observe the Camera && make the update
+    this->GetCurrentRenderer()->GetActiveCamera()->AddObserver(
+      vtkCommand::ModifiedEvent, this->InteractionCallback, this->Priority);
+
+    this->GetImplicitPlaneRepresentation()->SetNormalToCamera();
+    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    }
+  else
+    {
+    this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(
+      this->InteractionCallback);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
 {
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  unsigned long previousMtime;
+  vtkImplicitPlaneRepresentation* widgetRep =
+      reinterpret_cast<vtkImplicitPlaneRepresentation*>(this->WidgetRep);
+
+  if(widgetRep->GetLockNormalToCamera())
+    {
+    previousMtime = widgetRep->GetMTime();
+    this->GetImplicitPlaneRepresentation()->SetNormalToCamera();
+
+    if(widgetRep->GetMTime() > previousMtime)
+      {
+      this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
 }
-
-

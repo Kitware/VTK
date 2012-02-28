@@ -55,6 +55,7 @@ class vtkPolyData;
 class vtkPolyDataAlgorithm;
 class vtkTransform;
 class vtkBox;
+class vtkLookupTable;
 
 class VTK_WIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
 {
@@ -79,6 +80,7 @@ public:
   // Get the normal to the plane.
   void SetNormal(double x, double y, double z);
   void SetNormal(double x[3]);
+  void SetNormalToCamera();
   double* GetNormal();
   void GetNormal(double xyz[3]);
 
@@ -100,11 +102,11 @@ public:
 
   // Description:
   // If enabled, and a vtkCamera is available through the renderer, then
-  // SlaveNormalToCamera will cause the normal to follow the camera's
-  // notmal.
-  virtual void SetSlaveNormalToCamera(int);
-  vtkGetMacro(SlaveNormalToCamera,int);
-  vtkBooleanMacro(SlaveNormalToCamera,int);
+  // LockNormalToCamera will cause the normal to follow the camera's
+  // normal.
+  virtual void SetLockNormalToCamera(int);
+  vtkGetMacro(LockNormalToCamera,int);
+  vtkBooleanMacro(LockNormalToCamera,int);
 
   // Description:
   // Turn on/off tubing of the wire outline of the plane. The tube thickens
@@ -184,6 +186,11 @@ public:
   // Get the property of the intersection edges. (This property also
   // applies to the edges when tubed.)
   vtkGetObjectMacro(EdgesProperty,vtkProperty);
+  // Description
+  // Set color to the edge
+  void SetEdgeColor(vtkLookupTable*);
+  void SetEdgeColor(double, double, double);
+  void SetEdgeColor(double x[3]);
 
   // Description:
   // Specify a translation distance used by the BumpPlane() method. Note that the
@@ -269,8 +276,7 @@ protected:
   int NormalToZAxis;
 
   // Locking normal to camera
-  int SlaveNormalToCamera;
-  void UpdateSlavedNormal();
+  int LockNormalToCamera;
 
   // Controlling the push operation
   double BumpDistance;

@@ -45,8 +45,8 @@
 //   LeftButtonReleaseEvent - release slider (if selected)
 //   MouseMoveEvent - move the outline
 // If the keypress characters are used
-//   '<' Move plane down
-//   '>' Move plane up
+//   'Down/Left' Move plane down
+//   'Up/Right' Move plane up
 // In all the cases, independent of what is picked, the widget responds to the 
 // following VTK events:
 //   MiddleButtonPressEvent - move the plane
@@ -113,7 +113,17 @@ public:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
-  void SetRepresentation(vtkImplicitPlaneRepresentation *r);
+  void SetRepresentation( vtkImplicitPlaneRepresentation *rep );
+
+  // Descritpion:
+  // Disable/Enable the widget if needed.
+  // Unobserved the camera if the widget is disabled.
+  void SetEnabled(int enabling);
+
+  // Description:
+  // Observe/Unobserve the camera if the widget is locked/unlocked to update the
+  // vtkImplicitePlaneRepresentation's normal.
+  void SetLockNormalToCamera(int lock);
   
   // Description:
   // Return the representation as a vtkImplicitPlaneRepresentation.
