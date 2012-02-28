@@ -491,4 +491,5 @@ vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
 // Purposely not initialized.  ClassInitialize will handle it.
 int vtkDebugLeaks::ExitError;
 
+// Purposely not initialized.  ClassInitialize will handle it.
 vtkDebugLeaksObserver* vtkDebugLeaks::Observer;

@@ -33,7 +33,7 @@ class QVTK_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
 
 public:
 
-  vtkQtDebugLeaksModel(QObject* parent=0);
+  vtkQtDebugLeaksModel(QObject* p=0);
   virtual ~vtkQtDebugLeaksModel();
 
   // Description:
@@ -76,7 +76,7 @@ class ReferenceCountModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-  ReferenceCountModel(QObject* parent=0);
+  ReferenceCountModel(QObject* p=0);
   ~ReferenceCountModel();
   void addObject(vtkObjectBase* obj);
   void removeObject(vtkObjectBase* obj);

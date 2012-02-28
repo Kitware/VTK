@@ -47,6 +47,11 @@ public:
     }
 
   vtkQtDebugLeaksModel& Model;
+
+private:
+
+  qObserver(const qObserver&);  // Not implemented.
+  void operator=(const qObserver&);  // Not implemented.
 };
 
 
@@ -77,8 +82,8 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkQtDebugLeaksModel::vtkQtDebugLeaksModel(QObject* parent)
-  : QStandardItemModel(0, 2, parent)
+vtkQtDebugLeaksModel::vtkQtDebugLeaksModel(QObject* p)
+  : QStandardItemModel(0, 2, p)
 {
   this->Internal = new qInternal;
   this->Observer = new qObserver(*this);
@@ -223,9 +228,9 @@ QStandardItemModel* vtkQtDebugLeaksModel::referenceCountModel(const QString& cla
 }
 
 //-----------------------------------------------------------------------------
-Qt::ItemFlags vtkQtDebugLeaksModel::flags(const QModelIndex &index) const
+Qt::ItemFlags vtkQtDebugLeaksModel::flags(const QModelIndex &modelIndex) const
 {
-  Q_UNUSED(index);
+  Q_UNUSED(modelIndex);
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
@@ -233,14 +238,15 @@ Qt::ItemFlags vtkQtDebugLeaksModel::flags(const QModelIndex &index) const
 Q_DECLARE_METATYPE(vtkObjectBase*);
 
 //-----------------------------------------------------------------------------
-ReferenceCountModel::ReferenceCountModel(QObject* parent)
-  : QStandardItemModel(0, 2, parent)
+ReferenceCountModel::ReferenceCountModel(QObject* p)
+  : QStandardItemModel(0, 2, p)
 {
   this->setHeaderData(0, Qt::Horizontal, QObject::tr("Pointer"));
   this->setHeaderData(1, Qt::Horizontal, QObject::tr("Reference Count"));
   QTimer::singleShot(100, this, SLOT(updateReferenceCounts()));
 }
 
+//-----------------------------------------------------------------------------
 ReferenceCountModel::~ReferenceCountModel()
 {
 }
@@ -293,8 +299,8 @@ void ReferenceCountModel::updateReferenceCounts()
 }
 
 //-----------------------------------------------------------------------------
-Qt::ItemFlags ReferenceCountModel::flags(const QModelIndex &index) const
+Qt::ItemFlags ReferenceCountModel::flags(const QModelIndex &modelIndex) const
 {
-  Q_UNUSED(index);
+  Q_UNUSED(modelIndex);
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
