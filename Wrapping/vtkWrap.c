@@ -537,18 +537,45 @@ int vtkWrap_HasPublicCopyConstructor(ClassInfo *data)
 }
 
 /* -------------------------------------------------------------------- */
+/* Get the size for subclasses of vtkTuple */
+int vtkWrap_GetTupleSize(ClassInfo *data, HierarchyInfo *hinfo)
+{
+  HierarchyEntry *entry;
+  const char *classname = NULL;
+  size_t m;
+  int size = 0;
+
+  entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
+  if (entry && vtkParseHierarchy_IsTypeOfTemplated(
+        hinfo, entry, data->Name, "vtkTuple", &classname))
+    {
+    /* attempt to get count from template parameter */
+    if (classname)
+      {
+      m = strlen(classname);
+      if (m > 2 && classname[m - 1] == '>' &&
+          isdigit(classname[m-2]) && (classname[m-3] == ' ' ||
+          classname[m-3] == ',' || classname[m-3] == '<'))
+        {
+        size = classname[m-2] - '0';
+        }
+      free((char *)classname);
+      }
+    }
+
+  return size;
+}
+
+/* -------------------------------------------------------------------- */
 /* This sets the CountHint for vtkDataArray methods where the
  * tuple size is equal to GetNumberOfComponents. */
 void vtkWrap_FindCountHints(
   ClassInfo *data, HierarchyInfo *hinfo)
 {
   int i;
+  int count;
   const char *countMethod;
-  const char *classname;
   FunctionInfo *theFunc;
-  HierarchyEntry *entry;
-  size_t m;
-  char digit;
 
   /* add hints for array GetTuple methods */
   if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
@@ -622,27 +649,16 @@ void vtkWrap_FindCountHints(
         theFunc->Arguments[0]->Count == 0 &&
         hinfo)
       {
-      entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
-      if (entry && vtkParseHierarchy_IsTypeOfTemplated(
-            hinfo, entry, data->Name, "vtkTuple", &classname))
+      count = vtkWrap_GetTupleSize(data, hinfo);
+      if (count)
         {
-        /* attempt to get count from template parameter */
-        if (classname)
-          {
-          m = strlen(classname);
-          if (m > 2 && classname[m - 1] == '>' &&
-              isdigit(classname[m-2]) && (classname[m-3] == ' ' ||
-              classname[m-3] == ',' || classname[m-3] == '<'))
-            {
-            digit = classname[m-2];
-            theFunc->Arguments[0]->Count = digit - '0';
-            vtkParse_AddStringToArray(
-              &theFunc->Arguments[0]->Dimensions,
-              &theFunc->Arguments[0]->NumberOfDimensions,
-              vtkParse_DuplicateString(&digit, 1));
-            }
-          free((char *)classname);
-          }
+        char counttext[24];
+        sprintf(counttext, "%d", count);
+        theFunc->Arguments[0]->Count = count;
+        vtkParse_AddStringToArray(
+          &theFunc->Arguments[0]->Dimensions,
+          &theFunc->Arguments[0]->NumberOfDimensions,
+          vtkParse_DuplicateString(counttext, strlen(counttext)));
         }
       }
 

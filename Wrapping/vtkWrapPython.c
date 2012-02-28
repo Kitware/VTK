@@ -63,7 +63,7 @@ static void vtkWrapPython_CustomMethods(
 
 /* print out the code for one method, including all of its overloads */
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, const char *classname, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors);
 
@@ -95,7 +95,7 @@ static void vtkWrapPython_SaveArrayArgs(
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(
   FILE *fp, FunctionInfo *currentFunction, ClassInfo *data,
-  int is_vtkobject);
+  HierarchyInfo *hinfo, int is_vtkobject);
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(
@@ -1726,7 +1726,7 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(
   FILE *fp, FunctionInfo *currentFunction, ClassInfo *data,
-  int is_vtkobject)
+  HierarchyInfo *hinfo, int is_vtkobject)
 {
   char methodname[256];
   ValueInfo *arg;
@@ -1892,6 +1892,21 @@ static void vtkWrapPython_GenerateMethodCall(
     else
       {
       fprintf(fp, ";\n");
+      }
+    }
+
+  if (is_constructor)
+    {
+    /* initialize tuples created with default constructor */
+    if (currentFunction->NumberOfArguments == 0 && hinfo)
+      {
+      n = vtkWrap_GetTupleSize(data, hinfo);
+      for (i = 0; i < n; i++)
+        {
+        fprintf(fp,
+                "    (*op)[%d] = 0;\n",
+                i);
+        }
       }
     }
 
@@ -2291,7 +2306,7 @@ static void vtkWrapPython_OverloadMasterMethod(
 /* Write out the code for one method (including all its overloads) */
 
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, const char *classname, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors)
 {
@@ -2405,7 +2420,7 @@ void vtkWrapPython_GenerateOneMethod(
       vtkWrapPython_SaveArrayArgs(fp, theOccurrence);
 
       /* generate the code that calls the C++ method */
-      vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data,
+      vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data, hinfo,
                                        is_vtkobject);
 
       /* write back to all array args */
@@ -2564,7 +2579,8 @@ static void vtkWrapPython_GenerateMethods(
       fprintf(fp,"\n");
 
       vtkWrapPython_GenerateOneMethod(
-        fp, classname, data, wrappedFunctions, numberOfWrappedFunctions,
+        fp, classname, data, hinfo,
+        wrappedFunctions, numberOfWrappedFunctions,
         fnum, is_vtkobject, do_constructors);
 
       } /* is this method non NULL */
