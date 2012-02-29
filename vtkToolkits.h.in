@@ -110,18 +110,6 @@
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
-/* Whether VTK is using its own utility libraries.  */
-#cmakedefine VTK_USE_SYSTEM_PNG
-#cmakedefine VTK_USE_SYSTEM_ZLIB
-#cmakedefine VTK_USE_SYSTEM_HDF5
-#cmakedefine VTK_USE_SYSTEM_JPEG
-#cmakedefine VTK_USE_SYSTEM_TIFF
-#cmakedefine VTK_USE_SYSTEM_EXPAT
-#cmakedefine VTK_USE_SYSTEM_FREETYPE
-#cmakedefine VTK_USE_SYSTEM_LIBXML2
-#cmakedefine VTK_USE_SYSTEM_LIBPROJ4
-#cmakedefine VTK_USE_SYSTEM_OGGTHEORA
-
 /* Whether VTK is using vfw32 and if it supports video capture */
 #cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
 #cmakedefine VTK_VFW_SUPPORTS_CAPTURE

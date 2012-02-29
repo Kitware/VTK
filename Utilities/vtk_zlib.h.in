@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_png.h
+  Module:    vtk_zlib.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_png_h
-#define __vtk_png_h
+#ifndef __vtk_zlib_h
+#define __vtk_zlib_h
 
-/* Use the png library configured for VTK.  */
-#include "vtkToolkits.h"
-#ifdef VTK_USE_SYSTEM_PNG
-# include <png.h>
+/* Use the zlib library configured for VTK.  */
+#cmakedefine VTK_USE_SYSTEM_ZLIB
+#ifdef VTK_USE_SYSTEM_ZLIB
+# include <zlib.h>
 #else
-# include <vtkpng/png.h>
+# include <vtkzlib/zlib.h>
 #endif
 
 #endif

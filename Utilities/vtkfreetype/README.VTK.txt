@@ -14,8 +14,6 @@ vs the original freetype code
 
 Added Files
 -----------
-.NoDartCoverage
-  - new file, added so that coverage calculations ignore freetype code
 
 builds/win32/freetype/config/ftoption.h:
   -new file, created from include/freetype/config/ftoption.h

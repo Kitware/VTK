@@ -269,7 +269,7 @@ public:
 #if VTK_GARBAGE_COLLECTOR_HASH
   struct EntryCompare
   {
-    vtkstd_bool operator()(Entry* l, Entry* r) const
+    bool operator()(Entry* l, Entry* r) const
       { return l->Object == r->Object; }
   };
   struct EntryHash
@@ -281,7 +281,7 @@ public:
   struct EntryCompare
   {
     std::less<vtkObjectBase*> Compare;
-    vtkstd_bool operator()(Entry* l, Entry* r) const
+    bool operator()(Entry* l, Entry* r) const
       { return Compare(l->Object, r->Object); }
   };
 #endif

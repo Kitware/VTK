@@ -16,7 +16,7 @@
 #define __vtk_jpeg_h
 
 /* Use the jpeg library configured for VTK.  */
-#include "vtkToolkits.h"
+#cmakedefine VTK_USE_SYSTEM_JPEG
 #ifdef VTK_USE_SYSTEM_JPEG
   /* Work-around for a conflict between windows.h and jpeglib.h in cygwin.
      If ADDRESS_TAG_BIT is defined then BaseTsd.h has been included and
