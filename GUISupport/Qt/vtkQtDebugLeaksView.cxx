@@ -42,7 +42,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkQtDebugLeaksView::vtkQtDebugLeaksView(QWidget *parent) : QWidget(parent)
+vtkQtDebugLeaksView::vtkQtDebugLeaksView(QWidget *p) : QWidget(p)
 {
   this->Internal = new qInternal;
 
