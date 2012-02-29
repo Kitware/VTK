@@ -14,9 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeDataSet.h"
 
-#include "vtkAlgorithmOutput.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSetInternals.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
