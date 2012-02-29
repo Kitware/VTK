@@ -1404,9 +1404,9 @@ void vtkImageTracerWidget::GetPath(vtkPolyData *pd)
 
 void vtkImageTracerWidget::SetSnapToImage(int snap)
 {
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    if ( this->Input->GetDataObjectType() != VTK_IMAGE_DATA )
+    if ( this->GetInput()->GetDataObjectType() != VTK_IMAGE_DATA )
       {
       vtkErrorMacro(<<"Input data must be of type vtkImageData");
       return;

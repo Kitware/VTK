@@ -1292,7 +1292,7 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
 
   this->AdjustBounds(bds, bounds, center);
 
-  if (this->Input || this->Prop3D)
+  if (this->GetInput() || this->Prop3D)
     {
     if ( this->NormalToYAxis )
       {
@@ -1325,7 +1325,7 @@ void vtkPlaneWidget::PlaceWidget(double bds[6])
     }
   
 
-  if (this->Input || this->Prop3D)
+  if (this->GetInput() || this->Prop3D)
     {
     this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                                (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +

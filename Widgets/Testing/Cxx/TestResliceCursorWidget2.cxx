@@ -191,7 +191,7 @@ int TestResliceCursorWidget2( int argc, char *argv[] )
     planeWidget[i]->SetTexturePlaneProperty(ipwProp);
     planeWidget[i]->TextureInterpolateOff();
     planeWidget[i]->SetResliceInterpolateToLinear();
-    planeWidget[i]->SetInput(reader->GetOutput());
+    planeWidget[i]->SetInputConnection(reader->GetOutputPort());
     planeWidget[i]->SetPlaneOrientation(i);
     planeWidget[i]->SetSliceIndex(imageDims[i]/2);
     planeWidget[i]->DisplayTextOn();

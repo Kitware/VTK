@@ -432,7 +432,7 @@ int TestOrthoPlanes( int argc, char *argv[] )
   planeWidgetX->SetTexturePlaneProperty(ipwProp);
   planeWidgetX->TextureInterpolateOff();
   planeWidgetX->SetResliceInterpolateToNearestNeighbour();
-  planeWidgetX->SetInput(v16->GetOutput());
+  planeWidgetX->SetInputConnection(v16->GetOutputPort());
   planeWidgetX->SetPlaneOrientationToXAxes();
   planeWidgetX->SetSliceIndex(32);
   planeWidgetX->DisplayTextOn();
@@ -449,7 +449,7 @@ int TestOrthoPlanes( int argc, char *argv[] )
   planeWidgetY->SetTexturePlaneProperty(ipwProp);
   planeWidgetY->TextureInterpolateOn();
   planeWidgetY->SetResliceInterpolateToLinear();
-  planeWidgetY->SetInput(v16->GetOutput());
+  planeWidgetY->SetInputConnection(v16->GetOutputPort());
   planeWidgetY->SetPlaneOrientationToYAxes();
   planeWidgetY->SetSlicePosition(102.4);
   planeWidgetY->SetLookupTable( planeWidgetX->GetLookupTable());
@@ -466,7 +466,7 @@ int TestOrthoPlanes( int argc, char *argv[] )
   planeWidgetZ->SetTexturePlaneProperty(ipwProp);
   planeWidgetZ->TextureInterpolateOn();
   planeWidgetZ->SetResliceInterpolateToCubic();
-  planeWidgetZ->SetInput(v16->GetOutput());
+  planeWidgetZ->SetInputConnection(v16->GetOutputPort());
   planeWidgetZ->SetPlaneOrientationToZAxes();
   planeWidgetZ->SetSliceIndex(25);
   planeWidgetZ->SetLookupTable( planeWidgetX->GetLookupTable());

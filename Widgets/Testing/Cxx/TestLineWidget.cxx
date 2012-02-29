@@ -340,7 +340,7 @@ int TestLineWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkLineWidget> lineWidget =
     vtkSmartPointer<vtkLineWidget>::New();
   lineWidget->SetInteractor(iren);
-  lineWidget->SetInput(pl3d_block0);
+  lineWidget->SetInputData(pl3d_block0);
   lineWidget->SetAlignToYAxis();
   lineWidget->PlaceWidget();
   lineWidget->GetPolyData(seeds);

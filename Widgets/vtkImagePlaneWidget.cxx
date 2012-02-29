@@ -15,6 +15,7 @@
 #include "vtkImagePlaneWidget.h"
 
 #include "vtkActor.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
@@ -1427,7 +1428,6 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 
   // This method must be called _after_ SetInput
   //
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     vtkErrorMacro(<<"SetInput() before setting plane orientation.");
@@ -1497,10 +1497,13 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
+void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
 {
-  this->Superclass::SetInput(input);
-  this->ImageData = vtkImageData::SafeDownCast(this->GetInput());
+  this->Superclass::SetInputConnection(aout);
+
+  this->ImageData = vtkImageData::SafeDownCast(
+    aout->GetProducer()->GetOutputDataObject(
+      aout->GetIndex()));
 
   if( !this->ImageData )
     {
@@ -1534,7 +1537,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
-  this->Reslice->SetInputData(this->ImageData);
+  this->Reslice->SetInputConnection(aout);
   int interpolate = this->ResliceInterpolate;
   this->ResliceInterpolate = -1; // Force change
   this->SetResliceInterpolate(interpolate);
@@ -1550,8 +1553,7 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::UpdatePlane()
 {
-  if ( !this->Reslice ||
-       !(this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput())) )
+  if ( !this->Reslice || !this->ImageData )
     {
     return;
     }
@@ -1931,7 +1933,6 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
     {
       return;
     }
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     return;
@@ -1989,7 +1990,6 @@ int vtkImagePlaneWidget::GetSliceIndex()
     {
     return 0;
     }
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( ! this->ImageData )
     {
     return 0;
@@ -2083,7 +2083,6 @@ void vtkImagePlaneWidget::ActivateText(int i)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 {
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     return;

@@ -511,7 +511,7 @@ int TestImplicitPlaneWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   planeWidget->SetInteractor(iren);
   planeWidget->SetPlaceFactor(1.25);
   glyph->Update();
-  planeWidget->SetInput(glyph->GetOutput());
+  planeWidget->SetInputConnection(glyph->GetOutputPort());
   planeWidget->PlaceWidget();
   planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
 

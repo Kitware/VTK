@@ -117,7 +117,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   // Create broken line widget, attach it to input mesh
   vtkSmartPointer<vtkBrokenLineWidget> line = vtkSmartPointer<vtkBrokenLineWidget>::New();
   line->SetInteractor( iren );
-  line->SetInput( mesh );
+  line->SetInputData( mesh );
   line->SetPriority( 1. );
   line->KeyPressActivationOff();
   line->PlaceWidget();

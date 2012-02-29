@@ -438,7 +438,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   imageTracerWidget->SetProjectionNormalToXAxes();
   imageTracerWidget->SetProjectionPosition(imageActor1->GetBounds()[0]);
   imageTracerWidget->SetViewProp(imageActor1);
-  imageTracerWidget->SetInput(shifter->GetOutput());
+  imageTracerWidget->SetInputConnection(shifter->GetOutputPort());
   imageTracerWidget->SetInteractor(iren);
   imageTracerWidget->PlaceWidget();
   imageTracerWidget->SnapToImageOff();
@@ -451,7 +451,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkSplineWidget>::New();
   splineWidget->SetCurrentRenderer(ren2);
   splineWidget->SetDefaultRenderer(ren2);
-  splineWidget->SetInput(extract->GetOutput());
+  splineWidget->SetInputConnection(extract->GetOutputPort());
   splineWidget->SetInteractor(iren);
   splineWidget->PlaceWidget(imageActor2->GetBounds());
   splineWidget->ProjectToPlaneOn();

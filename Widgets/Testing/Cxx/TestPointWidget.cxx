@@ -628,7 +628,7 @@ int TestPointWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkPointWidget> pointWidget =
     vtkSmartPointer<vtkPointWidget>::New();
   pointWidget->SetInteractor(iren);
-  pointWidget->SetInput(pl3d_block0);
+  pointWidget->SetInputData(pl3d_block0);
   pointWidget->AllOff();
   pointWidget->PlaceWidget();
   pointWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);

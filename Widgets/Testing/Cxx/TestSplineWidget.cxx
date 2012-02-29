@@ -222,7 +222,7 @@ int TestSplineWidget( int argc, char *argv[] )
   ipw->DisplayTextOn();
   ipw->TextureInterpolateOff();
   ipw->UserControlledLookupTableOff();
-  ipw->SetInput(v16->GetOutput());
+  ipw->SetInputConnection(v16->GetOutputPort());
   ipw->KeyPressActivationOn();
   ipw->SetKeyPressActivationValue('x');
   ipw->SetResliceInterpolateToNearestNeighbour();
@@ -234,7 +234,7 @@ int TestSplineWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkSplineWidget> spline =
     vtkSmartPointer<vtkSplineWidget>::New();
   spline->SetInteractor( iren);
-  spline->SetInput(v16->GetOutput());
+  spline->SetInputConnection(v16->GetOutputPort());
   spline->SetPriority(1.0);
   spline->KeyPressActivationOff();
   spline->PlaceWidget();

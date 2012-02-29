@@ -485,7 +485,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkPlaneWidget> planeWidget =
     vtkSmartPointer<vtkPlaneWidget>::New();
   planeWidget->SetInteractor(iren);
-  planeWidget->SetInput(pl3d_block0);
+  planeWidget->SetInputData(pl3d_block0);
   planeWidget->NormalToXAxisOn();
   planeWidget->SetResolution(20);
   planeWidget->SetRepresentationToOutline();
