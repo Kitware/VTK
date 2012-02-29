@@ -22,14 +22,14 @@
 #define VTKEXTENTRCBPARTITIONER_H_
 
 #include "vtkObject.h"
-#include <vtkstd/vector> // For STL vector
+#include <vector> // For STL vector
 
 class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
   public:
     static vtkExtentRCBPartitioner *New();
     vtkTypeMacro(vtkExtentRCBPartitioner,vtkObject);
-    void PrintSelf( std::ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent );
 
     // Description:
     // Set/Get macro for the number of partitions.
@@ -105,7 +105,10 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int GlobalExtent[6];
      int NumberOfPartitions;
      int NumExtents;
-     vtkstd::vector<int> pextents;
+
+     // BTX
+     std::vector<int> pextents;
+     // ETX
 
   private:
     vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& );// Not implemented
