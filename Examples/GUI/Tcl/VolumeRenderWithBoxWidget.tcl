@@ -80,7 +80,7 @@ renWin SetSize 300 300
 
 # Place the interactor initially. The output of the reader is used to place
 # the box widget.
-boxWidget SetInput [v16 GetOutput]
+boxWidget SetInputConnection [v16 GetOutputPort]
 boxWidget PlaceWidget
 boxWidget InsideOutOn
 boxWidget AddObserver StartInteractionEvent StartInteraction

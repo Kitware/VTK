@@ -19,7 +19,7 @@ pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # The plane widget is used probe the dataset.
 pointWidget = vtk.vtkPointWidget()
-pointWidget.SetInput(pl3d_output)
+pointWidget.SetInputData(pl3d_output)
 pointWidget.AllOff()
 pointWidget.PlaceWidget()
 point = vtk.vtkPolyData()
@@ -27,7 +27,7 @@ pointWidget.GetPolyData(point)
 
 probe = vtk.vtkProbeFilter()
 probe.SetInputData(point)
-probe.SetSourceConnection(pl3d.GetOutputPort())
+probe.SetSourceData(pl3d_output)
 
 # create glyph
 cone = vtk.vtkConeSource()

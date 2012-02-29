@@ -123,7 +123,7 @@ vtkImageTracerWidget itw
   itw SetProjectionNormalToXAxes
   itw SetProjectionPosition $pos
   itw SetViewProp imageActor
-  itw SetInput [shifter GetOutput]
+  itw SetInputConnection [shifter GetOutputPort]
   itw SetInteractor iren
   itw PlaceWidget
 #
@@ -143,7 +143,7 @@ vtkImageTracerWidget itw
 vtkSplineWidget isw
   isw SetCurrentRenderer ren2
   isw SetDefaultRenderer ren2
-  isw SetInput [extract GetOutput]
+  isw SetInputConnection [extract GetOutputPort]
   isw SetInteractor iren
   set bnds [imageActor2 GetBounds] 
   isw PlaceWidget [lindex $bnds 0] [lindex $bnds 1] [lindex $bnds 2] [lindex $bnds 3] [lindex $bnds 4] [lindex $bnds 5]

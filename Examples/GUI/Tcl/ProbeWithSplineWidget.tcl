@@ -74,7 +74,7 @@ vtkImagePlaneWidget ipw
   ipw DisplayTextOn
   ipw TextureInterpolateOff
   ipw UserControlledLookupTableOff
-  ipw SetInput [ v16 GetOutput ]
+  ipw SetInputConnection [ v16 GetOutputPort ]
   ipw SetResliceInterpolateToNearestNeighbour
   ipw KeyPressActivationOff
   [ ipw GetPlaneProperty ] SetColor 1 0 0  
@@ -88,7 +88,7 @@ vtkImagePlaneWidget ipw
 # Create a vtkSplineWidget to interactively probe the data.
 #
 vtkSplineWidget spline
-  spline SetInput [ v16 GetOutput ]
+  spline SetInputConnection [ v16 GetOutputPort ]
   spline PlaceWidget
   spline SetPriority 1.0
   spline KeyPressActivationOff

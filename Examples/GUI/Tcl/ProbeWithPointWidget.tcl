@@ -19,7 +19,7 @@ set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 # The plane widget is used probe the dataset.
 #
 vtkPointWidget pointWidget
-    pointWidget SetInput $pl3dOutput
+    pointWidget SetInputData $pl3dOutput
     pointWidget AllOff
     pointWidget PlaceWidget
 vtkPolyData point

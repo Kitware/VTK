@@ -73,10 +73,11 @@ def SelectPolygons(object, event):
     object.GetPlanes(planes)
     selectActor.VisibilityOn()
 
+glyph.Update()
 # Place the interactor initially. The input to a 3D widget is used to
 # initially position and scale the widget. The "EndInteractionEvent" is
 # observed which invokes the SelectPolygons callback.
-boxWidget.SetInput(glyph.GetOutput())
+boxWidget.SetInputConnection(glyph.GetOutputPort())
 boxWidget.PlaceWidget()
 boxWidget.AddObserver("EndInteractionEvent", SelectPolygons)
 

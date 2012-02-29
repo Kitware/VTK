@@ -19,7 +19,7 @@ set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 # The plane widget is used probe the dataset.
 #
 vtkPlaneWidget planeWidget
-    planeWidget SetInput $pl3dOutput
+    planeWidget SetInputData $pl3dOutput
     planeWidget NormalToXAxisOn
     planeWidget SetResolution 20
     planeWidget SetRepresentationToOutline

@@ -18,7 +18,7 @@ pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # The plane widget is used probe the dataset.
 planeWidget = vtk.vtkPlaneWidget()
-planeWidget.SetInput(pl3d_output)
+planeWidget.SetInputData(pl3d_output)
 planeWidget.NormalToXAxisOn()
 planeWidget.SetResolution(20)
 planeWidget.SetRepresentationToOutline()

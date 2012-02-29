@@ -22,7 +22,7 @@ set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 #
 vtkLineWidget lineWidget
 vtkPolyData seeds
-lineWidget SetInput $pl3dOutput
+lineWidget SetInputData $pl3dOutput
 lineWidget SetAlignToYAxis
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
@@ -54,7 +54,7 @@ vtkActor streamline
 #
 vtkLineWidget lineWidget2
 vtkPolyData seeds2
-lineWidget2 SetInput $pl3dOutput
+lineWidget2 SetInputData $pl3dOutput
 lineWidget2 PlaceWidget
 lineWidget2 GetPolyData seeds2
 lineWidget2 SetKeyPressActivationValue L
