@@ -38,7 +38,7 @@ using std::vector;
 class vtkChartXYZ::Private
 {
 public:
-  Private() : angle(0), isX(false) {}
+  Private() : angle(0), isX(false), init(false) {}
   void SetMatrix(bool transformed = true);
 
   vector<vtkVector3f> points;
@@ -52,6 +52,7 @@ public:
   vtkVector3f xyz[3];
 
   bool isX;
+  bool init;
 };
 
 inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
@@ -66,8 +67,12 @@ inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
         + axes[2]->GetPosition1()[1]);
   vtkVector3f mtranslation = -1.0 * translation;
 
-  //cout << "translation vector: " << translation << endl;
-  //cout << "translation vector: " << mtranslation << endl;
+  if (!init)
+    {
+    cout << "translation vector: " << translation << endl;
+    cout << "translation vector: " << mtranslation << endl;
+    init = true;
+    }
 
   this->Rotation->Identity();
   this->Rotation->Translate(translation.GetData());
@@ -76,6 +81,7 @@ inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
   else
     this->Rotation->RotateY(this->angle);
   this->Rotation->Translate(mtranslation.GetData());
+
   if (transformed)
     this->Rotation->Concatenate(this->Transform.GetPointer());
 
@@ -155,7 +161,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   glBegin(GL_LINES);
   for (int i = 0; i < 3; ++i)
     {
-    switch (i)
+/*    switch (i)
       {
     case 0:
       glColor4ub(255, 0, 0, 255);
@@ -167,7 +173,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
       glColor4ub(0, 0, 255, 255);
       break;
       }
-
+*/
     glVertex3fv(d->origin.GetData());
     glVertex3fv(d->xyz[i].GetData());
     //glVertex3fv(d->other.GetData());
@@ -249,22 +255,22 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   x->Update();
   cout << "X range is: " << range[0] << " -> " << range[1] << endl;
 
-  d->origin.Set(this->Geometry.X(), this->Geometry.Y(), this->Geometry.X());
+  d->origin.Set(this->Geometry.X(), this->Geometry.Y(), 0.0);
   d->other.Set(this->Geometry.X() + this->Geometry.Width(),
                this->Geometry.Y() + this->Geometry.Height(),
                this->Geometry.X() + this->Geometry.Width());
   d->xyz[0].Set(this->Geometry.X() + this->Geometry.Width(),
                 this->Geometry.Y(),
-                this->Geometry.X());
+                0);
   d->xyz[1].Set(this->Geometry.X(),
                 this->Geometry.Y() + this->Geometry.Height(),
-                this->Geometry.X());
+                0);
   d->xyz[2].Set(this->Geometry.X(),
                 this->Geometry.Y(),
-                this->Geometry.X() + this->Geometry.Width());
+                this->Geometry.Height());
 
-  cout << "origin: " << d->origin
-       << ", x: " << d->xyz[0] << endl;
+  //cout << "origin: " << d->origin
+  //     << ", x: " << d->xyz[0] << endl;
 
   vtkNew<vtkAxis> y;
   d->axes[1] = y.GetPointer();
@@ -281,9 +287,9 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   vtkNew<vtkAxis> z;
   d->axes[2] = z.GetPointer();
   z->SetPoint1(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y()));
+                           0));
   z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Y() + this->Geometry.Height()));
+                           this->Geometry.Height()));
   zArr->GetRange(range);
   z->SetRange(range);
   z->Update();
@@ -291,7 +297,6 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
 
   this->CalculatePlotTransform(x.GetPointer(), y.GetPointer(), z.GetPointer(),
                                d->Transform.GetPointer());
-  d->Transform->Print(cout);
 }
 
 void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
@@ -352,7 +357,7 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
   float zScale = (z->GetMaximum() - z->GetMinimum()) / (max[1] - min[1]);
 
   transform->Identity();
-  transform->Translate(this->Geometry.X(), this->Geometry.Y(), this->Geometry.X());
+  transform->Translate(this->Geometry.X(), this->Geometry.Y(), 0);
   // Get the scale for the plot area from the x and y axes
   transform->Scale(1.0 / xScale, 1.0 / yScale, 1.0 / zScale);
   transform->Translate(-x->GetMinimum(), -y->GetMinimum(), -z->GetMinimum());

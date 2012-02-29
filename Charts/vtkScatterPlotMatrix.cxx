@@ -36,6 +36,7 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCallbackCommand.h"
+#include "vtkVectorOperators.h"
 
 #include "vtkChartXYZ.h"
 
@@ -576,7 +577,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
   // 5: Make BigChart3D invisible and BigChart visible.
   // 6: Stop the timer.
 
-  cout << "Animation Phase: " << this->Private->AnimationPhase << endl;
+  //cout << "Animation Phase: " << this->Private->AnimationPhase << endl;
 
   switch (this->Private->AnimationPhase)
     {
@@ -587,8 +588,9 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     this->Private->NextActivePlot = *this->Private->AnimationIter;
     this->Private->BigChart3D->SetVisible(false);
     vtkRectf size = this->Private->BigChart->GetSize();
-    cout << "Big chart dimensions: " << size.X() << ", "
-         << size.Y() << ", " << size.Width() << ", " << size.Height() << endl;
+    //cout << "Big chart dimensions: " << size.X() << ", "
+    //     << size.Y() << ", " << size.Width() << ", " << size.Height() << endl;
+
     this->Private->BigChart3D->SetGeometry(size);
     int yColumn = this->GetSize().Y() - this->ActivePlot.Y() - 1;
 
@@ -600,12 +602,12 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       isX = false;
       if (this->ActivePlot.X() < zColumn)
         {
-        this->Private->IncAngle = 1.0;
+        this->Private->IncAngle = -5.0;
         this->Private->FinalAngle = 90.0;
         }
       else
         {
-        this->Private->IncAngle = -1.0;
+        this->Private->IncAngle = 5.0;
         this->Private->FinalAngle = -90.0;
         }
       }
@@ -615,12 +617,12 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       isX = true;
       if (this->ActivePlot.Y() < zColumn)
         {
-        this->Private->IncAngle = 1.0;
+        this->Private->IncAngle = -5.0;
         this->Private->FinalAngle = 90.0;
         }
       else
         {
-        this->Private->IncAngle = -1.0;
+        this->Private->IncAngle = 5.0;
         this->Private->FinalAngle = -90.0;
         }
       }
