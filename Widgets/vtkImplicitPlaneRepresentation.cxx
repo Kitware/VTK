@@ -652,6 +652,8 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->NormalToYAxis ? "On" : "Off") << "\n";
   os << indent << "Normal To Z Axis: " 
      << (this->NormalToZAxis ? "On" : "Off") << "\n";
+  os << indent << "Lock Normal To Camera: "
+     << (this->LockNormalToCamera ? "On" : "Off") << "\n";
 
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: " 
