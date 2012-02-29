@@ -22,7 +22,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkAMRUtilities.h"
 
 #include <cassert>
 
