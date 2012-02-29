@@ -15,7 +15,7 @@
 # limitations under the License.
 #=============================================================================
 
-. "$GIT_DIR/hooks/hooks-config.bash"
+. "${BASH_SOURCE%/*}/hooks-config.bash"
 
 # Invoke the Gerrit Change-Id hook here for "git merge" because
 # it does not run the normal commit-msg hook.

@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright 2010-2011 Kitware, Inc.
+# Copyright 2010-2012 Kitware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
+
+# Make sure GIT_DIR is set.
+if test -z "$GIT_DIR"; then
+	export GIT_DIR=$(git rev-parse --git-dir)
+fi
 
 # Load hooks configuration from source tree.
 config=".hooks-config.bash" && test -r "$config" && . "$config"
