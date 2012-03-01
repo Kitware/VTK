@@ -77,7 +77,7 @@ class TestMapperLUT(Testing.vtkTest):
         # The 3 image plane widgets are used to probe the dataset.
         planeWidgetX = vtk.vtkImagePlaneWidget()
         planeWidgetX.DisplayTextOn()
-        planeWidgetX.SetInput(img_data)
+        planeWidgetX.SetInputData(img_data)
         planeWidgetX.SetPlaneOrientationToXAxes()
         planeWidgetX.SetSliceIndex(32)
         planeWidgetX.SetPicker(picker)
@@ -87,7 +87,7 @@ class TestMapperLUT(Testing.vtkTest):
 
         planeWidgetY = vtk.vtkImagePlaneWidget()
         planeWidgetY.DisplayTextOn()
-        planeWidgetY.SetInput(img_data)
+        planeWidgetY.SetInputData(img_data)
         planeWidgetY.SetPlaneOrientationToYAxes()
         planeWidgetY.SetSliceIndex(32)
         planeWidgetY.SetPicker(picker)
@@ -101,7 +101,7 @@ class TestMapperLUT(Testing.vtkTest):
         # cross-hair cursor snapping to pixel centers
         planeWidgetZ = vtk.vtkImagePlaneWidget()
         planeWidgetZ.DisplayTextOn()
-        planeWidgetZ.SetInput(img_data)
+        planeWidgetZ.SetInputData(img_data)
         planeWidgetZ.SetPlaneOrientationToZAxes()
         planeWidgetZ.SetSliceIndex(46)
         planeWidgetZ.SetPicker(picker)

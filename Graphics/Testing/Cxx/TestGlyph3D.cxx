@@ -61,7 +61,6 @@ static bool TestGlyph3D_WithBadArray()
   polydata->SetPoints(points);
    
   polydata->GetPointData()->AddArray(vectors); 
-  polydata->Update();
 
   vtkSmartPointer<vtkPolyData> glyph = 
     vtkSmartPointer<vtkPolyData>::New();
@@ -71,8 +70,8 @@ static bool TestGlyph3D_WithBadArray()
  
   vtkSmartPointer<vtkGlyph3D> glyph3D = 
     vtkSmartPointer<vtkGlyph3D>::New(); 
-  glyph3D->SetSource(glyphSource->GetOutput());
-  glyph3D->SetInput(polydata);
+  glyph3D->SetSourceConnection(glyphSource->GetOutputPort());
+  glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector(); 
   ErrorObserver*  errorObserver= new ErrorObserver();
@@ -110,7 +109,6 @@ int TestGlyph3D(int argc, char* argv[])
   
  
   polydata->GetPointData()->AddArray(vectors);
-  polydata->Update();
 
   vtkSmartPointer<vtkPolyData> glyph = 
     vtkSmartPointer<vtkPolyData>::New();
@@ -120,8 +118,8 @@ int TestGlyph3D(int argc, char* argv[])
  
   vtkSmartPointer<vtkGlyph3D> glyph3D = 
     vtkSmartPointer<vtkGlyph3D>::New(); 
-  glyph3D->SetSource(glyphSource->GetOutput());
-  glyph3D->SetInput(polydata);
+  glyph3D->SetSourceConnection(glyphSource->GetOutputPort());
+  glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector();
   glyph3D->Update(); 
