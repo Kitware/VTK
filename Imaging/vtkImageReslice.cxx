@@ -1101,13 +1101,21 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
+  vtkInformation *outStencilInfo = outputVector->GetInformationObject(1);
   if (this->GenerateStencilOutput)
     {
-    vtkInformation *outStencilInfo = outputVector->GetInformationObject(1);
     outStencilInfo->Set(
       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt,6);
     outStencilInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
     outStencilInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+    }
+  else if (outStencilInfo)
+    {
+    // If we are not generating stencil output, remove all meta-data
+    // that the executives copy from the input by default
+    outStencilInfo->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    outStencilInfo->Remove(vtkDataObject::SPACING());
+    outStencilInfo->Remove(vtkDataObject::ORIGIN());
     }
 
   // get the interpolator
