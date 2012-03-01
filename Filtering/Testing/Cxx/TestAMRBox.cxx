@@ -15,6 +15,9 @@
 #include "vtkAMRBox.h"
 #include "vtkStructuredData.h"
 
+#include <iostream>
+#include <string>
+
 void Construct2DAMRBox(
     vtkAMRBox& box,double origin[3],double h[3],int lo[3],int hi[3])
 {
