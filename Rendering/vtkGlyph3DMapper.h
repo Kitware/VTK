@@ -42,7 +42,8 @@ public:
     SCALE = 0,
     SOURCE_INDEX = 1,
     MASK = 2,
-    ORIENTATION = 3
+    ORIENTATION = 3,
+    SELECTIONID = 4
     };
   //ETX
 
@@ -158,6 +159,13 @@ public:
   vtkSetMacro(SourceIndexing, bool);
   vtkGetMacro(SourceIndexing, bool);
   vtkBooleanMacro(SourceIndexing, bool);
+
+  // Description:
+  // Turn on/off custom selection ids. If enabled, the id values set with
+  // SetSelectionIdArray are returned from pick events.
+  vtkSetMacro(UseSelectionIds, bool);
+  vtkBooleanMacro(UseSelectionIds, bool);
+  vtkGetMacro(UseSelectionIds, bool);
 
   // Description:
   // Redefined to take into account the bounds of the scaled glyphs.
@@ -278,6 +286,26 @@ public:
   void SetSourceIndexArray(int fieldAttributeType);
 
   // Description:
+  // Convenience method to set the array used for selection IDs. This is same
+  // as calling
+  // SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+  //    vtkDataObject::FIELD_ASSOCIATION_POINTS, selectionidarrayname).
+  //
+  // If no selection id array is specified, the index of the glyph point is
+  // used.
+  void SetSelectionIdArray(const char* selectionIdArrayName);
+
+  // Description:
+  // Convenience method to set the array used for selection IDs. This is same
+  // as calling
+  // SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+  //    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType).
+  //
+  // If no selection id array is specified, the index of the glyph point is
+  // used.
+  void SetSelectionIdArray(int fieldAttributeType);
+
+  // Description:
   // For selection by color id mode (not for end-user, called by
   // vtkGlyphSelectionRenderMode). 0 is reserved for miss. it has to
   // start at 1. Initial value is 1.
@@ -315,6 +343,7 @@ protected:
   vtkDataArray* GetSourceIndexArray(vtkDataSet* input);
   vtkDataArray* GetOrientationArray(vtkDataSet* input);
   vtkDataArray* GetScaleArray(vtkDataSet* input);
+  vtkDataArray* GetSelectionIdArray(vtkDataSet* input);
   vtkUnsignedCharArray* GetColors(vtkDataSet* input);
 
   bool Scaling; // Determine whether scaling of geometry is performed
@@ -325,6 +354,7 @@ protected:
   bool Orient; // boolean controls whether to "orient" data
   bool Clamping; // whether to clamp scale factor
   bool SourceIndexing; // Enable/disable indexing into the glyph table
+  bool UseSelectionIds; // Enable/disable custom pick ids
   bool Masking; // Enable/disable masking.
   int OrientationMode;
   bool NestedDisplayLists; // boolean

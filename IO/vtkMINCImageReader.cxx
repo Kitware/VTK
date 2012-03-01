@@ -175,10 +175,11 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     }
 
   char magic[4];
-  (void) fread(magic, 4, 1, fp);
+  size_t count = fread(magic, 4, 1, fp);
   fclose(fp);
 
-  if (magic[0] != 'C' ||
+  if (count != 1 ||
+      magic[0] != 'C' ||
       magic[1] != 'D' ||
       magic[2] != 'F' ||
       magic[3] != '\001')

@@ -44,6 +44,9 @@
 //   LeftButtonPressEvent - select slider (if on slider)
 //   LeftButtonReleaseEvent - release slider (if selected)
 //   MouseMoveEvent - move the outline
+// If the keypress characters are used
+//   'Down/Left' Move plane down
+//   'Up/Right' Move plane up
 // In all the cases, independent of what is picked, the widget responds to the 
 // following VTK events:
 //   MiddleButtonPressEvent - move the plane
@@ -60,6 +63,7 @@
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
 //   vtkWidgetEvent::EndSelect -- the selection process has completed
 //   vtkWidgetEvent::Move -- a request for slider motion has been invoked
+//   vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MovePlaneAction
 // </pre>
 //
 // In turn, when these widget events are processed, the vtkImplicitPlaneWidget2
@@ -89,10 +93,12 @@
 #include "vtkAbstractWidget.h"
 
 class vtkImplicitPlaneRepresentation;
-
+class vtkInteractionCallback;
 
 class VTK_WIDGETS_EXPORT vtkImplicitPlaneWidget2 : public vtkAbstractWidget
 {
+  friend class vtkInteractionCallback;
+
 public:
   // Description:
   // Instantiate the object.
@@ -107,8 +113,17 @@ public:
   // Specify an instance of vtkWidgetRepresentation used to represent this
   // widget in the scene. Note that the representation is a subclass of vtkProp
   // so it can be added to the renderer independent of the widget.
-  void SetRepresentation(vtkImplicitPlaneRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation( vtkImplicitPlaneRepresentation *rep );
+
+  // Descritpion:
+  // Disable/Enable the widget if needed.
+  // Unobserved the camera if the widget is disabled.
+  void SetEnabled(int enabling);
+
+  // Description:
+  // Observe/Unobserve the camera if the widget is locked/unlocked to update the
+  // vtkImplicitePlaneRepresentation's normal.
+  void SetLockNormalToCamera(int lock);
   
   // Description:
   // Return the representation as a vtkImplicitPlaneRepresentation.
@@ -134,11 +149,17 @@ protected:
   static void ScaleAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void MovePlaneAction(vtkAbstractWidget*);
 
   // Description:
   // Update the cursor shape based on the interaction state. Returns 1
   // if the cursor shape requested is different from the existing one.
   int UpdateCursorShape( int interactionState );
+
+  // Description:
+  // Handle the interaction callback that may come from the representation
+  vtkInteractionCallback *InteractionCallback;
+  void InvokeInteractionCallback();
 
 private:
   vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&);  //Not implemented

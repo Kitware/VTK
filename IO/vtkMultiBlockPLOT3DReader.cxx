@@ -156,7 +156,13 @@ void vtkMultiBlockPLOT3DReader::SkipByteCount(FILE* fp)
   if (this->BinaryFile && this->HasByteCount)
     {
     int tmp;
-    (void) fread(&tmp, sizeof(int), 1, fp);
+    if (fread(&tmp, sizeof(int), 1, fp) != 1)
+      {
+      vtkErrorMacro ("MultiBlockPLOT3DReader error reading file: " << this->XYZFileName
+                     << " Premature EOF while reading skipping byte count.");
+      fclose (fp);
+      return;
+      }
     }
 }
 
@@ -317,7 +323,13 @@ int vtkMultiBlockPLOT3DReader::GenerateDefaultConfiguration()
     return 0;
     }
   char buf[1024];
-  (void) fread(buf, 1, 1024, xyzFp);
+  if (fread(buf, 1024, 1, xyzFp) != 1)
+    {
+    vtkErrorMacro ("MultiBlockPLOT3DReader error reading file: " << this->XYZFileName
+                   << " Premature EOF while reading buffer.");
+    fclose (xyzFp);
+    return 0;
+    }
   int retVal = this->VerifySettings(buf, 1024);
   fclose(xyzFp);
   return retVal;

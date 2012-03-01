@@ -33,7 +33,11 @@ int vtkGESignaReader::CanReadFile(const char* fname)
     }
   
   int magic;
-  (void) fread(&magic, 4, 1, fp);
+  if (fread(&magic, 4, 1, fp) != 1)
+    {
+    fclose (fp);
+    return 0;
+    }
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746) // "IMGF"
@@ -61,7 +65,13 @@ void vtkGESignaReader::ExecuteInformation()
     }
 
   int magic;
-  (void) fread(&magic, 4, 1, fp);
+  if (fread(&magic, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading magic.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746)
@@ -73,77 +83,167 @@ void vtkGESignaReader::ExecuteInformation()
 
   // read in the pixel offset from the header
   int offset;
-  (void) fread(&offset, 4, 1, fp);
+  if (fread(&offset, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading pixel offset.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&offset);
   this->SetHeaderSize(offset);
 
   int width, height, depth;
-  (void) fread(&width, 4, 1, fp);
+  if (fread(&width, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading width.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&width);
-  (void) fread(&height, 4, 1, fp);
+  if (fread(&height, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading height.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&height);
   // depth in bits
-  (void) fread(&depth, 4, 1, fp);
+  if (fread(&depth, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading depth.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&depth);
 
   int compression;
-  (void) fread(&compression, 4, 1, fp);
+  if (fread(&compression, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading compression.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&compression);
 
   // seek to the exam series and image header offsets
   fseek(fp, 132, SEEK_SET);
   int examHdrOffset;
-  (void) fread(&examHdrOffset, 4, 1, fp);
+  if (fread(&examHdrOffset, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading exam header offset.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&examHdrOffset);
   fseek(fp, 140, SEEK_SET);
   int seriesHdrOffset;
-  (void) fread(&seriesHdrOffset, 4, 1, fp);
+  if (fread(&seriesHdrOffset, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while series header offset.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&seriesHdrOffset);
   fseek(fp, 148, SEEK_SET);
   int imgHdrOffset;
-  (void) fread(&imgHdrOffset, 4, 1, fp);
+  if (fread(&imgHdrOffset, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while image header offset.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&imgHdrOffset);
 
   // seek to the exam and read some info
   char tmpStr[1024];
   // suite ID
   fseek(fp, examHdrOffset + 0, SEEK_SET);
-  (void) fread(tmpStr,4,1,fp);
+  if (fread(tmpStr,4,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while suite ID.");
+    fclose (fp);
+    return;
+    }
   tmpStr[4] = 0;
   this->GetMedicalImageProperties()->SetStudyDescription( tmpStr ); // StudyID would be more suited...
   // exam number
   fseek(fp, examHdrOffset + 8, SEEK_SET);
   unsigned short examnumber;
-  (void) fread(&examnumber,2,1,fp);
+  if (fread(&examnumber,2,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while exam number.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap2BE(&examnumber);
   sprintf(tmpStr,"%d",examnumber);
   //this->SetStudyNumber(tmpStr);
   // Patient ID
   fseek(fp, examHdrOffset + 84, SEEK_SET);
-  (void) fread(tmpStr,13,1,fp);
+  if (fread(tmpStr,13,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while patient ID.");
+    fclose (fp);
+    return;
+    }
   tmpStr[13] = 0;
   this->SetPatientID(tmpStr);
   // Patient Name
-  (void) fread(tmpStr,25,1,fp);
+  if (fread(tmpStr,25,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading patient name.");
+    fclose (fp);
+    return;
+    }
   tmpStr[25] = 0;
   this->SetPatientName(tmpStr);
   // Patient Age
   fseek(fp, examHdrOffset + 122, SEEK_SET);
   short patientage;
-  (void) fread(&patientage,2,1,fp);
+  if (fread(&patientage,2,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading patient age.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap2BE(&patientage);
   sprintf(tmpStr,"%d",patientage);
   this->GetMedicalImageProperties()->SetPatientAge( tmpStr );
   // Patient Sex
   fseek(fp, examHdrOffset + 126, SEEK_SET);
   short patientsex;
-  (void) fread(&patientsex,2,1,fp);
+  if (fread(&patientsex,2,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading patient sex.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap2BE(&patientsex);
   sprintf(tmpStr,"%d",patientsex);
   this->GetMedicalImageProperties()->SetPatientSex( tmpStr );
   // Modality
   fseek(fp, examHdrOffset + 305, SEEK_SET);
-  (void) fread(tmpStr,3,1,fp);
+  if (fread(tmpStr,3,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading modality.");
+    fclose (fp);
+    return;
+    }
   tmpStr[3] = 0;
   this->SetModality(tmpStr);
   
@@ -151,13 +251,25 @@ void vtkGESignaReader::ExecuteInformation()
   // series number
   fseek(fp, seriesHdrOffset + 10, SEEK_SET);
   short series;
-  (void) fread(&series,2,1,fp);
+  if (fread(&series,2,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading series.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap2BE(&series);
   sprintf(tmpStr,"%d",series);
   this->SetSeries(tmpStr);
   // scan protocol name
   fseek(fp, seriesHdrOffset + 92, SEEK_SET);
-  (void) fread(tmpStr,25,1,fp);
+  if (fread(tmpStr,25,1,fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading scan protocol.");
+    fclose (fp);
+    return;
+    }
   tmpStr[25] = 0;
   this->SetStudy(tmpStr); // ??
 
@@ -165,35 +277,95 @@ void vtkGESignaReader::ExecuteInformation()
   float tmpX, tmpY, tmpZ;
   float spacingX, spacingY, spacingZ;
   fseek(fp, imgHdrOffset + 50, SEEK_SET);
-  (void) fread(&spacingX, 4, 1, fp);
+  if (fread(&spacingX, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading spacing x.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&spacingX);
-  (void) fread(&spacingY, 4, 1, fp);
+  if (fread(&spacingY, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading spacing y.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&spacingY);
   fseek(fp, imgHdrOffset + 116, SEEK_SET);  
-  (void) fread(&spacingZ, 4, 1, fp);
+  if (fread(&spacingZ, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading spacing z.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&spacingZ);
   // Slice Thickness
   fseek(fp, imgHdrOffset + 26, SEEK_SET);  
-  (void) fread(&tmpZ, 4, 1, fp);
+  if (fread(&tmpZ, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading slice thickness.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpZ);
   spacingZ = spacingZ + tmpZ;
   
   float origX, origY, origZ;
   fseek(fp, imgHdrOffset + 154, SEEK_SET);
   // read TLHC
-  (void) fread(&origX, 4, 1, fp);
+  if (fread(&origX, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading origX.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&origX);
-  (void) fread(&origY, 4, 1, fp);
+  if (fread(&origY, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading origY.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&origY);
-  (void) fread(&origZ, 4, 1, fp);
+  if (fread(&origZ, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading origZ.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&origZ);
 
   // read TRHC
-  (void) fread(&tmpX, 4, 1, fp);
+  if (fread(&tmpX, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading TRHC x.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpX);
-  (void) fread(&tmpY, 4, 1, fp);
+  if (fread(&tmpY, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading TRCH y.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpY);
-  (void) fread(&tmpZ, 4, 1, fp);
+  if (fread(&tmpZ, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading TRCH z.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpZ);
 
   // compute BLHC = TLHC - TRHC + BRHC
@@ -202,11 +374,29 @@ void vtkGESignaReader::ExecuteInformation()
   origZ = origZ - tmpZ;
   
   // read BRHC
-  (void) fread(&tmpX, 4, 1, fp);
+  if (fread(&tmpX, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading BRHC x.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpX);
-  (void) fread(&tmpY, 4, 1, fp);
+  if (fread(&tmpY, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading BRHC y.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpY);
-  (void) fread(&tmpZ, 4, 1, fp);
+  if (fread(&tmpZ, 4, 1, fp) != 1)
+    {
+    vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
+                   << " Premature EOF while reading BRCH z.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&tmpZ);
 
   // compute BLHC = TLHC - TRHC + BRHC
@@ -363,7 +553,13 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
     }
 
   int magic;
-  (void) fread(&magic, 4, 1, fp);
+  if (fread(&magic, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading magic.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&magic);
   
   if (magic != 0x494d4746)
@@ -375,20 +571,50 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 
   // read in the pixel offset from the header
   int offset;
-  (void) fread(&offset, 4, 1, fp);
+  if (fread(&offset, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading origY.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&offset);
 
   int width, height, depth;
-  (void) fread(&width, 4, 1, fp);
+  if (fread(&width, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading width.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&width);
-  (void) fread(&height, 4, 1, fp);
+  if (fread(&height, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading height.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&height);
   // depth in bits
-  (void) fread(&depth, 4, 1, fp);
+  if (fread(&depth, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading depth.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&depth);
 
   int compression;
-  (void) fread(&compression, 4, 1, fp);
+  if (fread(&compression, 4, 1, fp) != 1)
+    {
+    vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                            << " Premature EOF while reading compression.");
+    fclose (fp);
+    return;
+    }
   vtkByteSwap::Swap4BE(&compression);
 
   short *leftMap = 0;
@@ -401,7 +627,13 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 
       fseek(fp, 64, SEEK_SET);
       int packHdrOffset;
-      (void) fread(&packHdrOffset, 4, 1, fp);
+      if (fread(&packHdrOffset, 4, 1, fp) != 1)
+        {
+        vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                                << " Premature EOF while reading packHdrOffset.");
+        fclose (fp);
+        return;
+        }
       vtkByteSwap::Swap4BE(&packHdrOffset);
       
       // now seek to the pack header and read some values
@@ -410,10 +642,22 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
       int i;
       for (i = 0; i < height; i++)
         {
-          (void) fread(leftMap+i, 2, 1, fp);
-          vtkByteSwap::Swap2BE(leftMap+i);
-          (void) fread(widthMap+i, 2, 1, fp);
-          vtkByteSwap::Swap2BE(widthMap+i);
+        if (fread(leftMap+i, 2, 1, fp) != 1)
+          {
+          vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                                  << " Premature EOF while reading maps.");
+          fclose (fp);
+          return;
+          }
+        vtkByteSwap::Swap2BE(leftMap+i);
+        if (fread(widthMap+i, 2, 1, fp) != 1)
+          {
+          vtkGenericWarningMacro ("GESignaReader error reading file: " << self->GetInternalFileName()
+                                  << " Premature EOF while reading maps.");
+          fclose (fp);
+          return;
+          }
+        vtkByteSwap::Swap2BE(widthMap+i);
         }
     }
 

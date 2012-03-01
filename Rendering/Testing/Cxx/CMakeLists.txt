@@ -19,6 +19,7 @@ IF(VTK_USE_DISPLAY)
     LoadOpenGLExtension.cxx
     TestActorLightingFlag.cxx
     TestAnimationScene.cxx
+    TestBackfaceCulling.cxx
     TestBlurAndSobelPasses.cxx
     TestDynamic2DLabelMapper.cxx
     TestFBO.cxx
@@ -80,6 +81,13 @@ IF(VTK_USE_DISPLAY)
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestTranslucentLUTTextureDepthPeeling.cxx
     )
+
+  IF(WIN32 AND NOT VTK_USE_X)
+    SET(RenderingTestsWithArguments
+      ${RenderingTestsWithArguments}
+      TestWin32OpenGLRenderWindow.cxx
+      )
+  ENDIF(WIN32 AND NOT VTK_USE_X)
 
   IF(VTK_DATA_ROOT)
     SET(RenderingTestsWithArguments

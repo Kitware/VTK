@@ -31,6 +31,17 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkPainterPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Returns if the mapper does not expect to have translucent geometry. This
+  // may happen when using ScalarMode is set to not map scalars i.e. render the
+  // scalar array directly as colors and the scalar array has opacity i.e. alpha
+  // component. Note that even if this method returns true, an actor may treat
+  // the geometry as translucent since a constant translucency is set on the
+  // property, for example.
+  // Overridden to use the actual data and ScalarMode to determine if we have
+  // opaque geometry.
+  virtual bool GetIsOpaque();
+
 //BTX
 protected:
   vtkCompositePolyDataMapper2();

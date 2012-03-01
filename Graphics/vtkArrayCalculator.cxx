@@ -532,12 +532,13 @@ int vtkArrayCalculator::RequestData(
           }
         }
       psOutput->SetPoints(resultPoints);
+      psOutput->CopyAttributes(dsInput);
       }
     else
       {
       graphOutput->CopyStructure(graphInput);
+      outFD->PassData(inFD);
       }
-    outFD->PassData(inFD);
     resultPoints->Delete();
     }
   else

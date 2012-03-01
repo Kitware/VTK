@@ -21,6 +21,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestNew.cxx
   TestObservers.cxx
   TestPlane.cxx
+  TestBoundingBox.cxx
   TestPolynomialSolversUnivariate.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx

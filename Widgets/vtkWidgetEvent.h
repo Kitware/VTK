@@ -57,7 +57,11 @@ public:
     Completed,
     TimedOut,
     ModifyEvent,
-    Reset
+    Reset,
+    Up,
+    Down,
+    Left,
+    Right
   };
 //ETX
 

@@ -45,7 +45,13 @@ void vtkPNGReader::ExecuteInformation()
     return;
     }
   unsigned char header[8];
-  (void) fread(header, 1, 8, fp);
+  if (fread(header, 1, 8, fp) != 8)
+    {
+    vtkErrorMacro ("PNGReader error reading file."
+                   << " Premature EOF while reading header.");
+    fclose (fp);
+    return;
+    }
   int is_png = !png_sig_cmp(header, 0, 8);
   if (!is_png)
     {
@@ -167,7 +173,13 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
     return;
     }
   unsigned char header[8];
-  (void) fread(header, 1, 8, fp);
+  if (fread(header, 1, 8, fp) != 8)
+    {
+    vtkGenericWarningMacro ("PNGReader error reading file: " << self->GetInternalFileName()
+                   << " Premature EOF while reading header.");
+    fclose (fp);
+    return;
+    }
   int is_png = !png_sig_cmp(header, 0, 8);
   if (!is_png)
     {
@@ -350,7 +362,11 @@ int vtkPNGReader::CanReadFile(const char* fname)
     return 0;
     }
   unsigned char header[8];
-  (void) fread(header, 1, 8, fp);
+  if (fread(header, 1, 8, fp) != 8)
+    {
+    fclose(fp);
+    return 0;
+    }
   int is_png = !png_sig_cmp(header, 0, 8);
   if(!is_png)
     {

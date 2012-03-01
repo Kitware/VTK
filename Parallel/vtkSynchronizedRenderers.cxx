@@ -428,7 +428,23 @@ void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->HeadPose[12]
          << this->HeadPose[13]
          << this->HeadPose[14]
-         << this->HeadPose[15] ;
+         << this->HeadPose[15]
+         << this->WandPose[0]
+         << this->WandPose[1]
+         << this->WandPose[2]
+         << this->WandPose[3]
+         << this->WandPose[4]
+         << this->WandPose[5]
+         << this->WandPose[6]
+         << this->WandPose[7]
+         << this->WandPose[8]
+         << this->WandPose[9]
+         << this->WandPose[10]
+         << this->WandPose[11]
+         << this->WandPose[12]
+         << this->WandPose[13]
+         << this->WandPose[14]
+         << this->WandPose[15];
 }
 
 //----------------------------------------------------------------------------
@@ -477,7 +493,23 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
          >> this->HeadPose[12]
          >> this->HeadPose[13]
          >> this->HeadPose[14]
-         >> this->HeadPose[15];
+         >> this->HeadPose[15]
+         >> this->WandPose[0]
+         >> this->WandPose[1]
+         >> this->WandPose[2]
+         >> this->WandPose[3]
+         >> this->WandPose[4]
+         >> this->WandPose[5]
+         >> this->WandPose[6]
+         >> this->WandPose[7]
+         >> this->WandPose[8]
+         >> this->WandPose[9]
+         >> this->WandPose[10]
+         >> this->WandPose[11]
+         >> this->WandPose[12]
+         >> this->WandPose[13]
+         >> this->WandPose[14]
+         >> this->WandPose[15];
   return true;
 }
 
@@ -497,11 +529,13 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   this->CameraParallelScale = cam->GetParallelScale();
 
   vtkMatrix4x4 *headMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4 *wandMatrix = cam->GetModelTransformMatrix();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
        this->HeadPose[i*4 + j] = headMatrix->GetElement(i, j);
+       this->WandPose[i*4 + j] = wandMatrix->GetElement(i, j);
       }
     }
 }
@@ -523,15 +557,19 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetParallelScale(this->CameraParallelScale);
 
   vtkMatrix4x4 *headMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *wandMatrix = vtkMatrix4x4::New();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
       headMatrix->SetElement(i, j, this->HeadPose[i * 4 + j]);
+      wandMatrix->SetElement(i, j, this->WandPose[i * 4 + j]);
       }
     }
   cam->SetEyeTransformMatrix(headMatrix);
+  cam->SetModelTransformMatrix(wandMatrix);
   headMatrix->Delete();
+  wandMatrix->Delete();
 }
 
 

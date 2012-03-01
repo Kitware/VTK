@@ -63,7 +63,7 @@ static void vtkWrapPython_CustomMethods(
 
 /* print out the code for one method, including all of its overloads */
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, const char *classname, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors);
 
@@ -95,7 +95,7 @@ static void vtkWrapPython_SaveArrayArgs(
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(
   FILE *fp, FunctionInfo *currentFunction, ClassInfo *data,
-  int is_vtkobject);
+  HierarchyInfo *hinfo, int is_vtkobject);
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(
@@ -448,11 +448,13 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkArrayRange", "vtkArrayRange.h" },
     { "vtkArraySort", "vtkArraySort.h" },
     { "vtkArrayWeights", "vtkArrayWeights.h" },
+    { "vtkAtom", "vtkAtom.h" },
+    { "vtkBond", "vtkBond.h" },
     { "vtkTimeStamp", "vtkTimeStamp.h" },
     { "vtkVariant", "vtkVariant.h" },
     { "vtkStdString", "vtkStdString.h" },
     { "vtkUnicodeString", "vtkUnicodeString.h" },
-    { "vtkVectorBase", "vtkVector.h" },
+    { "vtkTuple", "vtkVector.h" },
     { "vtkVector", "vtkVector.h" },
     { "vtkVector2", "vtkVector.h" },
     { "vtkVector2i", "vtkVector.h" },
@@ -650,10 +652,6 @@ static void vtkWrapPython_DeclareVariables(
 
   if (theFunc->ReturnValue)
     {
-    /* temp variable for C++-type return value */
-    vtkWrap_DeclareVariable(fp, theFunc->ReturnValue,
-      "tempr", -1, VTK_WRAP_RETURN);
-
     /* the size for a one-dimensional array */
     if (vtkWrap_IsArray(theFunc->ReturnValue))
       {
@@ -1728,7 +1726,7 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(
   FILE *fp, FunctionInfo *currentFunction, ClassInfo *data,
-  int is_vtkobject)
+  HierarchyInfo *hinfo, int is_vtkobject)
 {
   char methodname[256];
   ValueInfo *arg;
@@ -1748,6 +1746,34 @@ static void vtkWrapPython_GenerateMethodCall(
       !is_constructor)
     {
     n = 2;
+    }
+
+  if (!is_constructor &&
+      !vtkWrap_IsVoid(currentFunction->ReturnValue))
+    {
+    /* temp variable for C++-type return value */
+    fprintf(fp, "  ");
+    vtkWrap_DeclareVariable(fp, currentFunction->ReturnValue,
+      "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
+    fprintf(fp, " =");
+    }
+
+  /* handle both bound and unbound calls */
+  if (n == 2)
+    {
+    if (!is_constructor &&
+        !vtkWrap_IsVoid(currentFunction->ReturnValue))
+      {
+      fprintf(fp, " (ap.IsBound() ?\n"
+             "     ");
+      }
+    else
+      {
+      fprintf(fp,
+              "    if (ap.IsBound())\n"
+              "      {\n"
+              "  ");
+      }
     }
 
   /* print the code that calls the method */
@@ -1776,25 +1802,6 @@ static void vtkWrapPython_GenerateMethodCall(
       sprintf(methodname, "op->%s", currentFunction->Name);
       }
 
-    if (n == 2)
-      {
-      /* need to check if it is a bound call or unbound */
-      if (k == 0)
-        {
-        fprintf(fp,
-                "    if (ap.IsBound())\n"
-                "      {\n"
-                "  ");
-        }
-      else
-        {
-        fprintf(fp,
-                "    else\n"
-                "      {\n"
-                "  ");
-        }
-      }
-
     if (is_constructor)
       {
       fprintf(fp,
@@ -1810,13 +1817,13 @@ static void vtkWrapPython_GenerateMethodCall(
     else if (vtkWrap_IsRef(currentFunction->ReturnValue))
       {
       fprintf(fp,
-              "    tempr = &%s(",
+              " &%s(",
               methodname);
       }
     else
       {
       fprintf(fp,
-              "    tempr = %s(",
+              " %s(",
               methodname);
       }
 
@@ -1851,20 +1858,55 @@ static void vtkWrapPython_GenerateMethodCall(
            vtkWrap_IsQtObject(arg)) &&
           !vtkWrap_IsPointer(arg))
         {
-        fprintf(fp,"*temp%i",i);
+        fprintf(fp, "*temp%i", i);
         }
       else
         {
-        fprintf(fp,"temp%i",i);
+        fprintf(fp, "temp%i", i);
         }
       }
-    fprintf(fp,");\n");
+    fprintf(fp, ")");
 
-    /* end the "if (ap.IsBound())" clause */
+    /* handle ternary operator for ap.IsBound() */
     if (n == 2)
       {
-      fprintf(fp,
-              "      }\n");
+      if (!is_constructor &&
+          !vtkWrap_IsVoid(currentFunction->ReturnValue))
+        {
+        fprintf(fp, (k == 0 ? " :\n     " : ");\n"));
+        }
+      else if (k == 0)
+        {
+        fprintf(fp, ";\n"
+                "      }\n"
+                "    else\n"
+                "      {\n"
+                "  ");
+        }
+      else
+        {
+        fprintf(fp, ";\n"
+                "      }\n");
+        }
+      }
+    else
+      {
+      fprintf(fp, ";\n");
+      }
+    }
+
+  if (is_constructor)
+    {
+    /* initialize tuples created with default constructor */
+    if (currentFunction->NumberOfArguments == 0 && hinfo)
+      {
+      n = vtkWrap_GetTupleSize(data, hinfo);
+      for (i = 0; i < n; i++)
+        {
+        fprintf(fp,
+                "    (*op)[%d] = 0;\n",
+                i);
+        }
       }
     }
 
@@ -2264,7 +2306,7 @@ static void vtkWrapPython_OverloadMasterMethod(
 /* Write out the code for one method (including all its overloads) */
 
 void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, const char *classname, ClassInfo *data,
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
   FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors)
 {
@@ -2378,7 +2420,7 @@ void vtkWrapPython_GenerateOneMethod(
       vtkWrapPython_SaveArrayArgs(fp, theOccurrence);
 
       /* generate the code that calls the C++ method */
-      vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data,
+      vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data, hinfo,
                                        is_vtkobject);
 
       /* write back to all array args */
@@ -2537,7 +2579,8 @@ static void vtkWrapPython_GenerateMethods(
       fprintf(fp,"\n");
 
       vtkWrapPython_GenerateOneMethod(
-        fp, classname, data, wrappedFunctions, numberOfWrappedFunctions,
+        fp, classname, data, hinfo,
+        wrappedFunctions, numberOfWrappedFunctions,
         fnum, is_vtkobject, do_constructors);
 
       } /* is this method non NULL */
@@ -3832,11 +3875,16 @@ static void vtkWrapPython_SequenceProtocol(
             "    PyErr_SetString(PyExc_IndexError, \"index out of range\");\n"
             "    }\n"
             "  else\n"
-            "    {\n"
-            "    tempr = %s(*op)[temp0];\n"
-            "\n",
+            "    {\n",
             vtkWrap_GetTypeName(getItemFunc->Arguments[0]),
-            getItemFunc->SizeHint,
+            getItemFunc->SizeHint);
+
+    fprintf(fp, "  ");
+    vtkWrap_DeclareVariable(fp, getItemFunc->ReturnValue,
+      "tempr", -1, VTK_WRAP_RETURN | VTK_WRAP_NOSEMI);
+
+    fprintf(fp, " = %s(*op)[temp0];\n"
+            "\n",
             (vtkWrap_IsRef(getItemFunc->ReturnValue) ? "&" : ""));
 
     vtkWrapPython_ReturnValue(fp, getItemFunc->ReturnValue, 1);

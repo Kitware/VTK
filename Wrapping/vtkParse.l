@@ -7,23 +7,19 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex --nounput --nodefault -olex.yy.c vtkParse.l
+  flex --nodefault -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
   - convert tabs to spaces (8 spaces per tab)
   - remove extra space from end of lines
   - remove blank lines from end of file
-  - change yy_n_chars declarations from "int yy_n_chars;" to
-    "size_t yy_n_chars;" in both the yy_buffer_state structure
-    and the global scope.
-  - in YY_INPUT change "int n" to "size_t n"
+  - replace "int yyl" with "yy_size_t yyl"
   - compile with gcc and "-Wsign-compare", there should be no warnings
 
 */
 
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
-#define YY_NO_UNPUT 1
 
 /* Do not include unistd.h in generated source. */
 #define YY_NO_UNISTD_H
@@ -56,7 +52,12 @@ static int skip_ahead_multi(const char *strings[]);
 static int skip_ahead_until(const char *text);
 static int skip_to_next_directive();
 static int skip_conditional_block();
+
 static void print_preprocessor_error(int result, const char *cp, size_t n);
+static const char *get_macro_arguments();
+
+static void push_buffer();
+static int pop_buffer();
 
 %}
 
@@ -137,13 +138,18 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
 
 [A-Za-z0-9_]*"_EXPORT" ;
 
-"vtkNotUsed"[ ]*"("[^)]*")" {
+"vtkNotUsed"([ \t]*"("[^)]*")")? {
      size_t i; size_t j = 0;
-     while (yytext[j]!='(') { j++; }
-     j++; i = j;
-     while (yytext[j]!=')') { j++; }
-     yylval.str = vtkstrndup(&yytext[i], j-i);
-     return(ID);
+     yylval.str = "";
+     if (yytext[yyleng-1] == ')')
+       {
+       while (yytext[j]!='(') { j++; }
+       while (yytext[j]==' ' || yytext[j]=='\t') { j++; }
+       j++; i = j;
+       while (yytext[j]!=')' && yytext[j] != ' ' && yytext[j] != '\t') { j++; }
+       yylval.str = vtkstrndup(&yytext[i], j-i);
+       return(ID);
+       }
      };
 
 ("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"class"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
@@ -400,24 +406,78 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
                      yylval.str = vtkstrndup(yytext, yyleng);
                      return(ISTREAM); }
 
-("vtkStdString"|("vtkstd::"|"std::")?"string") {
+("vtkStdString"|("vtkstd::"|"std::")?"string"\[^a-zA-Z_]) {
                      yylval.str = vtkstrndup(yytext, yyleng);
                      return(StdString); }
 
 "vtkUnicodeString" { yylval.str = vtkstrndup(yytext, yyleng);
                      return(UnicodeString); }
 
-"vtk"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
-                     return(VTK_ID); }
+"vtkDataArray" { yylval.str = vtkstrdup("vtkDataArray"); return(VTK_ID); }
 
-"Q"[A-Z][0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
-                        return(QT_ID); }
+"VTK_"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
+                      return(ID); }
 
 "Qt::"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
                       return(QT_ID); }
 
-[a-zA-Z_][0-9a-zA-Z_]*  { yylval.str = vtkstrndup(yytext, yyleng);
-                          return(ID); }
+"__attribute__" { get_macro_arguments(); };
+
+[a-zA-Z_][0-9a-zA-Z_]*  {
+     const char *name = vtkstrndup(yytext, yyleng);
+     MacroInfo *macro = vtkParsePreprocess_GetMacro(&preprocessor, name);
+     int expanded = 0;
+
+     if (macro)
+       {
+       if (macro->IsFunction)
+         {
+         const char *args = get_macro_arguments();
+         const char *emacro = NULL;
+         if (args)
+           {
+           emacro = vtkParsePreprocess_ExpandMacro(macro, args);
+           free((char *)args);
+           if (emacro)
+             {
+             push_buffer();
+             yy_switch_to_buffer(yy_scan_string(emacro));
+             vtkParsePreprocess_FreeExpandedMacro(emacro);
+             expanded = 1;
+             }
+           else
+             {
+             print_preprocessor_error(
+               VTK_PARSE_MACRO_NUMARGS, macro->Name, strlen(macro->Name));
+             }
+           }
+         }
+       /* non-function macro expansion breaks "real superclass" trick
+       else if (macro->Definition)
+         {
+         push_buffer();
+         yy_switch_to_buffer(yy_scan_string(macro->Definition));
+         expanded = 1;
+         }
+       */
+       }
+     if (!expanded)
+       {
+       yylval.str = name;
+       if (yyleng > 3 && name[0] == 'v' && name[1] == 't' && name[2] == 'k')
+         {
+         return(VTK_ID);
+         }
+       else if (name[0] == 'Q')
+         {
+         return(QT_ID);
+         }
+       else
+         {
+         return(ID);
+         }
+       }
+     };
 
 [0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
                      yylval.str = vtkstrndup(yytext, yyleng);
@@ -438,6 +498,8 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
 "0"                { yylval.str = vtkstrndup(yytext, yyleng);
                      return(ZERO); };
 
+"\\\n" ;
+"\\\r\n" ;
 [\t\n\r ] ;
 
 "<<="             return(OP_LSHIFT_EQ);
@@ -472,8 +534,159 @@ static void print_preprocessor_error(int result, const char *cp, size_t n);
 
 [~{}()<>:;*/%=,&.!+|^\-] { return(yytext[0]); }
 
-.                return(OTHER);
+<<EOF>> { if (!pop_buffer()) { yyterminate(); } }
+
+.  { return(OTHER); }
+
 %%
+
+/*
+ * Return a parenthetical macro arg list as a new string.
+ */
+const char *get_macro_arguments()
+{
+  char *cp = NULL;
+  size_t i = 0;
+  int depth;
+  int ws = 0;
+  int sl = 0;
+  int c1 = input();
+  while (c1 == ' ' || c1 == '\t' || c1 == '\r' || c1 == '\n')
+    {
+    c1 = input();
+    }
+
+  cp = (char *)malloc(4);
+
+  if (c1 != '(')
+    {
+    unput(c1);
+    return NULL;
+    }
+
+  cp[i++] = '(';
+  depth = 1;
+  c1 = input();
+
+  for (;;)
+    {
+    ws = 0;
+    sl = 0;
+    /* skip all whitespace */
+    while (c1 == ' ' || c1 == '\t' || c1 == '\r' || c1 == '\n')
+      {
+      ws = 1;
+      c1 = input();
+      }
+    if (c1 == '/')
+      {
+      c1 = input();
+      if (c1 == '*')
+        {
+        /* skip a C style comment */
+        ws = 1;
+        if (skip_comment() == 0)
+          {
+          return NULL;
+          }
+        c1 = input();
+        }
+      else if (c1 == '/')
+        {
+        /* skip a C++ style comment */
+        ws = 1;
+        do { c1 = input(); }
+        while (c1 != '\n' && c1 != '\0');
+        if (c1 == '\0')
+          {
+          return NULL;
+          }
+        c1 = input();
+        }
+      else
+        {
+        sl = 1;
+        }
+      }
+    if (ws)
+      {
+      /* add a single space to replace any whitespace */
+      cp[i++] = ' ';
+      if (i >= 4 && (i & (i-1)) == 0)
+        {
+        cp = (char *)realloc(cp, 2*i);
+        }
+      }
+    if (sl)
+      {
+      /* add a single space to replace any whitespace */
+      cp[i++] = '/';
+      if (i >= 4 && (i & (i-1)) == 0)
+        {
+        cp = (char *)realloc(cp, 2*i);
+        }
+      }
+    if (c1 == '\"' || c1 == '\'')
+      {
+      int c2 = c1;
+      int escaped = 2;
+      int firstloop = 1;
+      do
+        {
+        if (escaped)
+          {
+          --escaped;
+          }
+        if (!firstloop)
+          {
+          c1 = input();
+          }
+        firstloop = 0;
+        if (c1 == '\0')
+          {
+          break;
+          }
+        if (escaped == 0 && c1 == '\\')
+          {
+          escaped = 2;
+          }
+        cp[i++] = (char)c1;
+        if (i >= 4 && (i & (i-1)) == 0)
+          {
+          cp = (char *)realloc(cp, 2*i);
+          }
+        }
+      while (c1 != c2 || escaped);
+      }
+    else if (c1 != '\0')
+      {
+      cp[i++] = (char)c1;
+      if (i >= 4 && (i & (i-1)) == 0)
+        {
+        cp = (char *)realloc(cp, 2*i);
+        }
+      cp[i] = '\0';
+      if (c1 == '(')
+        {
+        depth++;
+        }
+      if (c1 == ')')
+        {
+        if (--depth == 0)
+          {
+          break;
+          }
+        }
+      }
+    else
+      {
+      return NULL;
+      }
+    c1 = input();
+    }
+
+  return cp;
+}
 
 /*
  * Skip a C-style comment, return 0 if unterminated.
@@ -695,6 +908,45 @@ int skip_ahead_until(const char *text)
 }
 
 /*
+ * buffer stack, used for macro expansion and include files
+ */
+static size_t buffer_stack_size = 0;
+static YY_BUFFER_STATE *buffer_stack = NULL;
+
+/*
+ * push the current buffer onto the buffer stack.
+ */
+void push_buffer()
+{
+  size_t n = buffer_stack_size;
+  if (buffer_stack == NULL)
+    {
+    buffer_stack = (YY_BUFFER_STATE *)malloc(4*sizeof(YY_BUFFER_STATE));
+    }
+  // grow the stack whenever size reaches a power of two
+  else if (n >= 4 && (n & (n-1)) == 0)
+    {
+    buffer_stack = (YY_BUFFER_STATE *)realloc(
+      buffer_stack, 2*n*sizeof(YY_BUFFER_STATE));
+    }
+  buffer_stack[buffer_stack_size++] = YY_CURRENT_BUFFER;
+}
+
+/*
+ * pop the buffer stack and restore the previous buffer
+ */
+int pop_buffer()
+{
+  if (buffer_stack_size == 0)
+    {
+    return 0;
+    }
+  yy_delete_buffer(YY_CURRENT_BUFFER);
+  yy_switch_to_buffer(buffer_stack[--buffer_stack_size]);
+  return 1;
+}
+
+/*
  * print an error with filename and line number.
  */
 void print_preprocessor_error(int result, const char *cp, size_t n)
@@ -732,6 +984,9 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
     case VTK_PARSE_FILE_READ_ERROR:
       text = "input/output error";
       break;
+    case VTK_PARSE_MACRO_NUMARGS:
+      text = "wrong number of args for macro";
+      break;
     case VTK_PARSE_SYNTAX_ERROR:
       text = "syntax error";
       break;
@@ -749,6 +1004,6 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
     while (j > 0 && data.FileName[j-1] != '/') { j--; }
     fn = &data.FileName[j];
     }
-  fprintf(yyout, "%s:%i: %s:\n", fn, yylineno, text);
+  fprintf(yyout, "In %s:%i: %s: ", fn, yylineno, text);
   fprintf(yyout, "%*.*s\n", (int)n, (int)n, cp);
 }

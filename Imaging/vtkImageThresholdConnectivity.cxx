@@ -18,8 +18,8 @@
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
-#include "vtkImageProgressIterator.h"
 #include "vtkImageStencilIterator.h"
+#include "vtkImageIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkImageStencilData.h"
@@ -44,6 +44,11 @@ vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
   this->InValue = 0.0;
   this->ReplaceOut = 0;
   this->OutValue = 0.0;
+
+  this->NeighborhoodRadius[0] = 0.0;
+  this->NeighborhoodRadius[1] = 0.0;
+  this->NeighborhoodRadius[2] = 0.0;
+  this->NeighborhoodFraction = 0.5;
 
   this->SliceRangeX[0] = -VTK_INT_MAX;
   this->SliceRangeX[1] = VTK_INT_MAX;
@@ -328,7 +333,7 @@ void vtkImageThresholdConnectivityExecute(
 
   // Set the "outside" with either the input or the OutValue
   vtkImageIterator<IT> inIt(inData, outExt);
-  vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
+  vtkImageIterator<OT> outIt(outData, outExt);
   while (!outIt.IsAtEnd())
     {
     IT* inSI = inIt.BeginSpan();
@@ -424,6 +429,10 @@ void vtkImageThresholdConnectivityExecute(
                         static_cast<vtkIdType>(extent[3] - extent[2] + 1)*
                         static_cast<vtkIdType>(extent[5] - extent[4] + 1));
 
+  // for the progress meter
+  double progress = 0.0;
+  vtkIdType target = static_cast<vtkIdType>(fullsize/50.0);
+  target++;
 
   // Setup the mask
   maskData->SetOrigin(inData->GetOrigin());
@@ -450,6 +459,22 @@ void vtkImageThresholdConnectivityExecute(
     {
     // pre-set all mask voxels that are outside the stencil
     vtkImageThresholdConnectivityApplyStencil(maskData, stencil, extent);
+    }
+
+  // Check whether neighborhood will be used
+  double f = self->GetNeighborhoodFraction();
+  double radius[3];
+  self->GetNeighborhoodRadius(radius);
+  int xradius = static_cast<int>(radius[0] + 0.5);
+  int yradius = static_cast<int>(radius[1] + 0.5);
+  int zradius = static_cast<int>(radius[2] + 0.5);
+  double fx = 0.0, fy = 0.0, fz = 0.0;
+  bool useNeighborhood = ((xradius > 0) & (yradius > 0) & (zradius > 0));
+  if (useNeighborhood)
+    {
+    fx = 1.0/radius[0];
+    fy = 1.0/radius[1];
+    fz = 1.0/radius[2];
     }
 
   // Perform the flood fill within the extent
@@ -479,8 +504,8 @@ void vtkImageThresholdConnectivityExecute(
     }
 
   double point[3];
-  int nPoints = points->GetNumberOfPoints();
-  for (int p = 0; p < nPoints; p++)
+  vtkIdType nPoints = points->GetNumberOfPoints();
+  for (vtkIdType p = 0; p < nPoints; p++)
     {
     points->GetPoint(p,point);
     vtkFloodFillSeed seed = vtkFloodFillSeed(
@@ -496,7 +521,8 @@ void vtkImageThresholdConnectivityExecute(
       }
     }
 
-  int counter = 0;
+  vtkIdType counter = 0;
+  vtkIdType fullcount = 0;
 
   while (!seedStack.empty())
     {
@@ -513,12 +539,89 @@ void vtkImageThresholdConnectivityExecute(
       }
     *maskPtr1 = 255;
 
+    fullcount++;
+    if (id == 0 && (fullcount % target) == 0)
+      {
+      double v = counter/(10.0*fullcount);
+      double p = fullcount/(v*fullsize + (1.0 - v)*fullcount);
+      if (p > progress)
+        {
+        progress = p;
+        self->UpdateProgress(progress);
+        }
+      }
+
     IT *inPtr1 = inPtr + (seed[0]*inInc[0] +
                           seed[1]*inInc[1] +
                           seed[2]*inInc[2]);
     IT temp = *inPtr1;
 
-    if (lowerThreshold <= temp && temp <= upperThreshold)
+    bool inside = ((lowerThreshold <= temp) & (temp <= upperThreshold));
+
+    // use a spherical neighborhood
+    if (useNeighborhood)
+      {
+      int xmin = seed[0] - xradius;
+      xmin = (xmin >= 0 ? xmin : 0);
+      int xmax = seed[0] + xradius;
+      xmax = (xmax <= maxIdX ? xmax : maxIdX);
+
+      int ymin = seed[1] - yradius;
+      ymin = (ymin >= 0 ? ymin : 0);
+      int ymax = seed[1] + yradius;
+      ymax = (ymax <= maxIdY ? ymax : maxIdY);
+
+      int zmin = seed[2] - zradius;
+      zmin = (zmin >= 0 ? zmin : 0);
+      int zmax = seed[2] + zradius;
+      zmax = (zmax <= maxIdZ ? zmax : maxIdZ);
+
+      inPtr1 = inPtr + (xmin*inInc[0] +
+                        ymin*inInc[1] +
+                        zmin*inInc[2]);
+
+      int totalcount = 0;
+      int threshcount = 0;
+      int iz = zmin;
+      do
+        {
+        IT *inPtr2 = inPtr1;
+        double rz = (iz - seed[2])*fz;
+        rz *= rz;
+        int iy = ymin;
+        do
+          {
+          IT *inPtr3 = inPtr2;
+          double ry = (iy - seed[1])*fy;
+          ry *= ry;
+          double rzy = rz + ry;
+          int ix = xmin;
+          do
+            {
+            double rx = (ix - seed[0])*fx;
+            rx *= rx;
+            double rzyx = rzy + rx;
+            // include a tolerance in radius check
+            bool isgood = (rzyx < (1.0 + 7.62939453125e-06));
+            totalcount += isgood;
+            isgood &= ((lowerThreshold <= *inPtr3) &
+                       (*inPtr3 <= upperThreshold));
+            threshcount += isgood;
+            inPtr3 += inInc[0];
+            }
+          while (++ix <= xmax);
+          inPtr2 += inInc[1];
+          }
+        while (++iy <= ymax);
+        inPtr1 += inInc[2];
+        }
+      while (++iz <= zmax);
+
+      // what fraction of the sphere is within threshold?
+      inside &= !(static_cast<double>(threshcount) < totalcount*f);
+      }
+
+    if (inside)
       {
       // match
       OT *outPtr1 = outPtr + (seed[0]*outInc[0] +
@@ -562,6 +665,11 @@ void vtkImageThresholdConnectivityExecute(
         seedStack.push(vtkFloodFillSeed(seed[0] + 1, seed[1], seed[2]));
         }
       }
+    }
+
+  if (id == 0)
+    {
+    self->UpdateProgress(1.0);
     }
 
   voxelCount = counter;
@@ -677,6 +785,11 @@ void vtkImageThresholdConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UpperThreshold: " << this->UpperThreshold << "\n";
   os << indent << "ReplaceIn: " << this->ReplaceIn << "\n";
   os << indent << "ReplaceOut: " << this->ReplaceOut << "\n";
+  os << indent << "NeighborhoodRadius: " << this->NeighborhoodRadius[0] << " "
+     << this->NeighborhoodRadius[1] << " "
+     << this->NeighborhoodRadius[2] << "\n";
+  os << indent << "NeighborhoodFraction: "
+     << this->NeighborhoodFraction << "\n";
   os << indent << "NumberOfInVoxels: " << this->NumberOfInVoxels << "\n";
   os << indent << "SliceRangeX: "
      << this->SliceRangeX[0] << " " << this->SliceRangeX[1] << "\n";

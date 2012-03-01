@@ -1,4 +1,4 @@
-#include "vtkLinearExtractor.h"
+#include "vtkLinearSelector.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkCell.h"
@@ -19,11 +19,11 @@
 
 #include <vtksys/stl/vector>
 
-vtkStandardNewMacro(vtkLinearExtractor);
-vtkCxxSetObjectMacro(vtkLinearExtractor,Points,vtkPoints);
+vtkStandardNewMacro(vtkLinearSelector);
+vtkCxxSetObjectMacro(vtkLinearSelector,Points,vtkPoints);
 
 // ----------------------------------------------------------------------
-vtkLinearExtractor::vtkLinearExtractor()
+vtkLinearSelector::vtkLinearSelector()
 {
   
   this->StartPoint[0] = this->StartPoint[1] = this->StartPoint[2] = 0.0;
@@ -35,13 +35,13 @@ vtkLinearExtractor::vtkLinearExtractor()
 }
 
 // ----------------------------------------------------------------------
-vtkLinearExtractor::~vtkLinearExtractor()
+vtkLinearSelector::~vtkLinearSelector()
 {
   this->SetPoints( 0 );
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractor::PrintSelf( ostream& os, vtkIndent indent )
+void vtkLinearSelector::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os,indent );
 
@@ -92,7 +92,7 @@ void vtkLinearExtractor::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearExtractor::FillInputPortInformation( int vtkNotUsed( port ),
+int vtkLinearSelector::FillInputPortInformation( int vtkNotUsed( port ),
                                                   vtkInformation *info )
 {
   info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet" );
@@ -101,7 +101,7 @@ int vtkLinearExtractor::FillInputPortInformation( int vtkNotUsed( port ),
 }
 
 // ----------------------------------------------------------------------
-int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
+int vtkLinearSelector::RequestData( vtkInformation *vtkNotUsed( request ),
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector )
 {
@@ -119,13 +119,13 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
   // preparation de l'output
   if ( ! output )
     {
-    vtkErrorMacro( <<"vtkLinearExtractor: filter does not have any output." );
+    vtkErrorMacro( <<"vtkLinearSelector: filter does not have any output." );
     return 0;
     }	// if ( ! output )
 
   if ( ! compositeInput )
     {
-    vtkErrorMacro( <<"vtkLinearExtractor: filter does not have any input." );
+    vtkErrorMacro( <<"vtkLinearSelector: filter does not have any input." );
     return 0;
     }	// if ( ! compositeInput )
 
@@ -163,7 +163,7 @@ int vtkLinearExtractor::RequestData( vtkInformation *vtkNotUsed( request ),
 }
 
 // ----------------------------------------------------------------------
-void vtkLinearExtractor::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray* outIndices )
+void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray* outIndices )
 {
   vtkIdType nSegments = this->Points ? this->Points->GetNumberOfPoints() - 1 : 1;
 

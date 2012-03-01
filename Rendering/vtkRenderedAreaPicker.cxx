@@ -61,7 +61,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   this->Renderer = renderer;
 
   this->SelectionPoint[0] = (x0+x1)*0.5;
-  this->SelectionPoint[1] = (x0+x1)*0.5;
+  this->SelectionPoint[1] = (y0+y1)*0.5;
   this->SelectionPoint[2] = 0.0;
 
   // Invoke start pick method if defined

@@ -21,11 +21,13 @@ vtkAMRBox.cxx
 vtkAnnotation.cxx
 vtkAnnotationLayers.cxx
 vtkAnnotationLayersAlgorithm.cxx
+vtkAtom.cxx
 vtkAttributesErrorMetric.cxx
 vtkBiQuadraticQuad.cxx
 vtkBiQuadraticQuadraticHexahedron.cxx
 vtkBiQuadraticQuadraticWedge.cxx
 vtkBiQuadraticTriangle.cxx
+vtkBond.cxx
 vtkBSPCuts.cxx
 vtkBSPIntersections.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
@@ -130,13 +132,14 @@ vtkKdTree.cxx
 vtkKdTreePointLocator.cxx
 vtkKochanekSpline.cxx
 vtkLine.cxx
-vtkLinearExtractor.cxx
+vtkLinearSelector.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMeanValueCoordinatesInterpolator.cxx
 vtkMergePoints.cxx
 vtkMarchingSquaresLineCases.cxx
 vtkMarchingCubesTriangleCases.cxx
+vtkMolecule.cxx
 vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataSet.cxx
 vtkMultiPieceDataSet.cxx
@@ -280,6 +283,8 @@ vtkViewport
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkAMRBox.cxx
+  vtkAtom.cxx
+  vtkBond.cxx
   vtkExecutionSchedulerManager.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkImageBSplineInternals.cxx
@@ -292,6 +297,8 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkAtom.cxx
+  vtkBond.cxx
   vtkImageBSplineInternals.cxx
 
   PROPERTIES WRAP_SPECIAL 1
@@ -348,4 +355,3 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development
     )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-

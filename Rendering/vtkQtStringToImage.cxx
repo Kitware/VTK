@@ -88,7 +88,7 @@ vtkQtStringToImage::~vtkQtStringToImage()
 vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
                                           const vtkUnicodeString& string)
 {
-  vtkVector2i recti;
+  vtkVector2i recti(0, 0);
   if (!QApplication::instance())
     {
     vtkErrorMacro("You must initialize a QApplication before using this class.");
@@ -119,7 +119,7 @@ vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
 vtkVector2i vtkQtStringToImage::GetBounds(vtkTextProperty *property,
                                           const vtkStdString& string)
 {
-  vtkVector2i recti;
+  vtkVector2i recti(0, 0);
   if (!QApplication::instance())
     {
     vtkErrorMacro("You must initialize a QApplication before using this class.");

@@ -202,12 +202,21 @@ void QVTKWidget2::Start()
 {
   makeCurrent();
   mRenWin->PushState();
-  mRenWin->OpenGLInit();
+  mRenWin->OpenGLInitState();
 }
 
 void QVTKWidget2::End()
 {
   mRenWin->PopState();
+}
+
+void QVTKWidget2::initializeGL()
+{
+  if(!this->mRenWin)
+    {
+    return;
+    }
+  this->mRenWin->OpenGLInitContext();
 }
 
 /*! handle resize event

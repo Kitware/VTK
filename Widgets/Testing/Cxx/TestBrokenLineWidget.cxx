@@ -7,7 +7,7 @@
 #include "vtkDataSetMapper.h"
 #include "vtkExtractSelection.h"
 #include "vtkInformation.h"
-#include "vtkLinearExtractor.h"
+#include "vtkLinearSelector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -49,12 +49,12 @@ public:
 
     // Update cardinality of selection
     vtksys_ios::ostringstream txt;
-    txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+    txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
     this->Text->SetInput( txt.str().c_str() );
   }
 vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
   vtkPolyData* Poly;
-  vtkLinearExtractor* Selector; 
+  vtkLinearSelector* Selector; 
   vtkExtractSelection* Extractor;
   vtkDataSetMapper* Mapper;
   vtkTextActor* Text;
@@ -123,7 +123,6 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   line->PlaceWidget();
   line->ProjectToPlaneOff();
   line->On();
-  line->SetResolution( 6 );
   line->SetHandleSizeFactor( 1.2 );
 
   // Create list of points to define broken line
@@ -145,7 +144,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   ren2->AddActor( lineActor );
 
   // Create selection along broken line defined by list of points
-  vtkSmartPointer<vtkLinearExtractor> selector = vtkSmartPointer<vtkLinearExtractor>::New();
+  vtkSmartPointer<vtkLinearSelector> selector = vtkSmartPointer<vtkLinearSelector>::New();
   selector->SetInputData( meshMB );
   selector->SetPoints( points );
   selector->IncludeVerticesOff();
@@ -171,7 +170,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   // Annotate with number of elements
   vtkSmartPointer<vtkTextActor> txtActor = vtkSmartPointer<vtkTextActor>::New();
   vtksys_ios::ostringstream txt;
-  txt << "Number of selected elements:" << ( selection ? selection->GetNumberOfCells() : 0 );
+  txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
   txtActor->SetInput( txt.str().c_str() );
   txtActor->SetTextScaleModeToViewport();
   txtActor->SetNonLinearFontScale( .2, 18 );

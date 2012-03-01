@@ -152,7 +152,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();
     }

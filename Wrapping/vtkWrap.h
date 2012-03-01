@@ -29,6 +29,7 @@
 /*@{*/
 #define VTK_WRAP_RETURN  1
 #define VTK_WRAP_ARG     2
+#define VTK_WRAP_NOSEMI  4
 /*@}*/
 
 #ifdef __cplusplus
@@ -161,6 +162,11 @@ void vtkWrap_FindCountHints(
   ClassInfo *data, HierarchyInfo *hinfo);
 
 /**
+ * Get the size of a fixed-size tuple
+ */
+int vtkWrap_GetTupleSize(ClassInfo *data, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about methods that return a new object instance,
  * i.e. factory methods and the like.  Reference counts must be
  * handled differently for such returned objects.
@@ -216,6 +222,7 @@ int vtkWrap_CountRequiredArgs(FunctionInfo *f);
  * Set "flags" to VTK_WRAP_RETURN to write a return value,
  * or to VTK_WRAP_ARG to write a temp argument variable.
  * The following rules apply:
+ * - if VTK_WRAP_NOSEMI is set, then no semicolon/newline is printed
  * - if VTK_WRAP_RETURN is set, then "&" becomes "*"
  * - if VTK_WRAP_ARG is set, "&" becomes "*" only for object
  *   types, and is removed for all other types.

@@ -251,6 +251,13 @@ public:
   void SetBackgroundBrush(vtkBrush *brush);
   vtkBrush* GetBackgroundBrush();
 
+  // Description:
+  // Set/get the Selection Mode that will be used by the chart while doing
+  // selection. The only valid enums are vtkContextScene::SELECTION_NONE,
+  // SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
+  virtual void SetSelectionMode(int);
+  vtkGetMacro(SelectionMode, int);
+
 protected:
   vtkChart();
   ~vtkChart();
@@ -305,6 +312,9 @@ protected:
   // Description:
   // Brush to use for drawing the background.
   vtkSmartPointer<vtkBrush> BackgroundBrush;
+
+  // The mode when the chart is doing selection.
+  int SelectionMode;
 
   // Description:
   // Hold mouse action mappings.

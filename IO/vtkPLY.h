@@ -200,7 +200,7 @@ public:
   static void add_obj_info(PlyFile *, char *);
   static void copy_property(PlyProperty *, const PlyProperty *);
   static void store_item(char *, int, int, unsigned int, double);
-  static void get_stored_item( void *, int, int *, unsigned int *, double *);
+  static void get_stored_item( const void *, int, int *, unsigned int *, double *);
   static double get_item_value(const char *, int);
   static void get_ascii_item(const char *, int, int *, unsigned int *, double *);
   static void get_binary_item(PlyFile *, int, int *, unsigned int *, double *);

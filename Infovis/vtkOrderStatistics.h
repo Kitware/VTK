@@ -29,10 +29,13 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set and a set of q-quantiles, label each datum
 //   either with the quantile interval to which it belongs, or 0 if it is smaller
 //   than smaller quantile, or q if it is larger than largest quantile.
+// * Test: calculate Kolmogorov-Smirnov goodness-of-fit statistic between CDF based on
+//   model quantiles, and empirical CDF
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkOrderStatistics_h
 #define __vtkOrderStatistics_h

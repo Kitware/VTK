@@ -179,6 +179,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --to "$INTERMEDIATE_DOX_DIR" \
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Charts" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Chemistry" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
@@ -217,6 +218,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --unique "v" \
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Charts" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Chemistry" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \
@@ -246,6 +248,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         --store "doc_""$PROJECT_NAME""_index.dox" \
         --to "$INTERMEDIATE_DOX_DIR" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Charts" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Chemistry" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/GenericFiltering" \

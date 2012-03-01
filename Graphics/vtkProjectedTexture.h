@@ -70,15 +70,20 @@ public:
   // Get the normalized orientation vector of the projector.
   vtkGetVectorMacro(Orientation,double,3);
   
+  // Description:
   // Set/Get the up vector of the projector.
   vtkSetVector3Macro(Up,double);
   vtkGetVectorMacro(Up,double,3);
 
+  // Description:
   // Set/Get the aspect ratio of a perpendicular cross-section of the
   // the projector's frustum.  The aspect ratio consists of three 
   // numbers:  (x, y, z), where x is the width of the 
   // frustum, y is the height, and z is the perpendicular
   // distance from the focus of the projector.
+  //
+  // For example, if the source of the image is a pinhole camera with
+  // view angle A, then you could set x=1, y=1, z=1/tan(A).
   vtkSetVector3Macro(AspectRatio,double);
   vtkGetVectorMacro(AspectRatio,double,3);
 

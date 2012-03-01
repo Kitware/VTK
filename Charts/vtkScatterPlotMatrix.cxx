@@ -33,10 +33,13 @@
 #include "vtkPlotPoints.h"
 #include "vtkCommand.h"
 #include "vtkTextProperty.h"
+#include "vtkContextScene.h"
+#include "vtkRenderWindowInteractor.h"
 
 // STL includes
 #include <map>
 #include <cassert>
+#include <vector>
 
 class vtkScatterPlotMatrix::PIMPL
 {
@@ -55,7 +58,6 @@ public:
     activeplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
     this->ChartSettings[vtkScatterPlotMatrix::ACTIVEPLOT] = activeplotSettings;
     activeplotSettings->MarkerSize = 8.0;
-
     this->SelectedChartBGBrush->SetColor(0, 204, 0, 102);
     this->SelectedRowColumnBGBrush->SetColor(204, 0, 0, 102);
   }
@@ -145,7 +147,7 @@ public:
 
   vtkNew<vtkTable> Histogram;
   bool VisibleColumnsModified;
-  vtkChart* BigChart;
+  vtkWeakPointer<vtkChart> BigChart;
   vtkNew<vtkAnnotationLink> Link;
 
   std::map<int, pimplChartSetting*> ChartSettings;
@@ -153,6 +155,7 @@ public:
 
   vtkNew<vtkBrush> SelectedRowColumnBGBrush;
   vtkNew<vtkBrush> SelectedChartBGBrush;
+  std::vector< vtkVector2i > AnimationPath;
 };
 
 namespace
@@ -228,6 +231,76 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
     }
   return true;
 }
+
+bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
+{
+  if(!visCols || visCols->GetNumberOfTuples() == 0
+    || fromCol == toCol || fromCol == (toCol-1) || fromCol < 0 || toCol < 0)
+    {
+    return false;
+    }
+  int numCols = visCols->GetNumberOfTuples();
+  if( fromCol >= numCols || toCol > numCols)
+    {
+    return false;
+    }
+
+  std::vector<vtkStdString> newVisCols;
+  vtkIdType c;
+  if(toCol == numCols)
+    {
+    for(c=0; c<numCols; c++)
+      {
+      if(c!=fromCol)
+        {
+        newVisCols.push_back(visCols->GetValue(c));
+        }
+      }
+    // move the fromCol to the end
+    newVisCols.push_back(visCols->GetValue(fromCol));
+    }
+  // insert the fromCol before toCol
+  else if(fromCol < toCol)
+    {
+    // move Cols in the middle up
+    for(c=0; c<fromCol; c++)
+      {
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    for(c=fromCol+1; c<numCols; c++)
+      {
+      if(c == toCol)
+        {
+        newVisCols.push_back(visCols->GetValue(fromCol));
+        }
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    }
+  else
+    {
+    for(c=0; c<toCol; c++)
+      {
+      newVisCols.push_back(visCols->GetValue(c));
+      }
+    newVisCols.push_back(visCols->GetValue(fromCol));
+    for(c=toCol; c<numCols; c++)
+      {
+      if(c != fromCol)
+        {
+        newVisCols.push_back(visCols->GetValue(c));
+        }
+      }
+    }
+
+  // repopulate the visCols
+  vtkIdType visId=0;
+  std::vector<vtkStdString>::iterator arrayIt;
+  for(arrayIt=newVisCols.begin(); arrayIt!=newVisCols.end(); ++arrayIt)
+    {
+    visCols->SetValue(visId++, *arrayIt);
+    }
+  return true;
+}
 }
 
 vtkStandardNewMacro(vtkScatterPlotMatrix)
@@ -237,6 +310,7 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix() : NumberOfBins(10)
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
+  this->SelectionMode = vtkContextScene::SELECTION_NONE;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -364,10 +438,84 @@ vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
   return this->ActivePlot;
 }
 
+void vtkScatterPlotMatrix::UpdateAnimationPath(
+  const vtkVector2i& newActivePos)
+{
+  this->Private->AnimationPath.clear();
+  if(newActivePos[0] != this->ActivePlot[0] ||
+    newActivePos[1] != this->ActivePlot[1])
+    {
+    if(newActivePos[1] >= this->ActivePlot[1])
+      {
+      // x direction first
+      if(this->ActivePlot[0]>newActivePos[0])
+        {
+        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, this->ActivePlot[1]));
+        }
+      else
+        {
+        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, this->ActivePlot[1]));
+        }
+      // then y direction
+      for(int c=this->ActivePlot[1]+1; c<=newActivePos[1]; c++)
+        this->Private->AnimationPath.push_back(
+          vtkVector2i(newActivePos[0], c));
+      }
+    else
+      {
+      // y direction first
+      for(int c=this->ActivePlot[1]-1; c>=newActivePos[1]; c--)
+        this->Private->AnimationPath.push_back(
+        vtkVector2i(this->ActivePlot[0], c));       
+      // then x direction
+      if(this->ActivePlot[0]>newActivePos[0])
+        {
+        for(int r=this->ActivePlot[0]-1; r>=newActivePos[0]; r--)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, newActivePos[1]));
+        }
+      else
+        {
+        for(int r=this->ActivePlot[0]+1; r<=newActivePos[0]; r++)
+          this->Private->AnimationPath.push_back(
+          vtkVector2i(r, newActivePos[1]));
+        }
+      }
+    }
+}
+
+void vtkScatterPlotMatrix::StartAnimation(
+  vtkRenderWindowInteractor* interactor)
+{
+  for(std::vector<vtkVector2i>::iterator iter =
+    this->Private->AnimationPath.begin();
+    iter != this->Private->AnimationPath.end(); iter++)
+    {
+    this->SetActivePlot(*iter);
+    this->GetScene()->SetDirty(true);
+    interactor->Render();
+    }
+}
+
+#ifndef VTK_LEGACY_REMOVE
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
 {
-  return this->Private->BigChart ?
-    this->Private->BigChart->GetAnnotationLink() : NULL;
+  // Never made it into a release, deprecating for shorter, more consistent
+  // naming of the function.
+  VTK_LEGACY_REPLACED_BODY(vtkScatterPlotMatrix::GetActiveAnnotationLink,
+                           "VTK 5.8",
+                           vtkScatterPlotMatrix::GetAnnotationLink);
+  return this->GetAnnotationLink();
+}
+#endif
+
+vtkAnnotationLink* vtkScatterPlotMatrix::GetAnnotationLink()
+{
+  return this->Private->Link.GetPointer();
 }
 
 void vtkScatterPlotMatrix::SetInput(vtkTable *table)
@@ -391,7 +539,6 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
       this->SetColumnVisibilityAll(true);
       return;
       }
-
     int n = static_cast<int>(this->Input->GetNumberOfColumns());
     this->SetColumnVisibilityAll(true);
     this->SetSize(vtkVector2i(n, n));
@@ -452,6 +599,65 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
     }
 }
 
+void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
+                                               int index)
+{
+  if(!this->Input || !this->Input->GetColumnByName(name.c_str()))
+    {
+    return;
+    }
+
+  // Check if the column is already in the list. If yes,
+  // we may need to rearrange the order of the columns.
+  vtkIdType currIdx = -1;
+  vtkIdType numCols = this->VisibleColumns->GetNumberOfTuples();
+  for (vtkIdType i = 0; i < numCols; ++i)
+    {
+    if (this->VisibleColumns->GetValue(i) == name)
+      {
+      currIdx = i;
+      break;
+      }
+    }
+
+  if(currIdx > 0 && currIdx == index)
+    {
+    //This column is already there.
+    return;
+    }
+
+  if(currIdx < 0)
+    {
+    this->VisibleColumns->SetNumberOfTuples(numCols+1);
+    if(index >= numCols)
+      {
+      this->VisibleColumns->SetValue(numCols, name);
+      }
+    else // move all the values after index down 1
+      {
+      vtkIdType startidx = numCols;
+      vtkIdType idx = (index < 0) ? 0 : index;
+      while (startidx > idx)
+        {
+        this->VisibleColumns->SetValue(startidx,
+          this->VisibleColumns->GetValue(startidx-1));
+        startidx--;
+        }
+      this->VisibleColumns->SetValue(idx, name);
+      }
+    this->Private->VisibleColumnsModified = true;
+    }
+  else // need to rearrange table columns
+    {
+    vtkIdType toIdx = (index < 0) ? 0 : index;
+    toIdx = toIdx>numCols ? numCols : toIdx;
+    this->Private->VisibleColumnsModified =
+      MoveColumn(this->VisibleColumns.GetPointer(), currIdx, toIdx);
+    }
+
+  this->Update();
+}
+
 bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString &name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
@@ -487,6 +693,23 @@ void vtkScatterPlotMatrix::SetColumnVisibilityAll(bool visible)
 vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
 {
   return this->VisibleColumns.GetPointer();
+}
+
+void vtkScatterPlotMatrix::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  if(!visColumns || visColumns->GetNumberOfTuples() == 0)
+    {
+    this->SetSize(vtkVector2i(0, 0));
+    this->VisibleColumns->SetNumberOfTuples(0);
+    }
+  else
+    {
+    this->VisibleColumns->SetNumberOfTuples(
+      visColumns->GetNumberOfTuples());
+    this->VisibleColumns->DeepCopy(visColumns);
+    }
+  this->Private->VisibleColumnsModified = true;
+  this->Update();
 }
 
 void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
@@ -639,7 +862,17 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
       {
       if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
         {
-        this->SetActivePlot(vtkVector2i(i, j));
+        vtkVector2i pos(i, j);
+        this->UpdateAnimationPath(pos);
+        if(this->Private->AnimationPath.size()>0)
+          {
+          this->StartAnimation(mouse.GetInteractor());
+          }
+        else
+          {
+          this->SetActivePlot(pos);
+          }
+
         return true;
         }
       }
@@ -697,6 +930,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
       if (this->GetPlotType(pos) == SCATTERPLOT)
         {
         vtkChart* chart = this->GetChart(pos);
+        chart->ClearPlots();
         chart->SetAnnotationLink(this->Private->Link.GetPointer());
         // Lower-left triangle - scatter plots.
         chart->SetActionToButton(vtkChart::PAN, -1);
@@ -719,7 +953,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
       else if (this->GetPlotType(pos) == HISTOGRAM)
         {
         // We are on the diagonal - need a histogram plot.
-        vtkPlot *plot = this->GetChart(pos)->AddPlot(vtkChart::BAR);
+        vtkChart* chart = this->GetChart(pos);
+        chart->ClearPlots();
+        vtkPlot *plot = chart->AddPlot(vtkChart::BAR);
         plot->SetPen(this->Private->ChartSettings[HISTOGRAM]
                      ->PlotPen.GetPointer());
         plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
@@ -727,14 +963,14 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkStdString name(this->VisibleColumns->GetValue(i));
         plot->SetInputData(this->Private->Histogram.GetPointer(),
                            name + "_extents", name + "_pops");
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::TOP);
+        vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         if (i != n - 1)
           {
           axis->SetBehavior(vtkAxis::FIXED);
           }
         // Set the plot corner to the top-right
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->GetChart(pos));
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
           {
           xy->SetBarWidthFraction(1.0);
@@ -1028,7 +1264,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
         }
       }
     }
-  else if(plotType == ACTIVEPLOT)
+  else if(plotType == ACTIVEPLOT && this->Private->BigChart)
     {
     this->Private->UpdateAxis(this->Private->BigChart->GetAxis(
       vtkAxis::TOP), this->Private->ChartSettings[ACTIVEPLOT]);
@@ -1036,8 +1272,26 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
       vtkAxis::RIGHT), this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->UpdateChart(this->Private->BigChart,
       this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->BigChart->SetSelectionMode(this->SelectionMode);
     }
 
+}
+//-----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
+  {
+  if (this->SelectionMode == selMode ||
+    selMode < vtkContextScene::SELECTION_NONE ||
+     selMode > vtkContextScene::SELECTION_TOGGLE)
+    {
+    return;
+    }
+  this->SelectionMode = selMode;
+  if(this->Private->BigChart)
+    {
+    this->Private->BigChart->SetSelectionMode(selMode);
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1130,4 +1384,8 @@ vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+
+  os << indent << "NumberOfBins: " << this->NumberOfBins << endl;
+  os << indent << "Title: " << this->Title << endl;
+  os << indent << "SelectionMode: " << this->SelectionMode << endl;
 }

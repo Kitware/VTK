@@ -18,6 +18,8 @@ IF(PYTHON_EXECUTABLE)
     vtkApplyFilterCommandInternal.h
     vtkArrayData.h
     vtkArrayDataAlgorithm.h
+    vtkAtom.h
+    vtkBond.h
     vtkCellType.h
     vtkCompositeDataSetInternals.h
     vtkDataObjectCollection.h

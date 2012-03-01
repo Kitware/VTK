@@ -24,7 +24,7 @@
 vtkStandardNewMacro(vtkPen);
 
 //-----------------------------------------------------------------------------
-vtkPen::vtkPen()
+vtkPen::vtkPen() : PenColor(0, 0, 0, 255)
 {
   this->Color = this->PenColor.GetData();
   this->Width = 1.0;

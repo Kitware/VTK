@@ -88,6 +88,12 @@ except ImportError, exc:
     __helper.refine_import_err('charts', 'vtkChartsPython', exc)
 
 try:
+    from vtkChemistryPython import *
+    kits.append('chemistry')
+except ImportError, exc:
+    __helper.refine_import_err('chemistry', 'vtkChemistryPython', exc)
+
+try:
     from vtkGeovisPython import *
     kits.append('geovis')
 except ImportError, exc:

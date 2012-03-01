@@ -70,10 +70,9 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
     {
     type = type->tp_base;
     }
-#endif
 
   // use str() if available
-  if (type->tp_str)
+  if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
     {
     PyObject *t = type->tp_str(self);
     if (t == NULL)
@@ -87,7 +86,9 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
       }
     }
   // otherwise just print address of object
-  else if (obj->vtk_ptr)
+  else
+#endif
+  if (obj->vtk_ptr)
     {
     char buf[256];
     sprintf(buf, "%p", obj->vtk_ptr);

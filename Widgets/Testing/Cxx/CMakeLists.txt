@@ -77,6 +77,7 @@ IF (VTK_DATA_ROOT)
     TestImplicitPlaneWidget.cxx
     TestImplicitPlaneWidget2.cxx
     TestImplicitPlaneWidget2b.cxx
+    TestImplicitPlaneWidget2LockNormalToCamera.cxx
     TestLineWidget.cxx
     TestLineWidget2.cxx
     TestLogoWidgetAlphaBlending.cxx

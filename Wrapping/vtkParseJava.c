@@ -367,7 +367,7 @@ int DoneOne()
   return 0;
 }
 
-void HandleDataReader(FILE *fp, ClassInfo *data)
+void HandleDataReader(FILE *fp)
 {
     fprintf(fp,"\n  private native void ");
     fprintf(fp,"%s_%i(byte id0[],int id1);\n",
@@ -376,7 +376,6 @@ void HandleDataReader(FILE *fp, ClassInfo *data)
     fprintf(fp,"%s(byte id0[],int id1)\n",currentFunction->Name);
     fprintf(fp,"    { %s_%i(id0,id1); }\n",
             currentFunction->Name,numberOfWrappedFunctions);
-    data = 0;
 }
 
 void HandleDataArray(FILE *fp, ClassInfo *data)
@@ -682,7 +681,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
        !strcmp("vtkStructuredPointsReader",data->Name) ||
        !strcmp("vtkPolyDataReader",data->Name)))
       {
-          HandleDataReader(fp,data);
+          HandleDataReader(fp);
           wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
           numberOfWrappedFunctions++;
       }

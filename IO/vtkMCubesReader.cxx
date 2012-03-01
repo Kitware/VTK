@@ -116,17 +116,40 @@ int vtkMCubesReader::RequestData(
   (limitp = fopen (this->LimitsFileName, "rb")) != NULL &&
   stat (this->FileName, &buf) == 0 )
     {
+    bool errorOccurred = false;
+
     // skip first three pairs
     float fbounds[6];
-    (void) fread (dummy, sizeof(float), 2, limitp);
-    (void) fread (dummy, sizeof(float), 2, limitp);
-    (void) fread (dummy, sizeof(float), 2, limitp);
+    if (fread (dummy, sizeof(float), 2, limitp) != 2)
+      {
+      errorOccurred = true;
+      }
+    else if (fread (dummy, sizeof(float), 2, limitp) != 2)
+      {
+      errorOccurred = true;
+      }
+    if (fread (dummy, sizeof(float), 2, limitp) != 2)
+      {
+      errorOccurred = true;
+      }
 
     // next three pairs are x, y, z limits
-    for (i = 0; i < 6; i++) 
+    for (i = 0; i < 6 && !errorOccurred; i++)
       {
-      (void) fread (&fbounds[i], sizeof (float), 1, limitp);
+      if (fread (&fbounds[i], sizeof (float), 1, limitp) != 1)
+        {
+        errorOccurred = true;
+        }
       }
+
+    if (errorOccurred)
+      {
+      vtkErrorMacro ("MCubesReader error reading file: " << this->LimitsFileName
+                     << " Premature EOF while reading limits.");
+      fclose (limitp);
+      return 0;
+      }
+
     // do swapping if necc
     if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
       {

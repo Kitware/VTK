@@ -226,14 +226,14 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (c)
     {
     idx |= VTK_PDM_COLORS;
-    if (!fieldScalars && c->GetName())
+    if (
+      /* RGBA */
+      (c->GetNumberOfComponents() == 4 && c->GetValueRange(3)[0] == 255) ||
+      /* LuminanceAlpha */
+      (c->GetNumberOfComponents() == 2 && c->GetValueRange(1)[0] == 255))
       {
-      // In the future, I will look at the number of components.
-      // All paths will have to handle 3 component colors.
-      // When using field colors, the c->GetName() condition is not valid,
-      // since field data arrays always have names. In that case we
-      // forfeit the speed improvement gained by using RGB colors instead
-      // or RGBA.
+      // If the opacity is 255, don't bother send the opacity values to OpenGL.
+      // Treat the colors are opaque colors (which they are).
       idx |= VTK_PDM_OPAQUE_COLORS;
       }
     if (cellScalars)
