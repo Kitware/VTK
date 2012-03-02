@@ -885,11 +885,16 @@ void vtkUniformGrid::AttachCellVisibilityToCellData( )
   for( int i=0; i < this->GetNumberOfCells(); ++i )
     {
     if( this->IsCellVisible( i ) )
+      {
       cellIblank->SetValue( i, 1 );
+      }
     else
+      {
       cellIblank->SetValue( i, 0 );
+      }
     }
   this->CellData->AddArray( cellIblank );
+  cellIblank->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -904,12 +909,16 @@ void vtkUniformGrid::AttachPointVisibilityToPointData( )
   for( int i=0; i < this->GetNumberOfPoints(); ++i )
     {
     if( this->IsPointVisible( i ) )
+      {
       pointIblank->SetValue( i, 1 );
+      }
     else
+      {
       pointIblank->SetValue( i, 0 );
+      }
     }
   this->PointData->AddArray( pointIblank );
-
+  pointIblank->Delete();
 }
 
 //----------------------------------------------------------------------------
