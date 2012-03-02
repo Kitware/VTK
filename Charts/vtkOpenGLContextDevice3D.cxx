@@ -116,6 +116,15 @@ public:
 
 vtkStandardNewMacro(vtkOpenGLContextDevice3D)
 
+vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
+{
+}
+
+vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
+{
+  delete Storage;
+}
+
 void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)
 {
 }
@@ -232,20 +241,12 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
   glLoadIdentity();
 
   // Store the previous state before changing it
-  this->Storage->SaveGLState();
+  //this->Storage->SaveGLState();
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
 
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
-
-  // Enable simple line, point and polygon antialiasing if multisampling is on.
-  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
-    {
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POINT_SMOOTH);
-    glEnable(GL_POLYGON_SMOOTH);
-    }
 
   this->InRender = true;
 }
@@ -264,23 +265,7 @@ void vtkOpenGLContextDevice3D::End()
   glPopMatrix();
 
   // Restore the GL state that we changed
-  this->Storage->RestoreGLState();
-
-  // Disable simple line, point and polygon antialiasing if multisampling is on.
-  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
-    {
-    glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_POINT_SMOOTH);
-    glDisable(GL_POLYGON_SMOOTH);
-    }
+  //this->Storage->RestoreGLState();
 
   this->InRender = false;
-}
-
-vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D()
-{
-}
-
-vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
-{
 }

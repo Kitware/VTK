@@ -142,6 +142,7 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   this->Context->GetDevice()->End();
 
   // Now try a little 3D on for size...
+  this->Context3D->GetDevice()->Begin(viewport);
   this->Context3D->GetDevice()->End();
 
   return 1;
@@ -157,7 +158,7 @@ void vtkContextActor::Initialize(vtkViewport* viewport)
     device = vtkOpenGL2ContextDevice2D::New();
     vtkContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
     this->Context3D->Begin(dev);
-
+    dev->Delete();
     }
   else
     {
