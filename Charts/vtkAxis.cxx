@@ -671,13 +671,16 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
   // Second, calculate the tallest tick label
   float tallest = 0.0;
   vtkRectf bounds(0, 0, 0, 0);
-  for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
+  if (this->LabelsVisible)
     {
-    painter->ApplyTextProp(this->LabelProperties);
-    painter->ComputeStringBounds(this->TickLabels->GetValue(i),
-                                 bounds.GetData());
-    widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
-    tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+    for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
+      {
+      painter->ApplyTextProp(this->LabelProperties);
+      painter->ComputeStringBounds(this->TickLabels->GetValue(i),
+                                   bounds.GetData());
+      widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
+      tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+      }
     }
   this->MaxLabel[0] = widest;
   this->MaxLabel[1] = tallest;
