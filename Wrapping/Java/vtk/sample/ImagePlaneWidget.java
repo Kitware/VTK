@@ -74,7 +74,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         // The 3 image plane widgets are used to probe the dataset.
         vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
         planeWidgetX.DisplayTextOn();
-        planeWidgetX.SetInput(id);
+        planeWidgetX.SetInputData(id);
         planeWidgetX.SetInteractor(getRenderWindowInteractor());
         planeWidgetX.SetPlaneOrientationToXAxes();
         planeWidgetX.SetSliceIndex(32);
@@ -85,7 +85,7 @@ public class ImagePlaneWidget extends vtkCanvas {
 
         vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
         planeWidgetY.DisplayTextOn();
-        planeWidgetY.SetInput(id);
+        planeWidgetY.SetInputData(id);
         planeWidgetY.SetInteractor(getRenderWindowInteractor());
         planeWidgetY.SetPlaneOrientationToYAxes();
         planeWidgetY.SetSliceIndex(32);
@@ -100,7 +100,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         // cross-hair cursor snapping to pixel centers
         vtkImagePlaneWidget planeWidgetZ = new vtkImagePlaneWidget();
         planeWidgetZ.DisplayTextOn();
-        planeWidgetZ.SetInput(id);
+        planeWidgetZ.SetInputData(id);
         planeWidgetZ.TextureInterpolateOff();
         planeWidgetZ.SetInteractor(getRenderWindowInteractor());
         planeWidgetZ.SetPlaneOrientationToZAxes();
