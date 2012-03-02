@@ -144,7 +144,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   d->SetMatrix();
 
   // First lets draw the points in 3d.
-  glColor4ub(0, 0, 0, 255);
+  glColor4ub(0, 255, 234, 255);
   glPointSize(5);
   glBegin(GL_POINTS);
   for (int i = 0; i < d->points.size(); ++i)
@@ -157,6 +157,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 
   painter->PushMatrix();
   d->SetMatrix(false);
+  glColor4ub(0, 0, 0, 255);
   // Now lets draw the axes over the top.
   glBegin(GL_LINES);
   for (int i = 0; i < 3; ++i)
@@ -200,6 +201,21 @@ void vtkChartXYZ::SetAroundX(bool isX)
   d->isX = isX;
 }
 
+namespace
+{
+// FIXME: Put this in a central header, as it is used across several classes.
+// Copy the two arrays into the points array
+template<class A>
+void CopyToPoints(float *data, A *input, size_t offset, size_t n)
+{
+  for (size_t i = 0; i < n; ++i)
+    {
+    data[3 * i + offset] = *(input++);
+    }
+}
+
+}
+
 void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            const vtkStdString &yName, const vtkStdString &zName)
 {
@@ -207,39 +223,43 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   cout << "Arrays: " << xName << " -> " << yName << " -> " << zName << endl;
 
   // Copy the points into our data structure for rendering - pack x, y, z...
-  vtkFloatArray *xArr =
-      vtkFloatArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
-  vtkFloatArray *yArr =
-      vtkFloatArray::SafeDownCast(input->GetColumnByName(yName.c_str()));
-  vtkFloatArray *zArr =
-      vtkFloatArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
+  vtkDataArray *xArr =
+      vtkDataArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
+  vtkDataArray *yArr =
+      vtkDataArray::SafeDownCast(input->GetColumnByName(yName.c_str()));
+  vtkDataArray *zArr =
+      vtkDataArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
 
+  // Ensure that we have valid data arrays, that they are of the same type and
+  // that they are of the same length.
   assert(xArr);
   assert(yArr);
   assert(zArr);
-
-  cout << "Number of tuples: " << xArr->GetNumberOfTuples()
-       << ", " << yArr->GetNumberOfTuples()
-       << ", " << zArr->GetNumberOfTuples() << endl;
-
   assert(xArr->GetNumberOfTuples() == yArr->GetNumberOfTuples() &&
          xArr->GetNumberOfTuples() == zArr->GetNumberOfTuples());
 
-  float *pts[3];
-  pts[0] = static_cast<float *>(xArr->GetVoidPointer(0));
-  pts[1] = static_cast<float *>(yArr->GetVoidPointer(0));
-  pts[2] = static_cast<float *>(zArr->GetVoidPointer(0));
+  size_t n = xArr->GetNumberOfTuples();
+  d->points.resize(n);
+  float *data = d->points[0].GetData();
 
-  vtkIdType n = xArr->GetNumberOfTuples();
-  d->points.clear();
-  d->points.reserve(n);
-  for (vtkIdType i = 0; i < n; ++i)
+  switch(xArr->GetDataType())
     {
-    d->points.push_back(vtkVector3f(*(pts[0]++), *(pts[1]++), *(pts[2]++)));
+    vtkTemplateMacro(CopyToPoints(data,
+                                  static_cast<VTK_TT*>(xArr->GetVoidPointer(0)),
+                                  0, n));
     }
-
-//  for (int i = 0; i < n; ++i)
-//    cout << i << ": " << d->points[i] << endl;
+  switch(yArr->GetDataType())
+    {
+    vtkTemplateMacro(CopyToPoints(data,
+                                  static_cast<VTK_TT*>(yArr->GetVoidPointer(0)),
+                                  1, n));
+    }
+  switch(zArr->GetDataType())
+    {
+    vtkTemplateMacro(CopyToPoints(data,
+                                  static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
+                                  2, n));
+    }
 
   // Now set up the axes, and ranges...
   double range[2];
@@ -252,7 +272,7 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            this->Geometry.Y()));
   xArr->GetRange(range);
   x->SetRange(range);
-  x->Update();
+  x->AutoScale();
   cout << "X range is: " << range[0] << " -> " << range[1] << endl;
 
   d->origin.Set(this->Geometry.X(), this->Geometry.Y(), 0.0);
@@ -280,7 +300,7 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            this->Geometry.Y() + this->Geometry.Height()));
   yArr->GetRange(range);
   y->SetRange(range);
-  y->Update();
+  y->AutoScale();
   cout << "Y range is: " << range[0] << " -> " << range[1] << endl;
 
   // Z is faked, largely to get valid ranges and rounded numbers...
@@ -289,10 +309,10 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   z->SetPoint1(vtkVector2f(this->Geometry.X(),
                            0));
   z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Height()));
+                           this->Geometry.Width()));
   zArr->GetRange(range);
   z->SetRange(range);
-  z->Update();
+  z->AutoScale();
   cout << "Z range is: " << range[0] << " -> " << range[1] << endl;
 
   this->CalculatePlotTransform(x.GetPointer(), y.GetPointer(), z.GetPointer(),
