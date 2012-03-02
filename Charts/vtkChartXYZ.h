@@ -56,6 +56,12 @@ public:
   virtual void SetAnnotationLink(vtkAnnotationLink *link);
 
   // Description:
+  // Get the x (0), y (1) or z (2) axis.
+  vtkAxis * GetAxis(int axis);
+
+  void RecalculateTransform();
+
+  // Description:
   // Set the geometry in pixel coordinates (origin and width/height).
   void SetGeometry(const vtkRectf &bounds);
 

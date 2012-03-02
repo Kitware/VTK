@@ -69,8 +69,6 @@ inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
 
   if (!init)
     {
-    cout << "translation vector: " << translation << endl;
-    cout << "translation vector: " << mtranslation << endl;
     init = true;
     }
 
@@ -80,6 +78,8 @@ inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
     this->Rotation->RotateX(this->angle);
   else
     this->Rotation->RotateY(this->angle);
+
+  //this->Rotation->RotateZ(9);
   this->Rotation->Translate(mtranslation.GetData());
 
   if (transformed)
@@ -144,7 +144,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   d->SetMatrix();
 
   // First lets draw the points in 3d.
-  glColor4ub(0, 255, 234, 255);
+  glColor4ub(0, 0, 0, 255);
   glPointSize(5);
   glBegin(GL_POINTS);
   for (int i = 0; i < d->points.size(); ++i)
@@ -155,14 +155,14 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 
   painter->PopMatrix();
 
-  painter->PushMatrix();
+/*  painter->PushMatrix();
   d->SetMatrix(false);
   glColor4ub(0, 0, 0, 255);
   // Now lets draw the axes over the top.
   glBegin(GL_LINES);
   for (int i = 0; i < 3; ++i)
     {
-/*    switch (i)
+    switch (i)
       {
     case 0:
       glColor4ub(255, 0, 0, 255);
@@ -174,7 +174,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
       glColor4ub(0, 0, 255, 255);
       break;
       }
-*/
+
     glVertex3fv(d->origin.GetData());
     glVertex3fv(d->xyz[i].GetData());
     //glVertex3fv(d->other.GetData());
@@ -182,7 +182,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
     }
   glEnd();
   painter->PopMatrix();
-
+*/
   return true;
 }
 
@@ -220,8 +220,7 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            const vtkStdString &yName, const vtkStdString &zName)
 {
 
-  cout << "Arrays: " << xName << " -> " << yName << " -> " << zName << endl;
-
+  //cout << "Arrays: " << xName << " -> " << yName << " -> " << zName << endl;
   // Copy the points into our data structure for rendering - pack x, y, z...
   vtkDataArray *xArr =
       vtkDataArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
@@ -270,10 +269,6 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            this->Geometry.Y()));
   x->SetPoint2(vtkVector2f(this->Geometry.X() + this->Geometry.Width(),
                            this->Geometry.Y()));
-  xArr->GetRange(range);
-  x->SetRange(range);
-  x->AutoScale();
-  cout << "X range is: " << range[0] << " -> " << range[1] << endl;
 
   d->origin.Set(this->Geometry.X(), this->Geometry.Y(), 0.0);
   d->other.Set(this->Geometry.X() + this->Geometry.Width(),
@@ -298,30 +293,41 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            this->Geometry.Y()));
   y->SetPoint2(vtkVector2f(this->Geometry.X(),
                            this->Geometry.Y() + this->Geometry.Height()));
-  yArr->GetRange(range);
-  y->SetRange(range);
-  y->AutoScale();
-  cout << "Y range is: " << range[0] << " -> " << range[1] << endl;
 
   // Z is faked, largely to get valid ranges and rounded numbers...
   vtkNew<vtkAxis> z;
   d->axes[2] = z.GetPointer();
   z->SetPoint1(vtkVector2f(this->Geometry.X(),
                            0));
-  z->SetPoint2(vtkVector2f(this->Geometry.X(),
-                           this->Geometry.Width()));
-  zArr->GetRange(range);
-  z->SetRange(range);
-  z->AutoScale();
-  cout << "Z range is: " << range[0] << " -> " << range[1] << endl;
+  if (d->isX)
+    {
+    z->SetPoint2(vtkVector2f(this->Geometry.X(),
+                             this->Geometry.Height()));
+    }
+  else
+    {
+    z->SetPoint2(vtkVector2f(this->Geometry.X(),
+                             this->Geometry.Width()));
+    }
+}
 
-  this->CalculatePlotTransform(x.GetPointer(), y.GetPointer(), z.GetPointer(),
+void vtkChartXYZ::RecalculateTransform()
+{
+  this->CalculatePlotTransform(d->axes[0].GetPointer(),
+                               d->axes[1].GetPointer(),
+                               d->axes[2].GetPointer(),
                                d->Transform.GetPointer());
 }
 
 void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
 {
   // Copy the row numbers so that we can do the highlight...
+}
+
+vtkAxis * vtkChartXYZ::GetAxis(int axis)
+{
+  assert(axis >= 0 && axis < 3);
+  return d->axes[axis].GetPointer();
 }
 
 void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)

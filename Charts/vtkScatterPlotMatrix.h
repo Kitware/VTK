@@ -250,6 +250,14 @@ public:
   virtual void SetSelectionMode(int);
   vtkGetMacro(SelectionMode, int);
 
+  // Description:
+  // Get the column name for the supplied index.
+  vtkStdString GetColumnName(int column);
+
+  // Description:
+  // Get the column name for the supplied index.
+  vtkStdString GetRowName(int row);
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -288,10 +296,6 @@ protected:
   static void ProcessEvents(vtkObject *caller, unsigned long event,
                             void *clientData, void *callerData);
 
-  class PIMPL;
-  PIMPL *Private;
-  friend class PIMPL;
-
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
 
@@ -314,6 +318,15 @@ protected:
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.
   void operator=(const vtkScatterPlotMatrix &); // Not implemented.
+
+  class PIMPL;
+  PIMPL *Private;
+  friend class PIMPL;
+
+  // Go through the process of calculating axis ranges, etc...
+  void UpdateAxes();
+  void ApplyAxisSetting(vtkChart *chart, const vtkStdString &x,
+                        const vtkStdString &y);
 };
 
 #endif //__vtkScatterPlotMatrix_h
