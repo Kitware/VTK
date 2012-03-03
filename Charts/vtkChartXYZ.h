@@ -85,6 +85,9 @@ protected:
   class Private;
   Private *d;
 
+private:
+  vtkChartXYZ(const vtkChartXYZ &);    // Not implemented.
+  void operator=(const vtkChartXYZ &); // Not implemented.
 };
 
 #endif
