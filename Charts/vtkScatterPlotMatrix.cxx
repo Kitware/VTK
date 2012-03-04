@@ -95,7 +95,7 @@ public:
     {
       this->PlotPen->SetColor(0, 0, 0, 255);
       this->MarkerStyle = vtkPlotPoints::CIRCLE;
-      this->MarkerSize = 5.0;
+      this->MarkerSize = 3.0;
       this->AxisColor.Set(0, 0, 0, 1);
       this->GridColor.Set(242, 242, 242, 255);
       this->LabelNotation = vtkAxis::STANDARD_NOTATION;
@@ -1160,6 +1160,9 @@ void vtkScatterPlotMatrix::UpdateAxes()
       {
       PIMPL::ColumnSetting settings;
       arr->GetRange(range);
+      // Apply a little padding either side of the ranges.
+      range[0] = range[0] - (0.01 * range[0]);
+      range[1] = range[1] + (0.01 * range[1]);
       axis->SetRange(range);
       axis->AutoScale();
       settings.min = axis->GetMinimum();
@@ -1268,14 +1271,11 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         axis->SetLabelsVisible(false);
-        chart->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(false);
-        chart->GetAxis(vtkAxis::RIGHT)->SetBehavior(vtkAxis::AUTO);
-        chart->GetAxis(vtkAxis::RIGHT)->AutoScale();
-        chart->GetAxis(vtkAxis::RIGHT)->SetLabelsVisible(true);
-        if (i != n - 1)
-          {
-          axis->SetBehavior(vtkAxis::FIXED);
-          }
+        // Show the labels on the right for populations of bins.
+        axis = chart->GetAxis(vtkAxis::RIGHT);
+        axis->SetLabelsVisible(true);
+        axis->SetBehavior(vtkAxis::AUTO);
+        axis->AutoScale();
         // Set the plot corner to the top-right
         vtkChartXY *xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
