@@ -24,20 +24,42 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
 #include "vtkTable.h"
+#include "vtkCallbackCommand.h"
+
+// Need a timer so that we can animate, and then take a snapshot!
+namespace
+{
+static double angle = 0;
+
+void ProcessEvents(vtkObject *caller, unsigned long event,
+                   void *clientData, void *callerData)
+{
+  vtkChartXYZ *chart = reinterpret_cast<vtkChartXYZ *>(clientData);
+  vtkRenderWindowInteractor *interactor =
+      reinterpret_cast<vtkRenderWindowInteractor *>(caller);
+  angle += 2;
+  chart->SetAngle(angle);
+  interactor->Render();
+  if (angle >= 90)
+    {
+    int timerId = *reinterpret_cast<int *>(callerData);
+    interactor->DestroyTimer(timerId);
+    }
+}
+} // End of anonymous namespace.
 
 int TestChartXYZ(int , char * [])
 {
-  vtkNew<vtkRenderWindow> renwin;
-  renwin->SetMultiSamples(4);
-  renwin->SetSize(600, 400);
-
   // Now the chart
   vtkNew<vtkChartXYZ> chart;
   vtkNew<vtkContextView> view;
-  view->GetRenderWindow()->SetSize(300, 300);
+  view->GetRenderWindow()->SetSize(400, 300);
   view->GetScene()->AddItem(chart.GetPointer());
+  vtkNew<vtkChartXYZ> chart2;
+  view->GetScene()->AddItem(chart2.GetPointer());
 
-  chart->SetGeometry(vtkRectf(100.0, 120.0, 180, 180));
+  chart->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
+  chart2->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -50,9 +72,6 @@ int TestChartXYZ(int , char * [])
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
   table->AddColumn(arrS.GetPointer());
-  vtkNew<vtkFloatArray> arrT;
-  arrT->SetName("Tan");
-  table->AddColumn(arrT.GetPointer());
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -63,14 +82,30 @@ int TestChartXYZ(int , char * [])
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
-    table->SetValue(i, 3, tan(i * inc) + 0.5);
     }
 
+  //chart->SetAroundX(true);
   // Add the three dimensions we are interested in visualizing.
   chart->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  chart->RecalculateBounds();
+  chart->RecalculateTransform();
+
+  // We want a duplicate, that does not move.
+  chart2->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  chart2->RecalculateBounds();
+  chart2->RecalculateTransform();
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
+
+  // Set up the timer, and be sure to incrememt the angle.
+  vtkNew<vtkCallbackCommand> callback;
+  callback->SetClientData(chart.GetPointer());
+  callback->SetCallback(::ProcessEvents);
+  view->GetInteractor()->AddObserver(vtkCommand::TimerEvent, callback.GetPointer(),
+                                0);
+  view->GetInteractor()->CreateRepeatingTimer(1000 / 25);
+
   view->GetInteractor()->Start();
 
   return EXIT_SUCCESS;

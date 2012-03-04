@@ -61,6 +61,8 @@ public:
 
   void RecalculateTransform();
 
+  void RecalculateBounds();
+
   // Description:
   // Set the geometry in pixel coordinates (origin and width/height).
   void SetGeometry(const vtkRectf &bounds);

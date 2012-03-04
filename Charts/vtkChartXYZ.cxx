@@ -45,6 +45,7 @@ public:
   vector< vtkSmartPointer<vtkAxis> > axes;
   vtkNew<vtkTransform> Transform;
   vtkNew<vtkTransform> Rotation;
+  vtkNew<vtkTransform> Box;
   double angle;
 
   vtkVector3f origin;
@@ -57,36 +58,72 @@ public:
 
 inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
 {
-  // Calculate the correct translation vector before the rotation is applied
-  vtkVector3f translation(
-        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-        + axes[0]->GetPosition1()[0],
-        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-        + axes[1]->GetPosition1()[1],
-        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-        + axes[2]->GetPosition1()[1]);
-  vtkVector3f mtranslation = -1.0 * translation;
-
-  if (!init)
-    {
-    init = true;
-    }
-
-  this->Rotation->Identity();
-  this->Rotation->Translate(translation.GetData());
-  if (isX)
-    this->Rotation->RotateX(this->angle);
-  else
-    this->Rotation->RotateY(this->angle);
-
-  //this->Rotation->RotateZ(9);
-  this->Rotation->Translate(mtranslation.GetData());
+  double *M = 0;
 
   if (transformed)
+    {
+    // Calculate the correct translation vector before the rotation is applied
+    vtkVector3f translation(
+          (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
+          + axes[0]->GetPosition1()[0],
+          (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
+          + axes[1]->GetPosition1()[1],
+          (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
+          + axes[2]->GetPosition1()[1]);
+    vtkVector3f mtranslation = -1.0 * translation;
+
+    this->Rotation->Identity();
+    this->Rotation->Translate(translation.GetData());
+    if (isX)
+      this->Rotation->RotateX(this->angle);
+    else
+      this->Rotation->RotateY(this->angle);
+
+    this->Rotation->Translate(mtranslation.GetData());
+
     this->Rotation->Concatenate(this->Transform.GetPointer());
 
-  // Construct a matrix of the correct size.
-  double *M = this->Rotation->GetMatrix()->Element[0];
+    // Construct a matrix of the correct size.
+    M = this->Rotation->GetMatrix()->Element[0];
+    }
+  else
+    {
+    double scale[3] = { 300, 300, 300 };
+    for (int i = 0; i < 3; ++i)
+      {
+      if (i == 0)
+        scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
+      else
+        scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+      }
+
+    this->Box->Identity();
+    this->Box->PostMultiply();
+    this->Box->Translate(-0.5, -0.5, -0.5);
+    if (isX)
+      this->Box->RotateX(this->angle);
+    else
+      this->Box->RotateY(this->angle);
+    this->Box->Translate(0.5, 0.5, 0.5);
+
+    this->Box->Scale(scale);
+
+    if (isX)
+      {
+      this->Box->Translate(axes[0]->GetPosition1()[0],
+                           axes[1]->GetPosition1()[1],
+                           axes[2]->GetPosition1()[1]);
+      }
+    else
+      {
+      this->Box->Translate(axes[0]->GetPosition1()[0],
+                           axes[1]->GetPosition1()[1],
+                           axes[2]->GetPosition1()[0]);
+      }
+
+    M = this->Box->GetMatrix()->Element[0];
+    }
+
   double matrix[16];
 
   // Convert the row/column ordering...
@@ -124,65 +161,54 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
   if (!this->Visible || d->points.size() == 0)
     return false;
-/*
-  glColor4ub(255, 222, 0, 255);
-  glBegin(GL_LINES);
-  for (int i = 0; i < 3; ++i)
-    {
-    glVertex3fv(d->origin.GetData());
-    glVertex3fv(d->xyz[i].GetData());
-    }
-  glEnd();
-  */
 
   // This is where the magic happens for now...
   painter->PushMatrix();
 
-  //if (d->angle < 90.0)
-  //  d->angle += 0.5;
-
   d->SetMatrix();
-
   // First lets draw the points in 3d.
   glColor4ub(0, 0, 0, 255);
   glPointSize(5);
-  glBegin(GL_POINTS);
-  for (int i = 0; i < d->points.size(); ++i)
-    {
-    glVertex3fv(d->points[i].GetData());
-    }
-  glEnd();
-
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, d->points[0].GetData());
+  glDrawArrays(GL_POINTS, 0, d->points.size());
+  glDisableClientState(GL_VERTEX_ARRAY);
   painter->PopMatrix();
 
-/*  painter->PushMatrix();
+
+  painter->PushMatrix();
   d->SetMatrix(false);
   glColor4ub(0, 0, 0, 255);
   // Now lets draw the axes over the top.
-  glBegin(GL_LINES);
-  for (int i = 0; i < 3; ++i)
-    {
-    switch (i)
-      {
-    case 0:
-      glColor4ub(255, 0, 0, 255);
-      break;
-    case 1:
-      glColor4ub(0, 255, 0, 255);
-      break;
-    case 2:
-      glColor4ub(0, 0, 255, 255);
-      break;
-      }
-
-    glVertex3fv(d->origin.GetData());
-    glVertex3fv(d->xyz[i].GetData());
-    //glVertex3fv(d->other.GetData());
-    //glVertex3fv(d->xyz[i].GetData());
-    }
+  glBegin(GL_LINE_LOOP);
+  // Front
+  glVertex3f(0, 0, 0);
+  glVertex3f(0, 1, 0);
+  glVertex3f(1, 1, 0);
+  glVertex3f(1, 0, 0);
   glEnd();
+
+  glBegin(GL_LINE_LOOP);
+  // Back
+  glVertex3f(0, 0, 1);
+  glVertex3f(0, 1, 1);
+  glVertex3f(1, 1, 1);
+  glVertex3f(1, 0, 1);
+  glEnd();
+
+  glBegin(GL_LINES);
+  glVertex3f(0, 0, 0);
+  glVertex3f(0, 0, 1);
+  glVertex3f(0, 1, 0);
+  glVertex3f(0, 1, 1);
+  glVertex3f(1, 1, 0);
+  glVertex3f(1, 1, 1);
+  glVertex3f(1, 0, 0);
+  glVertex3f(1, 0, 1);
+  glEnd();
+
   painter->PopMatrix();
-*/
+
   return true;
 }
 
@@ -229,8 +255,7 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
   vtkDataArray *zArr =
       vtkDataArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
 
-  // Ensure that we have valid data arrays, that they are of the same type and
-  // that they are of the same length.
+  // Ensure that we have valid data arrays, and that they are of the same length.
   assert(xArr);
   assert(yArr);
   assert(zArr);
@@ -261,7 +286,6 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
     }
 
   // Now set up the axes, and ranges...
-  double range[2];
   d->axes.resize(3);
   vtkNew<vtkAxis> x;
   d->axes[0] = x.GetPointer();
@@ -269,23 +293,6 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            this->Geometry.Y()));
   x->SetPoint2(vtkVector2f(this->Geometry.X() + this->Geometry.Width(),
                            this->Geometry.Y()));
-
-  d->origin.Set(this->Geometry.X(), this->Geometry.Y(), 0.0);
-  d->other.Set(this->Geometry.X() + this->Geometry.Width(),
-               this->Geometry.Y() + this->Geometry.Height(),
-               this->Geometry.X() + this->Geometry.Width());
-  d->xyz[0].Set(this->Geometry.X() + this->Geometry.Width(),
-                this->Geometry.Y(),
-                0);
-  d->xyz[1].Set(this->Geometry.X(),
-                this->Geometry.Y() + this->Geometry.Height(),
-                0);
-  d->xyz[2].Set(this->Geometry.X(),
-                this->Geometry.Y(),
-                this->Geometry.Height());
-
-  //cout << "origin: " << d->origin
-  //     << ", x: " << d->xyz[0] << endl;
 
   vtkNew<vtkAxis> y;
   d->axes[1] = y.GetPointer();
@@ -319,6 +326,30 @@ void vtkChartXYZ::RecalculateTransform()
                                d->Transform.GetPointer());
 }
 
+void vtkChartXYZ::RecalculateBounds()
+{
+  // Need to calculate the bounds in three dimensions and set up the axes.
+  vector<vtkVector3f>::const_iterator it = d->points.begin();
+  double bounds[] = { (*it).X(), (*it).X(),
+                      (*it).Y(), (*it).Y(),
+                      (*it).Z(), (*it).Z()};
+  for (++it; it != d->points.end(); ++it)
+    {
+    const vtkVector3f &v = *it;
+    for (int i = 0; i < 3; ++i)
+      {
+      if (v[i] < bounds[2 * i])
+        bounds[2 * i] = v[i];
+      else if (v[i] > bounds[2 * i + 1])
+        bounds[2 * i + 1] = v[i];
+      }
+    }
+  for (int i = 0; i < 3; ++i)
+    {
+    d->axes[i]->SetRange(&bounds[2*i]);
+    }
+}
+
 void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
 {
   // Copy the row numbers so that we can do the highlight...
@@ -350,11 +381,7 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
 {
   // Need to calculate the 3D transform this time.
   assert(x && y && z && transform);
-  if (!x || !y || !z || !transform)
-    {
-    vtkWarningMacro("Called with null arguments.");
-    return false;
-    }
+
   // Get the scale for the plot area from the x and y axes
   float *min = x->GetPoint1();
   float *max = x->GetPoint2();
