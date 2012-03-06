@@ -727,34 +727,6 @@ void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input)
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-int vtkImageViewer2::GetWholeZMin()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetWholeZMin, "VTK 5.0",
-                           vtkImageViewer2::GetSliceMin);
-  return this->GetSliceMin();
-}
-int vtkImageViewer2::GetWholeZMax()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetWholeZMax, "VTK 5.0",
-                           vtkImageViewer2::GetSliceMax);
-  return this->GetSliceMax();
-}
-int vtkImageViewer2::GetZSlice()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetZSlice, "VTK 5.0",
-                           vtkImageViewer2::GetSlice);
-  return this->GetSlice();
-}
-void vtkImageViewer2::SetZSlice(int s)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::SetZSlice, "VTK 5.0",
-                           vtkImageViewer2::SetSlice);
-  this->SetSlice(s);
-}
-#endif
-
-//----------------------------------------------------------------------------
 void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

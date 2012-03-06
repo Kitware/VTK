@@ -46,14 +46,6 @@ vtkPainterDeviceAdapter* vtkPainterDeviceAdapter::New()
   return static_cast<vtkPainterDeviceAdapter *>(ret);
 }
 
-#ifndef VTK_LEGACY_REMOVE
-// ----------------------------------------------------------------------------
-void vtkPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck(
-  int vtkNotUsed(mode))
-{
-}
-#endif
-
 //-----------------------------------------------------------------------------
 void vtkPainterDeviceAdapter::PrintSelf(ostream &os, vtkIndent indent)
 {
