@@ -207,14 +207,6 @@ SET( Kit_SRCS
   vtkWorldPointPicker.cxx
   )
 
-IF (NOT VTK_LEGACY_REMOVE)
-  SET (Kit_Deprecated_SRCS
-    vtkVisibleCellSelector.cxx
-    vtkIdentColoredPainter.cxx)
-
-  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
-ENDIF (NOT VTK_LEGACY_REMOVE)
-
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
 

@@ -50,11 +50,6 @@ class vtkRendererDelegate;
 class vtkRenderPass;
 class vtkTexture;
 
-#if !defined(VTK_LEGACY_REMOVE)
-class vtkVisibleCellSelector;
-#endif
-
-
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
 public:
@@ -243,7 +238,7 @@ public:
 
   // Description:
   // Clear the image to the background color.
-  virtual void Clear() {};
+  virtual void Clear() {}
 
   // Description:
   // Returns the number of visible actors.
@@ -414,7 +409,6 @@ public:
   // ActiveCamera does not yet exist.
   int IsActiveCameraCreated()
     { return (this->ActiveCamera != NULL); }
-
 
   // Description:
   // Turn on/off rendering of translucent material with depth peeling
@@ -638,55 +632,6 @@ protected:
   // actually used depth peeling.
   // Initial value is false.
   int LastRenderingUsedDepthPeeling;
-
-#if !defined(VTK_LEGACY_REMOVE)
-  // VISIBLE CELL SELECTION ----------------------------------------
-  friend class vtkVisibleCellSelector;
-
-  //Description:
-  // Call to put the Renderer into a mode in which it will color visible
-  // polygons with an enoded index. Later the pixel colors can be retrieved to
-  // determine what objects lie behind each pixel.
-  enum {NOT_SELECTING = 0, COLOR_BY_PROCESSOR, COLOR_BY_ACTOR,
-        COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW,
-        COLOR_BY_VERTEX};
-
-  vtkSetMacro(SelectMode, int);
-  vtkSetMacro(SelectConst, unsigned int);
-
-   // Description:
-  // Allows the use of customized Painters for selection.
-  // If none is supplied with this method, a default will be created
-  // automatically.
-  void SetIdentPainter(vtkIdentColoredPainter*);
-
-  // Description:
-  // Renders each polygon with a color that represents an selection index.
-  virtual int UpdateGeometryForSelection(void);
-
-  // Description:
-  // Called by UpdateGeometryForSelection to temporarily swap in a mapper to
-  // render a prop in selection mode.
-  vtkPainter* SwapInSelectablePainter(vtkProp *,
-                                              int &);
-
-  // Description:
-  // Called by UpdateGeometryForSelection to restore a prop's original mapper.
-  void SwapOutSelectablePainter(vtkProp *,
-                                vtkPainter*,
-                                int );
-
-  // Description:
-  // Used in Selection to recover a selected prop from an index.
-  vtkProp            **PropsSelectedFrom;
-  int                PropsSelectedFromCount;
-
-  // Ivars for visible cell selecting
-  int SelectMode;
-  unsigned int SelectConst;
-  vtkIdentColoredPainter *IdentPainter;
-  // End Ivars for visible cell selecting.
-#endif
 
   // HARDWARE SELECTION ----------------------------------------
   friend class vtkHardwareSelector;
