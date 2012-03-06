@@ -795,44 +795,6 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
     }
 }
 
-//-----------------------------------------------------------------------------
-// Depricated methods.
-#ifndef VTK_LEGACY_REMOVE
-
-void vtkTextActor::SetScaledText(int flag)
-{
-  VTK_LEGACY_REPLACED_BODY(SetScaledText, "5.4", SetTextScaleMode);
-  if (flag)
-    {
-    this->SetTextScaleModeToProp();
-    }
-  else
-    {
-    this->SetTextScaleModeToNone();
-    }
-}
-
-int vtkTextActor::GetScaledText()
-{
-  VTK_LEGACY_REPLACED_BODY(GetScaledText, "5.4", GetTextScaleMode);
-  return static_cast<int>(this->TextScaleMode == TEXT_SCALE_MODE_PROP);
-}
-
-void vtkTextActor::ScaledTextOn()
-{
-  VTK_LEGACY_REPLACED_BODY(ScaledTextOn, "5.4", SetTextScaleModeToProp);
-  this->SetTextScaleModeToProp();
-}
-
-void vtkTextActor::ScaledTextOff()
-{
-  VTK_LEGACY_REPLACED_BODY(ScaledTextOff, "5.4", SetTextScaleModeToNone);
-  this->SetTextScaleModeToNone();
-}
-
-#endif //VTK_LEGACY_REMOVE
-
-
 // ----------------------------------------------------------------------------
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
 {

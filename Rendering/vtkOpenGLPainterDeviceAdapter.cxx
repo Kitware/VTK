@@ -955,31 +955,6 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
     }
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
-//-----------------------------------------------------------------------------
-void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasisWithStencilCheck(int mode)
-{
-  this->MakeVertexEmphasis(mode!=0);
-  if (mode)
-    {
-    if (this->MaxStencil == 0)
-      {
-      //if we don't have the stencil buffer, act as if everything fails
-      //in order not to return invalid results
-      glColorMask(0,0,0,0);
-      }
-    }
-  else
-    {
-    if (this->MaxStencil == 0)
-      {
-      glColorMask(1, 1, 1, 1);
-      }
-    }
-
-}
-#endif
-
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
 {

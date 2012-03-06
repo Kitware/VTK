@@ -78,14 +78,6 @@ public:
   void SetDisplayId(void *a) {this->RenderWindow->SetDisplayId(a);};
   void SetWindowId(void *a) {this->RenderWindow->SetWindowId(a);};
   void SetParentId(void *a) {this->RenderWindow->SetParentId(a);};
-  
-  // Description:
-  // By default this is a color viewer.  GrayScaleHintOn will improve the
-  // appearance of gray scale images on some systems.
-  VTK_LEGACY(int GetGrayScaleHint());
-  VTK_LEGACY(void SetGrayScaleHint(int vtkNotUsed(a)));
-  VTK_LEGACY(void GrayScaleHintOn());
-  VTK_LEGACY(void GrayScaleHintOff());
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.

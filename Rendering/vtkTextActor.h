@@ -114,14 +114,6 @@ public:
 //ETX
 
   // Description:
-  // DO NOT CALL.  Deprecated in VTK 5.4.  Use SetTextScaleMode or
-  // GetTextScaleMode instead.
-  VTK_LEGACY(void SetScaledText(int));
-  VTK_LEGACY(int GetScaledText());
-  VTK_LEGACY(void ScaledTextOn());
-  VTK_LEGACY(void ScaledTextOff());
-
-  // Description:
   // Turn on or off the UseBorderAlign option.
   // When UseBorderAlign is on, the bounding rectangle is used to align the text,
   // which is the proper behavior when using vtkTextRepresentation
