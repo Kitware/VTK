@@ -24,7 +24,7 @@
 #include "vtkCamera.h"
 #include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
@@ -97,6 +97,8 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   vtkRenderer *renderer = vtkRenderer::New();
   renderer->SetBackground(0.5, 0.5, 0.5);
 
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
@@ -127,7 +129,7 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   opaque->Delete();
   peeling->Delete();
