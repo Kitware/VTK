@@ -189,7 +189,7 @@
 #cmakedefine PTHREAD_CREATE_JOINABLE
 
 /* The size of a `int', as computed by sizeof. */
-#define SIZEOF_INT @CMAKE_SIZEOF_INT@
+#define SIZEOF_INT @SIZEOF_INT@
 
 /* On Apple, universal builds use different settings on each build.
 the sizes can be different.*/
@@ -201,7 +201,7 @@ the sizes can be different.*/
 #  endif
 #else
 /* The size of a `long', as computed by sizeof. */
-#  define SIZEOF_LONG @CMAKE_SIZEOF_LONG@
+#  define SIZEOF_LONG @SIZEOF_LONG@
 #endif
 
 /* Define to 1 if you have the ANSI C header files. */
