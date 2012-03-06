@@ -28,7 +28,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPrimitivePainter.h"
