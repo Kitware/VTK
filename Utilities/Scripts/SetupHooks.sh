@@ -1,39 +1,28 @@
 #!/usr/bin/env bash
 
-# Run this script to set up the git hooks for committing changes
+# Run this script to set up the git hooks for committing changes to VTK.
 # For more information, see:
-#   http://public.kitware.com/Wiki/Git/Hooks
+#   http://www.vtk.org/Wiki/Git/Hooks
 
-die() {
-  echo 'Failure during hook setup.' 1>&2
-  echo '--------------------------' 1>&2
-  echo '' 1>&2
-  echo "$@" 1>&2
-  exit 1
+egrep-q() {
+  egrep "$@" >/dev/null 2>/dev/null
 }
 
-# Centralize project variables for each script
-project="VTK"
-projectUrl="vtk.org"
+die() {
+  echo 1>&2 "$@" ; exit 1
+}
 
-u=$(cd "$(echo "$0"|sed 's/[^/]*$//')"; pwd)
-cd "$u/../../.git/hooks"
-
-# We need to have a git repository to do a pull.
-if ! test -d ./.git; then
-  git init || die "Could not run git init."
-fi
-
-# Grab the hooks.
-# Use the local hooks if possible.
-echo "Pulling the hooks..."
-if GIT_DIR=.. git for-each-ref refs/remotes/origin/hooks 2>/dev/null | \
-  grep -q '\<refs/remotes/origin/hooks$'; then
-  git fetch .. remotes/origin/hooks
-else
-  git fetch http://${projectUrl}/${project}.git hooks
+echo 'Setting up git hooks...' &&
+cd "${BASH_SOURCE%/*}" &&
+git_dir=$(git rev-parse --git-dir) &&
+cd "$git_dir/hooks" &&
+if ! test -e .git; then
+  git init -q || die 'Could not run git init for hooks.'
 fi &&
-git reset --hard FETCH_HEAD || die "Failed to install hooks"
-cd ../..
-
-echo "Done."
+if GIT_DIR=.. git for-each-ref refs/remotes/origin/hooks 2>/dev/null |
+  egrep-q 'refs/remotes/origin/hooks$'; then
+  git fetch -q .. remotes/origin/hooks
+else
+  git fetch -q http://vtk.org/VTK.git hooks
+fi &&
+git reset -q --hard FETCH_HEAD || die 'Failed to install hooks'

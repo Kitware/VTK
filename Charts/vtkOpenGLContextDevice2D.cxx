@@ -121,6 +121,14 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
       }
     }
 
+  // Enable simple line, point and polygon antialiasing if multisampling is on.
+  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
+    {
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_POLYGON_SMOOTH);
+    }
+
   this->InRender = true;
 }
 
@@ -140,6 +148,14 @@ void vtkOpenGLContextDevice2D::End()
 
   // Restore the GL state that we changed
   this->Storage->RestoreGLState();
+
+  // Disable simple line, point and polygon antialiasing if multisampling is on.
+  if (this->Renderer->GetRenderWindow()->GetMultiSamples())
+    {
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_POINT_SMOOTH);
+    glDisable(GL_POLYGON_SMOOTH);
+    }
 
   this->RenderWindow = NULL;
   this->InRender = false;
@@ -284,7 +300,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Storage->SpriteTexture = vtkTexture::New();
         this->Storage->SpriteTexture->SetRepeat(false);
         }
-      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -898,7 +914,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
     {
     this->Storage->Texture = vtkTexture::New();
     }
-  this->Storage->Texture->SetInput(image);
+  this->Storage->Texture->SetInputData(image);
   this->Storage->TextureProperties = properties;
   this->Storage->Texture->SetRepeat(properties & vtkContextDevice2D::Repeat);
   this->Storage->Texture->SetInterpolate(properties & vtkContextDevice2D::Linear);

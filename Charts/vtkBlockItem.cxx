@@ -30,17 +30,17 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkBlockItem);
+vtkStandardNewMacro(vtkBlockItem)
 
 //-----------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
 {
   this->MouseOver = false;
   this->scalarFunction = NULL;
-  this->Dimensions[0]=0;
-  this->Dimensions[1]=0;
-  this->Dimensions[2]=0;
-  this->Dimensions[3]=0;
+  this->Dimensions[0] = 0;
+  this->Dimensions[1] = 0;
+  this->Dimensions[2] = 0;
+  this->Dimensions[3] = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,17 +65,14 @@ bool vtkBlockItem::Paint(vtkContext2D *painter)
     {
     painter->GetBrush()->SetColor(0, 255, 0);
     }
-  painter->DrawRect(static_cast<float>(this->Dimensions[0]),
-                    static_cast<float>(this->Dimensions[1]),
-                    static_cast<float>(this->Dimensions[2]),
-                    static_cast<float>(this->Dimensions[3]));
+  painter->DrawRect(this->Dimensions[0], this->Dimensions[1],
+                    this->Dimensions[2], this->Dimensions[3]);
 
-  int x = vtkContext2D::FloatToInt(this->Dimensions[0] + 0.5 * this->Dimensions[2]);
-  int y = vtkContext2D::FloatToInt(this->Dimensions[1] + 0.5 * this->Dimensions[3]);
+  float x = this->Dimensions[0] + 0.5 * this->Dimensions[2];
+  float y = this->Dimensions[1] + 0.5 * this->Dimensions[3];
   if (this->Label)
     {
-    painter->DrawString(static_cast<float>(x),static_cast<float>(y),
-                        this->Label);
+    painter->DrawString(x, y, this->Label);
     }
 
   if (this->scalarFunction)

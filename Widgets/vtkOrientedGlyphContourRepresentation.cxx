@@ -94,7 +94,7 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   activeNormals->Delete();
   
   this->Glypher = vtkGlyph3D::New();
-  this->Glypher->SetInput(this->FocalData);
+  this->Glypher->SetInputData(this->FocalData);
   this->Glypher->SetVectorModeToUseNormal();
   this->Glypher->OrientOn();
   this->Glypher->ScalingOn();
@@ -102,7 +102,7 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->Glypher->SetScaleFactor(1.0);
 
   this->ActiveGlypher = vtkGlyph3D::New();
-  this->ActiveGlypher->SetInput(this->ActiveFocalData);
+  this->ActiveGlypher->SetInputData(this->ActiveFocalData);
   this->ActiveGlypher->SetVectorModeToUseNormal();
   this->ActiveGlypher->OrientOn();
   this->ActiveGlypher->ScalingOn();
@@ -128,13 +128,13 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   vtkCleanPolyData* clean = vtkCleanPolyData::New();
   clean->PointMergingOn();
   clean->CreateDefaultLocator();
-  clean->SetInputConnection(0,cylinder->GetOutputPort(0));
+  clean->SetInputConnection(cylinder->GetOutputPort());
 
   vtkTransform *t = vtkTransform::New();
   t->RotateZ(90.0);
 
   vtkTransformPolyDataFilter *tpd = vtkTransformPolyDataFilter::New();
-  tpd->SetInputConnection( 0, clean->GetOutputPort(0) );
+  tpd->SetInputConnection(clean->GetOutputPort());
   tpd->SetTransform( t );
   clean->Delete();
   cylinder->Delete();
@@ -144,17 +144,18 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   tpd->Delete();
   t->Delete();
   
-  this->Glypher->SetSource(this->CursorShape);
-  this->ActiveGlypher->SetSource(this->ActiveCursorShape);
+  this->Glypher->SetSourceData(this->CursorShape);
+  this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
 
   this->Mapper = vtkPolyDataMapper::New();
-  this->Mapper->SetInput(this->Glypher->GetOutput());
+  this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
   this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
   this->Mapper->ImmediateModeRenderingOn();
 
   this->ActiveMapper = vtkPolyDataMapper::New();
-  this->ActiveMapper->SetInput(this->ActiveGlypher->GetOutput());
+  this->ActiveMapper->SetInputConnection(
+    this->ActiveGlypher->GetOutputPort());
   this->ActiveMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->ActiveMapper->ScalarVisibilityOff();
   this->ActiveMapper->ImmediateModeRenderingOn();
@@ -172,7 +173,7 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
 
   this->Lines = vtkPolyData::New();
   this->LinesMapper = vtkPolyDataMapper::New();
-  this->LinesMapper->SetInput( this->Lines );
+  this->LinesMapper->SetInputData(this->Lines);
   
   this->LinesActor = vtkActor::New();
   this->LinesActor->SetMapper( this->LinesMapper );
@@ -262,7 +263,7 @@ void vtkOrientedGlyphContourRepresentation::SetCursorShape(vtkPolyData *shape)
       }
     if ( this->CursorShape )
       {
-      this->Glypher->SetSource(this->CursorShape);
+      this->Glypher->SetSourceData(this->CursorShape);
       }
     this->Modified();
     }
@@ -290,7 +291,7 @@ void vtkOrientedGlyphContourRepresentation::SetActiveCursorShape(vtkPolyData *sh
       }
     if ( this->ActiveCursorShape )
       {
-      this->ActiveGlypher->SetSource(this->ActiveCursorShape);
+      this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
       }
     this->Modified();
     }
@@ -995,17 +996,17 @@ void vtkOrientedGlyphContourRepresentation::CreateSelectedNodesRepresentation()
   normals->Delete();
 
   this->SelectedNodesGlypher = vtkGlyph3D::New();
-  this->SelectedNodesGlypher->SetInput(this->SelectedNodesData);
+  this->SelectedNodesGlypher->SetInputData(this->SelectedNodesData);
   this->SelectedNodesGlypher->SetVectorModeToUseNormal();
   this->SelectedNodesGlypher->OrientOn();
   this->SelectedNodesGlypher->ScalingOn();
   this->SelectedNodesGlypher->SetScaleModeToDataScalingOff();
   this->SelectedNodesGlypher->SetScaleFactor(1.0);
 
-  this->SelectedNodesGlypher->SetSource(this->SelectedNodesCursorShape);
+  this->SelectedNodesGlypher->SetSourceData(this->SelectedNodesCursorShape);
 
   this->SelectedNodesMapper = vtkPolyDataMapper::New();
-  this->SelectedNodesMapper->SetInput(this->SelectedNodesGlypher->GetOutput());
+  this->SelectedNodesMapper->SetInputData(this->SelectedNodesGlypher->GetOutput());
   this->SelectedNodesMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->SelectedNodesMapper->ScalarVisibilityOff();
   this->SelectedNodesMapper->ImmediateModeRenderingOn();

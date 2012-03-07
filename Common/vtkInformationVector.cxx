@@ -183,6 +183,20 @@ void vtkInformationVector::Remove(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
+void vtkInformationVector::Remove(int i)
+{
+  if (i < this->NumberOfInformationObjects)
+    {
+    if (this->Internal->Vector[i])
+      {
+      this->Internal->Vector[i]->UnRegister(this);
+      }
+    this->Internal->Vector.erase(this->Internal->Vector.begin()+i);
+    this->NumberOfInformationObjects--;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
 {
   // if deep we can reuse existing info objects

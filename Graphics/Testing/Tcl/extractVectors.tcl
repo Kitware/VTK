@@ -11,17 +11,20 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
 
 vtkExtractVectorComponents vx
-  vx SetInputConnection [pl3d GetOutputPort]
+  vx SetInputData $output
+  vx Update
+
 vtkContourFilter isoVx
-    isoVx SetInput [vx GetVxComponent]
+    isoVx SetInputData [vx GetVxComponent]
     isoVx SetValue 0 .38
 vtkPolyDataNormals normalsVx
     normalsVx SetInputConnection [isoVx GetOutputPort]
@@ -35,9 +38,11 @@ vtkActor isoVxActor
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
 
 vtkExtractVectorComponents vy
-  vy SetInputConnection [pl3d GetOutputPort]
+  vy SetInputData $output
+  vy Update
+
 vtkContourFilter isoVy
-    isoVy SetInput [vy GetVyComponent]
+    isoVy SetInputData [vy GetVyComponent]
     isoVy SetValue 0 .38
 vtkPolyDataNormals normalsVy
     normalsVy SetInputConnection [isoVy GetOutputPort]
@@ -51,9 +56,11 @@ vtkActor isoVyActor
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
 
 vtkExtractVectorComponents vz
-  vz SetInputConnection [pl3d GetOutputPort]
+  vz SetInputData $output
+  vz Update
+
 vtkContourFilter isoVz
-    isoVz SetInput [vz GetVzComponent]
+    isoVz SetInputData [vz GetVzComponent]
     isoVz SetValue 0 .38
 vtkPolyDataNormals normalsVz
     normalsVz SetInputConnection [isoVz GetOutputPort]
@@ -67,7 +74,7 @@ vtkActor isoVzActor
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -98,5 +105,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

@@ -76,11 +76,12 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Slider->SetPolys(this->SliderCells);
 
   this->SliderXForm = vtkTransformPolyDataFilter::New();
-  this->SliderXForm->SetInput(this->Slider);
+  this->SliderXForm->SetInputData(this->Slider);
   this->SliderXForm->SetTransform(XForm);
 
   this->SliderMapper = vtkPolyDataMapper2D::New();
-  this->SliderMapper->SetInput(this->SliderXForm->GetOutput());
+  this->SliderMapper->SetInputConnection(
+    this->SliderXForm->GetOutputPort());
   
   this->SliderProperty = vtkProperty2D::New();
   this->SliderProperty->SetColor(1,1,1);
@@ -102,11 +103,12 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Tube->SetPolys(this->TubeCells);
 
   this->TubeXForm = vtkTransformPolyDataFilter::New();
-  this->TubeXForm->SetInput(this->Tube);
+  this->TubeXForm->SetInputData(this->Tube);
   this->TubeXForm->SetTransform(XForm);
 
   this->TubeMapper = vtkPolyDataMapper2D::New();
-  this->TubeMapper->SetInput(this->TubeXForm->GetOutput());
+  this->TubeMapper->SetInputConnection(
+    this->TubeXForm->GetOutputPort());
   
   this->TubeProperty = vtkProperty2D::New();
   this->TubeProperty->SetColor(1,1,1);
@@ -136,11 +138,12 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->Cap->SetPolys(this->CapCells);
 
   this->CapXForm = vtkTransformPolyDataFilter::New();
-  this->CapXForm->SetInput(this->Cap);
+  this->CapXForm->SetInputData(this->Cap);
   this->CapXForm->SetTransform(XForm);
 
   this->CapMapper = vtkPolyDataMapper2D::New();
-  this->CapMapper->SetInput(this->CapXForm->GetOutput());
+  this->CapMapper->SetInputConnection(
+    this->CapXForm->GetOutputPort());
   
   this->CapProperty = vtkProperty2D::New();
   this->CapProperty->SetColor(1,1,1);

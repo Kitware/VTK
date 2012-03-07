@@ -94,7 +94,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   valueArr->SetName("value");
   graph->GetVertexData()->AddArray(valueArr);
   VTK_CREATE(vtkGraphLayout, layout);
-  layout->SetInput(graph);
+  layout->SetInputData(graph);
   VTK_CREATE(vtkCircularLayoutStrategy, circular);
   layout->SetLayoutStrategy(circular);
   RenderGraph(layout, ren, 1, 1, 1, 0.01, 2.0f);
@@ -114,7 +114,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   
   VTK_CREATE(vtkExtractSelectedGraph, extractThreshold);
   extractThreshold->SetInputConnection(0, layout->GetOutputPort());
-  extractThreshold->SetInput(1, threshold);
+  extractThreshold->SetInputData(1, threshold);
   RenderGraph(extractThreshold, ren, 1, 0, 0, -0.01, 5.0f);
   cerr << "...done." << endl;
   
@@ -132,7 +132,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   
   VTK_CREATE(vtkExtractSelectedGraph, extractIndices);
   extractIndices->SetInputConnection(0, layout->GetOutputPort());
-  extractIndices->SetInput(1, indices);
+  extractIndices->SetInputData(1, indices);
   RenderGraph(extractIndices, ren, 0, 1, 0, -0.02, 9.0f);
   cerr << "...done." << endl;
   

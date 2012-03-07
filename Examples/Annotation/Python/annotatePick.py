@@ -18,7 +18,7 @@ sphereActor.SetMapper(sphereMapper)
 cone = vtk.vtkConeSource()
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(sphere.GetOutputPort())
-glyph.SetSource(cone.GetOutput())
+glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor(0.25)
@@ -45,6 +45,7 @@ picker = vtk.vtkCellPicker()
 # Create a Python function to create the text for the text mapper used
 # to display the results of picking.
 def annotatePick(object, event):
+    print "pick"
     global picker, textActor, textMapper
     if picker.GetCellId() < 0:
         textActor.VisibilityOff()

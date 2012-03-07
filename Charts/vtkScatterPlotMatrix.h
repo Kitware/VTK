@@ -34,6 +34,7 @@ class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
 class vtkTextProperty;
+class vtkRenderWindowInteractor;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
@@ -73,7 +74,13 @@ public:
   // Description:
   // Get the active AnnotationLink from the big chart, which
   // is the only active AnnotationLink in the matrix.
-  vtkAnnotationLink* GetActiveAnnotationLink();
+  // @deprecated Replaced by GetAnnotationLink(), never in a VTK release.
+  VTK_LEGACY(vtkAnnotationLink* GetActiveAnnotationLink());
+
+  // Description:
+  // Get the AnnotationLink for the scatter plot matrix, this gives you access
+  // to the currently selected points in the scatter plot matrix.
+  vtkAnnotationLink* GetAnnotationLink();
 
   // Description:
   // Set the input table for the scatter plot matrix. This will cause all
@@ -83,6 +90,11 @@ public:
   // Description:
   // Set the visibility of the specified column.
   void SetColumnVisibility(const vtkStdString& name, bool visible);
+
+  // Description:
+  // Insert the specified column at the index position of
+  // the visible columns.
+  void InsertVisibleColumn(const vtkStdString& name, int index);
 
   // Description:
   // Get the visibility of the specified column.
@@ -96,6 +108,10 @@ public:
   // Description:
   // Get a list of the columns, and the order in which they are displayed.
   virtual vtkStringArray* GetVisibleColumns();
+
+  // Description:
+  // Set the list of visible columns, and the order in which they will be displayed.
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
 
   // Description:
   // Set the number of bins in the histograms along the central diagonal of the
@@ -227,6 +243,13 @@ public:
   // Update charts based on settings given the plot type
   void UpdateChartSettings(int plotType);
 
+  // Description:
+  // Set/get the Selection Mode that will be used by the chart while doing
+  // selection. The only valid enums are vtkContextScene::SELECTION_NONE,
+  // SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
+  virtual void SetSelectionMode(int);
+  vtkGetMacro(SelectionMode, int);
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -244,6 +267,17 @@ protected:
   // The callback function when SelectionChangedEvent is invoked from
   // the Big chart. This class will just forward the event.
   void BigChartSelectionCallback(vtkObject*, unsigned long, void*);
+
+  // Description:
+  // Given a new position for the active plot, calculate a
+  // an animation path from the old active plot to the new
+  // active plot.
+  virtual void UpdateAnimationPath(const vtkVector2i& newActivePos);
+
+  // Description:
+  // Given the render window interactor, start animation of the
+  // animation path calculated above.
+  virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
 
   class PIMPL;
   PIMPL *Private;
@@ -263,6 +297,9 @@ protected:
   // The title of the scatter plot matrix.
   vtkStdString Title;
   vtkSmartPointer<vtkTextProperty> TitleProperties;
+
+  // The mode when the chart is doing selection.
+  int SelectionMode;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

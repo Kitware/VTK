@@ -406,21 +406,26 @@ int vtkExecutive::OutputPortIndexInRange(int port, const char* action)
 }
 
 //----------------------------------------------------------------------------
-vtkAlgorithmOutput* vtkExecutive::GetProducerPort(vtkDataObject* d)
-{
-  if(this->Algorithm && d)
-    {
-    vtkInformation* info = d->GetPipelineInformation();
-    vtkExecutive* dExecutive;
-    int port;
-    vtkExecutive::PRODUCER()->Get(info,dExecutive,port);
-    if(dExecutive == this)
-      {
-      return this->Algorithm->GetOutputPort(port);
-      }
-    }
-  return 0;
-}
+// vtkAlgorithmOutput* vtkExecutive::GetProducerPort(vtkDataObject* d)
+// {
+//   if (!this->Algorithm)
+//     {
+//     return 0;
+//     }
+
+//   int numPorts = this->GetNumberOfOutputPorts();
+//   for (int i=0; i<numPorts; i++)
+//     {
+//     vtkInformation* info = this->GetOutputInformation(i);
+//     if (info->Has(vtkDataObject::DATA_OBJECT()) &&
+//         info->Get(vtkDataObject::DATA_OBJECT()) == d)
+//       {
+//       return this->Algorithm->GetOutputPort(port);
+//       }
+//     }
+//   return 0;
+
+// }
 
 //----------------------------------------------------------------------------
 void vtkExecutive::SetSharedInputInformation(vtkInformationVector** inInfoVec)
@@ -473,18 +478,10 @@ void vtkExecutive::SetOutputData(int newPort, vtkDataObject* newOutput,
 {
   if(info)
     {
-    if(!newOutput || newOutput->GetPipelineInformation() != info)
+    vtkDataObject* currentOutput = info->Get(vtkDataObject::DATA_OBJECT());
+    if(newOutput != currentOutput)
       {
-      if(newOutput)
-        {
-        newOutput->SetPipelineInformation(info);
-        }
-      else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
-        {
-        oldOutput->Register(this);
-        oldOutput->SetPipelineInformation(0);
-        oldOutput->UnRegister(this);
-        }
+      info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
 
       // Output has changed.  Reset the pipeline information.
       this->ResetPipelineInformation(newPort, info);

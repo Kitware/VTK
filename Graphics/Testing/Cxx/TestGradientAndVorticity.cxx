@@ -202,11 +202,11 @@ namespace
         (g[7]-g[5])*(g[7]-g[5]) +
         (g[3]-g[1])*(g[3]-g[1]) +
         (g[2]-g[6])*(g[2]-g[6]) );
-      double t2 = g[0]*g[0]+g[4]*g[4]+
-        g[8]*g[8]+ .5 *(
-          (g[3]+g[1])*(g[3]+g[1]) +
-          (g[6]+g[2])*(g[6]+g[2]) +
-          (g[7]+g[5])*(g[7]+g[5]) );
+      double t2 = .5 * ( g[0]*g[0]+g[4]*g[4]+
+                         g[8]*g[8]+ .5 *(
+                           (g[3]+g[1])*(g[3]+g[1]) +
+                           (g[6]+g[2])*(g[6]+g[2]) +
+                           (g[7]+g[5])*(g[7]+g[5]) ) );
 
       if(!ArePointsWithinTolerance(qc, t1 - t2))
         {
@@ -233,14 +233,14 @@ namespace
     CreatePointData(grid, numberOfComponents, offset, fieldName);
     
     VTK_CREATE(vtkGradientFilter, cellGradients);
-    cellGradients->SetInput(grid);
+    cellGradients->SetInputData(grid);
     cellGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
     const char resultName[] = "Result";
     cellGradients->SetResultArrayName(resultName);
     
     VTK_CREATE(vtkGradientFilter, pointGradients);
-    pointGradients->SetInput(grid);
+    pointGradients->SetInputData(grid);
     pointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     pointGradients->SetResultArrayName(resultName);
@@ -275,7 +275,7 @@ namespace
       {
       // now check on the vorticity calculations
       VTK_CREATE(vtkGradientFilter, cellVorticity);
-      cellVorticity->SetInput(grid);
+      cellVorticity->SetInputData(grid);
       cellVorticity->SetInputScalars(
         vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
       cellVorticity->SetResultArrayName(resultName);
@@ -283,7 +283,7 @@ namespace
       cellVorticity->Update();
       
       VTK_CREATE(vtkGradientFilter, pointVorticity);
-      pointVorticity->SetInput(grid);
+      pointVorticity->SetInputData(grid);
       pointVorticity->SetInputScalars(
         vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
       pointVorticity->SetResultArrayName(resultName);

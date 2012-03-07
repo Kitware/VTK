@@ -7,12 +7,13 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read some structured data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # Here we subsample the grid. The SetVOI method requires six values
 # specifying (imin,imax, jmin,jmax, kmin,kmax) extents. In this
@@ -24,7 +25,7 @@ pl3d.Update()
 # k-direction. IncludeBoundaryOn makes sure that we get the boundary
 # points even if the SampleRate does not coincident with the boundary.
 extract = vtk.vtkExtractGrid()
-extract.SetInputConnection(pl3d.GetOutputPort())
+extract.SetInputData(pl3d_output)
 extract.SetVOI(30, 30, -1000, 1000, -1000, 1000)
 extract.SetSampleRate(1, 2, 3)
 extract.IncludeBoundaryOn()
@@ -35,7 +36,7 @@ actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

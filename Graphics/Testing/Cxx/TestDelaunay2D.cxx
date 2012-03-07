@@ -64,7 +64,7 @@ int TestDelaunay2D( int argc, char* argv[] )
   newPts->Delete();
 
   vtkDelaunay2D *delaunay2D = vtkDelaunay2D::New();
-  delaunay2D->SetInput( pointCloud );
+  delaunay2D->SetInputData( pointCloud );
   pointCloud->Delete();
   delaunay2D->Update();
 

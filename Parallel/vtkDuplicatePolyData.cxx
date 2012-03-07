@@ -252,7 +252,7 @@ int vtkDuplicatePolyData::RequestData(
   pd->CopyStructure(input);
   pd->GetPointData()->PassData(input->GetPointData());
   pd->GetCellData()->PassData(input->GetCellData());
-  append->AddInput(pd);
+  append->AddInputData(pd);
   pd->Delete();
 
   for (idx = 0; idx < this->ScheduleLength; ++idx)
@@ -268,7 +268,7 @@ int vtkDuplicatePolyData::RequestData(
 
         pd = vtkPolyData::New();
         this->Controller->Receive(pd, partner, 131767);
-        append->AddInput(pd);
+        append->AddInputData(pd);
         pd->Delete();
         pd = NULL;
         }
@@ -276,7 +276,7 @@ int vtkDuplicatePolyData::RequestData(
         {
         pd = vtkPolyData::New();
         this->Controller->Receive(pd, partner, 131767);
-        append->AddInput(pd);
+        append->AddInputData(pd);
         pd->Delete();
         pd = NULL;
 

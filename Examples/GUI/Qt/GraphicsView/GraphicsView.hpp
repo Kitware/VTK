@@ -44,6 +44,7 @@ class GraphicsView : public QGraphicsView
       p->beginNativePainting();
 #endif
       mWidget->GetRenderWindow()->PushState();
+      mWidget->GetRenderWindow()->OpenGLInitState();
       mWidget->GetRenderWindow()->Render();
       mWidget->GetRenderWindow()->PopState();
 #if QT_VERSION >= 0x040600

@@ -103,8 +103,8 @@ polyData.SetPolys(polys)
 # created and ordered in the right direction to indicate inside and
 # outside of the polygon.
 delny = vtk.vtkDelaunay2D()
-delny.SetInput(polyData)
-delny.SetSource(polyData)
+delny.SetInputData(polyData)
+delny.SetSourceData(polyData)
 mapMesh = vtk.vtkPolyDataMapper()
 mapMesh.SetInputConnection(delny.GetOutputPort())
 meshActor = vtk.vtkActor()

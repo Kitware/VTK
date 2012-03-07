@@ -112,7 +112,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
    
   // Create the filter
   vtkGenericGeometryFilter *geom = vtkGenericGeometryFilter::New();
-  geom->SetInput(ds);
+  geom->SetInputData(ds);
   
   geom->Update(); //So that we can call GetRange() on the scalars
   
@@ -160,7 +160,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
   vtkGenericProbeFilter *probe = vtkGenericProbeFilter::New();
   probe->SetInputConnection(0,tpd->GetOutputPort(0));
   tpd->Delete();
-  probe->SetSource(ds);
+  probe->SetSourceData(ds);
   
   probe->Update(); //So that we can call GetRange() on the scalars
   

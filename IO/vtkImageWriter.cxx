@@ -17,6 +17,7 @@
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -138,7 +139,7 @@ int vtkImageWriter::RequestData(
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
   this->UpdateProgress(0.0);
-  this->RecursiveWrite(2, input, NULL);
+  this->RecursiveWrite(2, input, inInfo, NULL);
 
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
@@ -161,13 +162,18 @@ void vtkImageWriter::Write()
   // we always write, even if nothing has changed, so send a modified
   this->Modified();
   this->UpdateInformation();
-  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
+  vtkInformation* inInfo = this->GetInputInformation(0, 0);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    inInfo,
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo));
   this->Update();
 }
 
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
-void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
+void vtkImageWriter::RecursiveWrite(int axis,
+                                    vtkImageData *cache,
+                                    vtkInformation* inInfo,
                                     ofstream *file)
 {
   vtkImageData    *data;
@@ -218,7 +224,8 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
 
     // Subclasses can write a header with this method call.
-    this->WriteFileHeader(file, cache);
+    int* wExt = vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo);
+    this->WriteFileHeader(file, cache, wExt);
     file->flush();
     if (file->fail())
       {
@@ -231,18 +238,22 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     }
   
   // Propagate the update extent so we can determine pipeline size
-  this->GetInput()->PropagateUpdateExtent();
+  vtkStreamingDemandDrivenPipeline* inputExec =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(
+      vtkExecutive::PRODUCER()->GetExecutive(inInfo));
+  int inputOutputPort = vtkExecutive::PRODUCER()->GetPort(inInfo);
+  inputExec->PropagateUpdateExtent(inputOutputPort);
 
   // just get the data and write it out
 #ifndef NDEBUG
-  int *ext = cache->GetUpdateExtent();
+  int *ext = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
 #endif
   vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
                 ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << 
                 ext[4] << ", " << ext[5] << endl);
-  cache->Update();
+  inputExec->Update(inputOutputPort);
   data = cache;
-  this->RecursiveWrite(axis,cache,data,file);
+  this->RecursiveWrite(axis,cache,data,inInfo,file);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     this->DeleteFiles();
@@ -265,15 +276,21 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
 //----------------------------------------------------------------------------
 // same idea as the previous method, but it knows that the data is ready
-void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-                                    vtkImageData *data, ofstream *file)
+void vtkImageWriter::RecursiveWrite(int axis,
+                                    vtkImageData *cache,
+                                    vtkImageData *data,
+                                    vtkInformation* inInfo,
+                                    ofstream *file)
 {
   int idx, min, max;
-  
+
+  int* wExt = vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo);
   // if the file is already open then just write to it
   if (file)
     {
-    this->WriteFile(file,data,cache->GetUpdateExtent());
+    this->WriteFile(file,data,
+                    vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo),
+                    wExt);
     file->flush();
     if (file->fail())
       {
@@ -328,7 +345,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
 
     // Subclasses can write a header with this method call.
-    this->WriteFileHeader(file, cache);
+    this->WriteFileHeader(file, cache, wExt);
     file->flush();
     if (file->fail())
       {
@@ -337,7 +354,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
       }
-    this->WriteFile(file,data,cache->GetUpdateExtent());
+    this->WriteFile(file,data,vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo),wExt);
     file->flush();
     if (file->fail())
       {
@@ -360,17 +377,21 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
   // if the current region is too high a dimension forthe file
   // the we will split the current axis
-  cache->GetAxisUpdateExtent(axis, min, max);
+  int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  cache->GetAxisUpdateExtent(axis, min, max,
+                             updateExtent);
   
+  int axisUpdateExtent[6];
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
     {
     for(idx = max; idx >= min; idx--)
       {
-      cache->SetAxisUpdateExtent(axis, idx, idx);
+      cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
+      vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
       if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
         {
-        this->RecursiveWrite(axis - 1, cache, data, file);
+        this->RecursiveWrite(axis - 1, cache, data, inInfo, file);
         }
       else
         {
@@ -382,10 +403,11 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     {
     for(idx = min; idx <= max; idx++)
       {
-      cache->SetAxisUpdateExtent(axis, idx, idx);
+      cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
+      vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
       if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
         {
-        this->RecursiveWrite(axis - 1, cache, data, file);
+        this->RecursiveWrite(axis - 1, cache, data, inInfo, file);
         }
       else
         {
@@ -395,7 +417,8 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     }
   
   // restore original extent
-  cache->SetAxisUpdateExtent(axis, min, max);
+  cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
 }
   
 
@@ -410,7 +433,7 @@ unsigned long vtkImageWriterGetSize(T*)
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only hanldes 3d data (plus components).
 void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
-                               int extent[6])
+                               int extent[6], int wExtent[6])
 {
   int idxY, idxZ;
   int rowLength; // in bytes
@@ -419,7 +442,6 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   unsigned long target;
   float progress = this->Progress;
   float area;
-  int *wExtent;
   
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
@@ -441,7 +463,6 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength *= data->GetNumberOfScalarComponents();
   rowLength *= (extent[1] - extent[0] + 1);
 
-  wExtent = this->GetInput()->GetWholeExtent();
   area = (float) ((extent[5] - extent[4] + 1)*
                   (extent[3] - extent[2] + 1)*
                   (extent[1] - extent[0] + 1)) / 

@@ -63,9 +63,9 @@ int TestMatrixWeighting(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkSmartPointer<vtkUnityMatrixWeighting> unity_weighting = vtkSmartPointer<vtkUnityMatrixWeighting>::New();
     vtkSmartPointer<vtkEntropyMatrixWeighting> entropy_weighting = vtkSmartPointer<vtkEntropyMatrixWeighting>::New();
 
-    unity_weighting->SetInputConnection(0, a_data->GetProducerPort());
+    unity_weighting->SetInputData(0, a_data);
     entropy_weighting->SetFeatureDimension(1);
-    entropy_weighting->SetInputConnection(0, b_data->GetProducerPort());
+    entropy_weighting->SetInputData(0, b_data);
     unity_weighting->Update();
     entropy_weighting->Update();
 

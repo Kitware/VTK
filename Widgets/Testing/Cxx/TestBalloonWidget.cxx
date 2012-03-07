@@ -95,20 +95,20 @@ int TestBalloonWidget( int argc, char *argv[] )
   //
   vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
   vtkSmartPointer<vtkActor> sph = vtkSmartPointer<vtkActor>::New();
   sph->SetMapper(mapper);
 
   vtkSmartPointer<vtkCylinderSource> cs = vtkSmartPointer<vtkCylinderSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> csMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  csMapper->SetInput(cs->GetOutput());
+  csMapper->SetInputConnection(cs->GetOutputPort());
   vtkSmartPointer<vtkActor> cyl = vtkSmartPointer<vtkActor>::New();
   cyl->SetMapper(csMapper);
   cyl->AddPosition(5,0,0);
 
   vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  coneMapper->SetInput(coneSource->GetOutput());
+  coneMapper->SetInputConnection(coneSource->GetOutputPort());
   vtkSmartPointer<vtkActor> cone = vtkSmartPointer<vtkActor>::New();
   cone->SetMapper(coneMapper);
   cone->AddPosition(0,5,0);

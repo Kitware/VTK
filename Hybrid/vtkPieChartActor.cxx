@@ -29,17 +29,32 @@
 #include "vtkLegendBoxActor.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkProperty2D.h"
+#include "vtkTrivialProducer.h"
+
 #include <string>
 #include <vector>
 
 vtkStandardNewMacro(vtkPieChartActor);
 
-vtkCxxSetObjectMacro(vtkPieChartActor,Input,vtkDataObject);
 vtkCxxSetObjectMacro(vtkPieChartActor,LabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkPieChartActor,TitleTextProperty,vtkTextProperty);
 
 // PIMPL'd list of labels
 class vtkPieceLabelArray : public std::vector<std::string> {};
+
+class vtkPieChartActorConnection : public vtkAlgorithm
+{
+public:
+  static vtkPieChartActorConnection *New();
+  vtkTypeMacro(vtkPieChartActorConnection,vtkAlgorithm);
+
+  vtkPieChartActorConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkPieChartActorConnection);
 
 
 //----------------------------------------------------------------------------
@@ -52,8 +67,9 @@ vtkPieChartActor::vtkPieChartActor()
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
   this->Position2Coordinate->SetReferenceCoordinate(NULL);
-  
-  this->Input = NULL;
+
+  this->ConnectionHolder = vtkPieChartActorConnection::New();
+
   this->ArrayNumber = 0;
   this->ComponentNumber = 0;
   this->TitleVisibility = 1;
@@ -93,7 +109,7 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
 
@@ -108,7 +124,7 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->WebData = vtkPolyData::New();
   this->WebMapper = vtkPolyDataMapper2D::New();
-  this->WebMapper->SetInput(this->WebData);
+  this->WebMapper->SetInputData(this->WebData);
   this->WebActor = vtkActor2D::New();
   this->WebActor->SetMapper(this->WebMapper);
 
@@ -123,11 +139,8 @@ vtkPieChartActor::vtkPieChartActor()
 //----------------------------------------------------------------------------
 vtkPieChartActor::~vtkPieChartActor()
 {
-  if ( this->Input )
-    {
-    this->Input->Delete();
-    this->Input = NULL;
-    }
+  this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 
   if (this->Title)
     {
@@ -156,6 +169,27 @@ vtkPieChartActor::~vtkPieChartActor()
   this->PlotData->Delete();
   this->PlotMapper->Delete();
   this->PlotActor->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkPieChartActor::SetInputConnection(vtkAlgorithmOutput* ao)
+{
+  this->ConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtkPieChartActor::SetInputData(vtkDataObject* dobj)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(dobj);
+  this->SetInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkPieChartActor::GetInput()
+{
+  return this->ConnectionHolder->GetInputDataObject(0, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -195,7 +229,7 @@ int vtkPieChartActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->GetInput() == NULL || this->N <= 0 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -238,7 +272,7 @@ int vtkPieChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->GetInput() == NULL || this->N <= 0 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -286,7 +320,7 @@ int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
   
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
-  if (!this->Input)
+  if (!this->GetInput())
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -327,11 +361,11 @@ int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
     }
   
   // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
+  this->ConnectionHolder->GetInputAlgorithm()->Update();
 
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
-      this->Input->GetMTime() > this->BuildTime ||
+      this->GetInput()->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
     {
@@ -680,7 +714,7 @@ void vtkPieChartActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Input: " << this->Input << "\n";
+  os << indent << "Input: " << this->GetInput() << "\n";
 
   os << indent << "Title Visibility: " 
      << (this->TitleVisibility ? "On\n" : "Off\n");

@@ -99,7 +99,8 @@ int vtkWarpScalar::RequestDataObject(vtkInformation *request,
     if (!output)
       {
       vtkNew<vtkStructuredGrid> newOutput;
-      newOutput->SetPipelineInformation(outputVector->GetInformationObject(0));
+      outputVector->GetInformationObject(0)->Set(
+        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
       }
     return 1;
     }
@@ -127,7 +128,7 @@ int vtkWarpScalar::RequestData(
     if (inImage)
       {
       vtkNew<vtkImageDataToPointSet> image2points;
-      image2points->SetInput(inImage);
+      image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
       }
@@ -140,7 +141,7 @@ int vtkWarpScalar::RequestData(
     if (inRect)
       {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
-      rect2points->SetInput(inRect);
+      rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
       }

@@ -13,23 +13,29 @@ package require vtktesting
 # create pipeline - start by extracting a single plane from the grid
 #
 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
 pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
 pl3d SetScalarFunctionNumber 100
 pl3d SetVectorFunctionNumber 202
+pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 
 vtkExtractGrid plane
-plane SetInputConnection [pl3d GetOutputPort]
+plane SetInputData $output
 plane SetVOI 0 57 0 33 0 0
 plane Update
 
 # Create some data to use for the (image) blanking
 #
 vtkImageData blankImage
-blankImage SetScalarTypeToUnsignedChar
+
+#vtkType.h has definitions for vtk datatypes VTK_INT, VTK_FLOAT, etc. that
+#don't get wrapped in Tcl.
+set VTK_UNSIGNED_CHAR 3
+
 blankImage SetDimensions 57 33 1
-blankImage AllocateScalars
+blankImage AllocateScalars $VTK_UNSIGNED_CHAR 1
 [[blankImage GetPointData] GetScalars] SetName "blankScalars"
 
 set blanking [[blankImage GetPointData] GetScalars]
@@ -49,7 +55,7 @@ $blanking SetComponent 1553 0 0
 #
 vtkBlankStructuredGridWithImage blankIt
 blankIt SetInputConnection [plane GetOutputPort]
-blankIt SetBlankingInput blankImage
+blankIt SetBlankingInputData blankImage
 
 vtkStructuredGridGeometryFilter blankedPlane
 blankedPlane SetInputConnection [blankIt GetOutputPort]
@@ -70,7 +76,7 @@ anotherGrid CopyStructure [plane GetOutput]
 [anotherGrid GetPointData] SetScalars [[blankImage GetPointData] GetScalars]
 
 vtkBlankStructuredGrid blankGrid
-blankGrid SetInput anotherGrid 
+blankGrid SetInputData anotherGrid
 blankGrid SetArrayName "blankScalars"
 blankGrid SetMinBlankingValue -0.5
 blankGrid SetMaxBlankingValue  0.5
@@ -89,7 +95,7 @@ planeActor2 SetMapper planeMapper2
 # An outline around the data
 #
 vtkStructuredGridOutlineFilter outline
-outline SetInputConnection [pl3d GetOutputPort]
+outline SetInputData $output
 
 vtkPolyDataMapper outlineMapper
 outlineMapper SetInputConnection [outline GetOutputPort]

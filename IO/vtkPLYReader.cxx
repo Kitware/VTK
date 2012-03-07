@@ -288,9 +288,9 @@ int vtkPLYReader::CanReadFile(const char *filename)
   if (!fd) return 0;
 
   char line[4] = {};
-  (void) fgets(line, sizeof(line), fd);
+  const char *result = fgets(line, sizeof(line), fd);
   fclose(fd);
-  return (strncmp(line, "ply", 3) == 0);
+  return (result && strncmp(result, "ply", 3) == 0);
 }
 
 void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)

@@ -117,13 +117,24 @@ public:
   virtual void SetMaterialOrderingArray( int i, const char* ordering );
 
   // Description:
+  // Removes all meterials previously added.
+  virtual void RemoveAllMaterials();
+
+  // Description:
+  // Alternative API for associating Normal and Ordering arrays to materials
+  // identified by its volume-fraction array.
+  // Note that these mappings are cleared by a call to RemoveAllMaterials() but
+  // not by SetNumberOfMaterials().
+  // If one uses the SetMaterial*Array(int, ...) API to set the normal or
+  // ordering arrays, then that supersedes the values set using this API.
+  virtual void SetMaterialNormalArray(const char* volume, const char* normal);
+  virtual void SetMaterialOrderingArray(const char* volume, const char* ordering);
+
+  // Description:
   // select blocks to be processed for each described material.
   virtual void RemoveAllMaterialBlockMappings();
   virtual void AddMaterialBlockMapping(int b);
 
-  // Description:
-  // Removes all meterials previously added.
-  virtual void RemoveAllMaterials();
 
 //BTX
   enum

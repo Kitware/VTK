@@ -3674,8 +3674,6 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
     return -1;
     }
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   points->Allocate(numPts);
 
   xCoords = new float[numPts];
@@ -3799,8 +3797,6 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
     }
 
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   xCoords->Allocate(dimensions[0]);
   yCoords->Allocate(dimensions[1]);
   zCoords->Allocate(dimensions[2]);
@@ -3886,8 +3882,6 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
 
   this->ReadIntArray(dimensions, 3);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   this->ReadFloatArray(origin, 3);
   output->SetOrigin(origin[0], origin[1], origin[2]);
   this->ReadFloatArray(delta, 3);

@@ -67,7 +67,7 @@ int TestTStripsNormalsTCoords(int argc, char *argv[])
   stripper->Delete();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
+  mapper->SetInputData(polyData);
   polyData->Delete();
 
   vtkActor *actor = vtkActor::New();

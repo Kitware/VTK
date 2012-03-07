@@ -405,7 +405,7 @@ PyTypeObject PyVTKClass_Type = {
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
 #if PY_VERSION_HEX >= 0x02020000
-  Py_TPFLAGS_HAVE_GC,                    // tp_flags
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
 #else
   0,                                     // tp_flags
 #endif
@@ -418,7 +418,29 @@ PyTypeObject PyVTKClass_Type = {
 #else
   0, 0, 0, 0,                            // reserved
 #endif
-  VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
+#if PY_VERSION_HEX >= 0x02020000
+  0,                                     // tp_iter
+  0,                                     // tp_iternext
+  0,                                     // tp_methods
+  0,                                     // tp_members
+  0,                                     // tp_getset
+  &PyClass_Type,                         // tp_base
+  0,                                     // tp_dict
+  0,                                     // tp_descr_get
+  0,                                     // tp_descr_set
+  0,                                     // tp_dictoffset
+  0,                                     // tp_init
+  0,                                     // tp_alloc
+  0,                                     // tp_new
+  0,                                     // tp_free
+  0,                                     // tp_is_gc
+  0,                                     // tp_bases
+  0,                                     // tp_mro
+  0,                                     // tp_cache
+  0,                                     // tp_subclasses
+  0,                                     // tp_weaklist
+#endif
+  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
 
 PyObject *PyVTKClass_GetDict(PyObject *obj)

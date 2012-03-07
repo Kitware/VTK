@@ -25,7 +25,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkTrivialProducer.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <vector>
@@ -69,6 +68,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->CompositeIndex = -1;
   this->HierarchicalLevel = -1;
   this->HierarchicalIndex = -1;
+  this->QueryString = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,7 @@ vtkSelectionSource::~vtkSelectionSource()
     {
     delete[] this->ArrayName;
     }
+  delete[] this->QueryString;
 }
 
 //----------------------------------------------------------------------------
@@ -254,6 +255,7 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CompositeIndex: " << this->CompositeIndex << endl;
   os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
   os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
+  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "NULL") << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -502,6 +504,13 @@ int vtkSelectionSource::RequestData(
       }
     output->SetSelectionList(selectionList);
     selectionList->Delete();
+    }
+
+  if(this->ContentType == vtkSelectionNode::QUERY)
+    {
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
+    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
+    output->SetQueryString(this->QueryString);
     }
 
   oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(),

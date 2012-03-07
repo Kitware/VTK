@@ -372,7 +372,7 @@ int vtkMNITransformWriter::WriteGridTransform(
   // Use the full path to write the minc file
   vtkMINCImageWriter *writer = vtkMINCImageWriter::New();
   writer->SetFileName(vtksys::SystemTools::JoinPath(xfmpath).c_str());
-  writer->SetInput(transform->GetDisplacementGrid());
+  writer->SetInputData(transform->GetDisplacementGrid());
   if (transform->GetDisplacementShift() != 0.0 ||
       transform->GetDisplacementScale() != 1.0)
     {

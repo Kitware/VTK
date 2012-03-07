@@ -49,8 +49,10 @@
 #define VTK_FLY_CLOSEST_TRIAD 1
 #define VTK_FLY_NONE 2
 
+class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
+class vtkCubeAxesActor2DConnection;
 class vtkDataSet;
 class vtkTextProperty;
 
@@ -80,8 +82,9 @@ public:
   // Use the bounding box of this input dataset to draw the cube axes. If this
   // is not specified, then the class will attempt to determine the bounds from
   // the defined Prop or Bounds.
-  virtual void SetInput(vtkDataSet*);
-  vtkGetObjectMacro(Input, vtkDataSet);
+  virtual void SetInputConnection(vtkAlgorithmOutput*);
+  virtual void SetInputData(vtkDataSet*);
+  virtual vtkDataSet* GetInput();
 
   // Description:
   // Use the bounding box of this prop to draw the cube axes. The
@@ -301,7 +304,8 @@ protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
 
-  vtkDataSet *Input;    //Define bounds from input data, or
+  vtkCubeAxesActor2DConnection* ConnectionHolder;
+
   vtkProp    *ViewProp;     //Define bounds from actor/assembly, or
   double      Bounds[6]; //Define bounds explicitly
   double      Ranges[6]; //Define ranges explicitly

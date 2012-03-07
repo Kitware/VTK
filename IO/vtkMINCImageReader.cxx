@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMatrix4x4.h"
 #include "vtkSmartPointer.h"
 #include "vtkMath.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkType.h"
 
@@ -174,10 +175,11 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
     }
 
   char magic[4];
-  (void) fread(magic, 4, 1, fp);
+  size_t count = fread(magic, 4, 1, fp);
   fclose(fp);
 
-  if (magic[0] != 'C' ||
+  if (count != 1 ||
+      magic[0] != 'C' ||
       magic[1] != 'D' ||
       magic[2] != 'F' ||
       magic[3] != '\001')
@@ -1126,14 +1128,16 @@ void vtkMINCImageReaderExecuteChunk(
   case VTK_UNSIGNED_CHAR:  { typedef unsigned char VTK_TT; call; };  break
 
 //-------------------------------------------------------------------------
-void vtkMINCImageReader::ExecuteData(vtkDataObject *output)
+void vtkMINCImageReader::ExecuteData(vtkDataObject *output,
+                                     vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   int scalarType = data->GetScalarType();
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
   int outExt[6];
-  data->GetUpdateExtent(outExt);
+  memcpy(outExt, vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+           this->GetOutputInformation(0)), 6*sizeof(int));
   vtkIdType outInc[3];
   data->GetIncrements(outInc);
   int outSize[3];

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkSpiderPlotActor.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkFieldData.h"
@@ -24,6 +25,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkLegendBoxActor.h"
@@ -35,7 +37,6 @@
 
 vtkStandardNewMacro(vtkSpiderPlotActor);
 
-vtkCxxSetObjectMacro(vtkSpiderPlotActor,Input,vtkDataObject);
 vtkCxxSetObjectMacro(vtkSpiderPlotActor,LabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkSpiderPlotActor,TitleTextProperty,vtkTextProperty);
 
@@ -52,6 +53,20 @@ struct vtkAxisRange
 };
 class vtkAxisRanges : public std::vector<vtkAxisRange> {};
 
+class vtkSpiderPlotActorConnection : public vtkAlgorithm
+{
+public:
+  static vtkSpiderPlotActorConnection *New();
+  vtkTypeMacro(vtkSpiderPlotActorConnection,vtkAlgorithm);
+
+  vtkSpiderPlotActorConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkSpiderPlotActorConnection);
+
 
 //----------------------------------------------------------------------------
 // Instantiate object
@@ -64,7 +79,8 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->Position2Coordinate->SetValue(0.9, 0.8);
   this->Position2Coordinate->SetReferenceCoordinate(NULL);
   
-  this->Input = NULL;
+  this->ConnectionHolder = vtkSpiderPlotActorConnection::New();
+
   this->IndependentVariables = VTK_IV_COLUMN;
   this->TitleVisibility = 1;
   this->Title = NULL;
@@ -102,10 +118,11 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
+  this->GlyphSource->Update();
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
 
@@ -120,7 +137,7 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
 
   this->WebData = vtkPolyData::New();
   this->WebMapper = vtkPolyDataMapper2D::New();
-  this->WebMapper->SetInput(this->WebData);
+  this->WebMapper->SetInputData(this->WebData);
   this->WebActor = vtkActor2D::New();
   this->WebActor->SetMapper(this->WebMapper);
 
@@ -135,11 +152,8 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
 //----------------------------------------------------------------------------
 vtkSpiderPlotActor::~vtkSpiderPlotActor()
 {
-  if ( this->Input )
-    {
-    this->Input->Delete();
-    this->Input = NULL;
-    }
+  this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 
   if (this->Title)
     {
@@ -169,6 +183,27 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
   this->PlotData->Delete();
   this->PlotMapper->Delete();
   this->PlotActor->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkSpiderPlotActor::SetInputConnection(vtkAlgorithmOutput* ao)
+{
+  this->ConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtkSpiderPlotActor::SetInputData(vtkDataObject* dobj)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(dobj);
+  this->SetInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkSpiderPlotActor::GetInput()
+{
+  return this->ConnectionHolder->GetInputDataObject(0, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -211,7 +246,7 @@ int vtkSpiderPlotActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->GetInput() == NULL || this->N <= 0 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -254,7 +289,7 @@ int vtkSpiderPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->GetInput() == NULL || this->N <= 0 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -301,7 +336,7 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
   
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
-  if (!this->Input)
+  if (!this->GetInput())
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -342,11 +377,11 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
     }
   
   // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
+  this->ConnectionHolder->GetInputAlgorithm()->Update();
 
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
-      this->Input->GetMTime() > this->BuildTime ||
+      this->GetInput()->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
     {
@@ -884,7 +919,7 @@ void vtkSpiderPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Input: " << this->Input << "\n";
+  os << indent << "Input: " << this->GetInput() << "\n";
 
   os << indent << "Number Of Independent Variables: " << this->N << "\n";
   os << indent << "Independent Variables: ";

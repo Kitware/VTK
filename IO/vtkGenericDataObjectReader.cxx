@@ -85,9 +85,6 @@ void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* 
     this->MTime = mtime;
     }
   Output->ShallowCopy(reader->GetOutput());
-  Output->GetPipelineInformation()->CopyEntry(
-    reader->GetOutput()->GetPipelineInformation(),
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   reader->Delete();
 }
 
@@ -168,8 +165,8 @@ int vtkGenericDataObjectReader::RequestDataObject(
       default:
         return 0;
       }
-    
-    output->SetPipelineInformation(info);
+
+    info->Set(vtkDataObject::DATA_OBJECT(), output);
     output->Delete();
     }
 

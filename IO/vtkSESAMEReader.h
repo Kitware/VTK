@@ -25,15 +25,15 @@
 #ifndef __vtkSESAMEReader_h
 #define __vtkSESAMEReader_h
 
-#include <vtkRectilinearGridSource.h>
+#include <vtkRectilinearGridAlgorithm.h>
 
 class vtkIntArray;
 
-class VTK_IO_EXPORT vtkSESAMEReader : public vtkRectilinearGridSource
+class VTK_IO_EXPORT vtkSESAMEReader : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkSESAMEReader *New();
-  vtkTypeMacro(vtkSESAMEReader, vtkRectilinearGridSource);
+  vtkTypeMacro(vtkSESAMEReader, vtkRectilinearGridAlgorithm);
   
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -96,14 +96,19 @@ protected:
 
   int OpenFile();
   void CloseFile();
-  void Execute();
-  void ExecuteInformation();
+
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *,
+                                 vtkInformationVector **,
+                                 vtkInformationVector *);
   
   int ReadTableValueLine ( float *v1, float *v2, float *v3,
       float *v4, float *v5);
   int JumpToTable( int tableID );
 
-  void ReadTable(); 
+  void ReadTable(vtkRectilinearGrid* output);
 
 private:
   vtkSESAMEReader(const vtkSESAMEReader&);  // Not implemented.

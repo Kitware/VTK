@@ -128,7 +128,6 @@ int TestMapVectorsToColors(int argc, char *argv[])
 
     vtkNew<vtkImageData> image;
     image->SetDimensions(80, 80, 1);
-    image->SetScalarTypeToUnsignedChar();
     image->GetPointData()->SetScalars(outputs[i]);
 
     int pos[2];
@@ -138,7 +137,7 @@ int TestMapVectorsToColors(int argc, char *argv[])
     vtkNew<vtkImageMapper> mapper;
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInput(image.GetPointer());
+    mapper->SetInputData(image.GetPointer());
 
     vtkNew<vtkActor2D> actor;
     actor->SetMapper(mapper.GetPointer());

@@ -61,7 +61,7 @@ protected:
   int WholeExtent[6];
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteData(vtkDataObject *data, vtkInformation* outInfo);
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&);  // Not implemented.
   void operator=(const vtkImageNoiseSource&);  // Not implemented.

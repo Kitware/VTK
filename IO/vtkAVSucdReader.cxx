@@ -220,12 +220,30 @@ int vtkAVSucdReader::RequestInformation(
     this->FileStream = NULL;
 
     this->FileStream = new ifstream(this->FileName, ios::in);
-    char c='\0', buf[100];
-    while(this->FileStream->get(c) && c == '#')
+    char c='\0';
+    while (!FileStream->eof())
       {
-      this->FileStream->get(buf, 100, '\n'); this->FileStream->get(c);
+      // skip leading whitespace
+      while(isspace(FileStream->peek()))
+        {
+        FileStream->get(c);
+        }
+      // skip comment lines
+      if (FileStream->peek() == '#')
+        {
+        while(this->FileStream->get(c))
+          {
+          if (c == '\n')
+            {
+            break;
+            }
+          }
+        }
+      else
+        {
+        break;
+        }
       }
-    this->FileStream->putback(c);
 
     *(this->FileStream) >> this->NumberOfNodes;
     *(this->FileStream) >> this->NumberOfCells;

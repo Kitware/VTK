@@ -98,7 +98,7 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
                         0, this->KernelSize[0]-1, 
                         0, this->KernelSize[1]-1, 
                         0, this->KernelSize[2]-1);
-    this->Ellipse->GetOutput()->Update();
+    this->Ellipse->Update();
     }
 }
 
@@ -333,6 +333,6 @@ int vtkImageVariance3D::RequestData(vtkInformation *request,
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
-  this->Ellipse->GetOutput()->Update();
+  this->Ellipse->Update();
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }

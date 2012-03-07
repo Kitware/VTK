@@ -115,7 +115,11 @@ vtkRenderWindow *vtkRenderWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindow");
-  return static_cast<vtkRenderWindow *>(ret);
+  vtkRenderWindow *retWin = static_cast<vtkRenderWindow *>(ret);
+#ifdef VTK_USE_OFFSCREEN
+  retWin->SetOffScreenRendering(1);
+#endif
+  return retWin;
 }
 
 //----------------------------------------------------------------------------

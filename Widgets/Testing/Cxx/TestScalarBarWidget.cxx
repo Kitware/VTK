@@ -14,7 +14,8 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkScalarBarWidget.h"
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
@@ -375,13 +376,14 @@ int TestScalarBarWidget( int argc, char *argv[] )
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
   
   // Start by loading some data.
-  vtkSmartPointer<vtkPLOT3DReader> pl3d =
-    vtkSmartPointer<vtkPLOT3DReader>::New();
+  vtkSmartPointer<vtkMultiBlockPLOT3DReader> pl3d =
+    vtkSmartPointer<vtkMultiBlockPLOT3DReader>::New();
   pl3d->SetXYZFileName(fname);
   pl3d->SetQFileName(fname2);
   pl3d->SetScalarFunctionNumber(100);
   pl3d->SetVectorFunctionNumber(202);
   pl3d->Update();
+  vtkDataSet* pl3d_block0 = vtkDataSet::SafeDownCast(pl3d->GetOutput()->GetBlock(0));
   
   delete [] fname;
   delete [] fname2;
@@ -389,7 +391,7 @@ int TestScalarBarWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridGeometryFilter> outline =
     vtkSmartPointer<vtkStructuredGridGeometryFilter>::New();
-  outline->SetInputConnection(pl3d->GetOutputPort());
+  outline->SetInputData(pl3d_block0);
   outline->SetExtent(0,100,0,100,9,9);
   
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =

@@ -24,7 +24,6 @@ ENDIF(VTK_HAS_EXODUS)
 
 SET ( Kit_SRCS
 vtkAMRUtilities.cxx
-vtkBranchExtentTranslator.cxx
 vtkCachingInterpolatedVelocityField.cxx
 vtkClientServerSynchronizedRenderers.cxx
 vtkCollectGraph.cxx
@@ -65,7 +64,6 @@ vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPMaskPoints.cxx
 vtkPNrrdReader.cxx
-vtkPOPReader.cxx
 vtkPOpenFOAMReader.cxx
 vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx

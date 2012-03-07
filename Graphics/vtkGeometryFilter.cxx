@@ -148,7 +148,9 @@ int vtkGeometryFilter::RequestData(
   vtkCellData *outputCD = output->GetCellData();
   // ghost cell stuff
   unsigned char  updateLevel =
-                     static_cast<unsigned char>(output->GetUpdateGhostLevel());
+    static_cast<unsigned char>(
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)

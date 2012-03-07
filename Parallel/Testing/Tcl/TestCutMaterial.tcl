@@ -5,7 +5,7 @@ package require vtkinteraction
 # Lets create a data set.
 vtkImageData data
   data SetExtent 0 31 0 31 0 31
-  data SetScalarTypeToFloat
+  data SetScalarType 10 [data GetInformation]
 
 # First the data array:
 vtkImageGaussianSource gauss
@@ -39,7 +39,7 @@ $m SetName "Material"
 ellipse Delete
 
 vtkCutMaterial cut
-  cut SetInput data
+  cut SetInputData data
   cut SetMaterialArrayName "Material"
   cut SetMaterial 1
   cut SetArrayName "Gauss"

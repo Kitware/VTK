@@ -28,43 +28,33 @@
 // the input data. This is a form of data simplification, generally used to
 // accelerate the rendering process. Or, this filter can be used as a
 // debugging/ visualization aid for spatial search objects.
-// 
-// This filter can generate one or more output vtkPolyData corresponding to
-// different levels in the spatial search tree. The output data is retrieved 
-// using the GetOutput(id) method, where id ranges from 0 (root level) 
-// to Level. Note that the output for level "id" is not computed unless a 
-// GetOutput(id) method is issued. Thus, if you desire three levels of output 
-// (say 2,4,7), you would have to invoke GetOutput(2), GetOutput(4), and 
-// GetOutput(7). (Also note that the Level ivar is computed automatically 
-// depending on the size and nature of the input data.) There is also 
-// another GetOutput() method that takes no parameters. This method returns 
-// the leafs of the spatial search tree, which may be at different levels.
-
-// .SECTION Caveats
-// You can specify the number of levels of to generate with the MaxLevels
-// ivar. However, when the spatial search tree is built, this number of levels 
-// may not actually be generated. The actual number available can be found in 
-// the Levels ivar. Note that the value of Levels may change after filter
-// execution.
+//
+// This filter can generate one or more  vtkPolyData blocks corresponding to
+// different levels in the spatial search tree. The block ids range from 0
+// (root level) to MaximumLevel. Note that the block for level "id" is not computed
+// unless a AddLevel(id) method is issued. Thus, if you desire three levels of output
+// (say 2,4,7), you would have to invoke AddLevel(2), AddLevel(4), and
+// AddLevel(7). If GenerateLeaves is set to true (off by default), all leaf nodes
+// of the locator (which may be at different levels) are computed and stored in
+// block with id MaximumLevel + 1.
 
 // .SECTION See Also
-// vtkLocator vtkPointLocator vtkCellLocator vtkOBBTree 
+// vtkLocator vtkPointLocator vtkCellLocator vtkOBBTree
 
 #ifndef __vtkSpatialRepresentationFilter_h
 #define __vtkSpatialRepresentationFilter_h
 
-#include "vtkPolyDataSource.h"
-
-#define VTK_MAX_SPATIAL_REP_LEVEL 24
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkLocator;
 class vtkDataSet;
+class vtkSpatialRepresentationFilterInternal;
 
-class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
+class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkSpatialRepresentationFilter *New();
-  vtkTypeMacro(vtkSpatialRepresentationFilter,vtkPolyDataSource);
+  vtkTypeMacro(vtkSpatialRepresentationFilter,vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -73,35 +63,34 @@ public:
   vtkGetObjectMacro(SpatialRepresentation,vtkLocator);
 
   // Description:
-  // Get the maximum number of outputs actually available.
-  vtkGetMacro(Level,int);
-  
-  // Description:
-  // A special form of the GetOutput() method that returns multiple outputs.
-  vtkPolyData *GetOutput(int level);
+  // Get the maximum level that is available. Populated during
+  // RequestData().
+  vtkGetMacro(MaximumLevel,int);
 
   // Description:
-  // Output of terminal nodes/leaves.
-  vtkPolyData *GetOutput();  
-  
+  // Add a level to be computed.
+  void AddLevel(int level);
+
   // Description:
-  // Reset requested output levels
-  void ResetOutput();
-  
+  // Remove all levels.
+  void ResetLevels();
+
   // Description:
-  // Set / get the input data or filter.
-  virtual void SetInput(vtkDataSet *input);
-  vtkDataSet *GetInput();
+  // Turn on/off the generation of leaf nodes. Off by default.
+  vtkSetMacro(GenerateLeaves, bool);
+  vtkGetMacro(GenerateLeaves, bool);
+  vtkBooleanMacro(GenerateLeaves, bool);
 
 protected:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
 
-  void Execute();
-  void GenerateOutput();
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
 
-  int Level;
-  int TerminalNodesRequested;
+  int MaximumLevel;
+  bool GenerateLeaves;
 
   vtkLocator *SpatialRepresentation;
 
@@ -110,8 +99,8 @@ protected:
 private:
   vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);  // Not implemented.
   void operator=(const vtkSpatialRepresentationFilter&);  // Not implemented.
+
+  vtkSpatialRepresentationFilterInternal* Internal;
 };
 
 #endif
-
-

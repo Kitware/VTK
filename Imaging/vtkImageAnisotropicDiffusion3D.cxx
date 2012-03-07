@@ -151,16 +151,14 @@ void vtkImageAnisotropicDiffusion3D::ThreadedRequestData(
   // make the temporary regions to iterate over.
   vtkImageData *in = vtkImageData::New();
   in->SetExtent(inExt);
-  in->SetNumberOfScalarComponents(inData[0][0]->GetNumberOfScalarComponents());
-  in->SetScalarType(VTK_DOUBLE);
+  in->AllocateScalars(VTK_DOUBLE,
+                      inData[0][0]->GetNumberOfScalarComponents());
   in->CopyAndCastFrom(inData[0][0],inExt);
   
   vtkImageData *out = vtkImageData::New();
   out->SetExtent(inExt);
-  out->SetNumberOfScalarComponents(
-    inData[0][0]->GetNumberOfScalarComponents());
-  out->SetScalarType(VTK_DOUBLE);
-  out->AllocateScalars();
+  out->AllocateScalars(VTK_DOUBLE,
+                       inData[0][0]->GetNumberOfScalarComponents());
   
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses

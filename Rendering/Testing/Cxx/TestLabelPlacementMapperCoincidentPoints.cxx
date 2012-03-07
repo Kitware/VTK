@@ -170,7 +170,7 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   tprop->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
   tprop->SetColor( 0.0, 0.8, 0.2 );
 
-  pointSetToLabelHierarchy->SetInput(polyData);
+  pointSetToLabelHierarchy->SetInputData(polyData);
   pointSetToLabelHierarchy->SetTextProperty(tprop);
   pointSetToLabelHierarchy->SetPriorityArrayName("Priority");
   pointSetToLabelHierarchy->SetLabelArrayName("PlaceNames");
@@ -182,7 +182,7 @@ int TestLabelPlacementMapperCoincidentPoints(int argc, char *argv[])
   labelPlacer->SetMaximumLabelFraction( labelRatio );
   //labelPlacer->SetIteratorType(1); // Quadtree is only available type for 2-D.
 
-  polyDataMapper->SetInput(polyData);
+  polyDataMapper->SetInputData(polyData);
   //polyDataMapper2->SetInputConnection(labelPlacer->GetOutputPort(2));
 
   actor->SetMapper(polyDataMapper);

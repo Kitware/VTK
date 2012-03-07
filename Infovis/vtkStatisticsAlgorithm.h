@@ -20,7 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkStatisticsAlgorithm - Base class for statistics algorithms
 //
 // .SECTION Description
-// All statistics algorithms can conceptually be operated with several options:
+// All statistics algorithms can conceptually be operated with several operations:
 // * Learn: given an input data set, calculate a minimal statistical model (e.g., 
 //   sums, raw moments, joint probabilities).
 // * Derive: given an input minimal statistical model, derive the full model 
@@ -34,20 +34,21 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: given an input data set, input statistics, and some form of 
 //   threshold, assess a subset of the data set.
 // * Test: perform at least one statistical test.
-// Therefore, a vtkStatisticsAlgorithm has the following vtkTable ports
-// * 3 input ports:
-//   * Data (mandatory)
-//   * Parameters to the learn phase (optional)
-//   * Input model (optional) 
-// * 3 output port (called Output):
-//   * Data (annotated with assessments when the Assess option is ON).
-//   * Output model (identical to the the input model when Learn option is OFF).
+// Therefore, a vtkStatisticsAlgorithm has the following ports
+// * 3 optional input ports:
+//   * Data (vtkTable)
+//   * Parameters to the learn operation (vtkTable)
+//   * Input model (vtkMultiBlockDataSet) 
+// * 3 output ports:
+//   * Data (input annotated with assessments when the Assess operation is ON).
+//   * Output model (identical to the the input model when Learn operation is OFF).
 //   * Output of statistical tests. Some engines do not offer such tests yet, in
-//     which case this output will always be empty even when the Test option is ON.
+//     which case this output will always be empty even when the Test operation is ON.
 //
 // .SECTION Thanks
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
 // for implementing this class.
+// Updated by Philippe Pebay, Kitware SAS 2012
 
 #ifndef __vtkStatisticsAlgorithm_h
 #define __vtkStatisticsAlgorithm_h
@@ -97,9 +98,9 @@ public:
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
-  // It is equivalent to calling SetInput( 1, params );
+  // It is equivalent to calling SetInputData( 1, params );
   virtual void SetLearnOptionParameters( vtkDataObject* params )
-    { this->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
+    { this->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
 
   // Description:
   // A convenience method for setting the input model connection (if one is expected or allowed).
@@ -109,27 +110,27 @@ public:
 
   // Description:
   // A convenience method for setting the input model (if one is expected or allowed).
-  // It is equivalent to calling SetInput( 2, model );
+  // It is equivalent to calling SetInputData( 2, model );
   virtual void SetInputModel( vtkDataObject* model )
-    { this->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
+    { this->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
   // Description:
-  // Set/Get the Learn option.
+  // Set/Get the Learn operation.
   vtkSetMacro( LearnOption, bool );
   vtkGetMacro( LearnOption, bool );
 
   // Description:
-  // Set/Get the Derive option.
+  // Set/Get the Derive operation.
   vtkSetMacro( DeriveOption, bool );
   vtkGetMacro( DeriveOption, bool );
 
   // Description:
-  // Set/Get the Assess option.
+  // Set/Get the Assess operation.
   vtkSetMacro( AssessOption, bool );
   vtkGetMacro( AssessOption, bool );
 
   // Description:
-  // Set/Get the Test option.
+  // Set/Get the Test operation.
   vtkSetMacro( TestOption, bool );
   vtkGetMacro( TestOption, bool );
 

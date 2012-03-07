@@ -95,7 +95,8 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
                                 vtkImageData *in1Data, T *in1Ptr,
                                 vtkImageData *in2Data, T *in2Ptr,
                                 vtkImageData *outData, float *outPtr,
-                                int outExt[6], int id)
+                                int outExt[6], int id,
+                                int in2Extent[6])
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -105,7 +106,6 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int *in2Extent;
   T *in2Ptr2, *in1Ptr2;
   int kIdxX, kIdxY, kIdxZ;
   int xKernMax, yKernMax, zKernMax;
@@ -120,9 +120,6 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // get some other info we need
-  in2Extent = in2Data->GetWholeExtent(); 
-  
   // Get increments to march through data 
   in1Data->GetContinuousIncrements(outExt, in1CIncX, in1CIncY, in1CIncZ);
   in1Data->GetIncrements(in1IncX, in1IncY, in1IncZ);
@@ -209,7 +206,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 // the datas data types.
 void vtkImageCorrelation::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector ** inputVector , 
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData, 
   vtkImageData **outData,
@@ -219,8 +216,9 @@ void vtkImageCorrelation::ThreadedRequestData(
   void *in1Ptr;
   void *in2Ptr;
   float *outPtr;
-  
-  in2Extent = inData[1][0]->GetWholeExtent();
+
+  in2Extent = inputVector[1]->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   in1Ptr = inData[0][0]->GetScalarPointerForExtent(outExt);
   in2Ptr = inData[1][0]->GetScalarPointerForExtent(in2Extent);
   outPtr = static_cast<float *>(outData[0]->GetScalarPointerForExtent(outExt));
@@ -249,7 +247,8 @@ void vtkImageCorrelation::ThreadedRequestData(
                                  static_cast<VTK_TT *>(in1Ptr), 
                                  inData[1][0], 
                                  static_cast<VTK_TT *>(in2Ptr), 
-                                 outData[0], outPtr, outExt, id));
+                                 outData[0], outPtr, outExt, id,
+                                 in2Extent));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

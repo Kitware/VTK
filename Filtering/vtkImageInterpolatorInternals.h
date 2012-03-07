@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkInterpolationInternals.h
+  Module:    vtkInterpolatorInternals.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkInterpolationInternals - internals for vtkImageInterpolator
+// .NAME vtkInterpolatorInternals - internals for vtkImageInterpolator
 
-#ifndef __vtkInterpolationInternals_h
-#define __vtkInterpolationInternals_h
+#ifndef __vtkInterpolatorInternals_h
+#define __vtkInterpolatorInternals_h
 
 #include "vtkMath.h"
 
@@ -117,7 +117,8 @@ inline int vtkInterpolationMath::Floor(double x, F &f)
   f = dual.s[0]*0.0000152587890625; // 2**(-16)
   return static_cast<int>((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  int i = vtkMath::Floor(x + VTK_INTERPOLATE_FLOOR_TOL);
+  x += VTK_INTERPOLATE_FLOOR_TOL;
+  int i = vtkMath::Floor(x);
   f = x - i;
   return i;
 #endif
@@ -177,14 +178,24 @@ inline int vtkInterpolationMath::Wrap(int a, int b, int c)
 
 inline int vtkInterpolationMath::Mirror(int a, int b, int c)
 {
-  int range1 = c - b;
-  int range = range1 + 1;
+#ifndef VTK_IMAGE_BORDER_LEGACY_MIRROR
+  int range = c - b;
+  int ifzero = (range == 0);
+  int range2 = 2*range + ifzero;
+  a -= b;
+  a = (a >= 0 ? a : -a);
+  a %= range2;
+  a = (a <= range ? a : range2 - a);
+  return a;
+#else
+  int range = c - b + 1;
+  int range2 = 2*range;
   a -= b;
   a = (a >= 0 ? a : -a - 1);
-  int count = a/range;
-  a -= count*range;
-  a = ((count & 0x1) == 0 ? a : range1 - a);
+  a %= range2;
+  a = (a < range ? a : range2 - a - 1);
   return a;
+#endif
 }
 
 #endif

@@ -55,7 +55,7 @@ public:
   // Description:
   // Specify the point locations used to probe input. A generic dataset
   // type is assumed.
-  void SetSource(vtkGenericDataSet *source);
+  void SetSourceData(vtkGenericDataSet *source);
   vtkGenericDataSet *GetSource();
 
   // Description:
@@ -67,6 +67,7 @@ protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter();
 
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int FillInputPortInformation(int, vtkInformation*);

@@ -50,12 +50,12 @@ public:
   // Description:
   // Add a dataset to the list of data to append. Should not be
   // used when UserManagedInputs is true, use SetInputByNumber instead.
-  void AddInput(vtkSelection *);
+  void AddInputData(vtkSelection *);
 
   // Description:
   // Remove a dataset from the list of data to append. Should not be
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
-  void RemoveInput(vtkSelection *);
+  void RemoveInputData(vtkSelection *);
 
 //BTX
   // Description:
@@ -70,7 +70,7 @@ public:
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
-  void SetInputByNumber(int num, vtkSelection *input);
+  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
 
   // Description:
   // When set to true, all the selections are combined together to form a single
@@ -94,7 +94,7 @@ protected:
 
  private:
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
+  void AddInputData(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
 
   int UserManagedInputs;

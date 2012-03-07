@@ -758,11 +758,11 @@ int vtkMNITransformReader::ReadGridTransform(
     }
 
   // Read the minc file now, rather than later
-  reader->GetOutput()->Update();
+  reader->Update();
 
   // Create the transform
   vtkGridTransform *transform = vtkGridTransform::New();
-  transform->SetDisplacementGrid(reader->GetOutput());
+  transform->SetDisplacementGridConnection(reader->GetOutputPort());
   transform->SetDisplacementShift(reader->GetRescaleIntercept());
   transform->SetDisplacementScale(reader->GetRescaleSlope());
   transform->SetInverseTolerance(0.05);

@@ -97,5 +97,21 @@ int TestVectorOperators(int, char*[])
     ++retVal;
     }
 
+  // Test the * operator with a scalar.
+  result = vec3ia * 2;
+  if (result != vtkVector3i(0, 12, 18))
+    {
+    cerr << "Vector multiplication by scalar operator failed." << endl;
+    cerr << vec3ia << " * 2 = " << result << endl;
+    ++retVal;
+    }
+  result = 2 * vec3ia;
+  if (result != vtkVector3i(0, 12, 18))
+    {
+    cerr << "Vector multiplication by scalar operator failed." << endl;
+    cerr << "2 * " << vec3ia << " = " << result << endl;
+    ++retVal;
+    }
+
   return retVal;
 }

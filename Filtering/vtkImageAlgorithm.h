@@ -49,15 +49,11 @@ public:
                              vtkInformationVector*);
 
   // Description:
-  // Set an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline.
-  // Note that these methods support old-style pipeline connections.
-  // When writing new code you should use the more general
-  // vtkAlgorithm::SetInputConnection().  These methods transform the
-  // input index to the input port index, not an index of a connection
-  // within a single port.
-  void SetInput(vtkDataObject *);
-  void SetInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject *);
+  void SetInputData(int, vtkDataObject*);
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -66,12 +62,11 @@ public:
   vtkImageData  *GetImageDataInput(int port);
 
   // Description:
-  // Add an input of this algorithm.  Note that these methods support
-  // old-style pipeline connections.  When writing new code you should
-  // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
-  virtual void AddInput(vtkDataObject *);
-  virtual void AddInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  virtual void AddInputData(vtkDataObject *);
+  virtual void AddInputData(int, vtkDataObject*);
 
 protected:
   vtkImageAlgorithm();
@@ -101,13 +96,16 @@ protected:
 
   // Description:
   // This method is the old style execute method
+  virtual void ExecuteData(vtkDataObject *output, vtkInformation* outInfo);
   virtual void ExecuteData(vtkDataObject *output);
   virtual void Execute();
 
   // just allocate the output data
-  virtual void AllocateOutputData(vtkImageData *out, 
+  virtual void AllocateOutputData(vtkImageData *out,
+                                  vtkInformation* outInfo,
                                   int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
+                                           vtkInformation *outInfo);
 
   // copy the other point and cell data
   virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,

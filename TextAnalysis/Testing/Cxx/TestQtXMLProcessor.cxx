@@ -68,7 +68,7 @@ int TestQtXMLProcessor(int argc, char* argv[])
     uri->Delete();
 
     vtkSmartPointer<vtkQtXMLProcessor> document_label = vtkSmartPointer<vtkQtXMLProcessor>::New();
-    document_label->SetInputConnection(0, table->GetProducerPort());
+    document_label->SetInputData(0, table);
     document_label->SetFieldType(vtkDataObject::ROW);
     document_label->MapArrayName("document_id", "document");
     document_label->SetInputDomain(vtkQtXMLProcessor::ROW_DOMAIN);
@@ -90,7 +90,7 @@ int TestQtXMLProcessor(int argc, char* argv[])
     file_label->SetOutputArray("file_label");
 
     vtkSmartPointer<vtkQtXMLProcessor> bibliography = vtkSmartPointer<vtkQtXMLProcessor>::New();
-    bibliography->SetInputConnection(0, table->GetProducerPort());
+    bibliography->SetInputData(0, table);
     bibliography->SetFieldType(vtkDataObject::ROW);
     bibliography->MapArrayName("document_uri", "file");
     bibliography->SetInputDomain(vtkQtXMLProcessor::DATA_OBJECT_DOMAIN);
@@ -110,7 +110,7 @@ int TestQtXMLProcessor(int argc, char* argv[])
     bibliography->SetOutputArray("bibliography");
 
     vtkSmartPointer<vtkQtXMLProcessor> tree = vtkSmartPointer<vtkQtXMLProcessor>::New();
-    tree->SetInputConnection(0, table->GetProducerPort());
+    tree->SetInputData(0, table);
     tree->SetFieldType(vtkDataObject::ROW);
     tree->SetInputDomain(vtkQtXMLProcessor::DATA_OBJECT_DOMAIN);
     tree->SetQueryType(vtkQtXMLProcessor::XQUERY);

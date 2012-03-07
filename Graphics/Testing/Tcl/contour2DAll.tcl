@@ -15,6 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkSLCReader slc
   slc SetFileName "$VTK_DATA_ROOT/Data/nut.slc"
+  slc Update
 
 set types  "Char UnsignedChar Short UnsignedShort Int UnsignedInt Long UnsignedLong Float Double"
 set i 3

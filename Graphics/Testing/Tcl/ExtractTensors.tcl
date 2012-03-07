@@ -32,7 +32,7 @@ vtkContourFilter contour
 
 vtkProbeFilter probe
   probe SetInputConnection [contour GetOutputPort]
-  probe SetSource [ptLoad GetOutput]
+  probe SetSourceConnection [ptLoad GetOutputPort]
 
 vtkLoopSubdivisionFilter su
   su SetInputConnection [probe GetOutputPort]

@@ -234,7 +234,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Instantiate a parallel order statistics engine and set its ports
   vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
-  pos->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  pos->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast( pos->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
   // Select columns of interest depending on command line choices

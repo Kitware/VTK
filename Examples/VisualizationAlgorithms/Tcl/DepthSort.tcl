@@ -37,11 +37,11 @@ vtkSphereSource sphere5
     sphere5 SetRadius 0.5
     sphere5 SetCenter 0 -1 0
 vtkAppendPolyData appendData
-    appendData AddInput [sphere GetOutput]
-    appendData AddInput [sphere2 GetOutput]
-    appendData AddInput [sphere3 GetOutput]
-    appendData AddInput [sphere4 GetOutput]
-    appendData AddInput [sphere5 GetOutput]
+    appendData AddInputConnection [sphere GetOutputPort]
+    appendData AddInputConnection [sphere2 GetOutputPort]
+    appendData AddInputConnection [sphere3 GetOutputPort]
+    appendData AddInputConnection [sphere4 GetOutputPort]
+    appendData AddInputConnection [sphere5 GetOutputPort]
 
 # The dephSort object is set up to generate scalars representing
 # the sort depth.  A camera is assigned for the sorting. The camera

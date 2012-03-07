@@ -597,7 +597,7 @@ int vtkImageQuantizeRGBToIndex::RequestData(
 
   outData->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 
   int inExt[6];
   inData->GetExtent(inExt);

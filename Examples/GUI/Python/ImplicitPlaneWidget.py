@@ -10,7 +10,7 @@ sphere = vtk.vtkSphereSource()
 cone = vtk.vtkConeSource()
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(sphere.GetOutputPort())
-glyph.SetSource(cone.GetOutput())
+glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor(0.25)
@@ -18,8 +18,8 @@ glyph.SetScaleFactor(0.25)
 # The sphere and spikes are appended into a single polydata.
 # This just makes things simpler to manage.
 apd = vtk.vtkAppendPolyData()
-apd.AddInput(glyph.GetOutput())
-apd.AddInput(sphere.GetOutput())
+apd.AddInputConnection(glyph.GetOutputPort())
+apd.AddInputConnection(sphere.GetOutputPort())
 
 maceMapper = vtk.vtkPolyDataMapper()
 maceMapper.SetInputConnection(apd.GetOutputPort())
@@ -62,7 +62,7 @@ def myCallback(obj, event):
 planeWidget = vtk.vtkImplicitPlaneWidget()
 planeWidget.SetInteractor(iren)
 planeWidget.SetPlaceFactor(1.25)
-planeWidget.SetInput(glyph.GetOutput())
+planeWidget.SetInputConnection(glyph.GetOutputPort())
 planeWidget.PlaceWidget()
 planeWidget.AddObserver("InteractionEvent", myCallback)
 

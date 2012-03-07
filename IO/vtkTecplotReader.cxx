@@ -62,11 +62,11 @@ class FileStreamReader
 {
 public:
   FileStreamReader();
-  ~FileStreamReader(){};
+  ~FileStreamReader();
 
   bool open(const char* fileName);
-  bool is_open()const{return Open;};
-  bool eof()const{return Eof;};
+  bool is_open()const {return Open;}
+  bool eof()const {return Eof;}
 
   void rewind();
   void close();
@@ -81,14 +81,21 @@ protected:
   unsigned int Pos;
   unsigned int BuffEnd;
   gzFile file;
+  std::string FileName;
 
 };
 
 // ----------------------------------------------------------------------------
 FileStreamReader::FileStreamReader()
-: Open(false),Eof(true),Pos(BUFF_SIZE),BuffEnd(BUFF_SIZE)
+  : Open(false),Eof(true),Pos(BUFF_SIZE),BuffEnd(BUFF_SIZE),FileName()
 {
 
+}
+
+// ----------------------------------------------------------------------------
+FileStreamReader::~FileStreamReader()
+{
+  this->close();
 }
 
 // ----------------------------------------------------------------------------
@@ -96,20 +103,25 @@ bool FileStreamReader::open( const char* fileName )
   {
   if ( !this->Open )
     {
+    this->FileName = std::string(fileName);
     //zlib handles both compressed and uncompressed file
     //we just have peak into the file and see if it has the magic
     //flags or not
     unsigned char magic[2];
     FILE *ff = fopen(fileName,"rb");
-    (void) fread(magic,1,2,ff);
+    size_t count = fread(magic,1,2,ff);
     fclose(ff);
 
-    const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";
-    this->file = gzopen(fileName,mode);
+    // only continue if fread succeeded
+    if (count == 2)
+      {
+      const char* mode = (magic[0] == 0x1f && magic[1] == 0x8b) ? "rb" : "r";
+      this->file = gzopen(fileName,mode);
 
-    this->Eof = (this->file == 0);
-    this->Open = (this->file != 0);
-    this->Pos = BUFF_SIZE;
+      this->Eof = (this->file == 0);
+      this->Open = (this->file != 0);
+      this->Pos = BUFF_SIZE;
+      }
     }
   return this->Open;
   }
@@ -140,16 +152,16 @@ int FileStreamReader::get()
 }
 
 // ----------------------------------------------------------------------------
-void FileStreamReader::rewind()
+void FileStreamReader::rewind( )
 {
   if ( this->Open )
     {
-    this->Open = false;
-    this->Eof = false;
-    this->Pos = this->BUFF_SIZE;
-    this->BuffEnd = this->BUFF_SIZE;
-
-    gzrewind(this->file);
+    //we don't want to use gzrewind as it rewinds to not the start of the
+    //file, but to start of the data in the file, meaning we are past any
+    //comments or headers.
+    std::string fn = this->FileName;
+    this->close();
+    this->open(fn.c_str());
     }
 }
 
@@ -162,6 +174,7 @@ void FileStreamReader::close()
     this->Eof = false;
     this->Pos = this->BUFF_SIZE;
     this->BuffEnd = this->BUFF_SIZE;
+    this->FileName = std::string();
 
     gzclose(this->file);
     }
@@ -245,6 +258,22 @@ public:
       if ( !this->ASCIIStream )
         {
         this->NextCharEOF = true;
+        }
+      }
+
+    //if the token is a comment token, skip the entire line
+    if (!this->NextCharEOF && this->TheNextChar == '#')
+      {
+      while ( (!this->NextCharEOF) &&
+                (this->TheNextChar != '\n') &&
+                (this->TheNextChar != '\r') )
+        {
+        this->TheNextChar = this->ASCIIStream.get();
+        if ( this->TheNextChar == '\n'||
+             this->TheNextChar == '\r' )
+          {
+          this->NextCharEOL = true;
+          }
         }
       }
 

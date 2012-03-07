@@ -1003,7 +1003,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
 {
   int i;
   int args_ok = 1;
-  unsigned int aType = 0;
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   const char *jniFunction = 0;
@@ -1142,8 +1141,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
 
       for (i = 0; i < currentFunction->NumberOfArguments; i++)
         {
-        aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
-
         if (i)
           {
           fprintf(fp,",");

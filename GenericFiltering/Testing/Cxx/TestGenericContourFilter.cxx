@@ -92,7 +92,7 @@ int TestGenericContourFilter(int argc, char* argv[])
   
   // Create the filter
   vtkGenericContourFilter *contour = vtkGenericContourFilter::New();
-  contour->SetInput(ds);
+  contour->SetInputData(ds);
   contour->SetValue( 0, 0.1);
   contour->Update(); //So that we can call GetRange() on the scalars
   

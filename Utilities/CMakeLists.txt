@@ -6,6 +6,13 @@ ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 
 # Build third-party utilities.
 
+SET(_VTK_THIRD_PARTY_HEADERS "")
+FOREACH(u expat freetype gl2ps hdf5 jpeg libproj4 libxml2 oggtheora png tiff zlib)
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtk_${u}.h.in
+                 ${VTK_BINARY_DIR}/Utilities/vtk_${u}.h @ONLY)
+  LIST(APPEND _VTK_THIRD_PARTY_HEADERS ${VTK_BINARY_DIR}/Utilities/vtk_${u}.h)
+ENDFOREACH()
+
 VTK_THIRD_PARTY_SUBDIR(ZLIB vtkzlib)
 VTK_THIRD_PARTY_SUBDIR(HDF5 vtkhdf5)
 
@@ -91,15 +98,7 @@ ENDIF(VTK_USE_RENDERING)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
-    vtk_expat.h
-    vtk_jpeg.h
-    vtk_png.h
-    vtk_zlib.h
-    vtk_gl2ps.h
-    vtk_tiff.h
-    vtk_freetype.h
-    vtk_libxml2.h
-    vtk_oggtheora.h
+    ${_VTK_THIRD_PARTY_HEADERS}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development
     )

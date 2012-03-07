@@ -8,16 +8,17 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Start by loading some data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # The plane widget is used probe the dataset.
 planeWidget = vtk.vtkPlaneWidget()
-planeWidget.SetInput(pl3d.GetOutput())
+planeWidget.SetInputData(pl3d_output)
 planeWidget.NormalToXAxisOn()
 planeWidget.SetResolution(20)
 planeWidget.SetRepresentationToOutline()
@@ -26,19 +27,19 @@ plane = vtk.vtkPolyData()
 planeWidget.GetPolyData(plane)
 
 probe = vtk.vtkProbeFilter()
-probe.SetInput(plane)
-probe.SetSource(pl3d.GetOutput())
+probe.SetInputData(plane)
+probe.SetSourceData(pl3d_output)
 
 contourMapper = vtk.vtkPolyDataMapper()
 contourMapper.SetInputConnection(probe.GetOutputPort())
-contourMapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
+contourMapper.SetScalarRange(pl3d_output.GetScalarRange())
 contourActor = vtk.vtkActor()
 contourActor.SetMapper(contourMapper)
 contourActor.VisibilityOff()
 
 # An outline is shown for context.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

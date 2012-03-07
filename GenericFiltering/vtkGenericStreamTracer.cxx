@@ -92,17 +92,9 @@ vtkGenericStreamTracer::~vtkGenericStreamTracer()
 }
 
 //-----------------------------------------------------------------------------
-void vtkGenericStreamTracer::SetSource(vtkDataSet *source)
+void vtkGenericStreamTracer::SetSourceData(vtkDataSet *source)
 {
-  if (source)
-    {
-    this->SetInputConnection(1, source->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(1, 0);
-    }
+  this->SetInputDataInternal(1, source);
 }
 
 //-----------------------------------------------------------------------------
@@ -116,9 +108,9 @@ vtkDataSet *vtkGenericStreamTracer::GetSource()
 }
 
 //-----------------------------------------------------------------------------
-void vtkGenericStreamTracer::AddInput(vtkGenericDataSet* input)
+void vtkGenericStreamTracer::AddInputData(vtkGenericDataSet* input)
 {  
-  this->Superclass::AddInput(input);
+  this->Superclass::AddInputData(input);
 }
 
 

@@ -17,26 +17,29 @@ package require vtktesting
 # Note: the Update method is manually invoked because it causes the
 # reader to read; later on we use the output of the reader to set
 # a range for the scalar values.
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
+
 vtkStructuredGridGeometryFilter plane
-    plane SetInputConnection [pl3d GetOutputPort]
+    plane SetInputData $pl3dOutput
     plane SetExtent 1 100 1 100 7 7
 vtkLookupTable lut
 vtkPolyDataMapper planeMapper
     planeMapper SetLookupTable lut
     planeMapper SetInputConnection [plane GetOutputPort]
-    eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval planeMapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper planeMapper
 
 # This creates an outline around the data.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

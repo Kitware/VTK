@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
   // construct pipeline for original population
   vtkSmartPointer<vtkGaussianSplatter> popSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
-  popSplatter->SetInput(dataSet);
+  popSplatter->SetInputData(dataSet);
   popSplatter->SetSampleDimensions(50,50,50);
   popSplatter->SetRadius(0.05);
   popSplatter->ScalarWarpingOff();
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
   // construct pipeline for delinquent population
   vtkSmartPointer<vtkGaussianSplatter> lateSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
-  lateSplatter->SetInput(dataSet);
+  lateSplatter->SetInputData(dataSet);
   lateSplatter->SetSampleDimensions(50,50,50);
   lateSplatter->SetRadius(0.05);
   lateSplatter->SetScaleFactor(0.005);
@@ -157,11 +157,16 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
  
   if ( (file = fopen(filename,"r")) == 0 )
     {
-    cerr << "ERROR: Can't read file: " << filename << "\n";
+    cerr << "ERROR: Can't open file: " << filename << "\n";
     return NULL;
     }
   
-  (void) fscanf (file, "%s %d", tag, &npts); // read number of points
+  int n = fscanf (file, "%s %d", tag, &npts); // read number of points
+  if (n != 2)
+    {
+    cerr << "ERROR: Can't read file: " << filename << "\n";
+    return NULL;
+    }
   
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -218,7 +223,11 @@ static int ParseFile(FILE *file, const char *label, float *data)
 
   rewind(file);
   
-  (void) fscanf(file, "%s %d", tag, &npts);
+  if (fscanf(file, "%s %d", tag, &npts) != 2)
+    {
+    cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+    return 0;
+    }
   
   while ( !readData && fscanf(file, "%s", tag) == 1 )
     {
@@ -227,7 +236,11 @@ static int ParseFile(FILE *file, const char *label, float *data)
       readData = 1;
       for (i=0; i<npts; i++) 
         {
-        (void) fscanf(file, "%f", data+i);
+        if (fscanf(file, "%f", data+i) != 1)
+          {
+          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+          return 0;
+          }
         if ( data[i] < min ) min = data[i];
         if ( data[i] > min ) max = data[i];
         }
@@ -236,7 +249,14 @@ static int ParseFile(FILE *file, const char *label, float *data)
       }
     else
       {
-      for (i=0; i<npts; i++) (void) fscanf(file, "%*f");
+      for (i=0; i<npts; i++)
+        {
+        if (fscanf(file, "%*f") != 0)
+          {
+          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+          return 0;
+          }
+        }
       }
     }
 

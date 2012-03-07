@@ -44,7 +44,7 @@ public:
 
   // Description:
   // Specify the input data or filter.
-  virtual void SetInput(vtkDataSet *input);
+  virtual void SetInputData(vtkDataSet *input);
 
   // Description:
   // Get the output dataset representing velocity x-component. If output is

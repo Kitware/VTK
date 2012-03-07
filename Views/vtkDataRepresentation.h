@@ -55,6 +55,7 @@ class vtkAnnotationLink;
 class vtkDataObject;
 class vtkSelection;
 class vtkStringArray;
+class vtkTrivialProducer;
 class vtkView;
 class vtkViewTheme;
 
@@ -265,6 +266,9 @@ protected:
   // before passing them off to vtkAnnotationLink.  If the annotations cannot
   // be applied to this representation, return NULL.
   virtual vtkAnnotationLayers* ConvertAnnotations(vtkView* view, vtkAnnotationLayers* annotations);
+
+  vtkTrivialProducer* GetInternalInput(int port, int conn);
+  void SetInternalInput(int port, int conn, vtkTrivialProducer* producer);
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.

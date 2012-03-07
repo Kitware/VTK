@@ -54,8 +54,8 @@ if __name__ == "__main__":
     # Merge graphs takes two graphs on input ports 0 and 1.
     # and combines them according to the pedigree id field.
     merge = vtkMergeGraphs()
-    merge.SetInputConnection(0, G1.GetProducerPort() )
-    merge.SetInputConnection(1, G2.GetProducerPort() )
+    merge.SetInputData(0, G1)
+    merge.SetInputData(1, G2)
     merge.Update()
 
     #----------------------------------------------------------
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     
     # View containing graph G1
     view = vtkGraphLayoutView()
-    view.AddRepresentationFromInputConnection(G1.GetProducerPort())
+    view.AddRepresentationFromInput(G1)
     view.SetVertexLabelArrayName("ID")
     view.SetVertexLabelVisibility(True)
     view.SetLayoutStrategyToSimple2D()
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # View containing graph G2
     view2 = vtkGraphLayoutView()
-    view2.AddRepresentationFromInputConnection(G2.GetProducerPort())
+    view2.AddRepresentationFromInput(G2)
     view2.SetVertexLabelArrayName("ID")
     view2.SetVertexLabelVisibility(True)
     view2.SetLayoutStrategyToSimple2D()

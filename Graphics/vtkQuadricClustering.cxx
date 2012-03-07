@@ -1446,7 +1446,7 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd,
 
   // Find the boundary edges.
   input->ShallowCopy(pd);
-  this->FeatureEdges->SetInput(input);
+  this->FeatureEdges->SetInputData(input);
   this->FeatureEdges->Update();
   edgePts = this->FeatureEdges->GetOutput()->GetPoints();
   edges = this->FeatureEdges->GetOutput()->GetLines();

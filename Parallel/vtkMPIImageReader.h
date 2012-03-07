@@ -110,7 +110,8 @@ protected:
   void SetGroupedController(vtkMultiProcessController *);
   vtkMultiProcessController *GroupedController;
 
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteData(vtkDataObject *data,
+                           vtkInformation *outInfo);
 
 private:
   vtkMPIImageReader(const vtkMPIImageReader &); // Not implemented

@@ -147,7 +147,7 @@ public:
 
   // Description:
   // Set the vtkImageData* input for the vtkImageReslice.
-  void SetInput(vtkDataSet* input);
+  void SetInputConnection(vtkAlgorithmOutput* aout);
 
   // Description:
   // Set/Get the origin of the plane.

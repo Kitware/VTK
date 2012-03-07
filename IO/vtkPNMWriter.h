@@ -34,8 +34,10 @@ protected:
   vtkPNMWriter() {};
   ~vtkPNMWriter() {};
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *);
+  virtual void WriteFile(
+    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]);
+  virtual void WriteFileHeader(
+    ofstream *, vtkImageData *, int wExt[6]);
 private:
   vtkPNMWriter(const vtkPNMWriter&);  // Not implemented.
   void operator=(const vtkPNMWriter&);  // Not implemented.

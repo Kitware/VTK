@@ -45,7 +45,7 @@ vtkTransform stretch
 stretch Scale 1 1 3.2
 
 vtkTransformFilter stretchFilter
-stretchFilter SetInput $sphereData
+stretchFilter SetInputData $sphereData
 stretchFilter SetTransform stretch
 
 # now, for the weighted transform stuff

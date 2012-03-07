@@ -182,6 +182,7 @@ set(VTK_TAGFILE_DEST_DIR "${DOXTEMP}")
 #
 set(SOURCE_DIRECTORIES
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Charts"
+  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Chemistry"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Common"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Filtering"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/GenericFiltering"

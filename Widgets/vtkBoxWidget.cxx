@@ -57,7 +57,7 @@ vtkBoxWidget::vtkBoxWidget()
   // Construct the poly data representing the hex
   this->HexPolyData = vtkPolyData::New();
   this->HexMapper = vtkPolyDataMapper::New();
-  this->HexMapper->SetInput(HexPolyData);
+  this->HexMapper->SetInputData(HexPolyData);
   this->HexActor = vtkActor::New();
   this->HexActor->SetMapper(this->HexMapper);
 
@@ -95,7 +95,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->HexFacePolyData->SetPoints(this->Points);
   this->HexFacePolyData->SetPolys(cells);
   this->HexFaceMapper = vtkPolyDataMapper::New();
-  this->HexFaceMapper->SetInput(HexFacePolyData);
+  this->HexFaceMapper->SetInputData(HexFacePolyData);
   this->HexFace = vtkActor::New();
   this->HexFace->SetMapper(this->HexFaceMapper);
   cells->Delete();
@@ -104,7 +104,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->OutlinePolyData = vtkPolyData::New();
   this->OutlinePolyData->SetPoints(this->Points);
   this->OutlineMapper = vtkPolyDataMapper::New();
-  this->OutlineMapper->SetInput(this->OutlinePolyData);
+  this->OutlineMapper->SetInputData(this->OutlinePolyData);
   this->HexOutline = vtkActor::New();
   this->HexOutline->SetMapper(this->OutlineMapper);
   cells = vtkCellArray::New();
@@ -128,7 +128,8 @@ vtkBoxWidget::vtkBoxWidget()
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
     this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInput(this->HandleGeometry[i]->GetOutput());
+    this->HandleMapper[i]->SetInputConnection(
+      this->HandleGeometry[i]->GetOutputPort());
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(this->HandleMapper[i]);
     }

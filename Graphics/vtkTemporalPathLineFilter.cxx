@@ -160,9 +160,9 @@ void vtkTemporalPathLineFilter::SetSelectionConnection(vtkAlgorithmOutput* algOu
   this->SetInputConnection(1, algOutput);
 }
 //----------------------------------------------------------------------------
-void vtkTemporalPathLineFilter::SetSelection(vtkDataSet *input)
+void vtkTemporalPathLineFilter::SetSelectionData(vtkDataSet *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
  //----------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::RequestInformation(

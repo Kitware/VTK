@@ -20,8 +20,6 @@ IF(WIN32)
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF(WIN32)
 
-CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/.NoDartCoverage
-               ${VTKPNG_BINARY_DIR}/.NoDartCoverage)
 CONFIGURE_FILE(${VTKPNG_SOURCE_DIR}/pngDllConfig.h.in
                ${VTKPNG_BINARY_DIR}/pngDllConfig.h)
 

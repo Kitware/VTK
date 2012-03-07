@@ -17,11 +17,17 @@
 // vtkLineSource is a source object that creates a polyline defined by
 // two endpoints. The number of segments composing the polyline is
 // controlled by setting the object resolution.
+//
+// .SECTION Thanks
+// This class was extended by Philippe Pebay, Kitware SAS 2011, to support
+// broken lines as well as simple lines.
 
 #ifndef __vtkLineSource_h
 #define __vtkLineSource_h
 
 #include "vtkPolyDataAlgorithm.h"
+
+class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkLineSource : public vtkPolyDataAlgorithm 
 {
@@ -43,19 +49,30 @@ public:
   void SetPoint2(float[3]);
   
   // Description:
-  // Divide line into resolution number of pieces.
+  // Set/Get the list of points defining a broken line
+  virtual void SetPoints(vtkPoints*);
+  vtkGetObjectMacro(Points,vtkPoints);
+
+  // Description:
+  // Divide line into Resolution number of pieces.
   vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(Resolution,int);
 
 protected:
   vtkLineSource(int res=1);
-  ~vtkLineSource() {};
+  virtual ~vtkLineSource();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Point1[3];
   double Point2[3];
   int Resolution;
+
+  // Description:
+  // The list of points defining a broken line
+  // NB: The Point1/Point2 definition of a single line segment is used by default
+  vtkPoints* Points;
+
 private:
   vtkLineSource(const vtkLineSource&);  // Not implemented.
   void operator=(const vtkLineSource&);  // Not implemented.

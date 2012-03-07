@@ -109,11 +109,11 @@ class TestTemplates(Testing.vtkTest):
         # make sure Rect inherits operators
         r = vtk.vtkRectf(0, 0, 2, 2)
         self.assertEqual(r[2], 2.0)
-        c = vtk.vtkColor4ub()
+        c = vtk.vtkColor4ub(0, 0, 0)
         self.assertEqual(list(c), [0, 0, 0, 255])
         e = vtk.vtkVector['float32', 3]([0.0, 1.0, 2.0])
         self.assertEqual(list(e), [0.0, 1.0, 2.0])
-        i = vtk.vtkVector3['i']()
+        i = vtk.vtkVector3['i'](0)
         self.assertEqual(list(i), [0, 0, 0])
 
 if __name__ == "__main__":

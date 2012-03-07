@@ -109,7 +109,7 @@ int TestGenericClip(int argc, char* argv[])
   implicitPlane->SetNormal(1, 1, 1); // (1, 1, 1);
   
   vtkGenericClip *clipper = vtkGenericClip::New();
-  clipper->SetInput(ds);
+  clipper->SetInputData(ds);
   
   clipper->SetClipFunction(implicitPlane);
   implicitPlane->Delete();

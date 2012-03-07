@@ -137,7 +137,7 @@ void QVTKGraphicsItem::Start()
   }
 
   mWin->PushState();
-  mWin->OpenGLInit();
+  mWin->OpenGLInitState();
 }
 
 void QVTKGraphicsItem::End()

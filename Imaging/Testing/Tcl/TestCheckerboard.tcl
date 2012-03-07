@@ -12,6 +12,7 @@ vtkImageCanvasSource2D image1
 vtkImageWrapPad pad1
   pad1 SetInputConnection [image1 GetOutputPort]
   pad1 SetOutputWholeExtent 0 511 0 511 0 99
+  pad1 Update
 
 vtkImageCanvasSource2D image2
   image2 SetNumberOfScalarComponents 3
@@ -23,10 +24,11 @@ vtkImageCanvasSource2D image2
 vtkImageWrapPad pad2
   pad2 SetInputConnection [image2 GetOutputPort]
   pad2 SetOutputWholeExtent 0 511 0 511 0 99
+  pad2 Update
 
 vtkImageCheckerboard checkers
-  checkers SetInput 0 [pad1 GetOutput]
-  checkers SetInput 1 [pad2 GetOutput]
+  checkers SetInput1Data [pad1 GetOutput]
+  checkers SetInput2Data [pad2 GetOutput]
   checkers SetNumberOfDivisions 11 6 2
  
 vtkImageViewer viewer

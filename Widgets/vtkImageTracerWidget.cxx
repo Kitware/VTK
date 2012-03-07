@@ -84,7 +84,8 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->Transform = vtkTransform::New();
   this->TransformFilter->SetTransform(this->Transform);
   this->Transform->Identity();
-  this->TransformFilter->SetInput(this->HandleGenerator->GetOutput());
+  this->TransformFilter->SetInputConnection(
+    this->HandleGenerator->GetOutputPort());
   this->TransformFilter->Update();
 
   this->TemporaryHandlePoints = vtkFloatArray::New();
@@ -98,7 +99,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   this->LineData = vtkPolyData::New();
 
-  lineMapper->SetInput(this->LineData);
+  lineMapper->SetInputData(this->LineData);
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
   lineMapper->ScalarVisibilityOff();
   this->LineActor->SetMapper(lineMapper);
@@ -1185,7 +1186,7 @@ void vtkImageTracerWidget::AllocateHandles(const int& nhandles)
     {
     this->HandleGeometry[i] = vtkPolyData::New();
     vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
-    handleMapper->SetInput(this->HandleGeometry[i]);
+    handleMapper->SetInputData(this->HandleGeometry[i]);
     this->Handle[i] = vtkActor::New();
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
@@ -1403,9 +1404,9 @@ void vtkImageTracerWidget::GetPath(vtkPolyData *pd)
 
 void vtkImageTracerWidget::SetSnapToImage(int snap)
 {
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    if ( this->Input->GetDataObjectType() != VTK_IMAGE_DATA )
+    if ( this->GetInput()->GetDataObjectType() != VTK_IMAGE_DATA )
       {
       vtkErrorMacro(<<"Input data must be of type vtkImageData");
       return;

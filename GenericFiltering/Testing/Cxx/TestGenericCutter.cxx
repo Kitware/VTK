@@ -97,7 +97,7 @@ int TestGenericCutter(int argc, char* argv[])
   implicitPlane->SetNormal(1, 1, 1);
   
   vtkGenericCutter *cutter = vtkGenericCutter::New();
-  cutter->SetInput(ds);
+  cutter->SetInputData(ds);
   
   cutter->SetCutFunction(implicitPlane);
   implicitPlane->Delete();

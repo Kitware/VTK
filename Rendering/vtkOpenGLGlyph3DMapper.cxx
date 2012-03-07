@@ -225,8 +225,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       defaultPointIds[1] = 1;
       defaultSource->SetPoints(defaultPoints);
       defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-      defaultSource->SetUpdateExtent(0, 1, 0);
-      this->SetSource(defaultSource);
+      this->SetSourceData(defaultSource);
       defaultSource->Delete();
       defaultSource = NULL;
       defaultPoints->Delete();
@@ -270,7 +269,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       if (ss==0)
         {
         ss = vtkPolyData::New();
-        this->SourceMappers->Mappers[cc]->SetInput(ss);
+        this->SourceMappers->Mappers[cc]->SetInputData(ss);
         ss->Delete();
         ss->ShallowCopy(s);
         }
@@ -379,6 +378,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   vtkDataArray* scaleArray = this->GetScaleArray(dataset);
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
   vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
+  vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
   vtkBitArray *maskArray = 0;
 
   if (this->Masking)
@@ -550,11 +550,26 @@ void vtkOpenGLGlyph3DMapper::Render(
           }
         }
 
-      // determine scale factor from scalars if appropriate
-      // Copy scalar value
+      // Set color
       if (selecting_points)
         {
-        selector->RenderAttributeId(inPtId);
+        // Use selectionArray value or glyph point ID.
+        vtkIdType selectionId = inPtId;
+        if (this->UseSelectionIds)
+          {
+          if (selectionArray == NULL ||
+              selectionArray->GetNumberOfTuples() == 0)
+            {
+            vtkWarningMacro(<<"UseSelectionIds is true, but selection array"
+                            " is invalid. Ignoring selection array.");
+            }
+          else
+            {
+          selectionId = static_cast<vtkIdType>(
+                *selectionArray->GetTuple(inPtId));
+            }
+          }
+        selector->RenderAttributeId(selectionId);
         }
       else if (colors)
         {
@@ -563,6 +578,7 @@ void vtkOpenGLGlyph3DMapper::Render(
         glColor4ub(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
       //glFinish(); // for debug
+
       // scale data if appropriate
       if (this->Scaling)
         {

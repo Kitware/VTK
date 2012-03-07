@@ -139,7 +139,7 @@ void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType)
     // Set the data object as input to the writer.
     if(self->Writer && self->DataObject)
       {
-      self->Writer->SetInput(self->DataObject);
+      self->Writer->SetInputData(self->DataObject);
       }
     else
       {

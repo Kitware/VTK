@@ -171,10 +171,10 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
     this->ProgressObserver->Scale = 1.0/numLevels;
 
     // Shrink image for the next level.
-    shrink->SetInput(image);
+    shrink->SetInputData(image);
     shrink->Update();
     image->ShallowCopy(shrink->GetOutput());
-    shrink->SetInput(0);
+    shrink->SetInputData(0);
     image->GetDimensions(imageDims);
 
     // Store the image for the level.
@@ -192,7 +192,7 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
       tempBlocks->GetBlock(block));
     }
   vtkSmartPointer<vtkTexture> texture = vtkSmartPointer<vtkTexture>::New();
-  texture->SetInput(this->LevelImages->GetBlock(0));
+  texture->SetInputData(this->LevelImages->GetBlock(0));
   vtkSmartPointer<vtkTransform> texTrans = vtkSmartPointer<vtkTransform>::New();
   // Start with (lat,lon)
   texTrans->PostMultiply();
@@ -280,7 +280,7 @@ bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTr
       vtkSmartPointer<vtkImageData> dummyImageWest = vtkSmartPointer<vtkImageData>::New();
       dummyImageWest->SetOrigin(-180.0, -270.0, 0.0);
       dummyImageWest->SetSpacing(0.0, -90.0, 0.0);
-      child->GetTexture()->SetInput(dummyImageWest);
+      child->GetTexture()->SetInputData(dummyImageWest);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(-180, 0);
       child->SetId(2);
@@ -291,7 +291,7 @@ bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTr
       vtkSmartPointer<vtkImageData> dummyImageEast = vtkSmartPointer<vtkImageData>::New();
       dummyImageEast->SetOrigin(0.0, -270.0, 0.0);
       dummyImageEast->SetSpacing(180.0, -90.0, 0.0);
-      child->GetTexture()->SetInput(dummyImageEast);
+      child->GetTexture()->SetInputData(dummyImageEast);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(0, 180);
       child->SetId(3);
@@ -371,8 +371,7 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
 
   vtkSmartPointer<vtkImageData> cropped = vtkSmartPointer<vtkImageData>::New();
   cropped->ShallowCopy(image);
-  cropped->SetUpdateExtent(ext);
-  cropped->Crop();
+  cropped->Crop(ext);
 
   // Now set the longitude and latitude range based on the actual image size.
   double lonRange[2];
@@ -395,7 +394,7 @@ void vtkGeoAlignedImageSource::CropImageForNode(vtkGeoImageNode* node, vtkImageD
   texTrans->Translate(-lonRange[0], -latRange[0], 0.0); // to origin
   texTrans->Scale(1.0/(lonRange[1] - lonRange[0]), 1.0/(latRange[1] - latRange[0]), 1.0); // to [0,1]
   tex->SetTransform(texTrans);
-  tex->SetInput(cropped);
+  tex->SetInputData(cropped);
   tex->InterpolateOn();
   tex->RepeatOff();
   tex->EdgeClampOn();

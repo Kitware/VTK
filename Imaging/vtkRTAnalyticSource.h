@@ -116,7 +116,7 @@ protected:
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteData(vtkDataObject *data, vtkInformation *outInfo);
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.
   void operator=(const vtkRTAnalyticSource&);  // Not implemented.

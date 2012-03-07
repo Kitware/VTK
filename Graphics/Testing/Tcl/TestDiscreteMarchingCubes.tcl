@@ -61,8 +61,8 @@ for {set i 0} {$i < $n} {incr i} {
   }
 
   catch {vtkImageMathematics maxValue}
-    maxValue SetInput 0 blobImage
-    maxValue SetInput 1 [thres GetOutput]
+    maxValue SetInputData 0 blobImage
+    maxValue SetInputData 1 [thres GetOutput]
     maxValue SetOperationToMax
     maxValue Modified
     maxValue Update
@@ -71,7 +71,7 @@ for {set i 0} {$i < $n} {incr i} {
 }
 
 vtkDiscreteMarchingCubes discrete
-  discrete SetInput blobImage
+  discrete SetInputData blobImage
   discrete GenerateValues $n 1 $n
 
 vtkPolyDataMapper mapper

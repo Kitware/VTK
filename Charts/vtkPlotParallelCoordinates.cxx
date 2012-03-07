@@ -270,7 +270,7 @@ bool vtkPlotParallelCoordinates::ResetSelectionRange()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
+void vtkPlotParallelCoordinates::SetInputData(vtkTable* table)
 {
   if (table == this->Data->GetInput() && (!table ||
                                           table->GetMTime() < this->BuildTime))
@@ -278,11 +278,12 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
     return;
     }
 
-  this->vtkPlot::SetInput(table);
+  bool updateVisibility = table != this->Data->GetInput();
+  this->vtkPlot::SetInputData(table);
   vtkChartParallelCoordinates *parent =
       vtkChartParallelCoordinates::SafeDownCast(this->Parent);
 
-  if (parent && table)
+  if (parent && table && updateVisibility)
     {
     parent->SetColumnVisibilityAll(false);
     // By default make the first 10 columns visible in a plot.
@@ -291,7 +292,7 @@ void vtkPlotParallelCoordinates::SetInput(vtkTable* table)
       parent->SetColumnVisibility(table->GetColumnName(i), true);
       }
     }
-  else if (parent)
+  else if (parent && updateVisibility)
     {
     // No table, therefore no visible columns
     parent->GetVisibleColumns()->SetNumberOfTuples(0);
@@ -328,7 +329,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
         {
         // We have a different kind of column - attempt to make it into an enum
         vtkStringToCategory* stoc = vtkStringToCategory::New();
-        stoc->SetInput(table);
+        stoc->SetInputData(table);
         stoc->SetInputArrayToProcess(0, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      cols->GetValue(i));

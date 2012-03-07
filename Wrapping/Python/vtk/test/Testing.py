@@ -176,7 +176,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
         # generate the image
         pngw = vtk.vtkPNGWriter()
         pngw.SetFileName(_getTempImagePath(img_fname))
-        pngw.SetInput(src_img)
+        pngw.SetInputData(src_img)
         pngw.Write()
         return
 
@@ -184,9 +184,8 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
     pngr.SetFileName(img_fname)
 
     idiff = vtk.vtkImageDifference()
-    idiff.SetInput(src_img)
-    idiff.SetImage(pngr.GetOutput())
-    idiff.Update()
+    idiff.SetInputData(src_img)
+    idiff.SetImageConnection(pngr.GetOutputPort())
 
     min_err = idiff.GetThresholdedError()
     img_err = min_err
@@ -305,12 +304,12 @@ def _handleFailedImage(idiff, pngr, img_fname):
 
     # Write out the image that was generated.  Write it out as full so that
     # it may be used as a baseline image if the tester deems it valid.
-    pngw.SetInput(idiff.GetInput())
+    pngw.SetInputConnection(idiff.GetInputConnection(0,0))
     pngw.SetFileName(_getTempImagePath(f_base + ".png"))
     pngw.Write()
 
     # write out the valid image that matched.
-    pngw.SetInput(idiff.GetImage())
+    pngw.SetInputConnection(idiff.GetInputConnection(1,0))
     pngw.SetFileName(_getTempImagePath(f_base + ".valid.png"))
     pngw.Write()
 

@@ -56,12 +56,12 @@ vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,
   // Probe magnitude with iso-surface.
   vtkProbeFilter* probe = vtkProbeFilter::New();
   probe->SetInputConnection(contour->GetOutputPort());
-  probe->SetSource(magn->GetOutput());
+  probe->SetSourceConnection(magn->GetOutputPort());
   probe->SpatialMatchOn();
 
   // Rendering objects.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(probe->GetPolyDataOutput());
+  mapper->SetInputData(probe->GetPolyDataOutput());
   mapper->SetScalarRange(50, 180);
   mapper->ImmediateModeRenderingOn();
 

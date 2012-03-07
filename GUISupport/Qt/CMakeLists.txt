@@ -12,6 +12,8 @@ SET(QVTKLibSrcs
     QVTKPaintEngine.h
     vtkQtAbstractModelAdapter.cxx
     vtkQtAnnotationLayersModelAdapter.cxx
+    vtkQtDebugLeaksModel.cxx
+    vtkQtDebugLeaksView.cxx
     vtkQtSQLDatabase.cxx
     vtkQtSQLQuery.cxx
     vtkQtTableModelAdapter.cxx
@@ -28,6 +30,8 @@ SET(QVTKMocHeaders
     QFilterTreeProxyModel.h
     vtkQtAbstractModelAdapter.h
     vtkQtAnnotationLayersModelAdapter.h
+    vtkQtDebugLeaksModel.h
+    vtkQtDebugLeaksView.h
     vtkQtTableModelAdapter.h
     vtkQtTreeModelAdapter.h
     )
@@ -161,6 +165,10 @@ ENDIF(VTK_USE_VIEWS)
 IF(VTK_USE_QVTK_QTOPENGL)
   TARGET_LINK_LIBRARIES(QVTK ${OPENGL_gl_LIBRARY})
 ENDIF(VTK_USE_QVTK_QTOPENGL)
+
+IF(VTK_USE_X)
+  TARGET_LINK_LIBRARIES(QVTK ${X11_LIBRARIES})
+ENDIF()
 
 IF(APPLE)
   IF(VTK_USE_CARBON)

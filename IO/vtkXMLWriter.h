@@ -159,10 +159,11 @@ public:
   vtkBooleanMacro(EncodeAppendedData, int);
   
   // Description:
-  // Set/Get an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline
-  void SetInput(vtkDataObject *);
-  void SetInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject *);
+  void SetInputData(int, vtkDataObject*);
   vtkDataObject *GetInput(int port);
   vtkDataObject *GetInput() { return this->GetInput(0); };
 

@@ -144,7 +144,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  input->Update();
+  this->GetInputAlgorithm()->Update();
 
   // Input might have changed
   input = this->GetExecutive()->GetInputData(0, 0);

@@ -94,11 +94,12 @@ vtkCompassRepresentation::vtkCompassRepresentation()
   this->BuildRing();
 
   this->RingXForm = vtkTransformPolyDataFilter::New();
-  this->RingXForm->SetInput(this->Ring);
+  this->RingXForm->SetInputData(this->Ring);
   this->RingXForm->SetTransform(this->XForm);
 
   this->RingMapper = vtkPolyDataMapper2D::New();
-  this->RingMapper->SetInput(this->RingXForm->GetOutput());
+  this->RingMapper->SetInputConnection(
+    this->RingXForm->GetOutputPort());
   
   this->RingProperty = vtkProperty2D::New();
   this->RingProperty->SetOpacity(0.5);
@@ -179,7 +180,7 @@ void vtkCompassRepresentation::BuildBackdrop()
   backdropPolyData->GetPointData()->SetScalars(colors);
 
   this->BackdropMapper = vtkPolyDataMapper2D::New();
-  this->BackdropMapper->SetInput(backdropPolyData);
+  this->BackdropMapper->SetInputData(backdropPolyData);
   this->BackdropMapper->ScalarVisibilityOn();
   backdropPolyData->Delete();
 

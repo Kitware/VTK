@@ -129,7 +129,7 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   
   polyData->GetPointData()->AddArray(stringData);
 
-  qtLabelSizeCalculator->SetInput(polyData);
+  qtLabelSizeCalculator->SetInputData(polyData);
   qtLabelSizeCalculator->DebugOn();
   qtLabelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   qtLabelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
@@ -137,7 +137,7 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   qtLabelSizeCalculator->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "PlaceNames" );
   qtLabelSizeCalculator->SetLabelSizeArrayName( "LabelSize" );
 
-  labelSizeCalculator->SetInput(polyData);
+  labelSizeCalculator->SetInputData(polyData);
   labelSizeCalculator->DebugOn();
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
@@ -172,7 +172,7 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   actor2->SetMapper( polyDataMapper2 );
   qtLabelPlacer->Update();
   VTK_CREATE( vtkTexture, texture );
-  texture->SetInput( qtLabelPlacer->GetOutput() );
+  texture->SetInputConnection( qtLabelPlacer->GetOutputPort() );
   actor2->SetTexture( texture );
 
   renderer->AddActor(actor2);

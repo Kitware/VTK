@@ -71,7 +71,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter = vtkIconGlyphFilter::New();
 
-  iconFilter->SetInput(pointSet);
+  iconFilter->SetInputData(pointSet);
   iconFilter->SetIconSize(size);
   iconFilter->SetUseIconSize(true);
   iconFilter->SetIconSheetSize(imageDims);
@@ -101,7 +101,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter2 = vtkIconGlyphFilter::New();
 
-  iconFilter2->SetInput(pointSet2);
+  iconFilter2->SetInputData(pointSet2);
   iconFilter2->SetIconSize(size);
   iconFilter2->SetUseIconSize(true);
   iconFilter2->SetIconSheetSize(imageDims);
@@ -131,7 +131,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter3 = vtkIconGlyphFilter::New();
 
-  iconFilter3->SetInput(pointSet3);
+  iconFilter3->SetInputData(pointSet3);
   iconFilter3->SetIconSize(size);
   iconFilter3->SetUseIconSize(true);
   iconFilter3->SetIconSheetSize(imageDims);
@@ -161,7 +161,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter4 = vtkIconGlyphFilter::New();
 
-  iconFilter4->SetInput(pointSet4);
+  iconFilter4->SetInputData(pointSet4);
   iconFilter4->SetIconSize(size);
   iconFilter4->SetUseIconSize(true);
   iconFilter4->SetIconSheetSize(imageDims);
@@ -191,7 +191,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter5 = vtkIconGlyphFilter::New();
 
-  iconFilter5->SetInput(pointSet5);
+  iconFilter5->SetInputData(pointSet5);
   iconFilter5->SetIconSize(size);
   iconFilter5->SetUseIconSize(true);
   iconFilter5->SetIconSheetSize(imageDims);
@@ -221,7 +221,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter6 = vtkIconGlyphFilter::New();
 
-  iconFilter6->SetInput(pointSet6);
+  iconFilter6->SetInputData(pointSet6);
   iconFilter6->SetIconSize(size);
   iconFilter6->SetUseIconSize(true);
   iconFilter6->SetIconSheetSize(imageDims);
@@ -251,7 +251,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter7 = vtkIconGlyphFilter::New();
 
-  iconFilter7->SetInput(pointSet7);
+  iconFilter7->SetInputData(pointSet7);
   iconFilter7->SetIconSize(size);
   iconFilter7->SetUseIconSize(true);
   iconFilter7->SetIconSheetSize(imageDims);
@@ -281,7 +281,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter8 = vtkIconGlyphFilter::New();
 
-  iconFilter8->SetInput(pointSet8);
+  iconFilter8->SetInputData(pointSet8);
   iconFilter8->SetIconSize(size);
   iconFilter8->SetUseIconSize(true);
   iconFilter8->SetIconSheetSize(imageDims);
@@ -311,7 +311,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter9 = vtkIconGlyphFilter::New();
 
-  iconFilter9->SetInput(pointSet9);
+  iconFilter9->SetInputData(pointSet9);
   iconFilter9->SetIconSize(size);
   iconFilter9->SetUseIconSize(true);
   iconFilter9->SetIconSheetSize(imageDims);

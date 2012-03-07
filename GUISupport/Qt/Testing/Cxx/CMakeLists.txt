@@ -2,6 +2,7 @@
 SET(KIT QVTK)
 # add tests that do not require data
 SET(MyTests
+  TestQtDebugLeaksView.cxx
   TestQtInitialization.cxx
   TestQtSQLDatabase.cxx
   TestQtTableModelAdapter.cxx

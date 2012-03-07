@@ -89,6 +89,13 @@ public:
   vtkGetMacro(Create2DPoints, bool);
   vtkBooleanMacro(Create2DPoints, bool);
 
+  // Description:
+  // Allow user to keep columns specified as X,Y,Z as Data arrays.
+  // By default this will be off.
+  vtkSetMacro(PreserveCoordinateColumnsAsDataArrays, bool);
+  vtkGetMacro(PreserveCoordinateColumnsAsDataArrays, bool);
+  vtkBooleanMacro(PreserveCoordinateColumnsAsDataArrays, bool);
+
 //BTX
 protected:
   vtkTableToPolyData();
@@ -113,6 +120,7 @@ protected:
   int YComponent;
   int ZComponent;
   bool Create2DPoints;
+  bool PreserveCoordinateColumnsAsDataArrays;
 private:
   vtkTableToPolyData(const vtkTableToPolyData&); // Not implemented.
   void operator=(const vtkTableToPolyData&); // Not implemented.

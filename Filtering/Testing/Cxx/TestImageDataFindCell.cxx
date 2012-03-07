@@ -33,7 +33,7 @@ inline int DoTest(
   image->SetExtent(extent);
   image->SetOrigin(origin);
   image->SetSpacing(spacing);
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_DOUBLE, 1);
 
   double bounds[6];
   image->GetBounds(bounds);

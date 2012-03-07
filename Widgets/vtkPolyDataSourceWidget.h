@@ -37,7 +37,6 @@
 #include "vtk3DWidget.h"
 
 class vtkPolyDataAlgorithm;
-class vtkPolyDataSource;
 
 class VTK_WIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
@@ -64,12 +63,11 @@ class VTK_WIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
-  // Returns underlying vtkPolyDataSource that determines geometry.  This
+  // Returns underlying vtkPolyDataAlgorithm that determines geometry.  This
   // can be modified after which PlaceWidget() or UpdatePlacement() can be
   // called.  UpdatePlacement() will always update the planewidget according
-  // to the geometry of the underlying PolyDataSource.  PlaceWidget() will
+  // to the geometry of the underlying PolyDataAlgorithm.  PlaceWidget() will
   // only make use of this geometry if there is no Input and no Prop3D set.
-  virtual vtkPolyDataSource* GetPolyDataSource();
   virtual vtkPolyDataAlgorithm* GetPolyDataAlgorithm() = 0;
 
   // Description:

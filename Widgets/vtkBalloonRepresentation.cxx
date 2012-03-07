@@ -83,7 +83,7 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   this->TexturePolyData->GetPointData()->SetTCoords(tc);
   tc->Delete();
   this->TextureMapper = vtkPolyDataMapper2D::New();
-  this->TextureMapper->SetInput(this->TexturePolyData);
+  this->TextureMapper->SetInputData(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
   this->TextureActor->SetMapper(this->TextureMapper);
   this->ImageProperty = vtkProperty2D::New();
@@ -119,7 +119,7 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   this->FramePolyData->SetPoints(this->FramePoints);
   this->FramePolyData->SetPolys(this->FramePolygon);
   this->FrameMapper = vtkPolyDataMapper2D::New();
-  this->FrameMapper->SetInput(this->FramePolyData);
+  this->FrameMapper->SetInputData(this->FramePolyData);
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameProperty = vtkProperty2D::New();
@@ -241,7 +241,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
     // Determine the size of the image
     if ( this->BalloonImage )
       {
-      this->BalloonImage->Update();
+      //this->BalloonImage->Update();
       if ( this->BalloonImage->GetDataDimension() == 2 )
         {
         int dims[3];
@@ -368,7 +368,7 @@ void vtkBalloonRepresentation::BuildRepresentation()
       // Place the texture
       if ( this->ImageVisible )
         {
-        this->Texture->SetInput(this->BalloonImage);
+        this->Texture->SetInputData(this->BalloonImage);
         this->TexturePoints->SetPoint(0, e[0]+io[0],e[1]+io[1],0.0);
         this->TexturePoints->SetPoint(1, e[0]+io[0]+imageSize[0],e[1]+io[1],0.0);
         this->TexturePoints->SetPoint(2, e[0]+io[0]+imageSize[0],e[1]+io[1]+imageSize[1],0.0);

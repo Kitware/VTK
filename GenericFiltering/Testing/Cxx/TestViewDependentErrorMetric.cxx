@@ -169,7 +169,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
 #if 0
   // Create the filter
   vtkGenericDataSetTessellator *tessellator = vtkGenericDataSetTessellator::New();
-  tessellator->SetInput(ds);
+  tessellator->SetInputData(ds);
 
   // DO NOT PERFORM UPDATE NOW, because the view dependent error metric
   // need the window to be realized first
@@ -179,7 +179,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
 #else
   // Create the filter
   vtkGenericGeometryFilter *tessellator = vtkGenericGeometryFilter::New();
-  tessellator->SetInput(ds);
+  tessellator->SetInputData(ds);
 
 //  geom->Update(); //So that we can call GetRange() on the scalars
   
@@ -232,7 +232,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   renWin->SetSize(600,300); // realized
   
   vtkGenericOutlineFilter *outlineFilter= vtkGenericOutlineFilter::New();
-  outlineFilter->SetInput(ds);
+  outlineFilter->SetInputData(ds);
   vtkPolyDataMapper *mapperOutline=vtkPolyDataMapper::New();
   mapperOutline->SetInputConnection(outlineFilter->GetOutputPort());
   outlineFilter->Delete();

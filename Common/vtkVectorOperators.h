@@ -111,6 +111,20 @@ vtkVector<A, Size> operator*(const vtkVector<A, Size>& v1,
 }
 
 // Description:
+// Performs multiplication of vectors by a scalar value.
+template<typename A, typename B, int Size>
+vtkVector<A, Size> operator*(const vtkVector<A, Size>& v1,
+                             const B& scalar)
+{
+  vtkVector<A, Size> ret;
+  for (int i = 0; i < Size; ++i)
+    {
+    ret[i] = v1[i] * scalar;
+    }
+  return ret;
+}
+
+// Description:
 // Performs divisiom of vectors of the same type.
 template<typename A, int Size>
 vtkVector<A, Size> operator/(const vtkVector<A, Size>& v1,
@@ -144,6 +158,18 @@ inline vectorType operator*(const vectorType& v1, const vectorType& v2) \
   return vectorType((static_cast<vtkVector<type, size> >(v1) * \
     static_cast<vtkVector<type, size> >(v2)).GetData()); \
 }
+#define vtkVectorOperatorMultiplyScalar(vectorType, type, size) \
+template<typename B> \
+inline vectorType operator*(const vectorType& v1, const B& scalar) \
+{ \
+  return vectorType((static_cast<vtkVector<type, size> >(v1) * scalar).GetData()); \
+}
+#define vtkVectorOperatorMultiplyScalarPre(vectorType, type, size) \
+template<typename B> \
+inline vectorType operator*(const B& scalar, const vectorType& v1) \
+{ \
+  return vectorType((static_cast<vtkVector<type, size> >(v1) * scalar).GetData()); \
+}
 #define vtkVectorOperatorDivide(vectorType, type, size) \
 inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
 { \
@@ -155,6 +181,8 @@ inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
 vtkVectorOperatorPlus(vectorType, type, size) \
 vtkVectorOperatorMinus(vectorType, type, size) \
 vtkVectorOperatorMultiply(vectorType, type, size) \
+vtkVectorOperatorMultiplyScalar(vectorType, type, size) \
+vtkVectorOperatorMultiplyScalarPre(vectorType, type, size) \
 vtkVectorOperatorDivide(vectorType, type, size)
 
 // Description:

@@ -93,7 +93,7 @@ public:
   // Description:
   // Specify the geometry to copy to each point. Old style. See
   // SetSourceConnection.
-  void SetSource(vtkPolyData *source);
+  void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
 
   // Description:

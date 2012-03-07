@@ -93,8 +93,8 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   // Create the filter
   vtkArrowSource *arrow=vtkArrowSource::New();
   vtkGenericGlyph3DFilter *glyph=vtkGenericGlyph3DFilter::New();
-  glyph->SetInput(ds);
-  glyph->SetSource(arrow->GetOutput());
+  glyph->SetInputData(ds);
+  glyph->SetInputConnection(1, arrow->GetOutputPort());
   glyph->SetScaling(1);
   glyph->SetScaleModeToScaleByScalar();
   glyph->SelectInputScalars("scalars");
@@ -108,7 +108,7 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   
   // Create the filter
   vtkGenericGeometryFilter *geom = vtkGenericGeometryFilter::New();
-  geom->SetInput(ds);
+  geom->SetInputData(ds);
 
   geom->Update(); //So that we can call GetRange() on the scalars
   

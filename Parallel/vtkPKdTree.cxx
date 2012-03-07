@@ -413,12 +413,6 @@ void vtkPKdTree::BuildLocator()
     this->FreeSearchStructure();
     this->ReleaseTables();
 
-    // Make sure input is up to date.
-    for (int i = 0; i < this->GetNumberOfDataSets(); i++)
-      {
-      this->GetDataSet(i)->Update();
-      }
-
     this->AllCheckParameters();   // global operation to ensure same parameters
 
     double volBounds[6];

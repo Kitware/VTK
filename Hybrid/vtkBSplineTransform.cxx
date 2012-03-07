@@ -430,10 +430,7 @@ unsigned long vtkBSplineTransform::GetMTime()
   result = vtkWarpTransform::GetMTime();
   if (this->Coefficients)
     {
-    this->Coefficients->UpdateInformation();
-
-    mtime = this->Coefficients->GetPipelineMTime();
-    result = ( mtime > result ? mtime : result );
+    //this->Coefficients->UpdateInformation();
 
     mtime = this->Coefficients->GetMTime();
     result = ( mtime > result ? mtime : result );
@@ -817,8 +814,7 @@ void vtkBSplineTransform::InternalUpdate()
     {
     return;
     }
-
-  grid->UpdateInformation();
+  //grid->UpdateInformation();
 
   if (grid->GetNumberOfScalarComponents() != 3)
     {
@@ -841,8 +837,8 @@ void vtkBSplineTransform::InternalUpdate()
       break;
     }
 
-  grid->SetUpdateExtent(grid->GetWholeExtent());
-  grid->Update();
+  //grid->SetUpdateExtent(grid->GetWholeExtent());
+  //grid->Update();
 
   this->GridPointer = grid->GetScalarPointer();
   grid->GetSpacing(this->GridSpacing);

@@ -252,8 +252,20 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   //  File is read to obtain raw information as well as bounding box
   //
-  (void) fread (header, 1, 80, fp);
-  (void) fread (&ulint, 1, 4, fp);
+  if (fread (header, 1, 80, fp) != 80)
+    {
+    vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                   << " Premature EOF while reading header.");
+    fclose(fp);
+    return 0;
+    }
+  if (fread (&ulint, 1, 4, fp) != 4)
+    {
+    vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                   << " Premature EOF while reading header.");
+    fclose(fp);
+    return 0;
+    }
   vtkByteSwap::Swap4LE(&ulint);
 
   // Many .stl files contain bogus count.  Hence we will ignore and read 
@@ -279,7 +291,13 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
     {
-    (void) fread(&ibuff2,2,1,fp); //read extra junk
+    if (fread(&ibuff2,2,1,fp) != 1) //read extra junk
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading extra junk.");
+      fclose(fp);
+      return 0;
+      }
 
     vtkByteSwap::Swap4LE (facet.n);
     vtkByteSwap::Swap4LE (facet.n+1);
@@ -325,7 +343,12 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 
   //  Ingest header and junk to get to first vertex
   //
-  (void) fgets (line, 255, fp);
+  if (!fgets (line, 255, fp))
+    {
+    vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                   << " Premature EOF while reading header.");
+    return 0;
+    }
 
   done = (fscanf(fp,"%s %*s %f %f %f\n", line, x, x+1, x+2)==EOF);
   if ((strcmp(line, "COLOR") == 0) || (strcmp(line, "color") == 0))
@@ -342,15 +365,54 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 //    fprintf(stdout, "Reading record %d\n", ctr);
 //}
 //ctr += 7;
-    (void) fgets (line, 255, fp);
-    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    if (!fgets (line, 255, fp))
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading header.");
+      return 0;
+      }
+
+    if (fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2) != 3)
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading point.");
+      fclose(fp);
+      return 0;
+      }
+
     pts[0] = newPts->InsertNextPoint(x);
-    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    if (fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2) != 3)
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading point.");
+      fclose(fp);
+      return 0;
+      }
+
     pts[1] = newPts->InsertNextPoint(x);
-    (void) fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
+    if (fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2) != 3)
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading point.");
+      fclose(fp);
+      return 0;
+      }
+
     pts[2] = newPts->InsertNextPoint(x);
-    (void) fgets (line, 255, fp); // end loop
-    (void) fgets (line, 255, fp); // end facet
+    if (!fgets (line, 255, fp)) // end loop
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading end loop.");
+      fclose(fp);
+      return 0;
+      }
+    if (!fgets (line, 255, fp)) // end facet
+      {
+      vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                     << " Premature EOF while reading end facet.");
+      fclose(fp);
+      return 0;
+      }
 
     newPolys->InsertNextCell(3,pts);
     if (scalars) 
@@ -367,11 +429,25 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0)) 
       {
       currentSolid++;
-      (void) fgets(line, 255, fp);
+      if (!fgets(line, 255, fp))
+        {
+        vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                       << " Premature EOF while reading solid.");
+        fclose(fp);
+        return 0;
+        }
+
       done = feof(fp);
       while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done) 
         {
-        (void) fgets(line, 255, fp);
+        if (!fgets(line, 255, fp))
+          {
+          vtkErrorMacro ("STLReader error reading file: " << this->FileName
+                         << " Premature EOF while reading end solid.");
+          fclose(fp);
+          return 0;
+          }
+
         done = feof(fp);
         }
 

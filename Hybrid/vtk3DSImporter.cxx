@@ -183,15 +183,15 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
     if (this->ComputeNormals)
       {
       mesh->aNormals = polyNormals = vtkPolyDataNormals::New ();
-      polyNormals->SetInput (polyData);
-      polyStripper->SetInput (polyNormals->GetOutput ());
+      polyNormals->SetInputData (polyData);
+      polyStripper->SetInputConnection(polyNormals->GetOutputPort());
       }
     else
       {
-      polyStripper->SetInput (polyData);
+      polyStripper->SetInputData(polyData);
       }
     
-    polyMapper->SetInput (polyStripper->GetOutput ());
+    polyMapper->SetInputConnection(polyStripper->GetOutputPort());
     vtkDebugMacro (<< "Importing Actor: " << mesh->name);
     mesh->anActor = actor = vtkActor::New ();
     actor->SetMapper (polyMapper);
@@ -1073,10 +1073,13 @@ static word read_word(vtk3DSImporter *importer)
 {
   word data;
 
-  (void) fread (&data, 2, 1, importer->GetFileFD());
+  if (fread (&data, 2, 1, importer->GetFileFD()) != 1)
+    {
+    vtkErrorWithObjectMacro(
+      importer, "Pre-mature end of file in read_word\n");
+    data = 0;
+    }
   vtkByteSwap::Swap2LE ((short *) &data);
-/*    swab ((char *) &data, (char *) &sdata, 2);*/
-
   return data;
 }
 
@@ -1086,7 +1089,8 @@ static dword read_dword(vtk3DSImporter *importer)
 
   if (fread (&data, 4, 1, importer->GetFileFD()) != 1)
     {
-//    vtkGenericWarningMacro(<<"Pre-mature end of file in read_dword\n");
+    vtkErrorWithObjectMacro(
+      importer, "Pre-mature end of file in read_dword\n");
     data = 0;
     }
 
@@ -1099,11 +1103,15 @@ static float read_float(vtk3DSImporter *importer)
 {
   float data;
 
-  (void) fread (&data, 4, 1, importer->GetFileFD());
-  vtkByteSwap::Swap4LE ((char *) &data);
-/*    TIFFSwabLong (&data);*/
+  if (fread (&data, 4, 1, importer->GetFileFD()) != 1)
+    {
+    vtkErrorWithObjectMacro(
+      importer, "Pre-mature end of file in read_float\n");
+    data = 0;
+    }
 
-    return data;
+  vtkByteSwap::Swap4LE ((char *) &data);
+  return data;
 }
 
 

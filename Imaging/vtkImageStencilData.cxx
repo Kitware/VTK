@@ -119,69 +119,29 @@ void vtkImageStencilData::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilData::CopyInformationToPipeline(vtkInformation* request,
-                                                    vtkInformation* input,
-                                                    vtkInformation* output,
-                                                    int forceCopy)
+void vtkImageStencilData::CopyInformationFromPipeline(vtkInformation*meta_data)
 {
   // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationToPipeline(request, input, output, forceCopy);
-
-  // Set default pipeline information during a request for information.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    // Copy settings from the input if available.  Otherwise use our
-    // current settings.
-
-    if(input && input->Has(ORIGIN()))
-      {
-      output->CopyEntry(input, ORIGIN());
-      }
-    else if (!output->Has(ORIGIN()) || forceCopy)
-      {
-      // Set origin (only if it is not set).
-      output->Set(ORIGIN(), this->GetOrigin(), 3);
-      }
-
-    if(input && input->Has(SPACING()))
-      {
-      output->CopyEntry(input, SPACING());
-      }
-    else if (!output->Has(SPACING()) || forceCopy)
-      {
-      // Set spacing (only if it is not set).
-      output->Set(SPACING(), this->GetSpacing(), 3);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencilData::CopyInformationFromPipeline(vtkInformation* request)
-{
-  // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationFromPipeline(request);
+  this->Superclass::CopyInformationFromPipeline(meta_data);
 
   // Copy pipeline information to data information before the producer
   // executes.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    this->CopyOriginAndSpacingFromPipeline();
-    }
+  this->CopyOriginAndSpacingFromPipeline(meta_data);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilData::CopyOriginAndSpacingFromPipeline()
+void vtkImageStencilData::CopyOriginAndSpacingFromPipeline(
+  vtkInformation* meta_data)
 {
   // Copy origin and spacing from pipeline information to the internal
   // copies.
-  vtkInformation* info = this->PipelineInformation;
-  if(info->Has(SPACING()))
+  if(meta_data->Has(SPACING()))
     {
-    this->SetSpacing(info->Get(SPACING()));
+    this->SetSpacing(meta_data->Get(SPACING()));
     }
-  if(info->Has(ORIGIN()))
+  if(meta_data->Has(ORIGIN()))
     {
-    this->SetOrigin(info->Get(ORIGIN()));
+    this->SetOrigin(meta_data->Get(ORIGIN()));
     }
 }
 
@@ -1065,7 +1025,6 @@ void vtkImageStencilData::Replace( vtkImageStencilData * stencil1 )
 int vtkImageStencilData::Clip( int extent[6] )
 {
   int currentExtent[6], idy, idz;
-  this->Update();
   this->GetExtent( currentExtent );
 
   if (vtkMath::ExtentIsWithinOtherExtent( currentExtent, extent ))

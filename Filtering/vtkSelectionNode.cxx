@@ -60,6 +60,7 @@ vtkSelectionNode::vtkSelectionNode()
 {
   this->SelectionData = vtkDataSetAttributes::New();
   this->Properties = vtkInformation::New();
+  this->QueryString = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -70,6 +71,7 @@ vtkSelectionNode::~vtkSelectionNode()
     {
     this->SelectionData->Delete();
     }
+  this->SetQueryString(0);
 }
 
 //----------------------------------------------------------------------------
@@ -177,6 +179,7 @@ void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
     {
     this->SelectionData->PrintSelf(os, indent.GetNextIndent());
     }
+  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "NULL") << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -189,6 +192,7 @@ void vtkSelectionNode::ShallowCopy(vtkSelectionNode* input)
   this->Initialize();
   this->Properties->Copy(input->Properties, 0);
   this->SelectionData->ShallowCopy(input->SelectionData);
+  this->SetQueryString(input->GetQueryString());
   this->Modified();
 }
 
@@ -202,6 +206,7 @@ void vtkSelectionNode::DeepCopy(vtkSelectionNode* input)
   this->Initialize();
   this->Properties->Copy(input->Properties, 1);
   this->SelectionData->DeepCopy(input->SelectionData);
+  this->SetQueryString(input->GetQueryString());
   this->Modified();
 }
 

@@ -9,7 +9,7 @@ vtkElevationFilter colors
     colors SetLowPoint -0.25 -0.25 -0.25
     colors SetHighPoint 0.25 0.25 0.25
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [colors GetPolyDataOutput]
+    planeMapper SetInputConnection [colors GetOutputPort]
 vtkActor planeActor
     planeActor SetMapper planeMapper
     [planeActor GetProperty] SetRepresentationToWireframe
@@ -29,19 +29,20 @@ proc Glyph {} {
    eval squad SetCenter $xyz
    squad SetPhiRoundness [expr abs($x)*5.0]
    squad SetThetaRoundness [expr abs($y)*5.0]
+   squad Update
 }
 
 # create simple poly data so we can apply glyph
 vtkSuperquadricSource squad
+    squad Update
 vtkProgrammableGlyphFilter glypher
     glypher SetInputConnection [colors GetOutputPort]
-    glypher SetSource [squad GetOutput]
+    glypher SetSourceData [squad GetOutput]
     glypher SetGlyphMethod Glyph
 vtkPolyDataMapper glyphMapper
     glyphMapper SetInputConnection [glypher GetOutputPort]
 vtkActor glyphActor
     glyphActor SetMapper glyphMapper
-
 
 
 # Create the rendering stuff

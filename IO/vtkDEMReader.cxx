@@ -115,8 +115,8 @@ int vtkDEMReader::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 
-  this->GetOutput()->SetNumberOfScalarComponents(1);
-  this->GetOutput()->SetScalarType(VTK_FLOAT);
+  vtkImageData::SetNumberOfScalarComponents(1, outInfo);
+  vtkImageData::SetScalarType(VTK_FLOAT, outInfo);
 
   // whole dem must be read
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
@@ -138,7 +138,7 @@ int vtkDEMReader::RequestData(
 
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   if (!this->FileName)
     {

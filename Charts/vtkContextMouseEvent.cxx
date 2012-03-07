@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
+#include "vtkRenderWindowInteractor.h" // AIX include order issues.
 #include "vtkContextMouseEvent.h"
-#include "vtkRenderWindowInteractor.h"
 
 int vtkContextMouseEvent::GetModifiers() const
 {

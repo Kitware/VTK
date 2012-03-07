@@ -1179,7 +1179,8 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
       }
     else 
       {
-      while (lineRead && strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 &&
+                         strncmp(line, "END TIME STEP", 13) != 0 )
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1355,7 +1356,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
       }
     else 
       {
-      while (lineRead && strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0 )
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1524,7 +1525,8 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
       }
     else 
       {
-      while (lineRead && strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0  &&
+             strncmp(line, "END TIME STEP", 13) != 0 )
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -2114,8 +2116,6 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
   points->Allocate(numPts);
   

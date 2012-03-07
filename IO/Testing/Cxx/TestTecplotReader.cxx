@@ -68,7 +68,7 @@ int TestTecplotReader( int argc, char *argv[] )
 
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(data);
+  mapper->SetInputData(data);
   mapper->ScalarVisibilityOn();
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarRange(-0.3,0.3);
@@ -97,7 +97,7 @@ int TestTecplotReader( int argc, char *argv[] )
 
   vtkSmartPointer<vtkPolyDataMapper> mapper2 =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper2->SetInput(data2);
+  mapper2->SetInputData(data2);
   mapper2->ScalarVisibilityOn();
   mapper2->SetColorModeToMapScalars();
   mapper2->SetScalarRange(-0.3,0.3);
@@ -126,7 +126,7 @@ int TestTecplotReader( int argc, char *argv[] )
 
   vtkSmartPointer<vtkPolyDataMapper> mapper3 =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper3->SetInput(data3);
+  mapper3->SetInputData(data3);
   mapper3->ScalarVisibilityOn();
   mapper3->SetColorModeToMapScalars();
   mapper3->SetScalarRange(-0.3,0.3);

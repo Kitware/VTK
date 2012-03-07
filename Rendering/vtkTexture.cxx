@@ -18,11 +18,13 @@
 #include "vtkExecutive.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
@@ -249,17 +251,20 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
 //----------------------------------------------------------------------------
 void vtkTexture::Render(vtkRenderer *ren)
 {
-  vtkImageData *input = this->GetInput();
-  
-  if (input) //load texture map
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm();
+
+  if (inputAlg) //load texture map
     {
+    vtkInformation* inInfo = this->GetInputInformation();
     // We do not want more than requested.
-    input->RequestExactExtentOn();
-    
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+
     // Updating the whole extent may not be necessary.
-    input->UpdateInformation();
-    input->SetUpdateExtentToWholeExtent();
-    input->Update();
+    inputAlg->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      inInfo);
+    inputAlg->Update();
     this->Load(ren);
     }
 }
@@ -272,14 +277,14 @@ int vtkTexture::IsTranslucent()
           (this->GetInput()->GetMTime() <= this->TranslucentComputationTime)))
     return this->TranslucentCachedResult;
 
-  if(this->GetInput())
+  if(this->GetInputAlgorithm())
     {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtent(
-        this->GetInput()->GetWholeExtent());
-    this->GetInput()->PropagateUpdateExtent();
-    this->GetInput()->TriggerAsynchronousUpdate();
-    this->GetInput()->UpdateData();
+    vtkAlgorithm* inpAlg = this->GetInputAlgorithm();
+    vtkInformation* inInfo = this->GetInputInformation();
+    inpAlg->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      inInfo);
+    inpAlg->Update();
     }
 
   if(this->GetInput() == NULL ||

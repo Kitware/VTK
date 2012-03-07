@@ -47,7 +47,7 @@ int TestTableSplitColumnComponents(int, char*[])
 
   // Merge the two tables
   VTK_CREATE(vtkSplitColumnComponents, split);
-  split->SetInput(table);
+  split->SetInputData(table);
   split->Update();
 
   vtkTable* out = split->GetOutput(0);

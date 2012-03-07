@@ -56,7 +56,7 @@ int TestSQLiteTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableToSQLiteWriter> writerToTest =
     vtkSmartPointer<vtkTableToSQLiteWriter>::New();
 
-  writerToTest->SetInput(table);
+  writerToTest->SetInputData(table);
   writerToTest->SetDatabase(db);
   writerToTest->SetTableName("tableTest");
   writerToTest->Update();
@@ -73,7 +73,7 @@ int TestSQLiteTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableWriter> tableFileWriter =
     vtkSmartPointer<vtkTableWriter>::New();
   tableFileWriter->SetFileName("TestSQLiteTableReadWrite.vtk");
-  tableFileWriter->SetInput(readerToTest->GetOutput());
+  tableFileWriter->SetInputConnection(readerToTest->GetOutputPort());
   tableFileWriter->Update();
 
   cerr << "verifying that it's the same as what we started with...";

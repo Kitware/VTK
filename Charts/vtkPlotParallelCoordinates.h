@@ -74,11 +74,11 @@ public:
 
   // Description:
   // This is a convenience function to set the input table.
-  virtual void SetInput(vtkTable *table);
-  virtual void SetInput(vtkTable *table, const vtkStdString&,
-                        const vtkStdString&)
+  virtual void SetInputData(vtkTable *table);
+  virtual void SetInputData(vtkTable *table, const vtkStdString&,
+                            const vtkStdString&)
   {
-    this->SetInput(table);
+    this->SetInputData(table);
   }
 
   // Description:

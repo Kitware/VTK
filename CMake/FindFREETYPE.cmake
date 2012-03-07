@@ -15,6 +15,7 @@ FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h)
 FIND_PATH(FREETYPE_INCLUDE_DIR_FTHEADER freetype/config/ftheader.h
   /usr/include/freetype2
   /usr/local/include/freetype2
+  PATH_SUFFIXES freetype2  
 )
 
 FIND_LIBRARY(FREETYPE_LIBRARY freetype)

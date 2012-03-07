@@ -76,15 +76,15 @@ int TestBarGraph(int , char * [])
   vtkPlot *plot = 0;
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 1);
+  plot->SetInputData(table.GetPointer(), 0, 1);
   plot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 2);
+  plot->SetInputData(table.GetPointer(), 0, 2);
   plot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
-  plot->SetInput(table.GetPointer(), 0, 3);
+  plot->SetInputData(table.GetPointer(), 0, 3);
   plot->SetColor(0, 0, 255, 255);
 
   //Finally render the scene and compare the image to a reference image

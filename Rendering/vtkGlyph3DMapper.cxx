@@ -34,6 +34,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
+#include "vtkTrivialProducer.h"
 
 #include <assert.h>
 #include <vector>
@@ -73,12 +74,14 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->Orient = true;
   this->Clamping = false;
   this->SourceIndexing = false;
+  this->UseSelectionIds = false;
   this->OrientationMode = vtkGlyph3DMapper::DIRECTION;
 
   // Set default arrays.
   this->SetScaleArray(vtkDataSetAttributes::SCALARS);
   this->SetMaskArray(vtkDataSetAttributes::SCALARS);
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
+  this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
   this->NestedDisplayLists = true;
 
@@ -198,6 +201,33 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
 }
 
 // ---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetSelectionIdArray(const char* selectionIdArrayName)
+{
+  this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, selectionIdArrayName);
+}
+
+// ---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetSelectionIdArray(int fieldAttributeType)
+{
+  this->SetInputArrayToProcess(vtkGlyph3DMapper::SELECTIONID, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldAttributeType);
+}
+
+// ---------------------------------------------------------------------------
+vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
+{
+  if (this->UseSelectionIds)
+    {
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+    vtkDataArray* arr = this->GetInputArrayToProcess(
+          vtkGlyph3DMapper::SELECTIONID, input, association);
+    return arr;
+    }
+  return NULL;
+}
+
+// ---------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkGlyph3DMapper::GetColors(vtkDataSet* input)
 {
   return vtkUnsignedCharArray::SafeDownCast(
@@ -234,45 +264,51 @@ void vtkGlyph3DMapper::SetSourceConnection(int idx,
 
 // ---------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3DMapper::SetSource(int idx, vtkPolyData *pd)
+void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
 {
-  if (idx < 0)
+  int numConnections = this->GetNumberOfInputConnections(1);
+
+  if (idx < 0 || idx > numConnections)
     {
     vtkErrorMacro("Bad index " << idx << " for source.");
     return;
     }
 
-  int numConnections = this->GetNumberOfInputConnections(1);
-  vtkAlgorithmOutput *algOutput = 0;
+  vtkTrivialProducer* tp = 0;
   if (pd)
     {
-    algOutput = pd->GetProducerPort();
-    }
-  else
-    {
-    vtkErrorMacro("Cannot set NULL source.");
-    return;
+    tp = vtkTrivialProducer::New();
+    tp->SetOutput(pd);
     }
 
   if (idx < numConnections)
     {
-    if (algOutput)
+    if (tp)
       {
-      this->SetNthInputConnection(1, idx, algOutput);
+      this->SetNthInputConnection(1, idx, tp->GetOutputPort());
+      }
+    else
+      {
+      this->SetNthInputConnection(1, idx, 0);
       }
     }
-  else if (idx == numConnections && algOutput)
+  else if (idx == numConnections && tp)
     {
-    this->AddInputConnection(1, algOutput);
+    this->AddInputConnection(1, tp->GetOutputPort());
+    }
+
+  if (tp)
+    {
+    tp->Delete();
     }
 }
 
 // ---------------------------------------------------------------------------
 // Description:
 // Set the source to use for he glyph. Old style. See SetSourceConnection.
-void vtkGlyph3DMapper::SetSource(vtkPolyData *pd)
+void vtkGlyph3DMapper::SetSourceData(vtkPolyData *pd)
 {
-  this->SetSource(0,pd);
+  this->SetSourceData(0,pd);
 }
 
 // ---------------------------------------------------------------------------
@@ -346,6 +382,8 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
     << this->GetOrientationModeAsString() << "\n";
   os << indent << "SourceIndexing: "
     << (this->SourceIndexing? "On" : "Off") << endl;
+  os << indent << "UseSelectionIds: "
+     << (this->UseSelectionIds? "On" : "Off") << endl;
   os << indent << "SelectMode: " << this->SelectMode << endl;
   os << indent << "SelectionColorId: " << this->SelectionColorId << endl;
   os << "Masking: " << (this->Masking? "On" : "Off") << endl;
@@ -462,8 +500,6 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->SetUpdateExtent(0, 1, 0);
-    this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();
@@ -661,4 +697,10 @@ void vtkGlyph3DMapper::GetBounds(double bounds[6])
 void vtkGlyph3DMapper::Render(vtkRenderer *, vtkActor *)
 {
   cerr << "Calling wrong render method!!\n";
+}
+
+//---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetInputData(vtkDataObject* input)
+{
+  this->SetInputDataInternal(0, input);
 }
