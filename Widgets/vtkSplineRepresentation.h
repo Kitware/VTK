@@ -69,7 +69,7 @@ public:
   // Description:
   // Force the spline widget to be projected onto one of the orthogonal planes.
   // Remember that when the InteractionState changes, a ModifiedEvent is invoked.
-  // This can be used to snap the spline to the plane if it is orginally
+  // This can be used to snap the spline to the plane if it is originally
   // not aligned.  The normal in SetProjectionNormal is 0,1,2 for YZ,XZ,XY
   // planes respectively and 3 for arbitrary oblique planes when the widget
   // is tied to a vtkPlaneSource.

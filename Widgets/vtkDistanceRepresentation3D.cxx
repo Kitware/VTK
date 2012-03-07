@@ -105,7 +105,7 @@ vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
   // Scaling the label
   this->LabelScaleSpecified = false;
 
-  // Controling scaling and label position
+  // Controlling scaling and label position
   this->GlyphScale = 1.0;
   this->GlyphScaleSpecified = false;
   this->LabelPosition = 0.5;
