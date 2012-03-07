@@ -58,7 +58,7 @@ public:
     }
 
   // Description:
-  // Auxilary methods used by the reader internally.
+  // Auxiliary methods used by the reader internally.
   void InitializeColors();
 
   // Description:

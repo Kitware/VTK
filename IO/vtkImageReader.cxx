@@ -98,7 +98,7 @@ int vtkImageReader::RequestInformation (
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
 {
-  // call the old method to help with backwards compatiblity
+  // call the old method to help with backwards compatibility
   this->ExecuteInformation();
 
   // get the info objects

@@ -266,7 +266,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << "Filename: " << (this->FileName?this->FileName:"(none)") << "\n";
   
-  os << "Tranform: ";
+  os << "Transform: ";
   if( this->Transform )
     {
     os << endl;

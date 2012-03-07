@@ -371,7 +371,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
                       Krm1 = Kr - 1,
                       Kbm1 = Kb - 1;
   // stride between rows in the YCbCr image planes, since
-  // pixels in a row are contigious, but rows need not be
+  // pixels in a row are contiguous, but rows need not be
   static const int strideRGB = this->Dim[0]*3,
                    strideY   = ycbcr[0].stride/sizeof(uchar), // th_image_plane strides are in bytes
                    strideCb  = ycbcr[1].stride/sizeof(uchar),

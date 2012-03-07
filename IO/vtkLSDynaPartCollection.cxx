@@ -58,7 +58,7 @@ namespace
         }
     }
 
-    vtkIdType numCells; //number of cells in this continous block
+    vtkIdType numCells; //number of cells in this continuous block
     vtkIdType startId; //the global index to start of this block
     vtkIdType cellStructureSize; //stores the size of the cell array for this section
     vtkIdType partId; //id of the part this block represents, because the part can be NULL
