@@ -249,7 +249,7 @@ public:
   ///   Used to adjust the bounding width for the axis.
   ///
   /// This method only affects left and right locations. It is called
-  /// after the neighboring axes have been layed out. The neighboring
+  /// after the neighboring axes have been laid out. The neighboring
   /// axes may need more space to display the labels.
   void adjustAxisLayout();
 
@@ -386,7 +386,7 @@ public:
   static bool isLogScaleValid(const QVariant &min, const QVariant &max);
 
 signals:
-  /// Emitted when the axis needs to be layed out again.
+  /// Emitted when the axis needs to be laid out again.
   void layoutNeeded();
 
   /// \brief

@@ -355,7 +355,7 @@ void vtkQtChartAxisLayer::layoutChart(const QRectF &area)
   this->Axis[bottom]->layoutAxis(bounds);
 
   // The top and bottom axes should have the same width. The top
-  // axis may need to be layed out again to account for the width
+  // axis may need to be laid out again to account for the width
   // of the bottom axis labels.
   axisBounds = this->Axis[bottom]->getBounds();
   float bottomWidth = axisBounds.width();

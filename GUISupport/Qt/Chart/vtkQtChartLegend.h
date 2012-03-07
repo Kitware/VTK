@@ -225,7 +225,7 @@ private:
   vtkQtChartLegendModel *Model;       ///< A pointer to the model.
   LegendLocation Location;            ///< Stores the legend location.
   ItemFlow Flow;                      ///< Stores the order of the items.
-  QSize Bounds;                       ///< Stores the prefered size.
+  QSize Bounds;                       ///< Stores the preferred size.
   int IconSize;                       ///< Stores the icon size.
   int TextSpacing;                    ///< The space between icon and text.
   int Margin;                         ///< The margin around the entries.

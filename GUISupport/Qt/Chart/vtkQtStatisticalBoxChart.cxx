@@ -844,7 +844,7 @@ void vtkQtStatisticalBoxChart::prepareSeriesInsert(int first, int last)
   if(this->ChartArea)
     {
     // Notify the selection model of the change. The selection will be
-    // adjusted for the changes in this call so it can be layed out
+    // adjusted for the changes in this call so it can be laid out
     // when the changes are completed.
     this->InModelChange = true;
     this->Selection->beginInsertSeries(first, last);
@@ -945,7 +945,7 @@ void vtkQtStatisticalBoxChart::startSeriesRemoval(int first, int last)
   if(this->ChartArea)
     {
     // Notify the selection model of the change. The selection will be
-    // adjusted for the changes in this call so it can be layed out
+    // adjusted for the changes in this call so it can be laid out
     // when the changes are completed.
     this->InModelChange = true;
     this->Selection->beginRemoveSeries(first, last);
