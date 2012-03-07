@@ -91,7 +91,6 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
     }
 
   double range[2];
-  data->Update();
   data->GetScalarRange(range);
   cout << "ImageData range: " << range[0] <<" "<< range[1] << "\n";
 
