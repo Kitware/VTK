@@ -74,16 +74,16 @@ public:
    static double DensityMax(int k, double m);
 
    // Description:
-   // This methods return the legibility score of differnt formats
+   // This methods return the legibility score of different formats
    static double FormatLegibilityScore(double n, int format);
 
    // Description:
-   // This method returns the string length of differnt format notations.
+   // This method returns the string length of different format notations.
    static int FormatStringLength(int format, double n, int precision);
 
    // Description:
    // This method implements the algorithm given in the paper
-   // The method return the minimum tick position, maximum tick postion and
+   // The method return the minimum tick position, maximum tick position and
    // the tick spacing
    vtkVector3d GenerateExtendedTickLabels(double dmin, double dmax, double m,
                                           double scaling);
