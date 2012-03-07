@@ -59,23 +59,15 @@ vtkUniformGridAMR* vtkUniformGridAMRAlgorithm::GetOutput(int port)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMRAlgorithm::SetInput( vtkDataObject* input )
+void vtkUniformGridAMRAlgorithm::SetInputData( vtkDataObject* input )
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMRAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkUniformGridAMRAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if( input != NULL )
-    {
-    this->SetInputConnection(index,input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection
-    this->SetInputConnection(index,0);
-    }
+  this->SetInputDataInternal(index,input);
 }
 
 //------------------------------------------------------------------------------
