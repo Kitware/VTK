@@ -26,7 +26,7 @@ pd.GetPointData().AddArray(label)
 pd.GetPointData().AddArray(orient)
 
 hier = vtkPointSetToLabelHierarchy()
-hier.SetInput(pd)
+hier.SetInputData(pd)
 hier.SetOrientationArrayName('orientation')
 hier.SetLabelArrayName('label')
 hier.GetTextProperty().SetColor(0.0, 0.0, 0.0)
@@ -44,7 +44,7 @@ lactor = vtkActor2D()
 lactor.SetMapper(lmapper)
 
 mapper = vtkPolyDataMapper()
-mapper.SetInput(pd)
+mapper.SetInputData(pd)
 actor = vtkActor()
 actor.SetMapper(mapper)
 

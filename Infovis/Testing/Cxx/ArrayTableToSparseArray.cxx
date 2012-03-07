@@ -80,7 +80,7 @@ int ArrayTableToSparseArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Run it through vtkTableToSparseArray ...
     vtkSmartPointer<vtkTableToSparseArray> source = vtkSmartPointer<vtkTableToSparseArray>::New();
-    source->AddInputConnection(table->GetProducerPort());
+    source->SetInputData(table);
     source->AddCoordinateColumn("i");
     source->AddCoordinateColumn("j");
     source->AddCoordinateColumn("k");

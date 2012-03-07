@@ -34,10 +34,10 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     {
     this->Prop3D->GetBounds(bounds);
     }
-  else if ( this->Input )
+  else if ( this->GetInput() )
     {
-    this->Input->Update();
-    this->Input->GetBounds(bounds);
+    this->UpdateInput();
+    this->GetInput()->GetBounds(bounds);
     }
   else
     {
@@ -54,12 +54,6 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     }
     
   this->PlaceWidget(bounds);
-}
-
-vtkPolyDataSource* vtkPolyDataSourceWidget::GetPolyDataSource()
-{
-  vtkErrorMacro("Use GetPolyDataAlgorithm instead.");
-  return NULL;
 }
 
 void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)

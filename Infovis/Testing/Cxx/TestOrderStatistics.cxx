@@ -135,7 +135,7 @@ int TestOrderStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  os->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  os->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   datasetTable->Delete();
 
   // Select Columns of Interest
@@ -433,7 +433,7 @@ int TestOrderStatistics( int, char *[] )
   // Set order statistics engine
   vtkOrderStatistics* os2 = vtkOrderStatistics::New();
 
-  os2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
+  os2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, textTable );
   textTable->Delete();
   os2->AddColumn( "Text" ); // Add column of interest
   os2->RequestSelectedColumns();

@@ -34,6 +34,7 @@
 #include "vtkSphereSource.h"
 
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageShiftScale.h"
@@ -242,7 +243,7 @@ int PrmMagnify(int argc, char *argv[])
   charImage->SetOutputScalarTypeToUnsignedChar();
 
   VTK_CREATE(vtkImageActor, actor);
-  actor->SetInput(charImage->GetOutput());
+  actor->GetMapper()->SetInputConnection(charImage->GetOutputPort());
   actor->InterpolateOff();
 
   vtkSmartPointer<vtkRenderer> renderer = prm->MakeRenderer();

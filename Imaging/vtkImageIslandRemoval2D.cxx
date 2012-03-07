@@ -501,7 +501,7 @@ int vtkImageIslandRemoval2D::RequestData(
   extent[2] = wholeExtent[2];
   extent[3] = wholeExtent[3];
   outData->SetExtent(extent);
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

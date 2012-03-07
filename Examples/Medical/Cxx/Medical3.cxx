@@ -36,6 +36,7 @@
 #include <vtkImageMapToColors.h>
 #include <vtkImageActor.h>
 #include <vtkSmartPointer.h>
+#include <vtkImageMapper3D.h>
 
 int main (int argc, char *argv[])
 {
@@ -208,7 +209,7 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkImageActor> sagittal =
     vtkSmartPointer<vtkImageActor>::New();
-  sagittal->SetInput(sagittalColors->GetOutput());
+  sagittal->GetMapper()->SetInputConnection(sagittalColors->GetOutputPort());
   sagittal->SetDisplayExtent(32,32, 0,63, 0,92);
 
   // Create the second (axial) plane of the three planes. We use the
@@ -221,7 +222,7 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkImageActor> axial =
     vtkSmartPointer<vtkImageActor>::New();
-  axial->SetInput(axialColors->GetOutput());
+  axial->GetMapper()->SetInputConnection(axialColors->GetOutputPort());
   axial->SetDisplayExtent(0,63, 0,63, 46,46);
 
   // Create the third (coronal) plane of the three planes. We use 
@@ -234,7 +235,7 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkImageActor> coronal =
     vtkSmartPointer<vtkImageActor>::New();
-  coronal->SetInput(coronalColors->GetOutput());
+  coronal->GetMapper()->SetInputConnection(coronalColors->GetOutputPort());
   coronal->SetDisplayExtent(0,63, 32,32, 0,92);
 
   // It is convenient to create an initial view of the data. The

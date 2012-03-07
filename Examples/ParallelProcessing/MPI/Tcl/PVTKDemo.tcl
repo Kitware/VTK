@@ -69,7 +69,7 @@ iren SetRenderWindow renWin
 
 # This class allows all processes to composite their images.
 # The root process then displays it in it's render window.
-vtkCompositeManager tc
+vtkCompositeRenderManager tc
 tc SetRenderWindow renWin
 # Tell the pipeline that we requests pieces not the whole
 # data.

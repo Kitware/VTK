@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkStructuredGridAlgorithm);
 
@@ -136,87 +135,35 @@ int vtkStructuredGridAlgorithm::RequestInformation(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkStructuredGridAlgorithm::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
-  // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
-
-  // which output port did the request come from
-  int outputPort = 
-    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-  // if output port is negative then that means this filter is calling the
-  // update directly, in that case just assume port 0
-  if (outputPort == -1)
-      {
-      outputPort = 0;
-      }
-  
-  // get the data object
-  vtkInformation *outInfo = 
-    outputVector->GetInformationObject(outputPort);
-  // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData 
-// can handle an empty extent.
-void vtkStructuredGridAlgorithm::ExecuteData(vtkDataObject *output)
-{
-  // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(output))
-    {
-    output->Initialize();
-    return;
-    }
-  
-  this->Execute();
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGridAlgorithm::Execute()
-{
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
+  return 0;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridAlgorithm::SetInput(vtkDataObject* input)
+void vtkStructuredGridAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkStructuredGridAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridAlgorithm::AddInput(vtkDataObject* input)
+void vtkStructuredGridAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGridAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkStructuredGridAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 

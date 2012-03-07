@@ -92,7 +92,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->Box->SetPoints(this->BoxPoints);
   this->Box->SetLines(this->BoxCellArray);
   this->BoxMapper = vtkPolyDataMapper2D::New();
-  this->BoxMapper->SetInput(this->Box);
+  this->BoxMapper->SetInputData(this->Box);
   this->BoxActor = vtkActor2D::New();
   this->BoxActor->SetMapper(this->BoxMapper);
   this->BoxActor->SetProperty(this->Property);
@@ -111,7 +111,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->HBox->SetPoints(this->HBoxPoints);
   this->HBox->SetLines(this->HBoxCellArray);
   this->HBoxMapper = vtkPolyDataMapper2D::New();
-  this->HBoxMapper->SetInput(this->HBox);
+  this->HBoxMapper->SetInputData(this->HBox);
   this->HBoxActor = vtkActor2D::New();
   this->HBoxActor->SetMapper(this->HBoxMapper);
   this->HBoxActor->VisibilityOff();
@@ -126,7 +126,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->Circle->SetPoints(this->CirclePoints);
   this->Circle->SetLines(this->CircleCellArray);
   this->CircleMapper = vtkPolyDataMapper2D::New();
-  this->CircleMapper->SetInput(this->Circle);
+  this->CircleMapper->SetInputData(this->Circle);
   this->CircleActor = vtkActor2D::New();
   this->CircleActor->SetMapper(this->CircleMapper);
   this->CircleActor->SetProperty(this->Property);
@@ -138,7 +138,7 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   this->HCircle->SetPoints(this->HCirclePoints);
   this->HCircle->SetLines(this->HCircleCellArray);
   this->HCircleMapper = vtkPolyDataMapper2D::New();
-  this->HCircleMapper->SetInput(this->HCircle);
+  this->HCircleMapper->SetInputData(this->HCircle);
   this->HCircleActor = vtkActor2D::New();
   this->HCircleActor->SetMapper(this->HCircleMapper);
   this->HCircleActor->VisibilityOff();

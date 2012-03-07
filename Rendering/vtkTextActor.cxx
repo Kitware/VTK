@@ -70,7 +70,7 @@ vtkTextActor::vtkTextActor()
   this->ImageData = vtkImageData::New();
   this->Texture = NULL;
   vtkTexture* texture = vtkTexture::New();
-  texture->SetInput(this->ImageData);
+  texture->SetInputData(this->ImageData);
   this->SetTexture(texture);
   texture->Delete();
 
@@ -155,7 +155,7 @@ void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
 
   if (mapper)
     {
-    mapper->SetInput(this->Rectangle);
+    mapper->SetInputData(this->Rectangle);
     }
 }
 
@@ -307,7 +307,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->ComputeRectangle(viewport);
 
     this->ImageData->Modified();
-    this->Texture->SetInput(this->ImageData);
+    this->Texture->SetInputData(this->ImageData);
     this->Texture->Modified();
     this->InputRendered = true;
     this->BuildTime.Modified();

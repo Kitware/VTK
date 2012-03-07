@@ -23,8 +23,8 @@ vtkBMPReader reader1
 reader1 SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 
 vtkImageBlend blend
-blend AddInput [reader1 GetOutput]
-blend AddInput [alpha GetOutput]
+blend AddInputConnection [reader1 GetOutputPort]
+blend AddInputConnection [alpha GetOutputPort]
 
 # next, create a ThinPlateSpline transform 
 
@@ -65,9 +65,10 @@ vtkTransformToGrid transformToGrid
   transformToGrid SetGridSpacing 1 1 1
   transformToGrid SetGridOrigin 0 0 0
   transformToGrid SetGridExtent 0 255 0 255 0 0
+  transformToGrid Update
 
 vtkGridTransform transform
-  transform SetDisplacementGrid [transformToGrid GetOutput]
+  transform SetDisplacementGridConnection [transformToGrid GetOutputPort]
   transform SetInterpolationModeToNearestNeighbor
   # must lower the tolerance or it won't invert
   transform SetInverseTolerance 2.0

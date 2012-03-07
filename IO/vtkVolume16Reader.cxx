@@ -154,7 +154,7 @@ int vtkVolume16Reader::RequestInformation(
 int vtkVolume16Reader::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
+  vtkInformationVector *outputVector)
 {
   int first, last;
   int *dim;
@@ -162,7 +162,10 @@ int vtkVolume16Reader::RequestData(
   double Spacing[3];
   double origin[3];
 
-  vtkImageData *output = this->AllocateOutputData(this->GetOutput());
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject* output_do = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkImageData *output = this->AllocateOutputData(output_do,
+                                                  outInfo);
   vtkUnsignedShortArray *newScalars = 
     vtkUnsignedShortArray::SafeDownCast(output->GetPointData()->GetScalars());
 

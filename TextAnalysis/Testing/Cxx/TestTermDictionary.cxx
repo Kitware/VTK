@@ -78,7 +78,7 @@ int TestTermDictionary(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
  
     // Run it through to vtkFeatureDictionary ...
     vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();
-    tokenizer->SetInputConnection(0, documents->GetProducerPort());
+    tokenizer->SetInputData(0, documents);
     tokenizer->AddDroppedDelimiters(vtkTokenizer::Whitespace());
     tokenizer->AddKeptDelimiters(vtkTokenizer::Punctuation());
 

@@ -121,7 +121,7 @@ int vtkPointLoad::RequestInformation (
 //
 // Generate tensors and scalars for point load on semi-infinite domain.
 //
-void vtkPointLoad::ExecuteData(vtkDataObject *outp)
+void vtkPointLoad::ExecuteData(vtkDataObject *outp, vtkInformation* outInfo)
 {
   int i, j, k;
   vtkFloatArray *newTensors;
@@ -130,7 +130,7 @@ void vtkPointLoad::ExecuteData(vtkDataObject *outp)
   double P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   double x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   double sx, sy, sz, seff;
-  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkImageData *output = this->AllocateOutputData(outp, outInfo);
   vtkFloatArray *newScalars = 
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   double *spacing, *origin;

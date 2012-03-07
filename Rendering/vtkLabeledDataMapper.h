@@ -109,7 +109,7 @@ public:
 
   // Description:
   // Set the input dataset to the mapper. This mapper handles any type of data.
-  virtual void SetInput(vtkDataObject*);
+  virtual void SetInputData(vtkDataObject*);
 
   // Description:
   // Use GetInputDataObject() to get the input data object for composite

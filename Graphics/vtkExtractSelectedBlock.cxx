@@ -76,7 +76,7 @@ int vtkExtractSelectedBlock::RequestDataObject(
     if (!output)
       {
       output = vtkMultiBlockDataSet::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     return 1;

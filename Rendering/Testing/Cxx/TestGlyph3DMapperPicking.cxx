@@ -215,7 +215,7 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   glypher2->SetMasking(1);
   glypher2->SetMaskArray("mask");
 
-  glypher2->SetInputConnection(0, selection->GetProducerPort());
+  glypher2->SetInputData(selection);
   glypher2->SetScaleFactor(0.1);
   glypher2->SetSourceConnection(squad->GetOutputPort());
   glyphActor2->SetMapper(glypher2);

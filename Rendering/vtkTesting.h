@@ -63,6 +63,7 @@
 #include <vector> // STL Header used for argv
 #include <string> // STL Header used for argv
 
+class vtkAlgorithm;
 class vtkRenderWindow;
 class vtkImageData;
 class vtkDataArray;
@@ -140,8 +141,8 @@ public:
 
   // Description:
   // Compare the image with the valid image.
-  virtual int RegressionTest(vtkImageData* image, double thresh);
-  virtual int RegressionTest(vtkImageData* image, double thresh, ostream& os);
+  virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh);
+  virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);
 
   // Description:
   // Compute the average L2 norm between all point data data arrays 

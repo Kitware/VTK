@@ -11,31 +11,32 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 # cut data
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
 vtkPlane plane
-    eval plane SetOrigin [[pl3d GetOutput] GetCenter]
+    eval plane SetOrigin [$output GetCenter]
     plane SetNormal -0.287 0 0.9579
 vtkCutter planeCut
-    planeCut SetInputConnection [pl3d GetOutputPort]
+    planeCut SetInputData $output
     planeCut SetCutFunction plane
 vtkProbeFilter probe
     probe SetInputConnection [planeCut GetOutputPort]
-    probe SetSourceConnection [pl3d GetOutputPort]
+    probe SetSourceData $output
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [probe GetOutputPort]
     eval cutMapper SetScalarRange \
-      [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
+      [[[$output GetPointData] GetScalars] GetRange]
 vtkActor cutActor
     cutActor SetMapper cutMapper
 
 #extract plane
 vtkStructuredGridGeometryFilter compPlane
-    compPlane SetInputConnection [pl3d GetOutputPort]
+    compPlane SetInputData $output
     compPlane SetExtent 0 100 0 100 9 9
 vtkPolyDataMapper planeMapper
     planeMapper SetInputConnection [compPlane GetOutputPort]
@@ -47,7 +48,7 @@ vtkActor planeActor
 
 #outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

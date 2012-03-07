@@ -72,10 +72,9 @@ void vtkImageAppend::ReplaceNthInputConnection(int idx,
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
-void vtkImageAppend::SetInput(int idx, vtkDataObject *input)
+void vtkImageAppend::SetInputData(int idx, vtkDataObject *input)
 {
-  // Ask the superclass to connect the input.
-  this->SetNthInputConnection(0, idx, (input ? input->GetProducerPort() : 0));
+  this->SetInputDataInternal(idx, input);
 }
 
 //----------------------------------------------------------------------------
@@ -643,6 +642,7 @@ void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkImageAppend::AllocateOutputData(vtkImageData *output,
+                                        vtkInformation*,
                                         int *uExtent)
 {
   output->SetExtent(uExtent);
@@ -686,17 +686,18 @@ void vtkImageAppend::AllocateOutputData(vtkImageData *output,
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageAppend::AllocateOutputData(vtkDataObject *output)
+vtkImageData *vtkImageAppend::AllocateOutputData(vtkDataObject *output,
+                                                 vtkInformation* outInfo)
 {
-  //TODO: I am not sure when/how this signature is used so I have no idea
-  //if this is what is should do.
-  vtkImageData *oImageData = vtkImageData::SafeDownCast(output);
-  if (!oImageData)
+  // set the extent to be the update extent
+  vtkImageData *out = vtkImageData::SafeDownCast(output);
+  if (out)
     {
-    return NULL;
+    int* uExtent = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    this->AllocateOutputData(out, outInfo, uExtent);
     }
-  this->AllocateOutputData(oImageData, oImageData->GetExtent());
-  return oImageData;
+  return out;
 }
 
 //----------------------------------------------------------------------------

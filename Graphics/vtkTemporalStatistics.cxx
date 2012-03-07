@@ -205,12 +205,13 @@ int vtkTemporalStatistics::RequestDataObject(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (!inInfo) return 0;
-
   vtkDataObject *input = vtkDataObject::GetData(inInfo);
   vtkDataObject *output = vtkDataObject::GetData(outInfo);
 
-  if (!input) return 0;
+  if (!input)
+    {
+    return 0;
+    }
 
   vtkSmartPointer<vtkDataObject> newOutput;
 
@@ -237,7 +238,7 @@ int vtkTemporalStatistics::RequestDataObject(
 
   if (newOutput)
     {
-    newOutput->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     }
 
   return 1;

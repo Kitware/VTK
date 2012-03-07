@@ -193,7 +193,7 @@ int vtkMergeTables::RequestData(
   vtkMergeColumns* mergeColumns = vtkMergeColumns::New();
   vtkTable* temp = vtkTable::New();
   temp->ShallowCopy(output);
-  mergeColumns->SetInput(temp);
+  mergeColumns->SetInputData(temp);
   if (this->MergeColumnsByName)
     {
     for (vtkIdType i = 0; i < toMerge->GetNumberOfValues(); i += 3)

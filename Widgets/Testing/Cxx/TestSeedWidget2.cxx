@@ -37,6 +37,7 @@
 #include "vtkVolume16Reader.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkLookupTable.h"
 #include "vtkTestUtilities.h"
 
@@ -100,7 +101,7 @@ int TestSeedWidget2( int argc, char *argv[] )
     sagittalColors->SetLookupTable(bwLut);
   vtkSmartPointer<vtkImageActor> sagittal =
     vtkSmartPointer<vtkImageActor>::New();
-    sagittal->SetInput(sagittalColors->GetOutput());
+    sagittal->GetMapper()->SetInputConnection(sagittalColors->GetOutputPort());
     sagittal->SetDisplayExtent(32,32, 0,63, 0,92);
 
   // Create the widget and its representation

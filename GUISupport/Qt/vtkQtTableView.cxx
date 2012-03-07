@@ -268,7 +268,7 @@ void vtkQtTableView::AddRepresentationInternal(vtkDataRepresentation* rep)
       vtkSmartPointer<vtkIdTypeArray>::New();
     emptyNode->SetSelectionList(arr);
     empty->AddNode(emptyNode);
-    this->AddSelectedColumn->SetInput(1, empty);
+    this->AddSelectedColumn->SetInputData(1, empty);
     }
 
   if(annConn)

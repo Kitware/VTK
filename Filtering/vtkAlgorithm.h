@@ -299,6 +299,14 @@ public:
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
+  // Remove a connection given by index idx.
+  virtual void RemoveInputConnection(int port, int idx);
+
+  // Description:
+  // Removes all input connections.
+  virtual void RemoveAllInputConnections(int port);
+
+  // Description:
   // Get a proxy object corresponding to the given output port of this
   // algorithm.  The proxy object can be passed to another algorithm's
   // SetInputConnection(), AddInputConnection(), and
@@ -320,12 +328,65 @@ public:
   vtkAlgorithmOutput* GetInputConnection(int port, int index);
 
   // Description:
-  // Bring this algorithm's outputs up-to-date.
-  virtual void Update();
+  // Returns the algorithm connected to a port-index pair.
+  vtkAlgorithm* GetInputAlgorithm(int port, int index);
 
   // Description:
-  // Backward compatibility method to invoke UpdateInformation on executive.
+  // Equivalent to GetInputAlgorithm(0, 0).
+  vtkAlgorithm* GetInputAlgorithm()
+  {
+    return this->GetInputAlgorithm(0, 0);
+  }
+
+  // Description:
+  // Returns the executive associated with a particular input
+  // connection.
+  vtkExecutive* GetInputExecutive(int port, int index);
+
+  // Description:
+  // Equivalent to GetInputExecutive(0, 0)
+  vtkExecutive* GetInputExecutive()
+  {
+    return this->GetInputExecutive(0, 0);
+  }
+
+  // Description:
+  // Return the information object that is associated with
+  // a particular input connection. This can be used to get
+  // meta-data coming from the REQUEST_INFORMATION pass and set
+  // requests for the REQUEST_UPDATE_EXTENT pass. NOTE:
+  // Do not use this in any of the pipeline passes. Use
+  // the information objects passed as arguments instead.
+  vtkInformation* GetInputInformation(int port, int index);
+
+  // Description:
+  // Equivalent to GetInputInformation(0, 0)
+  vtkInformation* GetInputInformation()
+  {
+    return this->GetInputInformation(0, 0);
+  }
+
+  // Description:
+  // Return the information object that is associated with
+  // a particular output port. This can be used to set
+  // meta-data coming during the REQUEST_INFORMATION. NOTE:
+  // Do not use this in any of the pipeline passes. Use
+  // the information objects passed as arguments instead.
+  vtkInformation* GetOutputInformation(int port);
+
+  // Description:
+  // Bring this algorithm's outputs up-to-date.
+  virtual void Update(int port);
+  virtual void Update();
+
+
+  // Description:
+  // Bring the algorithm's information up-to-date.
   virtual void UpdateInformation();
+
+  // Description::
+  // Propagate meta-data upstream.
+  virtual void PropagateUpdateExtent();
 
   // Description:
   // Bring this algorithm's outputs up-to-date.
@@ -356,7 +417,7 @@ public:
   // This condition is satisfied when the UpdateExtent has
   // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
   // The source uses this call to determine whether to call Execute.
-  int UpdateExtentIsEmpty(vtkDataObject *output);
+  int UpdateExtentIsEmpty(vtkInformation *pinfo, vtkDataObject *output);
   int UpdateExtentIsEmpty(vtkInformation *pinfo, int extentType);
 
   // Description:
@@ -380,6 +441,47 @@ public:
   static vtkInformationIntegerKey* PRESERVES_ATTRIBUTES();
   static vtkInformationIntegerKey* PRESERVES_RANGES();
   static vtkInformationIntegerKey* MANAGES_METAINFORMATION();
+
+  // Description:
+  // If the whole input extent is required to generate the requested output
+  // extent, this method can be called to set the input update extent to the
+  // whole input extent. This method assumes that the whole extent is known
+  // (that UpdateInformation has been called).
+  // This function has no effect is input connection is not established.
+  int SetUpdateExtentToWholeExtent(int port, int connection);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtentToWholeExtent(0, 0)
+  // This function has no effect is input connection is not established.
+  int SetUpdateExtentToWholeExtent();
+
+  // Description:
+  // Set the update extent in terms of piece and ghost levels.
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int port, int connection,
+                       int piece,int numPieces, int ghostLevel);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtent(0, 0, piece,
+  // numPieces, ghostLevel)
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int piece,int numPieces, int ghostLevel)
+  {
+    this->SetUpdateExtent(0, 0, piece, numPieces, ghostLevel);
+  }
+
+  // Description:
+  // Set the update extent for data objects that use 3D extents
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int port, int connection, int extent[6]);
+
+  // Description:
+  // Convenience function equivalent to SetUpdateExtent(0, 0, extent)
+  // This function has no effect is input connection is not established.
+  void SetUpdateExtent(int extent[6])
+  {
+    this->SetUpdateExtent(0, 0, extent);
+  }
 
 protected:
   vtkAlgorithm();
@@ -539,6 +641,14 @@ protected:
   virtual void SetNumberOfInputConnections(int port, int n);
 
   static vtkExecutive* DefaultExecutivePrototype;
+
+  // Description:
+  // These methods are used by subclasses to implement methods to
+  // set data objects directly as input. Internally, they create
+  // a vtkTrivialProducer that has the data object as output and
+  // connect it to the algorithm.
+  void SetInputDataInternal(int port, vtkDataObject *input);
+  void AddInputDataInternal(int port, vtkDataObject *input);
 
 private:
   vtkExecutive* Executive;

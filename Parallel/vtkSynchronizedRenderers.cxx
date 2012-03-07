@@ -614,11 +614,9 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
     }
 
   vtkImageData* img = vtkImageData::New();
-  img->SetScalarTypeToUnsignedChar();
-  img->SetNumberOfScalarComponents(
-    this->Data->GetNumberOfComponents());
   img->SetDimensions(this->Size[0], this->Size[1], 1);
-  img->AllocateScalars();
+  img->AllocateScalars(VTK_UNSIGNED_CHAR,
+                       this->Data->GetNumberOfComponents());
   memcpy(img->GetScalarPointer(),
     this->GetRawPtr()->GetVoidPointer(0),
     sizeof(unsigned char)*this->Size[0]*this->Size[1]*
@@ -626,7 +624,7 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 
   vtkPNGWriter* writer = vtkPNGWriter::New();
   writer->SetFileName(filename);
-  writer->SetInput(img);
+  writer->SetInputData(img);
   writer->Write();
   writer->Delete();
   img->Delete();

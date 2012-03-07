@@ -7,35 +7,37 @@ package require vtktesting
 
 # Start by loading some data.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
+
 # The plane widget is used probe the dataset.
 #
 vtkPointWidget pointWidget
-    pointWidget SetInput [pl3d GetOutput]
+    pointWidget SetInputData $pl3dOutput
     pointWidget AllOff
     pointWidget PlaceWidget
 vtkPolyData point
     pointWidget GetPolyData point
 
 vtkProbeFilter probe
-    probe SetInput point
-    probe SetSource [pl3d GetOutput]
+    probe SetInputData point
+    probe SetSourceData $pl3dOutput
 
 # create glyph
 vtkConeSource cone
   cone SetResolution 16
 vtkGlyph3D glyph
   glyph SetInputConnection [probe GetOutputPort]
-  glyph SetSource [cone GetOutput]
+  glyph SetSourceConnection [cone GetOutputPort]
   glyph SetVectorModeToUseVector
   glyph SetScaleModeToDataScalingOff
-  glyph SetScaleFactor [expr [[pl3d GetOutput] GetLength] * 0.1]
+  glyph SetScaleFactor [expr [$pl3dOutput GetLength] * 0.1]
 vtkPolyDataMapper glyphMapper
   glyphMapper SetInputConnection [glyph GetOutputPort]
 vtkActor glyphActor
@@ -44,7 +46,7 @@ vtkActor glyphActor
 
 # An outline is shown for context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

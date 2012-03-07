@@ -30,8 +30,10 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 0 "XCoordinates" 0
     do2ds SetPointComponent 1 "YCoordinates" 0 
     do2ds SetPointComponent 2 "ZCoordinates" 0
+    do2ds Update
+
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInput [do2ds GetRectilinearGridOutput]
+    fd2ad SetInputData [do2ds GetRectilinearGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad SetVectorComponent 0 "vectors" 0 
@@ -43,7 +45,7 @@ vtkFieldDataToAttributeDataFilter fd2ad
 # create pipeline
 #
 vtkRectilinearGridGeometryFilter plane
-    plane SetInput [fd2ad GetRectilinearGridOutput]
+    plane SetInputData [fd2ad GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
 vtkWarpVector warper
     warper SetInputConnection [plane GetOutputPort]
@@ -58,7 +60,7 @@ vtkPlane cutPlane
     eval cutPlane SetOrigin [[fd2ad GetOutput] GetCenter]
     cutPlane SetNormal 1 0 0
 vtkCutter planeCut
-    planeCut SetInput [fd2ad GetRectilinearGridOutput]
+    planeCut SetInputData [fd2ad GetRectilinearGridOutput]
     planeCut SetCutFunction cutPlane
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [planeCut GetOutputPort]
@@ -68,7 +70,7 @@ vtkActor cutActor
     cutActor SetMapper cutMapper
 
 vtkContourFilter iso
-    iso SetInput [fd2ad GetRectilinearGridOutput]
+    iso SetInputData [fd2ad GetRectilinearGridOutput]
     iso SetValue 0 0.7
 vtkPolyDataNormals normals
     normals SetInputConnection [iso GetOutputPort]
@@ -103,7 +105,7 @@ vtkActor streamTubeActor
     [streamTubeActor GetProperty] BackfaceCullingOn
 
 vtkOutlineFilter outline
-    outline SetInput [fd2ad GetRectilinearGridOutput]
+    outline SetInputData [fd2ad GetRectilinearGridOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

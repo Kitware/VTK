@@ -61,7 +61,7 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   line->InsertCellPoint(1);
   this->LinePolyData->SetLines(line);
   this->LineMapper = vtkPolyDataMapper::New();
-  this->LineMapper->SetInput(this->LinePolyData);
+  this->LineMapper->SetInputData(this->LinePolyData);
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
@@ -90,7 +90,7 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   this->GlyphXForm->SetTransform(xform);
   xform->RotateZ(90);
   this->Glyph3D = vtkGlyph3D::New();
-  this->Glyph3D->SetInput(this->GlyphPolyData);
+  this->Glyph3D->SetInputData(this->GlyphPolyData);
   this->Glyph3D->SetSourceConnection(this->GlyphXForm->GetOutputPort());
   this->Glyph3D->SetScaleModeToDataScalingOff();
   this->GlyphMapper = vtkPolyDataMapper::New();

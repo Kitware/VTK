@@ -190,7 +190,10 @@ protected:
   virtual int CreateMINCVariables(vtkImageData *input, int timeStep,
                                   int *dimids);
   virtual int WriteMINCFileAttributes(vtkImageData *input, int timeStep);
-  virtual int WriteMINCData(vtkImageData *input, int frameNumber);
+  virtual int WriteMINCData(vtkImageData *input,
+                            int frameNumber,
+                            int wholeExt[6],
+                            int upExt[6]);
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 

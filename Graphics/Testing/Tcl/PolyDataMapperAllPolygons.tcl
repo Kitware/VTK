@@ -81,7 +81,7 @@ foreach type $types {
       grid$i InsertNextCell [aTriangleStrip GetCellType] [aTriangleStrip GetPointIds]
       grid$i SetPoints triangleStripPoints
     vtkGeometryFilter geometry$i
-      geometry$i SetInput grid$i
+      geometry$i SetInputData grid$i
     vtkTriangleFilter triangles$i
       triangles$i SetInputConnection [geometry$i GetOutputPort]
     vtkPolyDataMapper mapper$i

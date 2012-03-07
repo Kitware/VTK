@@ -214,7 +214,7 @@ int TestImageDataToStructuredGrid(int,char *[])
   vtkUniformGrid* img1 = GetGrid( origin, spacing, ndim );
 
   vtkImageToStructuredGrid* myFilter = vtkImageToStructuredGrid::New( );
-  myFilter->SetInput( img1 );
+  myFilter->SetInputData( img1 );
   img1->Delete();
   myFilter->Update();
   vtkStructuredGrid* sg1 = myFilter->GetOutput();

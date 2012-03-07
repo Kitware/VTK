@@ -75,6 +75,10 @@ public:
                        unsigned long* mtime);
 
   // Description:
+  // Bring the output information up to date.
+  virtual int UpdateInformation() {return 1;}
+
+  // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
   virtual int Update();
@@ -128,7 +132,9 @@ public:
 
   // Description:
   // Get the output port that produces the given data object.
-  virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
+  // Works only if the data was producer by this executive's
+  // algorithm.
+  // virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
 
   // Description:
   // Set a pointer to an outside instance of input or output

@@ -48,8 +48,8 @@ public:
 
   // Description:
   // Set an input of this algorithm.
-  void SetInput(vtkDataObject*);
-  void SetInput(int, vtkDataObject*);
+  void SetInputData(vtkDataObject*);
+  void SetInputData(int, vtkDataObject*);
 
   // Description:
   // see vtkAlgorithm for details

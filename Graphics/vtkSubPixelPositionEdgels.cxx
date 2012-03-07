@@ -723,9 +723,9 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
     }
 }
 
-void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
+void vtkSubPixelPositionEdgels::SetGradMapsData(vtkStructuredPoints *gm)
 {
-  this->SetInput(1, gm);
+  this->SetInputData(1, gm);
 }
 
 vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()

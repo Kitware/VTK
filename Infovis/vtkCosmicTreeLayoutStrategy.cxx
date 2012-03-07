@@ -394,7 +394,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
-    bfs->SetInput( this->Graph );
+    bfs->SetInputData( this->Graph );
     bfs->Update();
     tree = vtkTree::New();
     tree->ShallowCopy( bfs->GetOutput() );

@@ -323,7 +323,7 @@ int vtkStringToNumeric::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         vtkDataObject* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }

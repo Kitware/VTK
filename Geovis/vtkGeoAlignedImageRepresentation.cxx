@@ -199,7 +199,7 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
     char fn[512];
     sprintf(fn, "%s/tile_%d_%ld.vti", path, node->GetLevel(), node->GetId());
     writer->SetFileName(fn);
-    writer->SetInput(storedImage);
+    writer->SetInputData(storedImage);
     writer->Write();
 
     // Recurse over children.

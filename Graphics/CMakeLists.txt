@@ -242,6 +242,7 @@ vtkSphereSource.cxx
 vtkSplineFilter.cxx
 vtkSplitField.cxx
 vtkStreamer.cxx
+vtkStreamerBase.cxx
 vtkStreamingTessellator.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
@@ -306,6 +307,7 @@ vtkGeodesicPath
 vtkGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
+vtkStreamerBase
 ABSTRACT
 )
 

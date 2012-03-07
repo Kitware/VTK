@@ -23,7 +23,6 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET ( Kit_SRCS
-vtkBranchExtentTranslator.cxx
 vtkCachingInterpolatedVelocityField.cxx
 vtkClientServerSynchronizedRenderers.cxx
 vtkCollectGraph.cxx
@@ -64,7 +63,6 @@ vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPMaskPoints.cxx
 vtkPNrrdReader.cxx
-vtkPOPReader.cxx
 vtkPOpenFOAMReader.cxx
 vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx

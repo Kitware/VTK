@@ -769,12 +769,6 @@ void vtkKdTree::BuildLocator()
     return;
     }
 
-  // Make sure input is up to date.
-  for (i = 0; i < this->GetNumberOfDataSets(); i++)
-    {
-    this->GetDataSet(i)->Update();
-    }
-
   nCells = this->GetNumberOfCells();
 
   if (nCells == 0)
@@ -805,7 +799,6 @@ void vtkKdTree::BuildLocator()
   for (vtkDataSet *iset = this->DataSets->GetNextDataSet(cookie);
        iset != NULL; iset = this->DataSets->GetNextDataSet(cookie))
     {
-    iset->Update();
     if (first)
       {
       iset->GetBounds(volBounds);

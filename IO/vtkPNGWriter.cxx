@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkPNGWriter.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtk_png.h"
 
@@ -68,10 +70,11 @@ void vtkPNGWriter::Write()
             (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
 
   // Fill in image information.
-  this->GetInput()->UpdateInformation();
+  this->GetInputExecutive(0, 0)->UpdateInformation();
   int *wExtent;
-  wExtent = this->GetInput()->GetWholeExtent();
-  this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  wExtent = vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation(0, 0));
+  this->FileNumber = wExtent[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
@@ -80,10 +83,11 @@ void vtkPNGWriter::Write()
        ++this->FileNumber)
     {
     this->MaximumFileNumber = this->FileNumber;
-    this->GetInput()->SetUpdateExtent(wExtent[0], wExtent[1],
-                                      wExtent[2], wExtent[3],
-                                      this->FileNumber,
-                                      this->FileNumber);
+    int uExt[6];
+    memcpy(uExt, wExtent, 4*sizeof(int));
+    uExt[4] = uExt[5] = this->FileNumber;
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(0, 0), uExt);
     // determine the name
     if (this->FileName)
       {
@@ -101,8 +105,10 @@ void vtkPNGWriter::Write()
         sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
         }
       }
-    this->GetInput()->UpdateData();
-    this->WriteSlice(this->GetInput());
+    vtkDemandDrivenPipeline::SafeDownCast(
+      this->GetInputExecutive(0, 0))->UpdateData(
+        this->GetInputConnection(0, 0)->GetIndex());
+    this->WriteSlice(this->GetInput(), uExt);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {
       this->DeleteFiles();
@@ -179,7 +185,7 @@ extern "C"
 #if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #pragma warning ( disable : 4611 )
 #endif
-void vtkPNGWriter::WriteSlice(vtkImageData *data)
+void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
 {
   // Call the correct templated function for the output
   unsigned int ui;
@@ -246,7 +252,6 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     }
 
 
-  int *uExtent = data->GetUpdateExtent();
   void *outPtr;
   outPtr = data->GetScalarPointer(uExtent[0], uExtent[2], uExtent[4]);
   png_uint_32 width, height;

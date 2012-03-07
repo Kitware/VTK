@@ -74,12 +74,6 @@ vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
-void vtkAbstractVolumeMapper::SetInput( vtkDataSet *vtkNotUsed(input) )
-{
-  vtkErrorMacro("Cannot set the input on the abstract volume mapper"
-                " - must be set on a subclass" );
-}
-
 //----------------------------------------------------------------------------
 int vtkAbstractVolumeMapper::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)

@@ -138,7 +138,7 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     }
 
   VTK_CREATE (vtkDataSetMapper, mapper);
-  mapper->SetInput (ds);
+  mapper->SetInputData (ds);
 
   VTK_CREATE (vtkActor, actor);
   actor->SetMapper (mapper);

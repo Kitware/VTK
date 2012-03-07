@@ -24,7 +24,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 
 //----------------------------------------------------------------------------
@@ -248,7 +247,7 @@ int vtkThreadedImageAlgorithm::RequestData(
 
         // unlike geometry filters, for image filters data is pre-allocated
         // in the superclass (which means, in this class)
-        this->AllocateOutputData(outData, updateExtent);
+        this->AllocateOutputData(outData, info, updateExtent);
         }
       }
     }

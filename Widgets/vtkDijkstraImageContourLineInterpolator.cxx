@@ -56,7 +56,7 @@ void vtkDijkstraImageContourLineInterpolator::SetCostImage( vtkImageData *arg )
   this->CostImage = arg;
   if ( this->CostImage )
     {
-    this->DijkstraImageGeodesicPath->SetInput( this->CostImage );
+    this->DijkstraImageGeodesicPath->SetInputData( this->CostImage );
     }
 }
 
@@ -82,7 +82,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
       {
       return 1;
       }
-    this->DijkstraImageGeodesicPath->SetInput( this->CostImage );
+    this->DijkstraImageGeodesicPath->SetInputData( this->CostImage );
     }
 
   double p1[3], p2[3];

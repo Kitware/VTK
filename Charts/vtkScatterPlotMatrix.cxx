@@ -405,9 +405,9 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
                                                 a->GetMaximum());
           }
         }
-      plot->SetInput(this->Input.GetPointer(),
-                     this->VisibleColumns->GetValue(pos.X()),
-                     this->VisibleColumns->GetValue(this->Size.X() -
+      plot->SetInputData(this->Input.GetPointer(),
+                         this->VisibleColumns->GetValue(pos.X()),
+                         this->VisibleColumns->GetValue(this->Size.X() -
                                                     pos.Y() - 1));
       plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
                    ->PlotPen.GetPointer());
@@ -937,9 +937,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
         chart->SetActionToButton(vtkChart::ZOOM, -1);
         chart->SetActionToButton(vtkChart::SELECT, -1);
         vtkPlot *plot = chart->AddPlot(vtkChart::POINTS);
-        plot->SetInput(this->Input.GetPointer(),
-                       this->VisibleColumns->GetValue(i),
-                       this->VisibleColumns->GetValue(n - j - 1));
+        plot->SetInputData(this->Input.GetPointer(),
+                           this->VisibleColumns->GetValue(i),
+                           this->VisibleColumns->GetValue(n - j - 1));
         plot->SetPen(this->Private->ChartSettings[SCATTERPLOT]
                      ->PlotPen.GetPointer());
 
@@ -961,8 +961,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
                        ->PlotBrush.GetPointer());
         vtkStdString name(this->VisibleColumns->GetValue(i));
-        plot->SetInput(this->Private->Histogram.GetPointer(),
-                       name + "_extents", name + "_pops");
+        plot->SetInputData(this->Private->Histogram.GetPointer(),
+                           name + "_extents", name + "_pops");
         vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         if (i != n - 1)

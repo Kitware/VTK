@@ -124,7 +124,7 @@ vtkPBGLShortestPaths::~vtkPBGLShortestPaths()
 
 void vtkPBGLShortestPaths::SetOriginSelection(vtkSelection* s)
 {
-  this->SetOriginSelectionConnection(s->GetProducerPort());
+  this->SetInputData(s);
 }
 
 // Description:

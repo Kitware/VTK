@@ -1135,10 +1135,10 @@ int vtkTemporalStreamTracer::RequestData(
     this->ParticleWriter->SetFileName(this->ParticleFileName);
     this->ParticleWriter->SetTimeStep(this->ActualTimeStep);
     this->ParticleWriter->SetTimeValue(this->CurrentTimeSteps[1]);
-    this->ParticleWriter->SetInput(polys);
+    this->ParticleWriter->SetInputData(polys);
     this->ParticleWriter->Write();
     this->ParticleWriter->CloseFile();
-    this->ParticleWriter->SetInput(NULL);
+    this->ParticleWriter->SetInputData(NULL);
 #ifdef VTK_USE_MPI
     this->Controller->Barrier();
 #endif

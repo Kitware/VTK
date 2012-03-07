@@ -140,7 +140,7 @@ int vtkImageStencilToImage::RequestData(
                updateExtent);
   vtkImageData *outData = static_cast<vtkImageData *>(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->AllocateOutputData(outData, updateExtent);
+  this->AllocateOutputData(outData, outInfo, updateExtent);
   void *outPtr = outData->GetScalarPointerForExtent(updateExtent);
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);

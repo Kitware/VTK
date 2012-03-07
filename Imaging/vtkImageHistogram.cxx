@@ -123,9 +123,15 @@ vtkIdTypeArray *vtkImageHistogram::GetHistogram()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageHistogram::SetStencil(vtkImageStencilData *stencil)
+void vtkImageHistogram::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil);
+  this->SetInputData(1, stencil);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageHistogram::SetStencilConnection(vtkAlgorithmOutput* algOutput)
+{
+  this->SetInputConnection(1, algOutput);
 }
 
 //----------------------------------------------------------------------------
@@ -674,7 +680,7 @@ int vtkImageHistogram::RequestData(
         int updateExtent[6];
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                      updateExtent);
-        this->AllocateOutputData(outData, updateExtent);
+        this->AllocateOutputData(outData, outInfo, updateExtent);
         }
       }
     }

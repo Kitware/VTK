@@ -60,9 +60,10 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->Box = vtkImageData::New();
   this->Box->SetDimensions(2,2,2);
   this->Outline = vtkOutlineFilter::New();
-  this->Outline->SetInput(this->Box);
+  this->Outline->SetInputData(this->Box);
   this->OutlineMapper = vtkPolyDataMapper::New();
-  this->OutlineMapper->SetInput(this->Outline->GetOutput());
+  this->OutlineMapper->SetInputConnection(
+    this->Outline->GetOutputPort());
   this->OutlineActor = vtkActor::New();
   this->OutlineActor->SetMapper(this->OutlineMapper);
   this->OutlineTranslation = 1;
@@ -70,21 +71,25 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->OutsideBounds = 1;
 
   this->Cutter = vtkCutter::New();
-  this->Cutter->SetInput(this->Box);
+  this->Cutter->SetInputData(this->Box);
   this->Cutter->SetCutFunction(this->Plane);
   this->CutMapper = vtkPolyDataMapper::New();
-  this->CutMapper->SetInput(this->Cutter->GetOutput());
+  this->CutMapper->SetInputConnection(
+    this->Cutter->GetOutputPort());
   this->CutActor = vtkActor::New();
   this->CutActor->SetMapper(this->CutMapper);
   this->DrawPlane = 1;
 
   this->Edges = vtkFeatureEdges::New();
-  this->Edges->SetInput(this->Cutter->GetOutput());
+  this->Edges->SetInputConnection(
+    this->Cutter->GetOutputPort());
   this->EdgesTuber = vtkTubeFilter::New();
-  this->EdgesTuber->SetInput(this->Edges->GetOutput());
+  this->EdgesTuber->SetInputConnection(
+    this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
   this->EdgesMapper = vtkPolyDataMapper::New();
-  this->EdgesMapper->SetInput(this->EdgesTuber->GetOutput());
+  this->EdgesMapper->SetInputConnection(
+    this->EdgesTuber->GetOutputPort());
   this->EdgesActor = vtkActor::New();
   this->EdgesActor->SetMapper(this->EdgesMapper);
   this->Tubing = 1; //control whether tubing is on
@@ -93,7 +98,8 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineMapper = vtkPolyDataMapper::New();
-  this->LineMapper->SetInput(this->LineSource->GetOutput());
+  this->LineMapper->SetInputConnection(
+    this->LineSource->GetOutputPort());
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
@@ -101,7 +107,8 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->ConeSource->SetResolution(12);
   this->ConeSource->SetAngle(25.0);
   this->ConeMapper = vtkPolyDataMapper::New();
-  this->ConeMapper->SetInput(this->ConeSource->GetOutput());
+  this->ConeMapper->SetInputConnection(
+    this->ConeSource->GetOutputPort());
   this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
 
@@ -109,7 +116,8 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->LineSource2 = vtkLineSource::New();
   this->LineSource2->SetResolution(1);
   this->LineMapper2 = vtkPolyDataMapper::New();
-  this->LineMapper2->SetInput(this->LineSource2->GetOutput());
+  this->LineMapper2->SetInputConnection(
+    this->LineSource2->GetOutputPort());
   this->LineActor2 = vtkActor::New();
   this->LineActor2->SetMapper(this->LineMapper2);
 
@@ -117,7 +125,8 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->ConeSource2->SetResolution(12);
   this->ConeSource2->SetAngle(25.0);
   this->ConeMapper2 = vtkPolyDataMapper::New();
-  this->ConeMapper2->SetInput(this->ConeSource2->GetOutput());
+  this->ConeMapper2->SetInputConnection(
+    this->ConeSource2->GetOutputPort());
   this->ConeActor2 = vtkActor::New();
   this->ConeActor2->SetMapper(this->ConeMapper2);
 
@@ -126,7 +135,8 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->Sphere->SetThetaResolution(16);
   this->Sphere->SetPhiResolution(8);
   this->SphereMapper = vtkPolyDataMapper::New();
-  this->SphereMapper->SetInput(this->Sphere->GetOutput());
+  this->SphereMapper->SetInputConnection(
+    this->Sphere->GetOutputPort());
   this->SphereActor = vtkActor::New();
   this->SphereActor->SetMapper(this->SphereMapper);
   this->OriginTranslation = 1;
@@ -1277,11 +1287,13 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   // Control the look of the edges
   if ( this->Tubing )
     {
-    this->EdgesMapper->SetInput(this->EdgesTuber->GetOutput());
+    this->EdgesMapper->SetInputConnection(
+      this->EdgesTuber->GetOutputPort());
     }
   else
     {
-    this->EdgesMapper->SetInput(this->Edges->GetOutput());
+    this->EdgesMapper->SetInputConnection(
+      this->Edges->GetOutputPort());
     }
 }
 

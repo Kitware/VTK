@@ -1295,12 +1295,6 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
     return 0;
     }
 
-  if (data->GetNumberOfScalarComponents() > 4)
-    {
-    vtkErrorMacro("The image data must have a maximum of four components");
-    return 0;
-    }
-
   // Prepare the ImageData to receive the text
   int x = 0;
   int y = 0;
@@ -1790,8 +1784,6 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   // If the RGBA image data is too small, resize it to the next power of 2
   // WARNING: at this point, since this image is going to be a texture
   // we should limit its size or query the hardware
-  data->SetScalarTypeToUnsignedChar();
-  data->SetNumberOfScalarComponents(4);
   data->SetSpacing(1.0, 1.0, 1.0);
 
   // If the current image data is too small to render the text,
@@ -1799,7 +1791,9 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
   int img_dims[3], new_img_dims[3];
   data->GetDimensions(img_dims);
 
-  if (img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      data->GetNumberOfScalarComponents() != 4 ||
+      img_dims[0] < text_size[0] || img_dims[1] < text_size[1] ||
       text_size[0] * 2 < img_dims[0] || text_size[1] * 2 < img_dims[0])
     {
     new_img_dims[0] = 1 << static_cast<int>(ceil(log(static_cast<double>(text_size[0])) / log(2.0)));
@@ -1820,10 +1814,7 @@ void vtkFreeTypeUtilities::PrepareImageData(vtkImageData *data,
         new_img_dims[2] != img_dims[2])
       {
       data->SetDimensions(new_img_dims);
-      data->AllocateScalars();
-      data->UpdateInformation();
-      data->SetUpdateExtent(data->GetWholeExtent());
-      data->PropagateUpdateExtent();
+      data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
       }
     }
 

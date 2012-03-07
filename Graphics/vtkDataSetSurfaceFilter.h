@@ -127,7 +127,9 @@ public:
     return this->StructuredExecute(input, output, ext, wholeExt);
     }
 #endif
-  virtual int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
+  virtual int UnstructuredGridExecute(vtkDataSet *input,
+                                      vtkPolyData *output,
+                                      int updateghostlevel);
   virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
 
 protected:

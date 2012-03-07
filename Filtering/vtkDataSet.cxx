@@ -24,7 +24,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
-#include "vtkSource.h"
 
 #include <math.h>
 
@@ -452,28 +451,17 @@ int vtkDataSet::CheckAttributes()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GenerateGhostLevelArray()
+void vtkDataSet::GenerateGhostLevelArray(int update_piece,
+                                         int update_num_pieces,
+                                         int vtkNotUsed(update_ghost_level),
+                                         int* whole_extent,
+                                         vtkExtentTranslator* translator)
 {
   // Make sure this is a structured data set.
   if(this->GetExtentType() != VTK_3D_EXTENT)
     {
     return;
     }
-
-  if (this->GetUpdateNumberOfPieces() == 1)
-    {
-    // Either the piece has not been used to set the update extent,
-    // or the whole image was requested.
-    return;
-    }
-
-  // Only generate ghost call levels if zero levels are requested.
-  // (Although we still need ghost points.)
-  if (this->GetUpdateGhostLevel() == 0)
-    {
-    return;
-    }
-    
 
   // Avoid generating these if the producer has generated them.
   if(!this->PointData->GetArray("vtkGhostLevels"))
@@ -483,11 +471,10 @@ void vtkDataSet::GenerateGhostLevelArray()
     int i, j, k, di, dj, dk, dist;
 
     this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
-    vtkExtentTranslator* translator = this->GetExtentTranslator();
     // Get the extent with ghost level 0.
-    translator->SetWholeExtent(this->GetWholeExtent());
-    translator->SetPiece(this->GetUpdatePiece());
-    translator->SetNumberOfPieces(this->GetUpdateNumberOfPieces());
+    translator->SetWholeExtent(whole_extent);
+    translator->SetPiece(update_piece);
+    translator->SetNumberOfPieces(update_num_pieces);
     translator->SetGhostLevel(0);
     translator->PieceToExtent();
     translator->GetExtent(zeroExt);
@@ -499,8 +486,6 @@ void vtkDataSet::GenerateGhostLevelArray()
                      (extent[3]-extent[2] + 1) *
                      (extent[5]-extent[4] + 1));
     
-    int wholeExtent[6] = {0,-1,0,-1,0,-1};
-    this->GetWholeExtent(wholeExtent);
     // Loop through the points in this image.
     for (k = extent[4]; k <= extent[5]; ++k)
       { 
@@ -509,7 +494,7 @@ void vtkDataSet::GenerateGhostLevelArray()
         {
         dk = zeroExt[4] - k;
         }
-      if (k >= zeroExt[5] && k < wholeExtent[5])
+      if (k >= zeroExt[5] && k < whole_extent[5])
         { // Special case for last tile.
         dk = k - zeroExt[5] + 1;
         }
@@ -520,7 +505,7 @@ void vtkDataSet::GenerateGhostLevelArray()
           {
           dj = zeroExt[2] - j;
           }
-        if (j >= zeroExt[3] && j < wholeExtent[3])
+        if (j >= zeroExt[3] && j < whole_extent[3])
           { // Special case for last tile.
           dj = j - zeroExt[3] + 1;
           }
@@ -531,7 +516,7 @@ void vtkDataSet::GenerateGhostLevelArray()
             {
             di = zeroExt[0] - i;
             }
-          if (i >= zeroExt[1] && i < wholeExtent[1])
+          if (i >= zeroExt[1] && i < whole_extent[1])
             { // Special case for last tile.
             di = i - zeroExt[1] + 1;
             }

@@ -92,7 +92,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   activeNormals->Delete();
   
   this->Glypher = vtkGlyph2D::New();
-  this->Glypher->SetInput(this->FocalData);
+  this->Glypher->SetInputData(this->FocalData);
   this->Glypher->SetVectorModeToUseNormal();
   this->Glypher->OrientOn();
   this->Glypher->ScalingOn();
@@ -100,7 +100,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->Glypher->SetScaleFactor(1.0);
 
   this->ActiveGlypher = vtkGlyph2D::New();
-  this->ActiveGlypher->SetInput(this->ActiveFocalData);
+  this->ActiveGlypher->SetInputData(this->ActiveFocalData);
   this->ActiveGlypher->SetVectorModeToUseNormal();
   this->ActiveGlypher->OrientOn();
   this->ActiveGlypher->ScalingOn();
@@ -126,13 +126,13 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   vtkCleanPolyData* clean = vtkCleanPolyData::New();
   clean->PointMergingOn();
   clean->CreateDefaultLocator();
-  clean->SetInputConnection(0,cylinder->GetOutputPort(0));
+  clean->SetInputConnection(cylinder->GetOutputPort());
 
   vtkTransform *t = vtkTransform::New();
   t->RotateZ(90.0);
 
   vtkTransformPolyDataFilter *tpd = vtkTransformPolyDataFilter::New();
-  tpd->SetInputConnection( 0, clean->GetOutputPort(0) );
+  tpd->SetInputConnection(clean->GetOutputPort());
   tpd->SetTransform( t );
   clean->Delete();
   cylinder->Delete();
@@ -142,17 +142,17 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   tpd->Delete();
   t->Delete();
   
-  this->Glypher->SetSource(this->CursorShape);
-  this->ActiveGlypher->SetSource(this->ActiveCursorShape);
+  this->Glypher->SetSourceData(this->CursorShape);
+  this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
 
   this->Mapper = vtkPolyDataMapper2D::New();
-  this->Mapper->SetInput(this->Glypher->GetOutput());
+  this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
   //this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
   //this->Mapper->ImmediateModeRenderingOn();
 
   this->ActiveMapper = vtkPolyDataMapper2D::New();
-  this->ActiveMapper->SetInput(this->ActiveGlypher->GetOutput());
+  this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   //this->ActiveMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->ActiveMapper->ScalarVisibilityOff();
   //this->ActiveMapper->ImmediateModeRenderingOn();
@@ -170,7 +170,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
 
   this->Lines = vtkPolyData::New();
   this->LinesMapper = vtkPolyDataMapper2D::New();
-  this->LinesMapper->SetInput( this->Lines );
+  this->LinesMapper->SetInputData(this->Lines);
   
   this->LinesActor = vtkActor2D::New();
   this->LinesActor->SetMapper( this->LinesMapper );
@@ -231,7 +231,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::SetCursorShape(vtkPolyData
       }
     if ( this->CursorShape )
       {
-      this->Glypher->SetSource(this->CursorShape);
+      this->Glypher->SetSourceData(this->CursorShape);
       }
     this->Modified();
     }
@@ -259,7 +259,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::SetActiveCursorShape(vtkPo
       }
     if ( this->ActiveCursorShape )
       {
-      this->ActiveGlypher->SetSource(this->ActiveCursorShape);
+      this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
       }
     this->Modified();
     }

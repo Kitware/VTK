@@ -55,7 +55,7 @@ int TestCenterOfMass(int, char*[])
   // Compute the center of mass
   vtkSmartPointer<vtkCenterOfMass> centerOfMassFilter =
     vtkSmartPointer<vtkCenterOfMass>::New();
-  centerOfMassFilter->SetInputConnection(polydata->GetProducerPort());
+  centerOfMassFilter->SetInputData(polydata);
 
   // Test unweighted
   {

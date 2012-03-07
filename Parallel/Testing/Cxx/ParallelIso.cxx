@@ -189,7 +189,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
         controller->Receive(pd, i, ISO_OUTPUT_TAG);
         if (j == ISO_NUM - 1)
           {
-          app->AddInput(pd);
+          app->AddInputData(pd);
           }
         pd->Delete();
         }
@@ -203,7 +203,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
     vtkPolyData* outputCopy = vtkPolyData::New();
     outputCopy->ShallowCopy(elev->GetOutput());
-    app->AddInput(outputCopy);
+    app->AddInputData(outputCopy);
     outputCopy->Delete();
     app->Update();
     renWindow->Render();

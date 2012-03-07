@@ -661,18 +661,18 @@ vtkUnstructuredGrid aPyraGrid
 
 # Append the quadratic cells together
 vtkAppendFilter appendF
-  appendF AddInput BQuadGrid
-  appendF AddInput QLQuadGrid
-  appendF AddInput QLWedgeGrid
-  appendF AddInput aTriGrid
-  appendF AddInput aQuadGrid
-  appendF AddInput aTetGrid
-  appendF AddInput aHexGrid
-  appendF AddInput TQHexGrid
-  appendF AddInput BQHexGrid
-  appendF AddInput aWedgeGrid
-  appendF AddInput aPyraGrid
-  appendF AddInput BQWedgeGrid
+  appendF AddInputData BQuadGrid
+  appendF AddInputData QLQuadGrid
+  appendF AddInputData QLWedgeGrid
+  appendF AddInputData aTriGrid
+  appendF AddInputData aQuadGrid
+  appendF AddInputData aTetGrid
+  appendF AddInputData aHexGrid
+  appendF AddInputData TQHexGrid
+  appendF AddInputData BQHexGrid
+  appendF AddInputData aWedgeGrid
+  appendF AddInputData aPyraGrid
+  appendF AddInputData BQWedgeGrid
 
 # Extract the edges
 vtkExtractEdges extract

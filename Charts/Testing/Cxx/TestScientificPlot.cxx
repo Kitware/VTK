@@ -63,13 +63,13 @@ int TestScientificPlot(int, char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
   line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table, 0, 3);
+  line->SetInputData(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
 
   // Set up a scientific plot...

@@ -94,12 +94,11 @@ public:
   virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
 
   // Description:
-  // Set an Input of this filter.  This method is only for support of
-  // old-style pipeline connections.  When writing new code you should
-  // use SetInputConnection(), AddInputConnection(), and
-  // ReplaceNthInputConnection() instead.
-  void SetInput(int num, vtkDataObject *input);
-  void SetInput(vtkDataObject *input) { this->SetInput(0, input); };
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(int num, vtkDataObject *input);
+  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); };
 
   // Description:
   // Get one input to this filter. This method is only for support of
@@ -122,7 +121,12 @@ public:
 
   // Description:
   // Set a stencil to apply when blending the data.
-  void SetStencil(vtkImageStencilData *stencil);
+  // Create a pipeline connection.
+  void SetStencilConnection(vtkAlgorithmOutput *algOutput);
+
+  // Description:
+  // Set a stencil to apply when blending the data.
+  void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 
   // Description:

@@ -26,7 +26,7 @@ vtkUnstructuredGrid aEdgeGrid
   aEdgeGrid SetPoints edgePoints
   [aEdgeGrid GetPointData] SetScalars edgeScalars
 vtkDataSetMapper aEdgeMapper
-  aEdgeMapper SetInput aEdgeGrid
+  aEdgeMapper SetInputData aEdgeGrid
   aEdgeMapper ScalarVisibilityOff
 vtkActor aEdgeActor
   aEdgeActor SetMapper aEdgeMapper
@@ -63,7 +63,7 @@ vtkUnstructuredGrid aTriGrid
   aTriGrid SetPoints triPoints
   [aTriGrid GetPointData] SetScalars triScalars
 vtkDataSetMapper aTriMapper
-  aTriMapper SetInput aTriGrid
+  aTriMapper SetInputData aTriGrid
   aTriMapper ScalarVisibilityOff
 vtkActor aTriActor
   aTriActor SetMapper aTriMapper
@@ -106,7 +106,7 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid SetPoints quadPoints
   [aQuadGrid GetPointData] SetScalars quadScalars
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
   aQuadMapper ScalarVisibilityOff
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
@@ -155,7 +155,7 @@ vtkUnstructuredGrid aTetGrid
   aTetGrid SetPoints tetPoints
   [aTetGrid GetPointData] SetScalars tetScalars
 vtkDataSetMapper aTetMapper
-  aTetMapper SetInput aTetGrid
+  aTetMapper SetInputData aTetGrid
   aTetMapper ScalarVisibilityOff
 vtkActor aTetActor
   aTetActor SetMapper aTetMapper
@@ -234,7 +234,7 @@ vtkUnstructuredGrid aHexGrid
   aHexGrid SetPoints hexPoints
   [aHexGrid GetPointData] SetScalars hexScalars
 vtkDataSetMapper aHexMapper
-  aHexMapper SetInput aHexGrid
+  aHexMapper SetInputData aHexGrid
   aHexMapper ScalarVisibilityOff
 vtkActor aHexActor
   aHexActor SetMapper aHexMapper
@@ -298,13 +298,13 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid SetPoints wedgePoints
   [aWedgeGrid GetPointData] SetScalars wedgeScalars
 vtkClipDataSet wedgeContours
-  wedgeContours SetInput aWedgeGrid
+  wedgeContours SetInputData aWedgeGrid
   wedgeContours SetValue 0.5
 vtkDataSetMapper aWedgeContourMapper
   aWedgeContourMapper SetInputConnection [wedgeContours GetOutputPort]
   aWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
@@ -365,13 +365,13 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid SetPoints pyraPoints
   [aPyramidGrid GetPointData] SetScalars pyraScalars
 vtkClipDataSet pyraContours
-  pyraContours SetInput aPyramidGrid
+  pyraContours SetInputData aPyramidGrid
   pyraContours SetValue 0.5
 vtkDataSetMapper aPyramidContourMapper
   aPyramidContourMapper SetInputConnection [pyraContours GetOutputPort]
   aPyramidContourMapper ScalarVisibilityOff
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
   aPyramidMapper ScalarVisibilityOff
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper

@@ -11,15 +11,16 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
 
 vtkSplitField sf
-    sf SetInputConnection [pl3d GetOutputPort]
+    sf SetInputData $output
     sf SetInputField "VECTORS" "POINT_DATA"
     sf Split 0 "vx"
     sf Split 1 "vy"
@@ -112,7 +113,7 @@ vtkActor slActor
     slActor SetMapper slMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -148,5 +149,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

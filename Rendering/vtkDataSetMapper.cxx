@@ -47,17 +47,9 @@ vtkDataSetMapper::~vtkDataSetMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSetMapper::SetInput(vtkDataSet *input)
+void vtkDataSetMapper::SetInputData(vtkDataSet *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +94,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     vtkDataSetSurfaceFilter *gf = vtkDataSetSurfaceFilter::New();
     vtkPolyDataMapper *pm = vtkPolyDataMapper::New();
-    pm->SetInput(gf->GetOutput());
+    pm->SetInputConnection(gf->GetOutputPort());
 
     this->GeometryExtractor = gf;
     this->PolyDataMapper = pm;
@@ -120,12 +112,14 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   //
   if ( this->GetInput()->GetDataObjectType() == VTK_POLY_DATA )
     {
-    this->PolyDataMapper->SetInput(static_cast<vtkPolyData*>(this->GetInput()));
+    this->PolyDataMapper->SetInputConnection(
+      this->GetInputConnection(0, 0));
     }
   else
     {
-    this->GeometryExtractor->SetInput(this->GetInput());
-    this->PolyDataMapper->SetInput(this->GeometryExtractor->GetOutput());
+    this->GeometryExtractor->SetInputData(this->GetInput());
+    this->PolyDataMapper->SetInputConnection(
+      this->GeometryExtractor->GetOutputPort());
     }
   
   // update ourselves in case something has changed

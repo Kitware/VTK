@@ -419,13 +419,14 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   if (cd)
     {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInput(cd);
+    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     ds = gf->GetOutput();
     gf->Delete();
     }
   else
     {
+    anActor->GetMapper()->Update();
     ds = anActor->GetMapper()->GetInput();
     }
 
@@ -438,7 +439,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
     vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
-    gf->SetInput(ds);
+    gf->SetInputData(ds);
     gf->Update();
     pd = gf->GetOutput();
     }
@@ -451,7 +452,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
 
-  mapper->SetInput(pd);
+  mapper->SetInputData(pd);
   mapper->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   mapper->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   mapper->SetLookupTable(anActor->GetMapper()->GetLookupTable());
@@ -794,7 +795,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
     vtkErrorMacro(<< "texture has no input!\n");
     return;
     }
-  aTexture->GetInput()->Update();
+  aTexture->Update();
   size = aTexture->GetInput()->GetDimensions();
   scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 

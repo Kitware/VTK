@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataStreamer - Stream appends input pieces to the output.
+// .NAME vtkPolyDataStreamer - Streamer appends input pieces to the output.
 // .SECTION Description
 // vtkPolyDataStreamer initiates streaming by requesting pieces from its 
-// single input it appends these pieces it to the requested output.
+// single input it appends these pieces to the requested output.
 // Note that since vtkPolyDataStreamer uses an append filter, all the
 // polygons generated have to be kept in memory before rendering. If
 // these do not fit in the memory, it is possible to make the vtkPolyDataMapper
@@ -30,21 +30,26 @@
 #ifndef __vtkPolyDataStreamer_h
 #define __vtkPolyDataStreamer_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkStreamerBase.h"
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkPolyDataAlgorithm
+class vtkAppendPolyData;
+
+class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkStreamerBase
 {
 public:
   static vtkPolyDataStreamer *New();
 
-  vtkTypeMacro(vtkPolyDataStreamer,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataStreamer,vtkStreamerBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set the number of pieces to divide the problem into.
   void SetNumberOfStreamDivisions(int num);
-  vtkGetMacro(NumberOfStreamDivisions,int);
-  
+  int GetNumberOfStreamDivisions()
+  {
+    return this->NumberOfPasses;
+  }
+
   // Description:
   // By default, this option is off.  When it is on, cell scalars are generated
   // based on which piece they are in.
@@ -56,16 +61,25 @@ public:
 protected:
   vtkPolyDataStreamer();
   ~vtkPolyDataStreamer();
-  
-  // Append the pieces.
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  // see algorithm for more info
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
-  int NumberOfStreamDivisions;
+
+  virtual int ExecutePass(vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+
+  virtual int PostExecute(vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+
   int ColorByPiece;
 private:
   vtkPolyDataStreamer(const vtkPolyDataStreamer&);  // Not implemented.
   void operator=(const vtkPolyDataStreamer&);  // Not implemented.
+
+  vtkAppendPolyData* Append;
 };
 
 #endif

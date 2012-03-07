@@ -4,10 +4,6 @@ package require vtkinteraction
 #
 # Test butterfly subdivision of point data
 #
-
-
-
-
 vtkSphereSource sphere
     sphere SetPhiResolution 11
     sphere SetThetaResolution 11
@@ -18,7 +14,7 @@ vtkElevationFilter colorIt
   colorIt SetHighPoint 0 0 .5
 
 vtkButterflySubdivisionFilter butterfly
-  butterfly SetInput [colorIt GetPolyDataOutput]
+  butterfly SetInputConnection [colorIt GetOutputPort]
   butterfly SetNumberOfSubdivisions 3
 
 vtkLookupTable lut
@@ -33,7 +29,7 @@ vtkActor actor
   actor SetMapper mapper
 
 vtkLinearSubdivisionFilter linear
-  linear SetInput [colorIt GetPolyDataOutput]
+  linear SetInputConnection [colorIt GetOutputPort]
   linear SetNumberOfSubdivisions 3
 
 vtkPolyDataMapper mapper2

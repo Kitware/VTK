@@ -103,7 +103,7 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
     VTK_CREATE(vtkTreeLevelsFilter, levelFilter);
     VTK_CREATE(vtkTree, newTree);
     newTree->ShallowCopy( inputTree );
-    levelFilter->SetInput( newTree );
+    levelFilter->SetInputData( newTree );
     levelFilter->Update();
     vtkTree* levelTree = levelFilter->GetOutput();
 
@@ -226,7 +226,7 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
   VTK_CREATE(vtkTreeLevelsFilter, levelFilter);
   VTK_CREATE(vtkTree, newTree);
   newTree->ShallowCopy( inputTree );
-  levelFilter->SetInput( newTree );
+  levelFilter->SetInputData( newTree );
   levelFilter->Update();
   vtkTree* levelTree = levelFilter->GetOutput();
   outputTree->ShallowCopy( levelTree );

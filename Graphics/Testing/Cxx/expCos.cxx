@@ -89,7 +89,7 @@ int expCos( int argc, char *argv[] )
   
   // warp plane
   vtkWarpScalar *warp = vtkWarpScalar::New();
-  warp->SetInput(bessel);
+  warp->SetInputData(bessel);
   warp->XYPlaneOn();
   warp->SetScaleFactor(0.5);
   

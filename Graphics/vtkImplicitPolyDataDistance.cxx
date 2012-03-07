@@ -53,7 +53,7 @@ void vtkImplicitPolyDataDistance::SetInput(vtkPolyData* input)
     triangleFilter->PassVertsOff();
     triangleFilter->PassLinesOff();
 
-    triangleFilter->SetInput( input );
+    triangleFilter->SetInputData( input );
     triangleFilter->Update();
 
     this->Input = triangleFilter->GetOutput();
@@ -83,7 +83,6 @@ unsigned long vtkImplicitPolyDataDistance::GetMTime()
 
   if ( this->Input != NULL )
     {
-    this->Input->Update();
     InputMTime = this->Input->GetMTime();
     mTime = (InputMTime > mTime ? InputMTime : mTime);
     }

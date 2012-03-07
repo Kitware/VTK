@@ -1004,9 +1004,12 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 int vtkVideoSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *data = this->AllocateOutputData(this->GetOutput());
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *data = this->AllocateOutputData(
+    vtkImageData::GetData(outInfo),
+    outInfo);
   int i,j;
 
   int outputExtent[6];     // will later be clipped in Z to a single frame

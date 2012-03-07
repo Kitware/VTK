@@ -143,7 +143,7 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
   strategy->SizeLeafNodesOnlyOn();
   strategy->SetNodeSizeArrayName( "inputRadius" );
   VTK_CREATE(vtkGraphLayout, layout);
-  layout->SetInput( tree );
+  layout->SetInputData( tree );
   layout->SetLayoutStrategy( strategy );
   
   VTK_CREATE(vtkGraphToPolyData, poly);

@@ -60,7 +60,7 @@ int TestAssignCoordinates(int argc, char *argv[])
 
   cerr << "Sending graph through vtkAssignCoordinates ..." << endl;
   VTK_CREATE(vtkAssignCoordinates, assign);
-  assign->SetInput(g);
+  assign->SetInputData(g);
   assign->SetXCoordArrayName("x");
   assign->SetYCoordArrayName("y");
   assign->SetZCoordArrayName("z");

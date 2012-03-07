@@ -172,7 +172,7 @@ protected:
     { return vtkImageReader2::GetHeaderSize(); }*/
 
   void ExecuteInformation();
-  void ExecuteData(vtkDataObject *out);
+  void ExecuteData(vtkDataObject *out, vtkInformation *outInfo);
   virtual int RequestInformation(vtkInformation * request,
                          vtkInformationVector ** inputVector,
                          vtkInformationVector * outputVector);

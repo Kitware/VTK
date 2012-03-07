@@ -16,6 +16,7 @@
 
 #include "vtkFieldData.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredGrid.h"
@@ -210,6 +211,8 @@ int vtkDataObjectToDataSetFilter::RequestInformation(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkExecutive* inputExec =
+    vtkExecutive::PRODUCER()->GetExecutive(inInfo);
 
   switch (this->DataSetType)
     {
@@ -218,7 +221,7 @@ int vtkDataObjectToDataSetFilter::RequestInformation(
 
     case VTK_STRUCTURED_POINTS:
       // We need the array to get the dimensions
-      input->Update();
+      inputExec->Update();
       this->ConstructDimensions(input);
       this->ConstructSpacing(input);
       this->ConstructOrigin(input);
@@ -232,7 +235,7 @@ int vtkDataObjectToDataSetFilter::RequestInformation(
 
     case VTK_STRUCTURED_GRID:
       // We need the array to get the dimensions
-      input->Update();
+      inputExec->Update();
       this->ConstructDimensions(input);
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
@@ -241,7 +244,7 @@ int vtkDataObjectToDataSetFilter::RequestInformation(
 
     case VTK_RECTILINEAR_GRID:
       // We need the array to get the dimensions
-      input->Update();
+      inputExec->Update();
       this->ConstructDimensions(input);
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                    0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
@@ -1515,7 +1518,7 @@ int vtkDataObjectToDataSetFilter::RequestDataObject(
       }
     if (output)
       {
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();
       }
     }

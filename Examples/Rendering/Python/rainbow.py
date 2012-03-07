@@ -14,26 +14,28 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Note: the Update method is manually invoked because it causes the
 # reader to read; later on we use the output of the reader to set
 # a range for the scalar values.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
+
 plane = vtk.vtkStructuredGridGeometryFilter()
-plane.SetInputConnection(pl3d.GetOutputPort())
+plane.SetInputData(pl3d_output)
 plane.SetExtent(1, 100, 1, 100, 7, 7)
 lut = vtk.vtkLookupTable()
 planeMapper = vtk.vtkPolyDataMapper()
 planeMapper.SetLookupTable(lut)
 planeMapper.SetInputConnection(plane.GetOutputPort())
-planeMapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
+planeMapper.SetScalarRange(pl3d_output.GetScalarRange())
 planeActor = vtk.vtkActor()
 planeActor.SetMapper(planeMapper)
 
 # This creates an outline around the data.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

@@ -40,11 +40,11 @@
 
 vtkStandardNewMacro(vtkGenericDataObjectWriter);
 
-template<typename WriterT, typename DataT>
-vtkDataWriter* CreateWriter(vtkDataObject* Data)
+template<typename WriterT>
+vtkDataWriter* CreateWriter(vtkAlgorithmOutput* input)
 {
   WriterT* const writer = WriterT::New();
-  writer->SetInput(static_cast<DataT*>(Data));
+  writer->SetInputConnection(input);
   return writer;
 }
 
@@ -62,8 +62,8 @@ void vtkGenericDataObjectWriter::WriteData()
 
   vtkDataWriter* writer = 0;
 
-  vtkDataObject* const input = this->GetInput();
-  switch(input->GetDataObjectType())
+  vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
+  switch(this->GetInput()->GetDataObjectType())
     {
     case VTK_COMPOSITE_DATA_SET:
       vtkErrorMacro(<< "Cannot write composite data set");
@@ -79,7 +79,7 @@ void vtkGenericDataObjectWriter::WriteData()
       return;
     case VTK_DIRECTED_GRAPH:
     case VTK_UNDIRECTED_GRAPH:
-      writer = CreateWriter<vtkGraphWriter, vtkGraph>(input);
+      writer = CreateWriter<vtkGraphWriter>(input);
       break;
     case VTK_HIERARCHICAL_DATA_SET:
       vtkErrorMacro(<< "Cannot write hierarchical data set");
@@ -88,12 +88,12 @@ void vtkGenericDataObjectWriter::WriteData()
       vtkErrorMacro(<< "Cannot write hyper octree");
       return;
     case VTK_IMAGE_DATA:
-      writer = CreateWriter<vtkStructuredPointsWriter, vtkImageData>(input);
+      writer = CreateWriter<vtkStructuredPointsWriter>(input);
       break;
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
-      writer = CreateWriter<vtkCompositeDataWriter, vtkCompositeDataSet>(input);
+      writer = CreateWriter<vtkCompositeDataWriter>(input);
       break;
     case VTK_MULTIGROUP_DATA_SET:
       vtkErrorMacro(<< "Cannot write multigroup data set");
@@ -105,22 +105,22 @@ void vtkGenericDataObjectWriter::WriteData()
       vtkErrorMacro(<< "Cannot write point set");
       return;
     case VTK_POLY_DATA:
-      writer = CreateWriter<vtkPolyDataWriter, vtkPolyData>(input);
+      writer = CreateWriter<vtkPolyDataWriter>(input);
       break;
     case VTK_RECTILINEAR_GRID:
-      writer = CreateWriter<vtkRectilinearGridWriter, vtkRectilinearGrid>(input);
+      writer = CreateWriter<vtkRectilinearGridWriter>(input);
       break;
     case VTK_STRUCTURED_GRID:
-      writer = CreateWriter<vtkStructuredGridWriter, vtkStructuredGrid>(input);
+      writer = CreateWriter<vtkStructuredGridWriter>(input);
       break;
     case VTK_STRUCTURED_POINTS:
-      writer = CreateWriter<vtkStructuredPointsWriter, vtkStructuredPoints>(input);
+      writer = CreateWriter<vtkStructuredPointsWriter>(input);
       break;
     case VTK_TABLE:
-      writer = CreateWriter<vtkTableWriter, vtkTable>(input);
+      writer = CreateWriter<vtkTableWriter>(input);
       break;
     case VTK_TREE:
-      writer = CreateWriter<vtkTreeWriter, vtkTree>(input);
+      writer = CreateWriter<vtkTreeWriter>(input);
       break;
     case VTK_TEMPORAL_DATA_SET:
       vtkErrorMacro(<< "Cannot write temporal data set");
@@ -129,7 +129,7 @@ void vtkGenericDataObjectWriter::WriteData()
       vtkErrorMacro(<< "Cannot write uniform grid");
       return;
     case VTK_UNSTRUCTURED_GRID:
-      writer = CreateWriter<vtkUnstructuredGridWriter, vtkUnstructuredGrid>(input);
+      writer = CreateWriter<vtkUnstructuredGridWriter>(input);
       break;
     }
 

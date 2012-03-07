@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkLabelHierarchyAlgorithm);
 
@@ -143,7 +142,6 @@ int vtkLabelHierarchyAlgorithm::RequestDataObject(
       output = vtkLabelHierarchy::New();
       outInfo->Set( vtkDataObject::DATA_OBJECT(), output );
       output->FastDelete();
-      output->SetPipelineInformation( outInfo );
       }
     }
   return 1;
@@ -191,37 +189,26 @@ int vtkLabelHierarchyAlgorithm::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkLabelHierarchyAlgorithm::SetInput(vtkDataObject* input)
+void vtkLabelHierarchyAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkLabelHierarchyAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkLabelHierarchyAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkLabelHierarchyAlgorithm::AddInput(vtkDataObject* input)
+void vtkLabelHierarchyAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkLabelHierarchyAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkLabelHierarchyAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 

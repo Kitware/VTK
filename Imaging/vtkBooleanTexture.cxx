@@ -64,11 +64,13 @@ int vtkBooleanTexture::RequestInformation (
   return 1;
 }
 
-void vtkBooleanTexture::ExecuteData(vtkDataObject *outp)
+void vtkBooleanTexture::ExecuteData(vtkDataObject *outp,
+                                    vtkInformation* outInfo)
 {
   int i, j;
   int midILower, midJLower, midIUpper, midJUpper;
-  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkImageData *output = this->AllocateOutputData(
+    outp, outInfo);
   vtkUnsignedCharArray *newScalars = 
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
   

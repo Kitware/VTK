@@ -15,15 +15,16 @@ iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
 pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 eg = vtk.vtkExtractGrid()
-eg.SetInputConnection(pl3d.GetOutputPort())
+eg.SetInputData(pl3d_output)
 eg.SetSampleRate(4,4,4)
 
 gs = vtk.vtkGlyphSource2D()
@@ -34,7 +35,7 @@ gs.CrossOff()
 
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(eg.GetOutputPort())
-glyph.SetSource(gs.GetOutput())
+glyph.SetSourceConnection(gs.GetOutputPort())
 glyph.SetScaleFactor( 0.75 )
 
 mapper = vtk.vtkPolyDataMapper()

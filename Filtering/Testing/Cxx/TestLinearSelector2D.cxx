@@ -101,7 +101,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
                << ".vtk";
     vtkSmartPointer<vtkUnstructuredGridWriter> writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
     writer->SetFileName( fileNameSS.str().c_str() );
-    writer->SetInput( ugrid );
+    writer->SetInputData( ugrid );
     writer->Write();
     cerr << "Wrote file "
          << fileNameSS.str()
@@ -136,7 +136,7 @@ int TestLinearSelector2D( int argc, char * argv [] )
 
   // Create selection along one line segment
   vtkSmartPointer<vtkLinearSelector> ls = vtkSmartPointer<vtkLinearSelector>::New();
-  ls->SetInput( mesh );
+  ls->SetInputData( mesh );
   ls->SetStartPoint( 35.84, .0, .0 );
   ls->SetEndPoint( 36.9, .03, .0 );
   ls->IncludeVerticesOff();
@@ -144,7 +144,7 @@ int TestLinearSelector2D( int argc, char * argv [] )
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es =  vtkSmartPointer<vtkExtractSelection>::New();
-  es->SetInput( 0, mesh );
+  es->SetInputData( 0, mesh );
   es->SetInputConnection( 1, ls->GetOutputPort() );
   es->Update();
 

@@ -120,7 +120,7 @@ vtkImageMapToColors sagittalColors
   sagittalColors SetInputConnection [v16 GetOutputPort]
   sagittalColors SetLookupTable bwLut
 vtkImageActor sagittal
-  sagittal SetInput [sagittalColors GetOutput]
+  [sagittal GetMapper] SetInputConnection [sagittalColors GetOutputPort]
   sagittal SetDisplayExtent 32 32  0 63  0 92
 
 # Create the second (axial) plane of the three planes. We use the same 
@@ -129,7 +129,7 @@ vtkImageMapToColors axialColors
   axialColors SetInputConnection [v16 GetOutputPort]
   axialColors SetLookupTable hueLut
 vtkImageActor axial
-  axial SetInput [axialColors GetOutput]
+  [axial GetMapper] SetInputConnection [axialColors GetOutputPort]
   axial SetDisplayExtent 0 63  0 63  46 46
 
 # Create the third (coronal) plane of the three planes. We use the same 
@@ -138,7 +138,7 @@ vtkImageMapToColors coronalColors
   coronalColors SetInputConnection [v16 GetOutputPort]
   coronalColors SetLookupTable satLut
 vtkImageActor coronal
-  coronal SetInput [coronalColors GetOutput]
+  [coronal GetMapper] SetInputConnection [coronalColors GetOutputPort]
   coronal SetDisplayExtent 0 63  32 32  0 92
 
 # It is convenient to create an initial view of the data. The FocalPoint

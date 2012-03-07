@@ -94,6 +94,7 @@ void vtkContourWidget::CreateDefaultRepresentation()
 
     vtkSphereSource *ss = vtkSphereSource::New();
     ss->SetRadius( 0.5 );
+    ss->Update();
     rep->SetActiveCursorShape( ss->GetOutput() );
     ss->Delete();
 

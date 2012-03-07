@@ -57,7 +57,7 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cone->SetResolution(20);
   vtkGlyph3D *glyph = vtkGlyph3D::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);

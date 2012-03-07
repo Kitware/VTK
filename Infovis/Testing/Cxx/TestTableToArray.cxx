@@ -70,7 +70,7 @@ int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->AddColumn(string_array);
 
     VTK_CREATE(vtkTableToArray, table_to_array);
-    table_to_array->SetInputConnection(0, table->GetProducerPort());
+    table_to_array->SetInputData(0, table);
     table_to_array->AddColumn("C");
     table_to_array->AddColumn(1);
     table_to_array->AddColumn(static_cast<vtkIdType>(0));

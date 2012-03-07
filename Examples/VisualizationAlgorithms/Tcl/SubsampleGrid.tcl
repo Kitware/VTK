@@ -10,12 +10,14 @@ package require vtkinteraction
 
 # Read some structured data.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 
 # Here we subsample the grid. The SetVOI method requires six values
 # specifying (imin,imax, jmin,jmax, kmin,kmax) extents. In this example
@@ -28,7 +30,7 @@ vtkPLOT3DReader pl3d
 # the boundary.
 #
 vtkExtractGrid extract
-    extract SetInputConnection [pl3d GetOutputPort]
+    extract SetInputData $pl3dOutput
     extract SetVOI 30 30 -1000 1000 -1000 1000
     extract SetSampleRate 1 2 3
     extract IncludeBoundaryOn
@@ -39,7 +41,7 @@ vtkActor actor
     actor SetMapper mapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

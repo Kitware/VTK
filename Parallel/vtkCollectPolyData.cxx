@@ -149,13 +149,13 @@ int vtkCollectPolyData::RequestData(
     pd->CopyStructure(input);
     pd->GetPointData()->PassData(input->GetPointData());
     pd->GetCellData()->PassData(input->GetCellData());
-    append->AddInput(pd);
+    append->AddInputData(pd);
     pd->Delete();
     for (idx = 1; idx < numProcs; ++idx)
       {
       pd = vtkPolyData::New();
       this->Controller->Receive(pd, idx, 121767);
-      append->AddInput(pd);
+      append->AddInputData(pd);
       pd->Delete();
       pd = NULL;
       }

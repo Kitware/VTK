@@ -86,8 +86,8 @@ endif()
 
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
-SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 11)
+SET(VTK_MAJOR_VERSION 6)
+SET(VTK_MINOR_VERSION 0)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -586,7 +586,7 @@ ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies except *Implicit.txx files.
   SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
 ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
+INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|Test|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.

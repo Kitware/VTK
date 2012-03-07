@@ -37,13 +37,12 @@ transform RotateX 90
 # triangulate the data using the specified transform
 #
 vtkDelaunay2D del1
-    del1 SetInput profile
+    del1 SetInputData profile
     del1 SetTransform transform
     del1 BoundingTriangulationOff
     del1 SetTolerance 0.001
     del1 SetAlpha 0.0
 
-    
 vtkShrinkPolyData shrink
     shrink SetInputConnection [del1 GetOutputPort]
 

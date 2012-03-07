@@ -44,7 +44,7 @@ int TestBackfaceCulling(int argc, char* argv[])
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkPolyDataMapper> mapper;
   vtkNew<vtkActor> actor;
-  mapper->SetInput(sphere->GetOutput());
+  mapper->SetInputConnection(sphere->GetOutputPort());
   actor->SetMapper(mapper.GetPointer());
   actor->GetProperty()->SetColor(0, 1, 0);
   actor->GetProperty()->SetBackfaceCulling(1);

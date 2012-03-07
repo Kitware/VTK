@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
   // construct pipeline for original population
   vtkSmartPointer<vtkGaussianSplatter> popSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
-  popSplatter->SetInput(dataSet);
+  popSplatter->SetInputData(dataSet);
   popSplatter->SetSampleDimensions(50,50,50);
   popSplatter->SetRadius(0.05);
   popSplatter->ScalarWarpingOff();
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
   // construct pipeline for delinquent population
   vtkSmartPointer<vtkGaussianSplatter> lateSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
-  lateSplatter->SetInput(dataSet);
+  lateSplatter->SetInputData(dataSet);
   lateSplatter->SetSampleDimensions(50,50,50);
   lateSplatter->SetRadius(0.05);
   lateSplatter->SetScaleFactor(0.005);

@@ -65,7 +65,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   vtkDataSet *copy = result->NewInstance();
   copy->DeepCopy(result);
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetInput(copy);
+  mapper->SetInputData(copy);
   double *range = array->GetRange();
   if (CellOrPoint == COLORBYCELL)
     {
@@ -103,7 +103,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
       mapper2->SelectColorArray("Forward Point Ids");
       mapper2->SetScalarRange(10, 73);
       }  
-    mapper2->SetInput(sampleData);
+    mapper2->SetInputData(sampleData);
     vtkActor *actor2 = vtkActor::New();
     actor2->GetProperty()->SetRepresentationToWireframe();
     actor2->SetMapper(mapper2);
@@ -156,8 +156,7 @@ int TestExtraction(int argc, char *argv[])
   sampleData->SetSpacing(1.0,1.0,1.0);
   sampleData->SetOrigin(0.0,0.0,0.0);
   sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
-  sampleData->SetWholeExtent(0,XCELLS+1,0,YCELLS+1,0,ZCELLS+1);
-  sampleData->AllocateScalars();
+  sampleData->AllocateScalars(VTK_DOUBLE, 1);
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
@@ -303,7 +302,7 @@ int TestExtraction(int argc, char *argv[])
   
   //save the test data set
   vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New(); 
-  xwriter->SetInput(sampleData);
+  xwriter->SetInputData(sampleData);
   xwriter->SetFileName("sampleData.vti");
   if (DoWrite)
     {
@@ -316,8 +315,8 @@ int TestExtraction(int argc, char *argv[])
   vtkSelectionNode *sel = vtkSelectionNode::New();
   selection->AddNode(sel);
   vtkExtractSelection *ext = vtkExtractSelection::New();
-  ext->SetInput(0, sampleData);
-  ext->SetInput(1, selection);
+  ext->SetInputData(0, sampleData);
+  ext->SetInputData(1, selection);
   ext->PreserveTopologyOff();
   vtkUnstructuredGridWriter *writer = vtkUnstructuredGridWriter::New();
 
@@ -347,7 +346,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_GID.vtk");
     writer->Write();
     }
@@ -358,7 +357,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_GID_I.vtk");
     writer->Write();
     }
@@ -370,7 +369,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_C_GID_PT.vti");
     xwriter->Write();
     }
@@ -402,7 +401,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_GID.vtk");
     writer->Write();
     }
@@ -413,7 +412,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_GID_I.vtk");
     writer->Write();
     }
@@ -425,7 +424,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_GID_WC.vtk");
     writer->Write();
     }
@@ -437,7 +436,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_GID_PT.vti");
     xwriter->Write();
     }
@@ -455,7 +454,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extGrid);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_GID_WC_PT.vtk");
     xwriter->Write();
     }
@@ -483,7 +482,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Ind.vtk");
     writer->Write();
     }
@@ -494,7 +493,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Ind_I.vtk");
     writer->Write();
     }
@@ -506,7 +505,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_C_Ind_PT.vti");
     xwriter->Write();
     }
@@ -536,7 +535,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Ind_I.vtk");
     writer->Write();
     }
@@ -547,7 +546,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Ind_I.vtk");
     writer->Write();
     }
@@ -559,7 +558,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Ind_WC.vtk");
     writer->Write();
     }
@@ -572,7 +571,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Ind_PT.vti");
     xwriter->Write();
     }
@@ -589,7 +588,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Ind_PT_WC.vti");
     xwriter->Write();
     }
@@ -618,7 +617,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Val.vtk");
     writer->Write();
     }
@@ -629,7 +628,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Val_I.vtk");
     writer->Write();
     }
@@ -641,7 +640,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_C_Val_PT.vti");
     xwriter->Write();
     }
@@ -672,7 +671,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Val.vtk");
     writer->Write();
     }
@@ -683,7 +682,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Val_I.vtk");
     writer->Write();
     }
@@ -695,7 +694,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Val_WC.vtk");
     writer->Write();
     }
@@ -708,7 +707,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Val_PT.vtk");
     xwriter->Write();
     }
@@ -725,7 +724,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Val_PT_WC.vtk");
     xwriter->Write();
     }
@@ -750,7 +749,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Thr.vtk");
     writer->Write();
     }
@@ -761,7 +760,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Thr_I.vtk");
     writer->Write();
     }
@@ -773,7 +772,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_C_Thr_PT.vtk");
     xwriter->Write();
     }
@@ -799,7 +798,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Thr.vtk");
     writer->Write();
     }
@@ -810,7 +809,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Thr_I.vtk");
     writer->Write();
     }
@@ -822,7 +821,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Thr_WC.vtk");
     writer->Write();
     }
@@ -834,7 +833,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Thr_PT.vtk");
     xwriter->Write();
     }
@@ -851,7 +850,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Thr_PT_WC.vtk");
     xwriter->Write();
     }
@@ -879,7 +878,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Loc.vtk");
     writer->Write();
     }
@@ -890,7 +889,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_C_Loc_I.vtk");
     writer->Write();
     }
@@ -902,7 +901,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_C_Loc_PT.vti");
     xwriter->Write();
     }
@@ -931,7 +930,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Loc.vtk");
     writer->Write();
     }
@@ -942,7 +941,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Loc_I.vtk");
     writer->Write();
     }
@@ -954,7 +953,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Loc_WC.vtk");
     writer->Write();
     }
@@ -967,7 +966,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Loc_PT.vti");
     xwriter->Write();
     }
@@ -979,7 +978,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Loc_PT_WC.vti");
     xwriter->Write();
     }
@@ -1011,7 +1010,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_Fru.vtk");
     writer->Write();
     }
@@ -1022,7 +1021,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_Fru_I.vtk");
     writer->Write();
     }
@@ -1034,7 +1033,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_Fru_PT.vti");
     xwriter->Write();
     }
@@ -1068,7 +1067,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Fru.vtk");
     writer->Write();
     }
@@ -1079,7 +1078,7 @@ int TestExtraction(int argc, char *argv[])
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    writer->SetInput(extGrid);
+    writer->SetInputConnection(ext->GetOutputPort());
     writer->SetFileName("ext_P_Fru_I.vtk");
     writer->Write();
     }
@@ -1091,7 +1090,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extGrid);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Fru_WC.vti");
     xwriter->Write();
     }
@@ -1104,7 +1103,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Fru_PT.vti");
     xwriter->Write();
     }
@@ -1116,7 +1115,7 @@ int TestExtraction(int argc, char *argv[])
   extIData = vtkImageData::SafeDownCast(ext->GetOutput());
   if (DoWrite)
     {
-    xwriter->SetInput(extIData);
+    xwriter->SetInputConnection(ext->GetOutputPort());
     xwriter->SetFileName("ext_P_Fru_PT_WC.vti");
     xwriter->Write();
     }

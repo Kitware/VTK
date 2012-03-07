@@ -51,9 +51,6 @@ vtkBoxClipDataSet::vtkBoxClipDataSet()
   //this->MergeTolerance = 0.01;
 
   this->SetNumberOfOutputPorts(2);
-  vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
-  this->GetExecutive()->SetOutputData(1, output2);
-  output2->Delete();
 
   this->Orientation = 1;
 

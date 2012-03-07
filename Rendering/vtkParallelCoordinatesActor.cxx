@@ -23,14 +23,28 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
-vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,LabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,TitleTextProperty,vtkTextProperty);
+
+class vtkParallelCoordinatesActorConnection : public vtkAlgorithm
+{
+public:
+  static vtkParallelCoordinatesActorConnection *New();
+  vtkTypeMacro(vtkParallelCoordinatesActorConnection,vtkAlgorithm);
+
+  vtkParallelCoordinatesActorConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkParallelCoordinatesActorConnection);
 
 //----------------------------------------------------------------------------
 // Instantiate object
@@ -44,7 +58,8 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->IndependentVariables = VTK_IV_COLUMN;
   this->N = 0;
 
-  this->Input = NULL;
+  this->ConnectionHolder = vtkParallelCoordinatesActorConnection::New();
+
   this->Axes = NULL; 
   this->Mins = NULL;
   this->Maxs = NULL;
@@ -61,7 +76,7 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->PlotData = vtkPolyData::New();
 
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
 
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
@@ -94,11 +109,8 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->TitleActor->Delete();
   this->TitleActor = NULL;
   
-  if ( this->Input )
-    {
-    this->Input->Delete();
-    this->Input = NULL;
-    }
+  this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 
   this->Initialize();
   
@@ -145,13 +157,34 @@ void vtkParallelCoordinatesActor::Initialize()
 }
 
 //----------------------------------------------------------------------------
+void vtkParallelCoordinatesActor::SetInputConnection(vtkAlgorithmOutput* ao)
+{
+  this->ConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtkParallelCoordinatesActor::SetInputData(vtkDataObject* dobj)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(dobj);
+  this->SetInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkParallelCoordinatesActor::GetInput()
+{
+  return this->ConnectionHolder->GetInputDataObject(0, 0);
+}
+
+//----------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
 int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
 {
   int renderedSomething=0;
 
   // Make sure input is up to date.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->GetInput() == NULL || this->N <= 0 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -185,7 +218,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
 
-  if (!this->Input)
+  if (!this->GetInput())
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return renderedSomething;
@@ -229,11 +262,11 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   
   // Check modified time to see whether we have to rebuild.
 
-  this->Input->Update();
+  this->ConnectionHolder->GetInputAlgorithm()->Update();
 
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
-      this->Input->GetMTime() > this->BuildTime ||
+      this->GetInput()->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime)
     {
@@ -599,7 +632,6 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Label Text Property: (none)\n";
     }
 
-  os << indent << "Input: " << this->Input << "\n";
   os << indent << "Position2 Coordinate: " 
      << this->Position2Coordinate << "\n";
   this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());

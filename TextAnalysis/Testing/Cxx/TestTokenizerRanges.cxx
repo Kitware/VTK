@@ -89,8 +89,8 @@ int TestTokenizerRanges(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Make it happen ...
     vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();
-    tokenizer->SetInputConnection(0, documents->GetProducerPort());
-    tokenizer->SetInputConnection(1, ranges->GetProducerPort());
+    tokenizer->SetInputData(0, documents);
+    tokenizer->SetInputData(1, ranges);
     tokenizer->AddDroppedDelimiters(vtkTokenizer::Whitespace());
     tokenizer->AddKeptDelimiters(vtkTokenizer::Punctuation());
 

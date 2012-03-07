@@ -29,6 +29,7 @@ inline int DoTest(T*)
   int ext[6] = { 0, 0, 0, 0, 0, 0 };
   vtkImageData *id = vtkImageData::New();
   id->SetExtent(ext);
+  id->AllocateScalars(VTK_DOUBLE, 1);
   vtkImageIterator<T> *it = new vtkImageIterator<T>(id,ext);
   vtkImageProgressIterator<T> *ipt 
     = new vtkImageProgressIterator<T>(id,ext,0,0);

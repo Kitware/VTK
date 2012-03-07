@@ -76,7 +76,7 @@ int TestActor2DTextures( int argc, char *argv[])
   
   vtkIconGlyphFilter * iconFilter = vtkIconGlyphFilter::New();
 
-  iconFilter->SetInput(pointSet);
+  iconFilter->SetInputData(pointSet);
   iconFilter->SetIconSize(size);
   iconFilter->SetUseIconSize(true);
   iconFilter->SetIconSheetSize(imageDims);

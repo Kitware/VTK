@@ -32,24 +32,6 @@ vtkGenericMovieWriter::~vtkGenericMovieWriter()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericMovieWriter::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkGenericMovieWriter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
-
-//----------------------------------------------------------------------------
 void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

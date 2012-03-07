@@ -224,7 +224,9 @@ protected:
   vtkClipPolyData *Clip2;
   
   vtkPolyData *PolyData;
+  vtkAlgorithm *PolyDataProducer;
   vtkPolyData *RPolyData;
+  vtkAlgorithm *RPolyDataProducer;
   vtkPolyData *SurfacePolyData;
   
   vtkRectilinearGrid *RData;

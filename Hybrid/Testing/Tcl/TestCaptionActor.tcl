@@ -31,7 +31,7 @@ vtkCaptionActor2D caption
     caption SetWidth 0.25
     caption SetHeight 0.15
     caption ThreeDimensionalLeaderOn
-    caption SetLeaderGlyph [coneGlyph GetOutput]
+    caption SetLeaderGlyphConnection [coneGlyph GetOutputPort]
     caption SetMaximumLeaderGlyphSize 10
     caption SetLeaderGlyphSize 0.025
     [caption GetProperty] SetColor 1 0 0
@@ -47,7 +47,7 @@ vtkCaptionActor2D caption2
     caption2 BorderOff
     caption2 SetPosition 25 10
     caption2 ThreeDimensionalLeaderOff
-    caption2 SetLeaderGlyph [coneGlyph GetOutput]
+    caption2 SetLeaderGlyphConnection [coneGlyph GetOutputPort]
     caption2 SetWidth 0.35
     caption2 SetHeight 0.10
     caption2 SetMaximumLeaderGlyphSize 10

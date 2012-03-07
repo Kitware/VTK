@@ -230,7 +230,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     double range[2];
     clone->GetPointData()->GetScalars()->GetRange(range);
     CREATE_NEW(caster, vtkImageShiftScale);
-    caster->SetInput(clone);
+    caster->SetInputData(clone);
     caster->SetOutputScalarTypeToUnsignedChar();
     caster->SetShift(-range[0]);
     caster->SetScale(255.0/(range[1]-range[0]));
@@ -250,7 +250,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     clone2->ShallowCopy(filter->GetOutput(0));
 
     CREATE_NEW(surfaceFilter, vtkDataSetSurfaceFilter);
-    surfaceFilter->SetInput(clone2);
+    surfaceFilter->SetInputData(clone2);
 
     CREATE_NEW(mapper, vtkPolyDataMapper);
     mapper->SetInputConnection(surfaceFilter->GetOutputPort());

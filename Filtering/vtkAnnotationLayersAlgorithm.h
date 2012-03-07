@@ -58,15 +58,11 @@ public:
   vtkAnnotationLayers* GetOutput(int index);
 
   // Description:
-  // Set an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline.
-  // Note that these methods support old-style pipeline connections.
-  // When writing new code you should use the more general
-  // vtkAlgorithm::SetInputConnection().  These methods transform the
-  // input index to the input port index, not an index of a connection
-  // within a single port.
-  void SetInput(vtkDataObject * obj) { this->SetInput(0, obj); }
-  void SetInput(int index, vtkDataObject* obj);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject * obj) { this->SetInputData(0, obj); }
+  void SetInputData(int index, vtkDataObject* obj);
 
 protected:
   vtkAnnotationLayersAlgorithm();

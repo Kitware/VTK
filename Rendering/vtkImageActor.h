@@ -30,6 +30,7 @@
 
 #include "vtkImageSlice.h"
 
+class vtkAlgorithm;
 class vtkPropCollection;
 class vtkRenderer;
 class vtkImageData;
@@ -49,7 +50,7 @@ public:
   // Set/Get the image data input for the image actor.  This is for
   // backwards compatibility, for a proper pipeline connection you
   // should use GetMapper()->SetInputConnection() instead.
-  virtual void SetInput(vtkImageData *);
+  virtual void SetInputData(vtkImageData *);
   virtual vtkImageData *GetInput();
 
   // Description:
@@ -131,6 +132,9 @@ protected:
 
   int           DisplayExtent[6];
   double        DisplayBounds[6];
+
+  // Convenience function that returns the input of the mapper
+  vtkAlgorithm *GetInputAlgorithm();
 
 private:
   vtkImageActor(const vtkImageActor&);  // Not implemented.

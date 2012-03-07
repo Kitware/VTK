@@ -37,7 +37,7 @@ int TestCMLMoleculeReader(int argc, char *argv[])
   delete [] fname;
 
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInput(cmlSource->GetOutput());
+  molmapper->SetInputConnection(cmlSource->GetOutputPort());
 
   molmapper->UseBallAndStickSettings();
 

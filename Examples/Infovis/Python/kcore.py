@@ -26,7 +26,7 @@ kcoreLayout.SetUnitRadius(1.0)
 # assign coordinats for layout purposes based on the x/y coordinates
 # that are created in kcoreLayout
 kcoreAssignCoords = vtkAssignCoordinates()
-kcoreAssignCoords.SetInput(kcoreLayout.GetOutput())
+kcoreAssignCoords.SetInputConnection(kcoreLayout.GetOutputPort())
 kcoreAssignCoords.SetXCoordArrayName("coord_x")
 kcoreAssignCoords.SetYCoordArrayName("coord_y")
 kcoreAssignCoords.Update()

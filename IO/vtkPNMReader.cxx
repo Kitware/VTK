@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkPNMReader);
 
@@ -107,7 +108,9 @@ void vtkPNMReader::ExecuteInformation()
     c = vtkPNMReaderGetChar(fp);
     if (c == '\0')
       { // Bad file.
-      this->GetOutput()->SetWholeExtent(0, -1, 0, -1, 0, -1);
+      int invalidExtent[6] = { 0, -1, 0, -1, 0, -1 };
+      vtkStreamingDemandDrivenPipeline::SetWholeExtent(
+        this->GetOutputInformation(0), invalidExtent);
       fclose(fp);
       return;
       }

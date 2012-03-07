@@ -20,7 +20,8 @@
 #include "vtkRenderer.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkExtractGrid.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -28,6 +29,7 @@
 #include "vtkExecutive.h"
 #include "vtkInformationVector.h"
 #include "vtkTimerLog.h"
+#include "vtkCompositeDataPipeline.h"
 
 // If USE_FILTER is defined, glyph3D->PolyDataMapper is used instead of
 // Glyph3DMapper.
@@ -43,7 +45,7 @@
 
 int TestGlyph3DMapperArrow(int argc, char *argv[])
 {
-  vtkPLOT3DReader *reader=vtkPLOT3DReader::New();
+  vtkMultiBlockPLOT3DReader *reader=vtkMultiBlockPLOT3DReader::New();
   char *fname=
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
   reader->SetXYZFileName(fname);
@@ -56,7 +58,7 @@ int TestGlyph3DMapperArrow(int argc, char *argv[])
   reader->Update();
 
   vtkExtractGrid *eg=vtkExtractGrid::New();
-  eg->SetInputConnection(reader->GetOutputPort());
+  eg->SetInputData(reader->GetOutput()->GetBlock(0));
   reader->Delete();
   eg->SetSampleRate(4,4,4);
   eg->Update();

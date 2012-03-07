@@ -222,7 +222,7 @@ int TestSplineWidget( int argc, char *argv[] )
   ipw->DisplayTextOn();
   ipw->TextureInterpolateOff();
   ipw->UserControlledLookupTableOff();
-  ipw->SetInput(v16->GetOutput());
+  ipw->SetInputConnection(v16->GetOutputPort());
   ipw->KeyPressActivationOn();
   ipw->SetKeyPressActivationValue('x');
   ipw->SetResliceInterpolateToNearestNeighbour();
@@ -234,7 +234,7 @@ int TestSplineWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkSplineWidget> spline =
     vtkSmartPointer<vtkSplineWidget>::New();
   spline->SetInteractor( iren);
-  spline->SetInput(v16->GetOutput());
+  spline->SetInputConnection(v16->GetOutputPort());
   spline->SetPriority(1.0);
   spline->KeyPressActivationOff();
   spline->PlaceWidget();
@@ -266,8 +266,8 @@ int TestSplineWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(poly);
-  probe->SetSource(v16->GetOutput());
+  probe->SetInputData(poly);
+  probe->SetSourceConnection(v16->GetOutputPort());
 
   vtkSmartPointer<vtkIPWCallback> ipwcb =
     vtkSmartPointer<vtkIPWCallback>::New();
@@ -287,7 +287,7 @@ int TestSplineWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkXYPlotActor> profile =
     vtkSmartPointer<vtkXYPlotActor>::New();
-  profile->AddInput(probe->GetOutput());
+  profile->AddDataSetInputConnection(probe->GetOutputPort());
   profile->GetPositionCoordinate()->SetValue( 0.05, 0.05, 0);
   profile->GetPosition2Coordinate()->SetValue( 0.95, 0.95, 0);
   profile->SetXValuesToNormalizedArcLength();

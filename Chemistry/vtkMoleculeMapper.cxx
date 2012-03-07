@@ -64,7 +64,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   sphere->SetPhiResolution(50);
   sphere->SetThetaResolution(50);
   sphere->Update();
-  this->AtomGlyphMapper->SetSource(sphere->GetOutput());
+  this->AtomGlyphMapper->SetSourceConnection(sphere->GetOutputPort());
 
   vtkNew<vtkCylinderSource> cylinder;
   cylinder->SetRadius(1.0);
@@ -76,11 +76,10 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   vtkNew<vtkTransform> cylXform;
   cylXform->RotateWXYZ(90, 0.0, 0.0, 1.0);
   vtkNew<vtkTransformPolyDataFilter> cylXformFilter;
-  cylXformFilter->SetInput(cylinder->GetOutput());
+  cylXformFilter->SetInputConnection(cylinder->GetOutputPort());
   cylXformFilter->SetTransform(cylXform.GetPointer());
   cylXformFilter->Update();
-  this->BondGlyphMapper->SetSource
-    (cylXformFilter->GetOutput());
+  this->BondGlyphMapper->SetSourceConnection(cylXformFilter->GetOutputPort());
 
   // Setup glyph mappers
   vtkNew<vtkLookupTable> lut;
@@ -127,17 +126,9 @@ vtkMoleculeMapper::~vtkMoleculeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::SetInput(vtkMolecule *input)
+void vtkMoleculeMapper::SetInputData(vtkMolecule *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

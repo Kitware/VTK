@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkPiecewiseFunctionAlgorithm);
 
@@ -113,124 +112,33 @@ int vtkPiecewiseFunctionAlgorithm::FillInputPortInformation(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkPiecewiseFunctionAlgorithm::RequestData(
-  vtkInformation* request,
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
-  // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
-
-  // which output port did the request come from
-  int outputPort = 
-    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-  // if output port is negative then that means this filter is calling the
-  // update directly, in that case just assume port 0
-  if (outputPort == -1)
-      {
-      outputPort = 0;
-      }
-  
-  // get the data object
-  vtkInformation *outInfo = 
-    outputVector->GetInformationObject(outputPort);
-  // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData 
-// can handle an empty extent.
-void vtkPiecewiseFunctionAlgorithm::ExecuteData(vtkDataObject *output)
-{
-  // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(output))
-    {
-    output->Initialize();
-    return;
-    }
-  
-  this->Execute();
-}
-
-//----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::Execute()
-{
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
-}
-
-//----------------------------------------------------------------------------
-int vtkPiecewiseFunctionAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
-{
-  if (output == NULL)
-    {
-    return 1;
-    }
-
-  int *ext = output->GetUpdateExtent();
-  switch ( output->GetExtentType() )
-    {
-    case VTK_PIECES_EXTENT:
-      // Special way of asking for no input.
-      if ( output->GetUpdateNumberOfPieces() == 0 )
-        {
-        return 1;
-        }
-      break;
-
-    case VTK_3D_EXTENT:
-      // Special way of asking for no input. (zero volume)
-      if (ext[0] == (ext[1] + 1) ||
-          ext[2] == (ext[3] + 1) ||
-          ext[4] == (ext[5] + 1))
-      {
-      return 1;
-      }
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-
   return 0;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::SetInput(vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::AddInput(vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPiecewiseFunctionAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkPiecewiseFunctionAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }

@@ -149,7 +149,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep = 
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
-  graphRep->SetInput(graph);
+  graphRep->SetInputData(graph);
   graphRep->SetVertexLabelArrayName("LabelText1");
   graphRep->SetVertexLabelPriorityArrayName("Priority");
   graphRep->SetVertexLabelVisibility(true);

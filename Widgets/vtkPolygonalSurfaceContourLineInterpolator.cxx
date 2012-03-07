@@ -138,7 +138,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   // Now compute the shortest path through the surface mesh along its
   // edges using Dijkstra.
 
-  this->DijkstraGraphGeodesicPath->SetInput( nodeBegin->PolyData );
+  this->DijkstraGraphGeodesicPath->SetInputData( nodeBegin->PolyData );
   this->DijkstraGraphGeodesicPath->SetStartVertex( endVertId );
   this->DijkstraGraphGeodesicPath->SetEndVertex( beginVertId );
   this->DijkstraGraphGeodesicPath->Update();

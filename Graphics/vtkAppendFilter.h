@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkDataSet *in);
+  void RemoveInputData(vtkDataSet *in);
 
   // Description:
   // Returns a copy of the input array.  Modifications to this list

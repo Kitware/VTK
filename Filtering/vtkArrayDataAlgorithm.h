@@ -3,11 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkArrayDataAlgorithm.h
   
--------------------------------------------------------------------------
-  Copyright 2008 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
--------------------------------------------------------------------------
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,6 +13,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/*
+-------------------------------------------------------------------------
+  Copyright 2008 Sandia Corporation.
+  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+  the U.S. Government retains certain rights in this software.
+-------------------------------------------------------------------------
+*/
 
 // .NAME vtkArrayDataAlgorithm - Superclass for algorithms that produce
 // vtkArrayDatas as output
@@ -31,13 +33,7 @@
 // simply change it with SetNumberOfInputPorts etc. See this class
 // constructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be vtkArrayData. If that
-// isn't the case then please override this method in your subclass. This
-// class breaks out the downstream requests into separate functions such as
-// ExecuteData and ExecuteInformation.  For new algorithms you should
-// implement RequestData( request, inputVec, outputVec) but for older filters
-// there is a default implementation that calls the old ExecuteData(output)
-// signature. For even older filters that don't implement ExecuteData the
-// default implementation calls the even older Execute() signature.
+// isn't the case then please override this method in your subclass.
 
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
@@ -69,15 +65,11 @@ public:
   vtkArrayData* GetOutput(int index);
 
   // Description:
-  // Set an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline.
-  // Note that these methods support old-style pipeline connections.
-  // When writing new code you should use the more general
-  // vtkAlgorithm::SetInputConnection().  These methods transform the
-  // input index to the input port index, not an index of a connection
-  // within a single port.
-  void SetInput(vtkDataObject * obj) { this->SetInput(0, obj); }
-  void SetInput(int index, vtkDataObject* obj);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject * obj) { this->SetInputData(0, obj); }
+  void SetInputData(int index, vtkDataObject* obj);
 
 protected:
   vtkArrayDataAlgorithm();

@@ -118,8 +118,6 @@ public:
 
 static void CheckWinding(vtkUnstructuredGrid *data)
 {
-  data->Update();
-
   vtkPoints *points = data->GetPoints();
 
   vtkCellArray *cells = data->GetCells();
@@ -201,7 +199,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     CheckWinding(input);
 
     VTK_CREATE(vtkBoxClipDataSet, clipper);
-    clipper->SetInput(input);
+    clipper->SetInputData(input);
     clipper->GenerateClippedOutputOff();
     clipper->SetBoxClip(minx, maxx, miny, maxy, minz, maxz);
     clipper->Update();
@@ -235,7 +233,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     CheckWinding(input);
 
     VTK_CREATE(vtkBoxClipDataSet, clipper);
-    clipper->SetInput(input);
+    clipper->SetInputData(input);
     clipper->GenerateClippedOutputOn();
     clipper->SetBoxClip(minx, maxx, miny, maxy, minz, maxz);
     clipper->Update();
@@ -252,7 +250,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     actor1->SetMapper(mapper1);
 
     VTK_CREATE(vtkDataSetSurfaceFilter, surface2);
-    surface2->SetInput(clipper->GetClippedOutput());
+    surface2->SetInputConnection(clipper->GetOutputPort(1));
 
     VTK_CREATE(vtkPolyDataMapper, mapper2);
     mapper2->SetInputConnection(0, surface2->GetOutputPort(0));
@@ -285,7 +283,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     CheckWinding(input);
 
     VTK_CREATE(vtkBoxClipDataSet, clipper);
-    clipper->SetInput(input);
+    clipper->SetInputData(input);
     clipper->GenerateClippedOutputOff();
     clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint,
                         plusx, maxpoint, plusy, maxpoint, plusz, maxpoint);
@@ -320,7 +318,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     CheckWinding(input);
 
     VTK_CREATE(vtkBoxClipDataSet, clipper);
-    clipper->SetInput(input);
+    clipper->SetInputData(input);
     clipper->GenerateClippedOutputOn();
     clipper->SetBoxClip(minusx, minpoint, minusy, minpoint, minusz, minpoint,
                         plusx, maxpoint, plusy, maxpoint, plusz, maxpoint);
@@ -338,7 +336,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     actor1->SetMapper(mapper1);
 
     VTK_CREATE(vtkDataSetSurfaceFilter, surface2);
-    surface2->SetInput(clipper->GetClippedOutput());
+    surface2->SetInputConnection(clipper->GetOutputPort(1));
 
     VTK_CREATE(vtkPolyDataMapper, mapper2);
     mapper2->SetInputConnection(0, surface2->GetOutputPort(0));

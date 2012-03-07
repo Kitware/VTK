@@ -74,7 +74,7 @@ int vtkSimpleImageToImageFilter::RequestData(
   // Set the extent of the output and allocate memory.
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   this->SimpleExecute(input, output);
 

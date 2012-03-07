@@ -120,17 +120,17 @@ class SampleViewer:
         Window = self.WindowWidget.get()
         Level = self.LevelWidget.get()
         image = self.resample.GetOutput()
-        self.tphoto.PutImageSlice ( image,
+        self.tphoto.PutImageSlice ( self.resample.GetOutputPort(),
                                     self.Position[2],
                                     'transverse',
                                     Window,
                                     Level )
-        self.sphoto.PutImageSlice ( image,
+        self.sphoto.PutImageSlice ( self.resample.GetOutputPort(),
                                     self.Position[0],
                                     'sagittal',
                                     Window,
                                     Level )
-        self.cphoto.PutImageSlice ( image,
+        self.cphoto.PutImageSlice ( self.resample.GetOutputPort(),
                                     self.Position[1],
                                     'coronal',
                                     Window,

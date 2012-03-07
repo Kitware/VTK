@@ -72,7 +72,7 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
 
         # Add multiple line plots, setting the colors etc
         line0 = chart.AddPlot(vtk.vtkChart.LINE)
-        line0.SetInput(table, 0, 1)
+        line0.SetInputData(table, 0, 1)
         line0.SetColor(50, 50, 50, 255)
         line0.SetWidth(3.0)
         line0.GetPen().SetLineType(vtk.vtkPen.SOLID_LINE)
@@ -82,13 +82,13 @@ class TestLinePlotColors(vtk.test.Testing.vtkTest):
         line0.SelectColorArray(1)
 
         line1 = chart.AddPlot(vtk.vtkChart.LINE)
-        line1.SetInput(table, 0, 2)
+        line1.SetInputData(table, 0, 2)
         line1.GetPen().SetLineType(vtk.vtkPen.NO_PEN)
         line1.SetMarkerStyle(vtk.vtkPlotPoints.PLUS)
         line1.SetColor(150, 100, 0, 255)
 
         line2 = chart.AddPlot(vtk.vtkChart.LINE)
-        line2.SetInput(table, 0, 3)
+        line2.SetInputData(table, 0, 3)
         line2.SetColor(100, 100, 100, 255)
         line2.SetWidth(3.0)
         line2.GetPen().SetLineType(vtk.vtkPen.DASH_LINE)
