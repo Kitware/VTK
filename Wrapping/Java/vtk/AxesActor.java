@@ -30,10 +30,6 @@ public class AxesActor extends vtkAssembly {
         yactor.SetInput("Y");
         zactor.SetInput("Z");
 
-        xactor.ScaledTextOn();
-        yactor.ScaledTextOn();
-        zactor.ScaledTextOn();
-
         xactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
         yactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
         zactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
