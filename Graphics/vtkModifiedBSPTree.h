@@ -69,7 +69,7 @@
 // such that it tightly fits all cells inside it, enabling further ray/box
 // rejections.
 //
-// This class is intented for persons requiring many ray tests and is optimized
+// This class is intended for persons requiring many ray tests and is optimized
 // for this purpose. As no cell ever lies in more than one leaf node, and parent
 // nodes do not maintain cell lists, the memory overhead of the sorted cell
 // lists is 6*num_cells*4 for 6 lists of ints, each num_cells in length.

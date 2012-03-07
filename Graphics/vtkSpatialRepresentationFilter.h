@@ -18,7 +18,7 @@
 // spatial search (vtkLocator) object. The representation varies depending
 // upon the nature of the spatial search object. For example, the
 // representation for vtkOBBTree is a collection of oriented bounding
-// boxes. Ths input to this filter is a dataset of any type, and the output
+// boxes. This input to this filter is a dataset of any type, and the output
 // is polygonal data. You must also specify the spatial search object to
 // use.
 //

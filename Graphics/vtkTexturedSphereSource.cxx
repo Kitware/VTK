@@ -114,7 +114,7 @@ int vtkTexturedSphereSource::RequestData(
   //
   // Generate mesh connectivity
   //
-  // bands inbetween poles
+  // bands between poles
   for (i=0; i < this->ThetaResolution; i++)
     {
     for (j=0; j < this->PhiResolution; j++)

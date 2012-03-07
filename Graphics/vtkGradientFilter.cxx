@@ -620,7 +620,7 @@ namespace {
               }
             
             double derivative[3];
-            // Get derivitive of cell at point.
+            // Get derivative of cell at point.
             cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
             
             g[InputComponent*3] += static_cast<data_type>(derivative[0]);

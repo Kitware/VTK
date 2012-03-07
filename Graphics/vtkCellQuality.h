@@ -24,7 +24,7 @@
 // .SECTION Caveats
 // Most quadrilateral quality functions are intended for planar quadrilaterals
 // only.  The minimal angle is not, strictly speaking, a quality function, but
-// it is provided because of its useage by many authors.
+// it is provided because of its usage by many authors.
 
 #ifndef __vtkCellQuality_h
 #define __vtkCellQuality_h

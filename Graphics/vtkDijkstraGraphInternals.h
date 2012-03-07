@@ -45,7 +45,7 @@ public:
   // Predecessors(v) predecessor of v.
   std::vector<int> Predecessors;
   
-  // OpenVertices is the set of vertices wich has not a shortest path yet but has a path.
+  // OpenVertices is the set of vertices which has not a shortest path yet but has a path.
   // OpenVertices(v) == 1 means that vertex v is in OpenVertices.
   // OpenVertices is a boolean (1/0) array.
   std::vector<unsigned char> OpenVertices;
