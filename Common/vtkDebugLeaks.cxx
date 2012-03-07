@@ -467,7 +467,7 @@ void vtkDebugLeaks::ClassFinalize()
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = 0;
 
-  // Exit with error if leaks occured and error mode is on.
+  // Exit with error if leaks occurred and error mode is on.
   if(leaked && vtkDebugLeaks::ExitError)
     {
     exit(1);

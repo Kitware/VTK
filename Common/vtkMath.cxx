@@ -2158,7 +2158,7 @@ inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
     {
     if (w[(i+1)%3] == w[(i+2)%3]) // two eigenvalues are the same
       {
-      // find maximum element of the independant eigenvector
+      // find maximum element of the independent eigenvector
       maxVal = fabs(V[i][0]);
       maxI = 0;
       for (j = 1; j < 3; j++)
