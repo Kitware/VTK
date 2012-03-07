@@ -250,7 +250,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
           tau = this->AttenuationTable[component][table_index];
           // Here we handle the mixing of material properties.  This never
           // seems to be defined very clearly.  I handle this by assuming
-          // that each scalar represents a cloud of particles of a certian
+          // that each scalar represents a cloud of particles of a certain
           // color and a certain density.  We mix the scalars in the same
           // way as mixing these particles together.  By necessity, the
           // density becomes greater.  The "opacity" parameter is really

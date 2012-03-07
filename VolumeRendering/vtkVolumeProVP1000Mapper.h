@@ -28,7 +28,7 @@
 // 1. Run cmake; if VLI_LIBRARY_FOR_VP1000 and VLI_INCLUDE_PATH_FOR_VP1000
 //    are set by cmake, then VTK_USE_VOLUMEPRO_1000 will be set to ON.
 // 2. If the VTK_USE_VOLUMEPRO_1000 is OFF, set it to ON in cmake.
-// 3. If the libary file (VLI_LIBRARY_FOR_VP1000) is not found by cmake, set
+// 3. If the library file (VLI_LIBRARY_FOR_VP1000) is not found by cmake, set
 //    the path to that file, and rerun cmake.
 // 4. If the header file (VLI_INCLUDE_PATH_FOR_VP1000) is not found by cmake,
 //    set the path to that file, and rerun cmake.

@@ -1137,7 +1137,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
           break;
         default:
           // Don't report the error - this volume just won't render
-          vtkErrorMacro( << "Volume could not be rendered - unkown error!" );
+          vtkErrorMacro( << "Volume could not be rendered - unknown error!" );
           break;    
         }
 

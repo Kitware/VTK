@@ -1084,7 +1084,7 @@ void vtkVolumeTextureMapper2D::ComputeAxisTextureSize( int axis, int *textureSiz
   int done = (volSize > textureSize[0]*textureSize[1]);
   int minSize[2];
   
-  // What is the minumum size the texture could be in X (along the X
+  // What is the minimum size the texture could be in X (along the X
   // axis of the volume)?
   minSize[0] = 32;
   while ( minSize[0] < size[a0] )
@@ -1092,7 +1092,7 @@ void vtkVolumeTextureMapper2D::ComputeAxisTextureSize( int axis, int *textureSiz
     minSize[0] *= 2;
     }
   
-  // What is the minumum size the texture could be in Y (along the Y
+  // What is the minimum size the texture could be in Y (along the Y
   // axis of the volume)?
   minSize[1] = 32;
   while ( minSize[1] < size[a1] )
