@@ -391,7 +391,7 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
     if ( (err = MPI_Comm_size(MPI_COMM_WORLD, &size)) != MPI_SUCCESS  )
       {
       char *msg = vtkMPIController::ErrorString(err);
-      vtkGenericWarningMacro("MPI error occured: " << msg);
+      vtkGenericWarningMacro("MPI error occurred: " << msg);
       delete[] msg;
       delete comm->MPIComm->Handle;
       comm->MPIComm = 0;
@@ -528,7 +528,7 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
     MPI_Group_free(&superGroup);
 
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
 
     return 0;
@@ -543,7 +543,7 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
     MPI_Group_free(&subGroup);
 
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
 
     return 0;
@@ -563,7 +563,7 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
     this->MPIComm->Handle = 0;
 
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
 
     return 0;
@@ -621,7 +621,7 @@ int vtkMPICommunicator::SplitInitialize(vtkCommunicator *oldcomm,
     this->MPIComm->Handle = 0;
 
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
 
     return 0;
@@ -689,7 +689,7 @@ int vtkMPICommunicator::InitializeNumberOfProcesses()
        != MPI_SUCCESS  )
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
     }
@@ -700,7 +700,7 @@ int vtkMPICommunicator::InitializeNumberOfProcesses()
        != MPI_SUCCESS)
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
     }
@@ -738,7 +738,7 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
           != MPI_SUCCESS ) 
       {
       char *msg = vtkMPIController::ErrorString(err);
-      vtkErrorMacro("MPI error occured: " << msg);
+      vtkErrorMacro("MPI error occurred: " << msg);
       delete[] msg;
       }                      
     }
@@ -777,7 +777,7 @@ int vtkMPICommunicator::CheckForMPIError(int err)
   else
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkGenericWarningMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
     }
@@ -848,7 +848,7 @@ int vtkMPICommunicator::ReceiveVoidArray(void *data, vtkIdType maxlength, int ty
   // receive. If when sending the data-length >= maxReceive, then the sender
   // splits it into multiple packets of at most maxReceive size each.  (Note
   // that when the sending exactly maxReceive length message, it is split into 2
-  // packets of sizes maxReceive and 0 repectively).
+  // packets of sizes maxReceive and 0 respectively).
   int maxReceive = VTK_INT_MAX;
   vtkMPICommunicatorReceiveDataInfo info;
   info.Handle = this->MPIComm->Handle;
@@ -1072,7 +1072,7 @@ int vtkMPICommunicator::Request::Test()
   else
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkGenericWarningMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
     }
@@ -1088,7 +1088,7 @@ void vtkMPICommunicator::Request::Wait()
   if ( err != MPI_SUCCESS )
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkGenericWarningMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occurred: " << msg);
     delete[] msg;
     }
 }
@@ -1101,7 +1101,7 @@ void vtkMPICommunicator::Request::Cancel()
   if ( err != MPI_SUCCESS )
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkGenericWarningMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occurred: " << msg);
     delete[] msg;
     }
 
@@ -1110,7 +1110,7 @@ void vtkMPICommunicator::Request::Cancel()
   if ( err != MPI_SUCCESS )
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkGenericWarningMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occurred: " << msg);
     delete[] msg;
     }
 }

@@ -134,7 +134,7 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
           }
         // Eliminate this process as a candidate.
         procFlags[i] = 1;
-        // Eliminate procs already communicating durring this cycle.
+        // Eliminate procs already communicating during this cycle.
         for (k = 0; k < numProcs; ++k)
           {
           if (this->Schedule[k][j] != -1)
@@ -142,7 +142,7 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
             procFlags[this->Schedule[k][j]] = 1;
             }
           }
-        // Eliminate proces we have already paired with.
+        // Eliminate process we have already paired with.
         for (k = 0; k < j; ++k)
           {
           if (this->Schedule[i][k] != -1)

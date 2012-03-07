@@ -33,7 +33,7 @@
 // .SECTION ToDo:
 // Synchronization/barrier primitives.
 //
-// Query ranges of scalar values of objects in addition to the boundry in
+// Query ranges of scalar values of objects in addition to the boundary in
 // three-space
 //
 

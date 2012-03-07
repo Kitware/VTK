@@ -154,7 +154,7 @@ public:
   // The new controller will already be initialized for you.  You are
   // responsible for deleting the controller once you are done.  It is invalid
   // to pass this method a group with a different communicator than is used by
-  // this controller.  This operation is collective accross all processes
+  // this controller.  This operation is collective across all processes
   // defined in the group.  It is undefined what will happen if the group is not
   // the same on all processes.  This method must be called by all processes in
   // the controller regardless of whether they are in the group.  NULL is

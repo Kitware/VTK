@@ -32,7 +32,7 @@
 // huge difference in file read times, especially when reading in parallel from
 // a parallel file system.
 //
-// Dispite the name of this class, vtkMPIImageReader will work even if MPI is
+// Despite the name of this class, vtkMPIImageReader will work even if MPI is
 // not available.  If MPI is not available or MPIIO is not available or the
 // given Controller is not a vtkMPIController (or NULL), then this class will
 // silently work exactly like its superclass.  The point is that you can safely

@@ -1194,7 +1194,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
       // The processes with data send it to processes without data.
       // This is not the most balanced decomposition, and it is not the
-      // fastest.  It is somewhere inbetween.
+      // fastest.  It is somewhere in between.
 
       vtkIdType minCells = (vtkIdType)(.8 * (double)cellsPerNode);
   
