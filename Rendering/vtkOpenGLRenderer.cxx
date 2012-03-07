@@ -1226,7 +1226,7 @@ void vtkOpenGLRenderer::DonePick()
       {
       this->PickInfo->PickedId = *ptr;
       }
-    // skip additonal names
+    // skip additional names
     ptr += num_names;
     }
   // If there was a pick, then get the Z value
@@ -1302,7 +1302,7 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     iptr++; // move to first name picked
     *optr = static_cast<unsigned int>(*iptr);
     optr++;
-    // skip additonal names
+    // skip additional names
     iptr += num_names;
     }
   return k;

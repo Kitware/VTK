@@ -124,7 +124,7 @@ protected:
   vtkAbstractMapper3D *Mapper; //selected mapper (if the prop has a mapper)
   vtkDataSet *DataSet; //selected dataset (if there is one)
 
-  double GlobalTMin; //parametric coordinate along pick ray where hit occured
+  double GlobalTMin; //parametric coordinate along pick ray where hit occurred
   vtkTransform *Transform; //use to perform ray transformation
   vtkActorCollection *Actors; //candidate actors (based on bounding box)
   vtkProp3DCollection *Prop3Ds; //candidate actors (based on bounding box)

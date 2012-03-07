@@ -380,7 +380,7 @@ int vtkLabelPlacer::RequestData(
 
   // This will trigger if you do something like ResetCamera before the Renderer or
   // RenderWindow have allocated their appropriate system resources (like creating
-  // an OpenGL context)." Resource allocation must occure before we can use the Z
+  // an OpenGL context)." Resource allocation must occur before we can use the Z
   // buffer.
   if ( this->Renderer->GetRenderWindow()->GetNeverRendered() )
     {

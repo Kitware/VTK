@@ -277,7 +277,7 @@ void vtkLODActor::CreateOwnLODs()
     return;
     }
   
-  // There are ways of getting arround this limitation ...
+  // There are ways of getting around this limitation ...
   if ( this->LODMappers->GetNumberOfItems() > 0 )
     {
     vtkErrorMacro(<<

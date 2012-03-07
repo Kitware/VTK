@@ -275,7 +275,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
                                              data2:0];
       [application postEvent:event atStart:YES];
       
-      // The NSWindow is closing, so prevent anyone from accidently using it
+      // The NSWindow is closing, so prevent anyone from accidentally using it
       renWin->SetRootWindow(NULL);
       }
     }

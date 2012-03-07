@@ -1739,7 +1739,7 @@ static const char* vtkTextLabelList[] =
   "Assurance",
   "Perry",
   "Cruise",
-  "Vermillion",
+  "Vermilion",
   "San Jacinto",
   "Diamond Head",
   "Lardner",

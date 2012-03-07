@@ -827,7 +827,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   // OpenGL 1.1
   
   // VTK supports at least OpenGL 1.1. There is no need to load promoted
-  // extentions GL_EXT_subtexture and GL_EXT_copy_texture.
+  // extensions GL_EXT_subtexture and GL_EXT_copy_texture.
   // Just silently returns 1.
   
   if (strcmp(name, "GL_EXT_subtexture") == 0)

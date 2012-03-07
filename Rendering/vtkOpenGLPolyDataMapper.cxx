@@ -1984,7 +1984,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
-  // fixme ... make the existance of the coordinate array the signal.
+  // fixme ... make the existence of the coordinate array the signal.
   if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates &&
       ! (idx & VTK_PDM_CELL_COLORS))
     {

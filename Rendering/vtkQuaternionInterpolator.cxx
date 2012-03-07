@@ -23,7 +23,7 @@ vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------
 // PIMPL STL encapsulation for list of quaternions. The list is sorted on
-// the spline paramter T (or Time) using a STL list.
+// the spline parameter T (or Time) using a STL list.
 // Here we define a quaternion class that includes extra information including
 // a unit quaternion representation.
 struct vtkQuaternion

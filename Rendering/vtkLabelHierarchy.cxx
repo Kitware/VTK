@@ -2545,7 +2545,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor3( vtkIdType anchor )
 }
 
 // If an anchor is near any octree boundaries, copy it to neighbors at the same level.
-// This will create neighbors if neccessary.
+// This will create neighbors if necessary.
 void vtkLabelHierarchy::Implementation::SmudgeAnchor2( HierarchyCursor2& cursor, vtkIdType anchor, double* x )
 {
   (void)cursor;

@@ -72,7 +72,7 @@ extern int vtkImageViewerCommand(ClientData cd, Tcl_Interp *interp,
     
 //----------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
-// options like width, hieght or the ImageViewer widget.
+// options like width, height or the ImageViewer widget.
 int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp, 
                                      struct vtkTkImageViewerWidget *self,
                                      int argc, char *argv[], int flags) 

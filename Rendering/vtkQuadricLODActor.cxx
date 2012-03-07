@@ -366,7 +366,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Defer LOD Contruction: "
+  os << indent << "Defer LOD Construction: "
      << (this->DeferLODConstruction ? "On\n" : "Off\n");
 
   os << indent << "Static : " << (this->Static ? "On\n" : "Off\n");
