@@ -189,7 +189,7 @@ int vtkAMRCutPlane::RequestData(
               if( grid != NULL )
                 {
                   vtkCutter *myCutter = vtkCutter::New();
-                  myCutter->SetInput( grid );
+                  myCutter->SetInputData( grid );
                   myCutter->SetCutFunction( this->Plane );
                   myCutter->Update();
                   mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );

@@ -1188,7 +1188,7 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
     }
 
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInput( grd );
+  gridPartitioner->SetInputData( grd );
   grd->Delete();
 
   gridPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
@@ -1341,7 +1341,7 @@ void vtkAMRResampleFilter::WriteUniformGrid(
   std::ostringstream oss;
   oss << prefix << "." << imgWriter->GetDefaultFileExtension();
   imgWriter->SetFileName( oss.str().c_str() );
-  imgWriter->SetInput( g );
+  imgWriter->SetInputData( g );
   imgWriter->Write();
 
   imgWriter->Delete();
