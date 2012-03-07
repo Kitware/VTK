@@ -50,7 +50,7 @@ public:
   vtkAlgorithm* GetAlgorithm();
 
   // Description:
-  // Generalized interface for asking the executive to fullfill
+  // Generalized interface for asking the executive to fulfill
   // pipeline requests.
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,

@@ -1374,7 +1374,7 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile &tri)
       this->GenericCell->InterpolateTuple(this->AttributeCollection,
                                           tri.GetVertex(j), this->Scalars);
 
-      //Put everything in ths point hash table
+      //Put everything in this point hash table
       this->EdgeTable->InsertPointAndScalar(tri.GetPointId(j), global,
                                             this->Scalars);
       }
@@ -1556,7 +1556,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
         tri.SetPointId(j+3, ptId);
         tri.SetEdgeParent(j+3,l,r); //parentEdge);
 
-        //Put everything in ths point hash table
+        //Put everything in this point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
                                               midPoint + ATTRIBUTES_OFFSET);
         }

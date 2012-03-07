@@ -133,7 +133,7 @@ void vtkSphereComputeBoundingSphere(T *pts, vtkIdType numPts, T sphere[4],
       }
     }//no hints provided
 
-  // Compute intial estimated sphere
+  // Compute initial estimated sphere
   sphere[0] = (d1[0]+d2[0]) / 2.0;
   sphere[1] = (d1[1]+d2[1]) / 2.0;
   sphere[2] = (d1[2]+d2[2]) / 2.0;
@@ -255,7 +255,7 @@ void vtkSphereComputeBoundingSphere(T **spheres, vtkIdType numSpheres, T sphere[
       }
     }//no hints provided
 
-  // Compute intial estimated sphere, take into account the radius of each sphere
+  // Compute initial estimated sphere, take into account the radius of each sphere
   T tmp, v[3], r2 = vtkMath::Distance2BetweenPoints(s1,s2)/4.0;
   sphere[3] = sqrt(r2);
   T t1 = -s1[3]/(2.0*sphere[3]);

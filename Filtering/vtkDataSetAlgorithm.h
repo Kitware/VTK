@@ -16,14 +16,14 @@
 // .SECTION Description
 // vtkDataSetAlgorithm is a convenience class to make writing algorithms
 // easier. It is also designed to help transition old algorithms to the new
-// pipeline architecture. Ther are some assumptions and defaults made by this
+// pipeline architecture. There are some assumptions and defaults made by this
 // class you should be aware of. This class defaults such that your filter
 // will have one input port and one output port. If that is not the case
 // simply change it with SetNumberOfInputPorts etc. See this classes
 // contstructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be DataSet. If that isn't
 // the case then please override this method in your subclass. This class
-// breaks out the downstream requests into seperate functions such as
+// breaks out the downstream requests into separate functions such as
 // RequestDataObject RequestData and RequestInformation. The default
 // implementation of RequestDataObject will create an output data of the 
 // same type as the input.

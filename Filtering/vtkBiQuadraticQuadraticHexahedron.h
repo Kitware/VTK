@@ -25,7 +25,7 @@
 // twelve midedge nodes (8-19), nodes 20-23 are the center-face nodes. Note that
 // these midedge nodes correspond lie
 // on the edges defined by (0,1), (1,2), (2,3), (3,0), (4,5), (5,6), (6,7),
-// (7,4), (0,4), (1,5), (2,6), (3,7). The center face nodes lieing in quad
+// (7,4), (0,4), (1,5), (2,6), (3,7). The center face nodes lying in quad
 // 22-(0,1,5,4), 21-(1,2,6,5), 23-(2,3,7,6) and 22-(3,0,4,7)
 //
 // \verbatim

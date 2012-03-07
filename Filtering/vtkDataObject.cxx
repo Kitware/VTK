@@ -1008,7 +1008,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 }
 
 //----------------------------------------------------------------------------
-// This should be a pure virutal method.
+// This should be a pure virtual method.
 void vtkDataObject::Crop()
 {
 }

@@ -212,7 +212,7 @@ protected:
   vtkIdTypeArray *FaceLocations;
 
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds
-  // (global cell ids corresponsing to cell canonical numbering (0,1,2,....)).
+  // (global cell ids corresponding to cell canonical numbering (0,1,2,....)).
   // These data members are implicitly organized in canonical space, i.e., where
   // the cell point ids are (0,1,...,npts-1). The PointIdMap maps global point id 
   // back to these canonoical point ids.

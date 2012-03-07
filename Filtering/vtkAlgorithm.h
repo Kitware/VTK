@@ -180,7 +180,7 @@ public:
   vtkGetStringMacro(ProgressText);
 
   // Description:
-  // The error code contains a possible error that occured while
+  // The error code contains a possible error that occurred while
   // reading or writing the file.
   vtkGetMacro( ErrorCode, unsigned long );
 
@@ -495,7 +495,7 @@ protected:
   // This method takes in an index (as specified in SetInputArrayToProcess)
   // and a pipeline information vector. It then finds the information about
   // input array idx and then uses that information to find the field
-  // information from the relevent field in the pifo vector (as done by
+  // information from the relevant field in the pifo vector (as done by
   // vtkDataObject::GetActiveFieldInformation)
   vtkInformation *GetInputArrayFieldInformation(int idx,
                                                 vtkInformationVector **inputVector);
@@ -509,7 +509,7 @@ protected:
   virtual vtkExecutive* CreateDefaultExecutive();
 
   // Description:
-  // The error code contains a possible error that occured while
+  // The error code contains a possible error that occurred while
   // reading or writing the file.
   vtkSetMacro( ErrorCode, unsigned long );
   unsigned long ErrorCode;

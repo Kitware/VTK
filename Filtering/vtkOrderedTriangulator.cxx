@@ -225,7 +225,7 @@ struct vtkOTMesh
   TetraQueueType  DegenerateQueue; //Tetra involved in degenerate triangulation
   vtkEdgeTable   *EdgeTable;       //Edges used to create triangulation of cavity
   double          Tolerance2;      //Used to control error
-  vtkHeap        *Heap;            //Many allocations occur in efficent heap
+  vtkHeap        *Heap;            //Many allocations occur in efficient heap
 
   int             NumberOfTetrasClassifiedInside;
   int             NumberOfTemplates;
@@ -609,7 +609,7 @@ vtkIdType vtkOrderedTriangulator::GetPointId(vtkIdType internalId)
 // defining the face.
 void OTTetra::GetFacePoints(int i, OTFace *face)
 {
-  // The order is carefully choosen to produce a tetrahedron
+  // The order is carefully chosen to produce a tetrahedron
   // that is not inside out; i.e., the ordering produces a positive
   // Jacobian (computed from first three points points to fourth).
   switch (i)
@@ -827,7 +827,7 @@ OTTetra *vtkOTMesh::CreateTetra(OTPoint *p, OTFace *face)
                                           face->Points[2]->P,
                                           tetra->Center);
 
-  // the order is carefully choosen to produce a tetrahedron
+  // the order is carefully chosen to produce a tetrahedron
   // that is not inside out; i.e., the ordering produces a positive
   // jacobian (normal computed from first three points points to fourth).
   tetra->Points[0] = face->Points[0];

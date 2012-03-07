@@ -64,7 +64,7 @@ public:
   //  Some algorithms on octrees require a value that is a very
   //  small distance relative to the diameter of the entire space
   //  divided by the octree.  This factor is the maximum axis-aligned
-  //  width of the space multipled by 10e-6.
+  //  width of the space multiplied by 10e-6.
   vtkGetMacro(FudgeFactor, double);
   vtkSetMacro(FudgeFactor, double);
 

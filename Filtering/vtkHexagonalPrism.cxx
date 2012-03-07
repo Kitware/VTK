@@ -384,7 +384,7 @@ int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
     dot /= uNorm;
     }
   dot = (v[0]*v[0] + v[1]*v[1]) - dot*dot;
-  // mathematically dot must be >= zero but, suprise suprise, it can actually
+  // mathematically dot must be >= zero but, surprise surprise, it can actually
   // be negative
   if (dot > 0)
     {
