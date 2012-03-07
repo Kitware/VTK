@@ -949,8 +949,10 @@ void vtkAMRResampleFilter::GetDomainParameters(
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SnapBounds(
-    const double h0[3], const double domainMin[3], const double domainMax[3],
-    const int dims[3], bool outside[6] )
+    const double* vtkNotUsed(h0[3]),
+    const double domainMin[3],
+    const double domainMax[3],
+    const int* vtkNotUsed(dims[3]), bool outside[6] )
 {
   int i, j;
   for(i=0, j=0; i < 3; ++i )
