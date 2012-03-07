@@ -401,13 +401,10 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
       <<"Cannot cast input image to internal OQEDImageData type.");
     }
 
-  image->SetNumberOfScalarComponents(1);
-  image->SetScalarTypeToDouble();
   image->SetExtent(0, dim[0] - 1, 0, dim[1] - 1, 0, dim[2] - 1);
   image->SetOrigin(min.data());
   image->SetSpacing(spacing.data());
-  image->AllocateScalars();
-  image->Update();
+  image->AllocateScalars(VTK_DOUBLE, 1);
 
   double *dataPtr = static_cast<double *>(image->GetScalarPointer());
   std::vector<double> *qubeVec = qube->data();
@@ -436,5 +433,4 @@ void vtkOpenQubeElectronicData::FillImageDataFromQube(OpenQube::Cube *qube,
   vtkDebugMacro(<< "Copied " << qubeSize
                 << " (actual: " << qubeInd + 1
                 << ") points from qube to vtkImageData.");
-  image->Update();
 }
