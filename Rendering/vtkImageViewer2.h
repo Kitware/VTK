@@ -188,22 +188,6 @@ public:
   virtual int GetOffScreenRendering();
   vtkBooleanMacro(OffScreenRendering,int);
 
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSliceMin() as of VTK 5.0.
-  VTK_LEGACY(int GetWholeZMin());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSliceMax() as of VTK 5.0.
-  VTK_LEGACY(int GetWholeZMax());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSlice() as of VTK 5.0.
-  VTK_LEGACY(int GetZSlice());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::SetSlice() as of VTK 5.0.
-  VTK_LEGACY(void SetZSlice(int));
-
 protected:
   vtkImageViewer2();
   ~vtkImageViewer2();

@@ -284,27 +284,3 @@ vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
 {
   return this->ImageMapper->GetInputAlgorithm();
 }
-
-#ifndef VTK_LEGACY_REMOVE
-int vtkImageViewer::GetGrayScaleHint()
-{
-  vtkWarningMacro("GetGrayScaleHint deprecated, not required anymore"); 
-  return 0;
-}
-
-void vtkImageViewer::SetGrayScaleHint(int vtkNotUsed(a))
-{
-  vtkWarningMacro("SetGrayScaleHint deprecated, not required anymore");
-}
-
-void vtkImageViewer::GrayScaleHintOn()
-{
-  vtkWarningMacro("GrayScaleHintOn deprecated, not required anymore");
-}
-
-void vtkImageViewer::GrayScaleHintOff()
-{
-  vtkWarningMacro("GrayScaleHintOff deprecated, not required anymore");
-}
-#endif
-

@@ -21,9 +21,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
 vtkStandardNewMacro(vtkCompositePainter);
 //----------------------------------------------------------------------------
 vtkCompositePainter::vtkCompositePainter()

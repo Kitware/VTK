@@ -184,10 +184,6 @@ public:
   // Description:
   // Turns emphasis of vertices on or off for vertex selection.
   virtual void MakeVertexEmphasis(bool mode) = 0;
-  
-  // Description:
-  // @deprecated
-  VTK_LEGACY(virtual void MakeVertexEmphasisWithStencilCheck(int vtkNotUsed(mode)));
 
   // Description:
   // Control use of the stencil buffer (for vertex selection).

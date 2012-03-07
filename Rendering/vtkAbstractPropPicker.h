@@ -137,24 +137,6 @@ public:
 # pragma warning (disable:858)
 #endif
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define GetPropA GetProp
-# define GetPropW GetProp
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkAbstractPicker::GetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual vtkProp* GetProp());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetPropW
-# undef GetPropA
-  //BTX
-  VTK_LEGACY(virtual vtkProp* GetPropA());
-  VTK_LEGACY(virtual vtkProp* GetPropW());
-  //ETX
-#endif
-
 // Reset disabled warning about qualifiers on return types.
 #if defined(__INTEL_COMPILER)
 # pragma warning (pop)

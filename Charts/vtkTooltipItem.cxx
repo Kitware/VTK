@@ -32,7 +32,7 @@
 vtkStandardNewMacro(vtkTooltipItem);
 
 //-----------------------------------------------------------------------------
-vtkTooltipItem::vtkTooltipItem()
+vtkTooltipItem::vtkTooltipItem() : PositionVector(0, 0)
 {
   this->Position = this->PositionVector.GetData();
   this->TextProperties = vtkTextProperty::New();
