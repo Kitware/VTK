@@ -209,9 +209,9 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
   int usingCellColors=0;
   // In order to perform a GetScalars we need to make sure that the
   // input is up to date
-  input->UpdateInformation();
-  input->SetUpdateExtentToWholeExtent();
-  input->Update();
+//  input->UpdateInformation();
+//  input->SetUpdateExtentToWholeExtent();
+//  input->Update();
 
   vtkDataArray *scalars  = this->GetScalars(input, this->ScalarMode,
                                             this->ArrayAccessMode,
