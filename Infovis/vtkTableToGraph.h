@@ -30,7 +30,7 @@
 // This vertex table must have one or more domain columns whose values
 // match values in the edge table.  The linked column name is specified in
 // the domain array in the link graph.  The output graph will only contain
-// vertices corresponding to a row in the vertex table.  For heterogenous
+// vertices corresponding to a row in the vertex table.  For heterogeneous
 // graphs, you may want to use vtkMergeTables to create a single vertex table.
 //
 // The link graph contains the following arrays:

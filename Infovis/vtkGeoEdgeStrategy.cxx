@@ -101,7 +101,7 @@ void vtkGeoEdgeStrategy::Layout()
     this->Graph->GetPoint(e.Target, targetPt);
 
     // Find w, a unit vector pointing from the center of the
-    // earth directly inbetween the two endpoints.
+    // earth directly between the two endpoints.
     double w[3];
     for (int c = 0; c < 3; ++c)
       {

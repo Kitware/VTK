@@ -229,7 +229,7 @@ void vtkTreeLayoutStrategy::Layout()
       if (tree->IsLeaf(vertex))
         {
         
-        // 1) Compute the postion in the arc
+        // 1) Compute the position in the arc
         // 2) Spin around so that the tree leaves are at 
         //    the bottom and centered
         // 3) Convert to radians

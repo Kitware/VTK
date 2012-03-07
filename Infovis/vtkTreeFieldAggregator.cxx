@@ -72,7 +72,7 @@ int vtkTreeFieldAggregator::RequestData(
   // Shallow copy the input
   output->ShallowCopy(input);
 
-  // Check for the existance of the field to be aggregated
+  // Check for the existence of the field to be aggregated
   if (!output->GetVertexData()->HasArray(this->Field))
     {
     this->LeafVertexUnitSize = true;

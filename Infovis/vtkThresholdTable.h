@@ -56,7 +56,7 @@ public:
   vtkGetMacro(Mode, int);
 
   // Description:
-  // The minumum value for the threshold.
+  // The minimum value for the threshold.
   // This may be any data type stored in a vtkVariant.
   virtual void SetMinValue(vtkVariant v)
     {
@@ -87,7 +87,7 @@ public:
   void ThresholdBetween(vtkVariant lower, vtkVariant upper);
 
   // Description:
-  // The minumum value for the threshold as a double.
+  // The minimum value for the threshold as a double.
   void SetMinValue(double v)
   {
     this->SetMinValue(vtkVariant(v));
