@@ -113,7 +113,7 @@ vtkDSPFilterGroup::~vtkDSPFilterGroup()
 //----------------------------------------------------------------------------
 void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
 {
-  //XXX cant just add this filter, need to check for duplicates and removals?
+  //XXX can't just add this filter, need to check for duplicates and removals?
 
   vtkDSPFilterDefinition *thefilter = vtkDSPFilterDefinition::New();
   thefilter->Copy(filter);
@@ -318,7 +318,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
 
   if( (int)this->CachedOutputs->m_vector.size() < l_numFilters )
     {
-      //this shouldnt happen with saf. Should happen 1 time with exodus.
+      //this shouldn't happen with saf. Should happen 1 time with exodus.
       //printf("vtkDSPFilterGroup::GetOutput resizing cache vector\n");
 
       int l_numNow=(int)this->CachedOutputs->m_vector.size();
@@ -425,7 +425,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
   }
       else
   {
-    printf("error vtkDSPFilterGroup::GetOutput cant get input %d\n",l_useThisTimestep);
+    printf("error vtkDSPFilterGroup::GetOutput can't get input %d\n",l_useThisTimestep);
   }
     }
 
@@ -498,7 +498,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
   }
       else
   {
-    printf("\nerror vtkDSPFilterGroup::GetOutput cant get forward input %d\n\n",l_useThisTimestep);
+    printf("\nerror vtkDSPFilterGroup::GetOutput can't get forward input %d\n\n",l_useThisTimestep);
   }
     }
 

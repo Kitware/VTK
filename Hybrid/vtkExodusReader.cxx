@@ -2977,7 +2977,7 @@ int vtkExodusReader::RequestData(
   //end USE_EXO_DSP_FILTERS
 
   // If the user wants the apply displacements then add here
-  // TODO: This is recalled everytime a user changes arrays
+  // TODO: This is recalled every time a user changes arrays
   // look into avoiding this if possible
   if (ApplyDisplacements)
     {
@@ -5109,7 +5109,7 @@ void vtkExodusReader::GetDSPOutputArrays(int handle, vtkUnstructuredGrid* output
                 if(l_varIndex<0)
                   {           
                   vtkErrorMacro(
-                    "Cant find cell or point vars with name: " << l_name);
+                    "Can't find cell or point vars with name: " << l_name);
                   break;
                   }
 
@@ -5117,7 +5117,7 @@ void vtkExodusReader::GetDSPOutputArrays(int handle, vtkUnstructuredGrid* output
 
                 if(l_isPointArray)
                   {
-                  //Cant use l_varIndex here, because the output's 
+                  //Can't use l_varIndex here, because the output's 
                   // 'Point Data' may
                   //not have all the vars that the actual input Point Data has
                   vtkDataArray *l_array=output->GetPointData()->GetArray(l_name);
@@ -5135,7 +5135,7 @@ void vtkExodusReader::GetDSPOutputArrays(int handle, vtkUnstructuredGrid* output
                     }
                   if(!l_array)
                     {           
-                    vtkErrorMacro("Cant get point array: " << l_name);
+                    vtkErrorMacro("Can't get point array: " << l_name);
                     break;
                     }
 
@@ -5171,7 +5171,7 @@ void vtkExodusReader::GetDSPOutputArrays(int handle, vtkUnstructuredGrid* output
                 else
                   {
                   //BEGIN CELL ARRAY PART
-                  //Cant use l_varIndex here, because the output's 'Point Data' may
+                  //Can't use l_varIndex here, because the output's 'Point Data' may
                   //not have all the vars that the actual input Point Data has
                   vtkDataArray *l_array = 
                     output->GetCellData()->GetArray(l_name);
@@ -5187,7 +5187,7 @@ void vtkExodusReader::GetDSPOutputArrays(int handle, vtkUnstructuredGrid* output
                     }
                   if(!l_array)
                     {           
-                    vtkErrorMacro("Cant get cell array: " << l_name);
+                    vtkErrorMacro("Can't get cell array: " << l_name);
                     break;
                     }
 

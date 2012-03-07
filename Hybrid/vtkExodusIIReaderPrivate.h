@@ -814,7 +814,7 @@ protected:
     * loading all the points on all processes and performing subsequent 
     * filtering on a much larger set.
     *
-    * By default, SqueezePoints is true for backwards compatability.
+    * By default, SqueezePoints is true for backwards compatibility.
     */
   int SqueezePoints;
 

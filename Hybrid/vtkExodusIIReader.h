@@ -106,7 +106,7 @@ public:
   // GetBlockIdArrayName(). For cells representing elements from
   // an Exodus element block, this is set to the element block ID. For
   // cells representing edges from an Exodus edge block, this is the
-  // edge block ID. Similarly, ths is the face block ID for cells
+  // edge block ID. Similarly, this is the face block ID for cells
   // representing faces from an Exodus face block. The same holds
   // for cells representing entries of node, edge, face, side, and element sets.
   virtual void SetGenerateObjectIdCellArray( int g );

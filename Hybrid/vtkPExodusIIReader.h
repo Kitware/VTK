@@ -59,7 +59,7 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
-  // These methods tell the reader that the data is ditributed across
+  // These methods tell the reader that the data is distributed across
   // multiple files. This is for distributed execution. It this case,
   // pieces are mapped to files. The pattern should have one %d to
   // format the file number. FileNumberRange is used to generate file

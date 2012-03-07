@@ -498,7 +498,7 @@ int vtkImageDataLIC2D::RequestData(
 
   int inputRequestedExtent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inputRequestedExtent);
-  // tranform inputRequestedExtent relative to the input's actual extent since the
+  // transform inputRequestedExtent relative to the input's actual extent since the
   // vtkLineIntegralConvolution2D needs extents relative to the input vector
   // field.
   vtkStructuredExtent::Transform(inputRequestedExtent, input->GetExtent());
