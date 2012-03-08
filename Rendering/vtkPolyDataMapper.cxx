@@ -91,7 +91,7 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 }
 
 // Update the network connected to this mapper.
-void vtkPolyDataMapper::Update()
+void vtkPolyDataMapper::Update(int port)
 {
   if (this->Static)
     {
@@ -115,7 +115,12 @@ void vtkPolyDataMapper::Update()
       this->GhostLevel);
     }
 
-  this->vtkMapper::Update();
+  this->vtkMapper::Update(port);
+}
+
+void vtkPolyDataMapper::Update()
+{
+  this->Superclass::Update();
 }
 
 // Get the bounds for the input of this mapper as
