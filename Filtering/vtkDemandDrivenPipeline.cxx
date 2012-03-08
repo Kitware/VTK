@@ -476,10 +476,9 @@ int vtkDemandDrivenPipeline::ExecuteInformation
   // Give each output data object a chance to set default values in
   // its pipeline information.  Provide the first input's information
   // to each output.
-  vtkInformation* inInfo = 0;
   if(this->GetNumberOfInputPorts() > 0)
     {
-    inInfo = inInfoVec[0]->GetInformationObject(0);
+    inInfoVec[0]->GetInformationObject(0);
     }
 
   // Invoke the request on the algorithm.

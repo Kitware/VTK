@@ -354,7 +354,7 @@ int vtkWindBladeReader::RequestInformation(
   vtkStructuredGrid *field = this->GetFieldOutput();
 
   vtkInformation* bladeInfo = outputVector->GetInformationObject(1);
-  vtkUnstructuredGrid* blade = this->GetBladeOutput();
+  this->GetBladeOutput();
 
   vtkInformation* groundInfo = outputVector->GetInformationObject(2);
   vtkStructuredGrid *ground = this->GetGroundOutput();
