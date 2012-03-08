@@ -247,8 +247,8 @@ void vtkDICOMImageReader::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkDICOMImageReader::ExecuteData(vtkDataObject *output,
-                                      vtkInformation *outInfo)
+void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
+                                                     vtkInformation *outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 

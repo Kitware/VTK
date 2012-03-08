@@ -240,8 +240,8 @@ int vtkImageImport::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::ExecuteData(vtkDataObject *output,
-                                 vtkInformation* outInfo)
+void vtkImageImport::ExecuteDataWithInformation(vtkDataObject *output,
+                                                vtkInformation* outInfo)
 {
   // If set, use the callbacks to prepare our input data.
   this->InvokeExecuteDataCallbacks();

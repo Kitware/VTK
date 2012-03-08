@@ -155,8 +155,8 @@ int vtkTriangularTexture::RequestInformation (
   return 1;
 }
 
-void vtkTriangularTexture::ExecuteData(vtkDataObject *outp,
-                                       vtkInformation *outInfo)
+void vtkTriangularTexture::ExecuteDataWithInformation(vtkDataObject *outp,
+                                                      vtkInformation *outInfo)
 {
   vtkImageData *output = this->AllocateOutputData(outp, outInfo);
   vtkUnsignedCharArray *newScalars = 

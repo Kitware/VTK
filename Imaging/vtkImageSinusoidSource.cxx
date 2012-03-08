@@ -139,8 +139,8 @@ int vtkImageSinusoidSource::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output,
-                                         vtkInformation* outInfo)
+void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
+                                                        vtkInformation* outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   double *outPtr;

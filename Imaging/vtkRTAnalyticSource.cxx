@@ -120,8 +120,8 @@ int vtkRTAnalyticSource::RequestInformation(
   return 1;
 }
 
-void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output,
-                                      vtkInformation *outInfo)
+void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *output,
+                                                     vtkInformation *outInfo)
 {
   vtkImageData *data;
   float *outPtr;

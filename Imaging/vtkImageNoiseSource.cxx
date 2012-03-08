@@ -95,8 +95,8 @@ int vtkImageNoiseSource::RequestInformation (
   return 1;
 }
 
-void vtkImageNoiseSource::ExecuteData(vtkDataObject *output,
-                                      vtkInformation *outInfo)
+void vtkImageNoiseSource::ExecuteDataWithInformation(vtkDataObject *output,
+                                                     vtkInformation *outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   

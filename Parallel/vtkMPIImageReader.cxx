@@ -388,15 +388,15 @@ void vtkMPIImageReader::TransformData(vtkImageData *)
 #endif // VTK_USE_MPI_IO
 
 //-----------------------------------------------------------------------------
-void vtkMPIImageReader::ExecuteData(vtkDataObject *output,
-                                    vtkInformation *outInfo)
+void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
+                                                   vtkInformation *outInfo)
 {
 #ifdef VTK_USE_MPI_IO
   vtkMPIController *MPIController
     = vtkMPIController::SafeDownCast(this->Controller);
   if (!MPIController)
     {
-    this->Superclass::ExecuteData(output, outInfo);
+    this->Superclass::ExecuteDataWithInformation(output, outInfo);
     return;
     }
 

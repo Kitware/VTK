@@ -64,8 +64,8 @@ int vtkBooleanTexture::RequestInformation (
   return 1;
 }
 
-void vtkBooleanTexture::ExecuteData(vtkDataObject *outp,
-                                    vtkInformation* outInfo)
+void vtkBooleanTexture::ExecuteDataWithInformation(vtkDataObject *outp,
+                                                   vtkInformation* outInfo)
 {
   int i, j;
   int midILower, midJLower, midIUpper, midJUpper;
