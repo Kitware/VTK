@@ -517,6 +517,6 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   // Done with this for now.
   this->SetGroupedController(NULL);
 #else // VTK_USE_MPI_IO
-  this->Superclass::ExecuteData(output, outInfo);
+  this->Superclass::ExecuteDataWithInformation(output, outInfo);
 #endif // VTK_USE_MPI_IO
 }
