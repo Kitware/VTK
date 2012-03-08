@@ -47,14 +47,14 @@ vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients()
 
 //----------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::AllocateOutputData(
-  vtkImageData *vtkNotUsed(output), int *vtkNotUsed(uExtent))
+  vtkImageData *vtkNotUsed(output), vtkInformation *vtkNotUsed(outInfo), int *vtkNotUsed(uExtent))
 {
   // turn into a no-op, we allocate our output manually
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageBSplineCoefficients::AllocateOutputData(
-  vtkDataObject *output)
+  vtkDataObject *output, vtkInformation *vtkNotUsed(outInfo))
 {
   // turn into a no-op, we allocate our output manually
   vtkImageData *out = vtkImageData::SafeDownCast(output);
