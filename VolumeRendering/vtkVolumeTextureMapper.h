@@ -41,6 +41,7 @@ public:
   // Description:
   // Update the volume rendering pipeline by updating the scalar input
   virtual void Update();
+  virtual void Update(int port);
 
   // Description:
   // Set / Get the gradient estimator used to estimate normals
