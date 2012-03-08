@@ -184,6 +184,10 @@ int vtkProcrustesAlignmentFilter::RequestData(
       outputBlock->DeepCopy(tmpInput);
       }
     output->SetBlock(i, outputBlock);
+    if(outputBlock)
+      {
+        outputBlock->Delete();
+      }
     }
 
   // the number of points is determined by the first input (they must all be the same)

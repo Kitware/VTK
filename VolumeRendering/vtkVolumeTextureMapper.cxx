@@ -89,15 +89,21 @@ void vtkVolumeTextureMapper::SetGradientEstimator(
   this->Modified();
 }
 
-void vtkVolumeTextureMapper::Update()
+void vtkVolumeTextureMapper::Update(int port)
 {
   if ( this->GetInput() )
     {
     this->GetInputAlgorithm()->UpdateInformation();
     this->SetUpdateExtentToWholeExtent();
-    this->GetInputAlgorithm()->Update();
+    this->GetInputAlgorithm()->Update(port);
     }
 }
+
+void vtkVolumeTextureMapper::Update()
+{
+  this->Superclass::Update();
+}
+
 
 void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
                                                vtkVolume *vol )
