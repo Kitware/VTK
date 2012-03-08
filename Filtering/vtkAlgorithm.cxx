@@ -1396,11 +1396,12 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::Update()
 {
+  int port = -1;
   if (this->GetNumberOfOutputPorts())
     {
-    this->Update(0);
+    port = 0;
     }
-  this->Update(-1);
+  this->Update(port);
 }
 
 //----------------------------------------------------------------------------
