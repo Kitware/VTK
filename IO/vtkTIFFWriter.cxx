@@ -92,9 +92,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data, int wExt
   int min0 = wExt[0],
     max0 = wExt[1],
     min1 = wExt[2],
-    max1 = wExt[3],
-    min2 = wExt[4],
-    max2 = wExt[5];
+    max1 = wExt[3];
 
   int bps;
   switch (stype)
@@ -215,7 +213,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data, int wExt
 
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
-                              int extent[6], int wExtent[6])
+                              int extent[6], int*)
 {
   int idx1, idx2;
   void *ptr;

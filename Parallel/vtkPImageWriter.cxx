@@ -123,7 +123,6 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     }
 
   // Get the pipeline information for the input
-  vtkImageData *input = this->GetInput();
   vtkAlgorithm *inAlg = this->GetInputAlgorithm();
 
   // Set a hint not to combine with previous requests

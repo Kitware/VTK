@@ -328,8 +328,7 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
     {
     return 1;
     }
-  
-  vtkPolyData *input = mapper->GetInput();
+
   unsigned long subDivisions = 1;
   unsigned long numPieces = mapper->GetNumberOfPieces();
   unsigned long piece = mapper->GetPiece();

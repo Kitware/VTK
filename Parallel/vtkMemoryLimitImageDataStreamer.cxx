@@ -62,8 +62,6 @@ vtkMemoryLimitImageDataStreamer
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
       
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-      vtkImageData *input = 
-        vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
       
       vtkExtentTranslator *translator = this->GetExtentTranslator();
       translator->SetWholeExtent(outExt);

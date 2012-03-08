@@ -96,7 +96,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   vtkIdType outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   T *outPtr0, *outPtr1, *outPtr2;
-  int wholeMin0, wholeMax0, wholeMin1, wholeMax1, wholeMin2, wholeMax2;
+  int wholeMin0, wholeMax0, wholeMin1, wholeMax1;
   int prune = self->GetPrune();
   float n[8];
   int countFaces, countCorners;
@@ -108,8 +108,6 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   wholeMax0 = wholeExt[1];
   wholeMin1 = wholeExt[2];
   wholeMax1 = wholeExt[3];
-  wholeMin2 = wholeExt[4];
-  wholeMax2 = wholeExt[5];
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 

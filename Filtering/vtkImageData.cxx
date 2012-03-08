@@ -1067,7 +1067,7 @@ bool vtkImageData::HasNumberOfScalarComponents(vtkInformation* meta_data)
     {
     return false;
     }
-  return scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS());
+  return scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()) != 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1440,7 +1440,7 @@ bool vtkImageData::HasScalarType(vtkInformation* meta_data)
     return false;
     }
 
-  return scalarInfo->Has(  FIELD_ARRAY_TYPE() );
+  return scalarInfo->Has( FIELD_ARRAY_TYPE() ) != 0;
 }
 
 //----------------------------------------------------------------------------
