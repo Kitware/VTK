@@ -138,7 +138,7 @@ int vtkSampleFunction::RequestInformation (
 }
 
 
-void vtkSampleFunction::ExecuteData(vtkDataObject *outp, vtkInformation *outInfo)
+void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation *outInfo)
 {
   vtkIdType idx, i, j, k;
   vtkFloatArray *newNormals=NULL;

@@ -204,8 +204,8 @@ void vtkMetaImageReader::ExecuteInformation()
 
 }
 
-void vtkMetaImageReader::ExecuteData(vtkDataObject * output,
-                                     vtkInformation *outInfo)
+void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject * output,
+                                                    vtkInformation *outInfo)
 {
 
   vtkImageData * data = this->AllocateOutputData(output, outInfo);

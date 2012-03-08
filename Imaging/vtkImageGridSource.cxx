@@ -146,8 +146,8 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
 }  
 
 //----------------------------------------------------------------------------
-void vtkImageGridSource::ExecuteData(vtkDataObject *output,
-                                     vtkInformation* outInfo)
+void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject *output,
+                                                    vtkInformation* outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   int *outExt = data->GetExtent();

@@ -160,7 +160,7 @@ int vtkMoleculeAlgorithm::RequestData(
   vtkInformationVector* outputVector)
 {
   // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
+  // output is requesting the data, and pass that into ExecuteDataWithInformation
 
   // which output port did the request come from
   int outputPort =
@@ -177,15 +177,15 @@ int vtkMoleculeAlgorithm::RequestData(
   vtkInformation *outInfo =
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()), outInfo );
+  this->ExecuteDataWithInformation( outInfo->Get(vtkDataObject::DATA_OBJECT()), outInfo );
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData
+// Assume that any source that implements ExecuteDataWithInformation
 // can handle an empty extent.
-void vtkMoleculeAlgorithm::ExecuteData(
+void vtkMoleculeAlgorithm::ExecuteDataWithInformation(
   vtkDataObject *output,
   vtkInformation *outInfo)
 {

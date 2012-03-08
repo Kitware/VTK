@@ -76,8 +76,8 @@ int vtkImageAlgorithm::RequestData(
   this->SetErrorCode( vtkErrorCode::NoError );
   if (outInfo)
     {
-    this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()),
-                       outInfo );
+    this->ExecuteDataWithInformation( outInfo->Get(vtkDataObject::DATA_OBJECT()),
+                                      outInfo );
     }
   else
     {
@@ -118,7 +118,7 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
-void vtkImageAlgorithm::ExecuteData(vtkDataObject *dobj, vtkInformation*)
+void vtkImageAlgorithm::ExecuteDataWithInformation(vtkDataObject *dobj, vtkInformation*)
 {
   this->ExecuteData(dobj);
 }

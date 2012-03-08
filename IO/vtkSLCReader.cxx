@@ -209,8 +209,8 @@ int vtkSLCReader::RequestInformation (
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
-void vtkSLCReader::ExecuteData(vtkDataObject *output_do,
-                               vtkInformation *vtkNotUsed(outInfo))
+void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
+                                              vtkInformation *vtkNotUsed(outInfo))
 { 
   vtkImageData *output = vtkImageData::SafeDownCast(output_do);
 

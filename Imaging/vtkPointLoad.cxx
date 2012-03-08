@@ -121,7 +121,7 @@ int vtkPointLoad::RequestInformation (
 //
 // Generate tensors and scalars for point load on semi-infinite domain.
 //
-void vtkPointLoad::ExecuteData(vtkDataObject *outp, vtkInformation* outInfo)
+void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation* outInfo)
 {
   int i, j, k;
   vtkFloatArray *newTensors;

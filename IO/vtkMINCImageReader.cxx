@@ -1128,8 +1128,8 @@ void vtkMINCImageReaderExecuteChunk(
   case VTK_UNSIGNED_CHAR:  { typedef unsigned char VTK_TT; call; };  break
 
 //-------------------------------------------------------------------------
-void vtkMINCImageReader::ExecuteData(vtkDataObject *output,
-                                     vtkInformation *outInfo)
+void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
+                                                    vtkInformation *outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   int scalarType = data->GetScalarType();

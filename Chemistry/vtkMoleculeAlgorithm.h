@@ -104,8 +104,8 @@ protected:
 
   // Description:
   // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output,
-                           vtkInformation* outInfo);
+  virtual void ExecuteDataWithInformation(vtkDataObject *output,
+                                          vtkInformation* outInfo);
   virtual void Execute();
 
   // see algorithm for more info

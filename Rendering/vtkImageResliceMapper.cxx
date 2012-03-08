@@ -191,7 +191,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::Update()
+void vtkImageResliceMapper::Update(int port)
 {
   // I don't like to override Update, or call Modified() in Update,
   // but this allows updates to be forced where MTimes can't be used
@@ -271,8 +271,13 @@ void vtkImageResliceMapper::Update()
     this->Modified();
     }
 
-  this->Superclass::Update();
+  this->Superclass::Update(port);
   this->UpdateTime.Modified();
+}
+
+void vtkImageResliceMapper::Update()
+{
+  this->Superclass::Update();
 }
 
 //----------------------------------------------------------------------------

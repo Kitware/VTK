@@ -128,8 +128,10 @@ protected:
   vtkImageBSplineCoefficients();
   ~vtkImageBSplineCoefficients();
 
-  virtual void AllocateOutputData(vtkImageData *out, int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+  virtual void AllocateOutputData(
+    vtkImageData *out, vtkInformation *outInfo, int *uExtent);
+  virtual vtkImageData *AllocateOutputData(
+    vtkDataObject *out, vtkInformation* outInfo);
 
   virtual int RequestData(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*);
