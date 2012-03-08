@@ -68,7 +68,7 @@ void WriteAMRData(
       << myAMRWriter->GetDefaultFileExtension();
 
   myAMRWriter->SetFileName( oss.str().c_str() );
-  myAMRWriter->SetInput( myAMRData );
+  myAMRWriter->SetInputData( myAMRData );
   myAMRWriter->Write();
   myAMRWriter->Delete();
   controller->Barrier();
@@ -86,7 +86,7 @@ void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
   assert( "Cannot create Image2StructuredGridFilter" &&
           (myImage2StructuredGridFilter != NULL) );
 
-  myImage2StructuredGridFilter->SetInput( myGrid );
+  myImage2StructuredGridFilter->SetInputData( myGrid );
   myImage2StructuredGridFilter->Update();
   vtkStructuredGrid* myStructuredGrid =
       myImage2StructuredGridFilter->GetOutput();
@@ -95,7 +95,7 @@ void WriteUniformGrid( vtkUniformGrid *myGrid, std::string prefix )
 
   vtkStructuredGridWriter *myWriter = vtkStructuredGridWriter::New();
   myWriter->SetFileName( prefix.c_str() );
-  myWriter->SetInput( myStructuredGrid );
+  myWriter->SetInputData( myStructuredGrid );
   myWriter->Update();
   myWriter->Delete();
   myImage2StructuredGridFilter->Delete();
