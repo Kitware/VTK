@@ -1179,7 +1179,8 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
       }
     else 
       {
-      while (lineRead && strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 &&
+                         strncmp(line, "END TIME STEP", 13) != 0 )
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
@@ -1355,7 +1356,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
       }
     else 
       {
-      while (lineRead && strncmp(line, "part", 4) != 0)
+      while (lineRead && strncmp(line, "part", 4) != 0 && strncmp(line, "END TIME STEP", 13) != 0 )
         {
         elementType = this->GetElementType(line);
         if (elementType < 0)
