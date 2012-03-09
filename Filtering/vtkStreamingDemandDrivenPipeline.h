@@ -190,6 +190,10 @@ public:
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
 
   // Description:
+  // Key to store an update in the AMR level of resolution.
+  static vtkInformationIntegerKey* UPDATE_AMR_LEVEL();
+
+  // Description:
   // Key for combining the update extents requested by all consumers,
   // so that the final extent that is produced satisfies all consumers.
   static vtkInformationIntegerVectorKey* COMBINED_UPDATE_EXTENT();

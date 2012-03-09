@@ -1,53 +1,41 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkLevelIdScalars.h
+ Program:   Visualization Toolkit
+ Module:    vtkLevelIdScalars.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/
-// .NAME vtkLevelIdScalars - generate scalars from levels.
+ =========================================================================*/
+// .NAME vtkLevelIdScalars.h -- Empty class for backwards compatibility
+//
 // .SECTION Description
-// vtkLevelIdScalars is a filter that generates scalars using the level number
-// for each level. Note that all datasets within a level get the same scalar.
-// The new scalars array is named \c LevelIdScalars.
+//  Empty class for backwards compatibility.
+#ifndef VTKLEVELIDSCALARS_H_
+#define VTKLEVELIDSCALARS_H_
 
-#ifndef __vtkLevelIdScalars_h
-#define __vtkLevelIdScalars_h
+#include "vtkOverlappingAMRLevelIdScalars.h"
 
-#include "vtkHierarchicalBoxDataSetAlgorithm.h"
-
-class vtkUniformGrid;
-class VTK_GRAPHICS_EXPORT vtkLevelIdScalars : public vtkHierarchicalBoxDataSetAlgorithm
+class VTK_GRAPHICS_EXPORT vtkLevelIdScalars :
+  public vtkOverlappingAMRLevelIdScalars
 {
-public:
-  static vtkLevelIdScalars* New();
-  vtkTypeMacro(vtkLevelIdScalars, vtkHierarchicalBoxDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  public:
+    static vtkLevelIdScalars* New();
+    vtkTypeMacro(vtkLevelIdScalars,vtkOverlappingAMRLevelIdScalars);
+    void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
-protected:
-  vtkLevelIdScalars();
-  ~vtkLevelIdScalars();
+  protected:
+    vtkLevelIdScalars();
+    virtual ~vtkLevelIdScalars();
 
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
-                  vtkInformationVector *);
-
-  vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
-
-private:
-  vtkLevelIdScalars(const vtkLevelIdScalars&); // Not implemented.
-  void operator=(const vtkLevelIdScalars&); // Not implemented.
-//ETX
+  private:
+    vtkLevelIdScalars(const vtkLevelIdScalars&); // Not implemented
+    void operator=(const vtkLevelIdScalars&); // Not implemented
 };
 
-#endif
-
-
+#endif /* VTKLEVELIDSCALARS_H_ */
