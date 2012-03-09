@@ -1977,33 +1977,3 @@ void vtkAMRBox::WriteBox(
 
   ofs.close( );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// TODO delete these
-// These are legacy methods going away, do not use!
-#ifndef VTK_LEGACY_REMOVE
-int vtkAMRBox::DoesContainCell(int i, int j, int k)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainCell, "VTK 5.4",
-                           vtkAMRBox::Contains);
-  return this->Contains(i,j,k);
-}
-
-int vtkAMRBox::DoesContainBox(vtkAMRBox const & box) const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainBox, "VTK 5.4",
-                           vtkAMRBox::Contains);
-  return this->Contains(box);
-}
-#endif // #ifndef VTK_LEGACY_REMOVE

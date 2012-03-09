@@ -361,17 +361,6 @@ public:
                                       double **convexRegionBounds);
 
   // Description:
-  // DO NOT CALL.  Depricated in VTK 5.2.  Use ViewOrderAllRegionsInDirection
-  // or ViewOrderAllRegionsFromPosition.
-  VTK_LEGACY(int DepthOrderAllRegions(double *dop, vtkIntArray *orderedList));
-
-  // Description:
-  // DO NOT CALL.  Depricated in VTK 5.2.  Use ViewOrderRegionsInDirection
-  // or ViewOrderRegionsFromPosition.
-  VTK_LEGACY(int DepthOrderRegions(vtkIntArray *regionIds, double *dop,
-                                   vtkIntArray *orderedList));
-
-  // Description:
   // Given a direction of projection (typically obtained with
   // vtkCamera::GetDirectionOfProjection()), this method, creates a list of the
   // k-d tree region IDs in order from front to back with respect to that

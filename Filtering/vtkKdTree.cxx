@@ -4298,30 +4298,6 @@ int vtkKdTree::__ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode 
     }
 }
 
-//-----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-
-int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
-                                 double *directionOfProjection,
-                                 vtkIntArray *orderedList)
-{   
-  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderRegions, "VTK 5.2",
-                           vtkKdTree::ViewOrderRegionsInDirection);
-  return this->ViewOrderRegionsInDirection(regionIds, directionOfProjection,
-                                           orderedList);
-}
-
-int vtkKdTree::DepthOrderAllRegions(double *directionOfProjection,
-                                    vtkIntArray *orderedList)
-{   
-  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderAllRegions, "VTK 5.2",
-                           vtkKdTree::ViewOrderAllRegionsInDirection);
-  return this->ViewOrderAllRegionsInDirection(directionOfProjection,
-                                              orderedList);
-}
-
-#endif //VTK_LEGACY_REMOVE
-
 //----------------------------------------------------------------------------
 int vtkKdTree::ViewOrderRegionsInDirection(
                                           vtkIntArray *regionIds,

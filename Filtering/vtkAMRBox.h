@@ -337,15 +337,6 @@ public:
   // Note: This method is used for debugging purposes.
   void WriteBox();
 
-  //BTX
-  // @deprecated Replaced by Contains() as of VTK 5.4.
-  // Do not use! See Contains().
-  VTK_LEGACY(int DoesContainCell(int i, int j, int k));
-  // @deprecated Replaced by Contains() as of VTK 5.4.
-  // Do not use! See Contains().
-  VTK_LEGACY(int DoesContainBox(vtkAMRBox const & box) const);
-  //ETX
-
 public:
 
   // Description:
