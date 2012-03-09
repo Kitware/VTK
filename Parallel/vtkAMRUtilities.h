@@ -30,7 +30,6 @@
 // Forward declarations
 class vtkAMRBox;
 class vtkOverlappingAMR;
-class vtkMPIController;
 class vtkMultiProcessController;
 class vtkUniformGrid;
 

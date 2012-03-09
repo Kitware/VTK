@@ -17,7 +17,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkCommunicator.h"
 #include "vtkMath.h"
 
