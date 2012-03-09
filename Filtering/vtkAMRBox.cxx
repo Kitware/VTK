@@ -135,7 +135,7 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   ijk[1]=j-this->LoCorner[1];
   ijk[2]=k-this->LoCorner[2];
 
-  int N1,N2,idx;
+  int N1=0,N2=0,idx=0;
   switch( this->Dimension )
     {
     case 1:
