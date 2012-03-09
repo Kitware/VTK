@@ -22,7 +22,7 @@
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <vtkstd/vector> // For STL vector
+#include <vector> // For STL vector
 
 class vtkMultiBlockDataSet;
 class vtkHierarchicalBoxDataSet;
@@ -146,7 +146,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     vtkContourValues *contourValues;
 
 // BTX
-    vtkstd::vector<int> blocksToLoad;
+    std::vector<int> blocksToLoad;
 // ETX
 
   private:

@@ -27,7 +27,7 @@
 #define H5_USE_16_API
 #include <hdf5.h>      // for the HDF data loading engine
 
-#include <vtkstd/vector>
+#include <vector>
 #include <cassert>
 
 #define  FLASH_READER_MAX_DIMS     3
@@ -41,8 +41,8 @@
 // NOTE: it is assumed that H5DOpen has been called on the
 // internal file index this->FileIndex.
 void GetParticleCoordinates(    hid_t &dataIdx,
-  vtkstd::vector< double > &xcoords, vtkstd::vector< double > &ycoords,
-  vtkstd::vector< double > &zcoords,
+  std::vector< double > &xcoords, std::vector< double > &ycoords,
+  std::vector< double > &zcoords,
   vtkFlashReaderInternal *iReader,
   int NumParticles )
 {
@@ -200,9 +200,9 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
   assert( "pre: PointData is NULL" && (pdata != NULL) );
 
   // Load the particle position arrays by name
-  vtkstd::vector< double > xcoords;
-  vtkstd::vector< double > ycoords;
-  vtkstd::vector< double > zcoords;
+  std::vector< double > xcoords;
+  std::vector< double > ycoords;
+  std::vector< double > zcoords;
   GetParticleCoordinates(
       dataIdx, xcoords, ycoords, zcoords,
       this->Internal, this->Internal->NumberOfParticles );

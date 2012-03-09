@@ -35,6 +35,7 @@
 #include "vtkXMLImageDataWriter.h"
 #include "vtkExtentRCBPartitioner.h"
 #include "vtkUniformGridPartitioner.h"
+#include "vtkDataArray.h"
 
 #include "vtkTimerLog.h"
 

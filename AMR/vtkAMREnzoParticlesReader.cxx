@@ -22,7 +22,7 @@
 #include "vtkDataArray.h"
 
 #include <cassert>
-#include <vtkstd/vector>
+#include <vector>
 
 #include "vtksys/SystemTools.hxx"
 
@@ -85,7 +85,7 @@ bool FindBlockIndex( hid_t fileIndx, const int blockIdx, hid_t &rootIndx )
 // Description:
 // Returns the double array
 void GetDoubleArrayByName(
-    const hid_t rootIdx, const char* name, vtkstd::vector<double> &array)
+    const hid_t rootIdx, const char* name, std::vector<double> &array)
 {
   // turn off warnings
   void       * pContext = NULL;
@@ -153,9 +153,9 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
     return;
 
   this->Internal->SetFileName( this->FileName );
-  vtkstd::string  tempName( this->FileName );
-  vtkstd::string  bExtName( ".boundary" );
-  vtkstd::string  hExtName( ".hierarchy" );
+  std::string  tempName( this->FileName );
+  std::string  bExtName( ".boundary" );
+  std::string  hExtName( ".hierarchy" );
 
   if( tempName.length() > hExtName.length() &&
        tempName.substr(tempName.length()-hExtName.length() )== hExtName )
@@ -258,9 +258,9 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   //  ( 2 ) tracer_particle_position_i
   //
   // where i \in {x,y,z}.
-  vtkstd::vector< double > xcoords;
-  vtkstd::vector< double > ycoords;
-  vtkstd::vector< double > zcoords;
+  std::vector< double > xcoords;
+  std::vector< double > ycoords;
+  std::vector< double > zcoords;
 
   // TODO: should we handle 2-D particle datasets?
   GetDoubleArrayByName( rootIndx, "particle_position_x", xcoords );
@@ -414,7 +414,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
       return( emptyParticles );
     }
 
-  vtkstd::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
+  std::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
   if( pfile == "" )
     {
       vtkErrorMacro( "No particles file found, string is empty!" );
