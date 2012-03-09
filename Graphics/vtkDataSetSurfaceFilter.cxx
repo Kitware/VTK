@@ -47,7 +47,6 @@
 #include <vtksys/hash_map.hxx>
 
 #include <cassert>
-#include <vtkstd/map>
 
 static int sizeofFastQuad(int numPts)
 {

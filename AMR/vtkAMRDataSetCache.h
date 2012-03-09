@@ -24,7 +24,7 @@
 #define VTKAMRDATASETCACHE_H_
 
 #include "vtkObject.h"
-#include <vtkstd/map> // For STL map used as the data-structure for the cache.
+#include <map> // For STL map used as the data-structure for the cache.
 
 class vtkUniformGrid;
 class vtkDataArray;
@@ -90,7 +90,7 @@ class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
     virtual ~vtkAMRDataSetCache();
 
 //BTX
-    typedef vtkstd::map< int, vtkUniformGrid* > AMRCacheType;
+    typedef std::map< int, vtkUniformGrid* > AMRCacheType;
     AMRCacheType Cache;
 //ETX
 

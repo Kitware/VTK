@@ -26,7 +26,6 @@
 
 #include <limits>
 #include <cassert>
-#include <vtkstd/vector>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
