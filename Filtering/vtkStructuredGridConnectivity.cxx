@@ -786,7 +786,7 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
     const int i, const int j,
     int ex1[6], int ex2[6], int orientation[3], int ndim )
 {
-  vtkstd::vector< int > status;
+  std::vector< int > status;
   status.resize( ndim );
 
   int A[2];
