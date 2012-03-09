@@ -31,6 +31,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkMultiProcessController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataArray.h"
 
 #include "vtkTimerLog.h"
 

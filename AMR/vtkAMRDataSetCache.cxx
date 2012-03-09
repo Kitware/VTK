@@ -17,10 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkUniformGrid.h"
 #include "vtkTimerLog.h"
 #include <cassert>
-
 
 vtkStandardNewMacro( vtkAMRDataSetCache );
 
