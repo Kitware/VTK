@@ -39,6 +39,7 @@
 #include "vtkTimerLog.h"
 
 #include <cassert>
+#include <cmath>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
