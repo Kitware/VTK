@@ -40,7 +40,6 @@ void vtkAssemblyNode::SetViewProp(vtkProp *prop)
   this->ViewProp = prop;
 }
 
-
 void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
 {
   // delete previous
@@ -100,56 +99,3 @@ void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Matrix: (none)\n";
     }
 }
-
-//----------------------------------------------------------------------------
-
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER) 
-# pragma warning (disable:858)
-#endif
-
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef SetProp
-#  undef GetProp
-void vtkAssemblyNode::SetPropA(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
-                           vtkAssemblyNode::SetViewProp);
-  this->SetViewProp(prop);
-}
-void vtkAssemblyNode::SetPropW(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
-                           vtkAssemblyNode::SetViewProp);
-  this->SetViewProp(prop);
-}
-vtkProp* vtkAssemblyNode::GetPropA()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
-                           vtkAssemblyNode::GetViewProp);
-  return this->GetViewProp();
-}
-vtkProp* vtkAssemblyNode::GetPropW()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
-                           vtkAssemblyNode::GetViewProp);
-  return this->GetViewProp();
-}
-# endif
-void vtkAssemblyNode::SetProp(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
-                           vtkAssemblyNode::SetViewProp);
-  this->SetViewProp(prop);
-}
-vtkProp* vtkAssemblyNode::GetProp()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
-                           vtkAssemblyNode::GetViewProp);
-  return this->GetViewProp();
-}
-#endif

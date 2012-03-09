@@ -28,10 +28,8 @@
 #include "vtkObject.h"
 
 #ifdef _WIN32
-#ifndef _WIN32_WCE
 #include <sys/types.h> // Needed for Win32 implementation of timer
 #include <sys/timeb.h> // Needed for Win32 implementation of timer
-#endif
 #else
 #include <time.h>      // Needed for unix implementation of timer
 #include <sys/time.h>  // Needed for unix implementation of timer
@@ -160,21 +158,6 @@ public:
   // Returns the difference between StartTime and EndTime as 
   // a doubleing point value indicating the elapsed time in seconds.
   double GetElapsedTime();
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define GetTickCount GetCurrentTime
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkTimerLog::GetUniversalTime() as of VTK 5.0.
-  VTK_LEGACY(static double GetCurrentTime());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetTickCount
-  //BTX
-  VTK_LEGACY(static double GetTickCount());
-  //ETX
-#endif
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
