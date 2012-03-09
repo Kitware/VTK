@@ -86,9 +86,6 @@ vtkAMRBox::vtkAMRBox(int vtkNotUsed(dim), const int *dims)
   this->BuildAMRBox( dims[0], dims[2],dims[4], dims[1],dims[3],dims[5] );
   assert( "post: Dimension expected to be 2 or 3" &&
       ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
-//  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
-  assert( "post: AMR box dimension does not match expected dimension" &&
-          (dim==this->GetDimensionality() ) );
 }
 
 
