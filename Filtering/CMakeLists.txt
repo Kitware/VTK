@@ -62,13 +62,6 @@ vtkDataSetAttributes.cxx
 vtkDataSetCollection.cxx
 vtkDataSet.cxx
 vtkDataSetGhostGenerator.cxx
-vtkDataSetSource.cxx
-vtkDataSetToDataSetFilter.cxx
-vtkDataSetToImageFilter.cxx
-vtkDataSetToPolyDataFilter.cxx
-vtkDataSetToStructuredGridFilter.cxx
-vtkDataSetToStructuredPointsFilter.cxx
-vtkDataSetToUnstructuredGridFilter.cxx
 vtkDemandDrivenPipeline.cxx
 vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
@@ -201,8 +194,6 @@ vtkQuadraticWedge.cxx
 vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGrid.cxx
 vtkRectilinearGridPartitioner.cxx
-vtkRectilinearGridSource.cxx
-vtkRectilinearGridToPolyDataFilter.cxx
 vtkReebGraph.cxx
 vtkReebGraphSimplificationMetric.cxx
 vtkScalarTree.cxx
@@ -221,9 +212,6 @@ vtkStructuredGrid.cxx
 vtkStructuredGridConnectivity.cxx
 vtkStructuredGridGhostDataGenerator.cxx
 vtkStructuredGridPartitioner.cxx
-vtkStructuredGridSource.cxx
-vtkStructuredGridToPolyDataFilter.cxx
-vtkStructuredGridToStructuredGridFilter.cxx
 vtkStructuredNeighbor.cxx
 vtkStructuredPointsCollection.cxx
 vtkStructuredPoints.cxx
@@ -276,7 +264,6 @@ vtkCompositeDataIterator
 vtkCompositeDataSet
 vtkDataSet
 vtkDataSetGhostGenerator
-vtkDataSetSource
 vtkDataSetToDataSetFilter
 vtkDataSetToImageFilter
 vtkDataSetToPolyDataFilter
