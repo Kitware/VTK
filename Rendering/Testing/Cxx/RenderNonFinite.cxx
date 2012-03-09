@@ -222,6 +222,8 @@ int RenderNonFinite(int argc, char *argv[])
   renderer = CreateRenderer(input, CreateDiscretizableColorTransferFunction(), 1);
   AddRenderer(renderer, renwin);
 
+  renwin->Render();
+
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
