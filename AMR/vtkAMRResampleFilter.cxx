@@ -1080,15 +1080,15 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
 
     if (bdir == 0)
       {
-      N[0] = fmin(N[0], fmax(N[1], N[2]));
+      N[0] = std::min(N[0], std::max(N[1], N[2]));
       }
     else if (bdir == 1)
       {
-      N[1] = fmin(N[1], fmax(N[0], N[2]));
+      N[1] = std::min(N[1], std::max(N[0], N[2]));
       }
     else
       {
-      N[2] = fmin(N[2], fmax(N[0], N[1]));
+      N[2] = std::min(N[2], std::max(N[0], N[1]));
       }
     std::cerr << "Adjusted Grid Dim: " << N[0] << ", "  << N[1] << ", "  << N[2] << "\n";
     }
