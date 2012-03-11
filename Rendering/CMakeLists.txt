@@ -96,6 +96,7 @@ SET( Kit_SRCS
   vtkInteractorStyleRubberBand3D.cxx
   vtkInteractorStyleRubberBandPick.cxx
   vtkInteractorStyleRubberBandZoom.cxx
+  vtkInteractorStyleSwitchBase.cxx
   vtkInteractorStyleSwitch.cxx
   vtkInteractorStyleTerrain.cxx
   vtkInteractorStyleTrackballActor.cxx
