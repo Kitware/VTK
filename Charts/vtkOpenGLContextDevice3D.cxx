@@ -29,64 +29,24 @@ public:
   {
     this->SavedLighting = GL_TRUE;
     this->SavedDepthTest = GL_TRUE;
-    this->SavedAlphaTest = GL_TRUE;
-    this->SavedStencilTest = GL_TRUE;
-    this->SavedBlend = GL_TRUE;
-    this->SavedDrawBuffer = 0;
-    this->SavedClearColor[0] = this->SavedClearColor[1] =
-                               this->SavedClearColor[2] =
-                               this->SavedClearColor[3] = 0.0f;
   }
 
   ~Private()
   {
   }
 
-  void SaveGLState(bool colorBuffer = false)
+  void SaveGLState()
   {
     this->SavedLighting = glIsEnabled(GL_LIGHTING);
     this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
-
-    if (colorBuffer)
-      {
-      this->SavedAlphaTest = glIsEnabled(GL_ALPHA_TEST);
-      this->SavedStencilTest = glIsEnabled(GL_STENCIL_TEST);
-      this->SavedBlend = glIsEnabled(GL_BLEND);
-      glGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
-      glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
-      }
+    this->SavedBlending = glIsEnabled(GL_BLEND);
   }
 
-  void RestoreGLState(bool colorBuffer = false)
+  void RestoreGLState()
   {
     this->SetGLCapability(GL_LIGHTING, this->SavedLighting);
     this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
-
-    if (colorBuffer)
-      {
-      this->SetGLCapability(GL_ALPHA_TEST, this->SavedAlphaTest);
-      this->SetGLCapability(GL_STENCIL_TEST, this->SavedStencilTest);
-      this->SetGLCapability(GL_BLEND, this->SavedBlend);
-
-      if(this->SavedDrawBuffer != GL_BACK_LEFT)
-        {
-        glDrawBuffer(this->SavedDrawBuffer);
-        }
-
-      int i = 0;
-      bool colorDiffer = false;
-      while(!colorDiffer && i < 4)
-        {
-        colorDiffer=this->SavedClearColor[i++] != 0.0;
-        }
-      if(colorDiffer)
-        {
-        glClearColor(this->SavedClearColor[0],
-                     this->SavedClearColor[1],
-                     this->SavedClearColor[2],
-                     this->SavedClearColor[3]);
-        }
-      }
+    this->SetGLCapability(GL_BLEND, this->SavedBlending);
   }
 
   void SetGLCapability(GLenum capability, GLboolean state)
@@ -104,11 +64,7 @@ public:
   // Store the previous GL state so that we can restore it when complete
   GLboolean SavedLighting;
   GLboolean SavedDepthTest;
-  GLboolean SavedAlphaTest;
-  GLboolean SavedStencilTest;
-  GLboolean SavedBlend;
-  GLint SavedDrawBuffer;
-  GLfloat SavedClearColor[4];
+  GLboolean SavedBlending;
 
   vtkVector2i Dim;
   vtkVector2i Offset;
@@ -234,14 +190,14 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* viewport)
   float offset = 0.5;
   glOrtho(offset, vp[2]+offset-1.0,
           offset, vp[3]+offset-1.0,
-          -1, 1);
+          -1000, 1000);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
 
   // Store the previous state before changing it
-  //this->Storage->SaveGLState();
+  this->Storage->SaveGLState();
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -265,7 +221,7 @@ void vtkOpenGLContextDevice3D::End()
   glPopMatrix();
 
   // Restore the GL state that we changed
-  //this->Storage->RestoreGLState();
+  this->Storage->RestoreGLState();
 
   this->InRender = false;
 }
