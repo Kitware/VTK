@@ -23,7 +23,10 @@
 #define __vtkOpenGLContextDevice3D_h
 
 #include "vtkContextDevice3D.h"
+#include "vtkNew.h"             // For ivars.
 
+class vtkBrush;
+class vtkPen;
 class vtkRenderer;
 
 class VTK_CHARTS_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
@@ -35,12 +38,12 @@ public:
   static vtkOpenGLContextDevice3D * New();
 
   // Description:
-  // Draw a line between the specified points.
-  void DrawLine(const vtkVector3f &start, const vtkVector3f &end);
+  // Draw a polyline between the specified points.
+  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc);
 
   // Description:
-  // Draw a point at the point in 3D space.
-  void DrawPoint(const vtkVector3f &point);
+  // Draw points at the vertex positions specified.
+  void DrawPoints(const float *verts, int n, const unsigned char *colors, int nc);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
@@ -109,6 +112,9 @@ private:
   // Private data pointer of the class
   class Private;
   Private *Storage;
+
+  vtkNew<vtkBrush> Brush;
+  vtkNew<vtkPen>   Pen;
 };
 
 #endif

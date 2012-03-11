@@ -15,6 +15,10 @@
 
 #include "vtkOpenGLContextDevice3D.h"
 
+#include "vtkBrush.h"
+#include "vtkPen.h"
+
+#include "vtkMatrix4x4.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLExtensionManager.h"
@@ -61,6 +65,63 @@ public:
       }
   }
 
+  void Transpose(double *in, double *transposed)
+  {
+    transposed[0] = in[0];
+    transposed[1] = in[4];
+    transposed[2] = in[8];
+    transposed[3] = in[12];
+
+    transposed[4] = in[1];
+    transposed[5] = in[5];
+    transposed[6] = in[9];
+    transposed[7] = in[13];
+
+    transposed[8] = in[2];
+    transposed[9] = in[6];
+    transposed[10] = in[10];
+    transposed[11] = in[14];
+
+    transposed[12] = in[3];
+    transposed[13] = in[7];
+    transposed[14] = in[11];
+    transposed[15] = in[15];
+  }
+
+  void SetLineType(int type)
+  {
+    if (type == vtkPen::SOLID_LINE)
+      {
+      glDisable(GL_LINE_STIPPLE);
+      }
+    else
+      {
+      glEnable(GL_LINE_STIPPLE);
+      }
+    GLushort pattern = 0x0000;
+    switch (type)
+      {
+      case vtkPen::NO_PEN:
+        pattern = 0x0000;
+        break;
+      case vtkPen::DASH_LINE:
+        pattern = 0x00FF;
+        break;
+      case vtkPen::DOT_LINE:
+        pattern = 0x0101;
+        break;
+      case vtkPen::DASH_DOT_LINE:
+        pattern = 0x0C0F;
+        break;
+      case vtkPen::DASH_DOT_DOT_LINE:
+        pattern = 0x1C47;
+        break;
+      default:
+        pattern = 0x0000;
+      }
+    glLineStipple(1, pattern);
+  }
+
   // Store the previous GL state so that we can restore it when complete
   GLboolean SavedLighting;
   GLboolean SavedDepthTest;
@@ -81,44 +142,95 @@ vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
   delete Storage;
 }
 
-void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
+                                        const unsigned char *colors, int nc)
 {
+  assert("verts must be non-null" && verts != NULL);
+  assert("n must be greater than 0" && n > 0);
+
+  this->Storage->SetLineType(this->Pen->GetLineType());
+  glLineWidth(this->Pen->GetWidth());
+
+  if (colors)
+    {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    }
+  else
+    {
+    glColor4ubv(this->Pen->GetColor());
+    }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, verts);
+  glDrawArrays(GL_LINE_STRIP, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (colors)
+    {
+    glDisableClientState(GL_COLOR_ARRAY);
+    }
 }
 
-void vtkOpenGLContextDevice3D::DrawLine(const vtkVector3f &start,
-                                        const vtkVector3f &end)
+void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
+                                          const unsigned char *colors, int nc)
 {
+  assert("verts must be non-null" && verts != NULL);
+  assert("n must be greater than 0" && n > 0);
 
-}
-
-void vtkOpenGLContextDevice3D::DrawPoint(const vtkVector3f &point)
-{
-
+  glPointSize(this->Pen->GetWidth());
+  glEnableClientState(GL_VERTEX_ARRAY);
+  if (colors && nc)
+    {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    }
+  else
+    {
+    glColor4ubv(this->Pen->GetColor());
+    }
+  glVertexPointer(3, GL_FLOAT, 0, verts);
+  glDrawArrays(GL_POINTS, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (colors && nc)
+    {
+    glDisableClientState(GL_COLOR_ARRAY);
+    }
 }
 
 void vtkOpenGLContextDevice3D::ApplyPen(vtkPen *pen)
 {
-
+  this->Pen->DeepCopy(pen);
 }
 
 void vtkOpenGLContextDevice3D::ApplyBrush(vtkBrush *brush)
 {
-
+  this->Brush->DeepCopy(brush);
 }
 
 void vtkOpenGLContextDevice3D::SetMatrix(vtkMatrix4x4 *m)
 {
+  double matrix[16];
+  double *M = m->Element[0];
+  this->Storage->Transpose(M, matrix);
 
+  glLoadMatrixd(matrix);
 }
 
 void vtkOpenGLContextDevice3D::GetMatrix(vtkMatrix4x4 *m)
 {
-
+  double *M = m->Element[0];
+  m->Transpose();
+  double matrix[16];
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
+  this->Storage->Transpose(M, matrix);
 }
 
 void vtkOpenGLContextDevice3D::MultiplyMatrix(vtkMatrix4x4 *m)
 {
+  double matrix[16];
+  double *M = m->Element[0];
+  this->Storage->Transpose(M, matrix);
 
+  glMultMatrixd(matrix);
 }
 
 void vtkOpenGLContextDevice3D::PushMatrix()
@@ -133,7 +245,6 @@ void vtkOpenGLContextDevice3D::PopMatrix()
   glPopMatrix();
 }
 
-//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
 {
   // Check the bounds, and clamp if necessary
@@ -224,4 +335,9 @@ void vtkOpenGLContextDevice3D::End()
   this->Storage->RestoreGLState();
 
   this->InRender = false;
+}
+
+void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)
+{
+  Superclass::PrintSelf(os, indent);
 }

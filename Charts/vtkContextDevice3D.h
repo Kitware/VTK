@@ -19,6 +19,8 @@
 // This defines the interface for a vtkContextDevice3D. In this sense a
 // ContextDevice is a class used to paint 3D primitives onto a device, such as
 // an OpenGL context.
+//
+// This is private API, and should not be used outside of the vtkContext3D.
 
 #ifndef __vtkContextDevice3D_h
 #define __vtkContextDevice3D_h
@@ -39,12 +41,14 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Draw a line between the specified points.
-  virtual void DrawLine(const vtkVector3f &start, const vtkVector3f &end) = 0;
+  // Draw a polyline between the specified points.
+  virtual void DrawPoly(const float *verts, int n,
+                        const unsigned char *colors = 0, int nc = 0) = 0;
 
   // Description:
-  // Draw a point at the point in 3D space.
-  virtual void DrawPoint(const vtkVector3f &point) = 0;
+  // Draw points at the vertex positions specified.
+  virtual void DrawPoints(const float *verts, int n,
+                          const unsigned char *colors = 0, int nc = 0) = 0;
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as

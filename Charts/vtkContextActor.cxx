@@ -38,6 +38,8 @@ vtkContextActor::vtkContextActor()
 {
   this->Initialized = false;
   this->Scene = vtkSmartPointer<vtkContextScene>::New();
+
+  this->Context->SetContext3D(this->Context3D.GetPointer());
 }
 
 //----------------------------------------------------------------------------
@@ -140,10 +142,6 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   this->Scene->SetGeometry(size);
   this->Scene->Paint(this->Context.GetPointer());
   this->Context->GetDevice()->End();
-
-  // Now try a little 3D on for size...
-  this->Context3D->GetDevice()->Begin(viewport);
-  this->Context3D->GetDevice()->End();
 
   return 1;
 }

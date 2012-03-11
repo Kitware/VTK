@@ -56,13 +56,20 @@ bool vtkContext3D::End()
 void vtkContext3D::DrawLine(const vtkVector3f &start, const vtkVector3f &end)
 {
   assert(this->Device);
-  this->Device->DrawLine(start, end);
+  vtkVector3f line[2] = { start, end };
+  this->Device->DrawPoly(line[0].GetData(), 2);
 }
 
 void vtkContext3D::DrawPoint(const vtkVector3f &point)
 {
   assert(this->Device);
-  this->Device->DrawPoint(point);
+  this->Device->DrawPoints(point.GetData(), 1);
+}
+
+void vtkContext3D::DrawPoints(const float *points, int n)
+{
+  assert(this->Device);
+  this->Device->DrawPoints(points, n);
 }
 
 void vtkContext3D::ApplyPen(vtkPen *pen)
@@ -79,27 +86,34 @@ void vtkContext3D::ApplyBrush(vtkBrush *brush)
 
 void vtkContext3D::SetTransform(vtkTransform *transform)
 {
-
+  if (transform)
+    {
+    this->Device->SetMatrix(transform->GetMatrix());
+    }
 }
 
 vtkTransform * vtkContext3D::GetTransform()
 {
+  this->Device->GetMatrix(this->Transform->GetMatrix());
   return this->Transform.GetPointer();
 }
 
 void vtkContext3D::AppendTransform(vtkTransform *transform)
 {
-
+  if(transform)
+    {
+    this->Device->MultiplyMatrix(transform->GetMatrix());
+    }
 }
 
 void vtkContext3D::PushMatrix()
 {
-
+  this->Device->PushMatrix();
 }
 
 void vtkContext3D::PopMatrix()
 {
-
+  this->Device->PopMatrix();
 }
 
 vtkContext3D::vtkContext3D()
@@ -108,5 +122,4 @@ vtkContext3D::vtkContext3D()
 
 vtkContext3D::~vtkContext3D()
 {
-
 }
