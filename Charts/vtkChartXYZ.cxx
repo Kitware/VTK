@@ -18,17 +18,15 @@
 #include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
 #include "vtkContext2D.h"
+#include "vtkContext3D.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
-#include "vtkNew.h"
+#include "vtkPen.h"
 
 #include "vtkObjectFactory.h"
-
-// This obviously needs to go away, but use GL directly for now...
-#include "vtkgl.h"
 
 #include <vector>
 #include <cassert>
@@ -39,7 +37,9 @@ class vtkChartXYZ::Private
 {
 public:
   Private() : angle(0), isX(false), init(false) {}
-  void SetMatrix(bool transformed = true);
+
+  // Calculate the required transforms for the XYZ chart.
+  void CalculateTransforms();
 
   vector<vtkVector3f> points;
   vector< vtkSmartPointer<vtkAxis> > axes;
@@ -56,98 +56,63 @@ public:
   bool init;
 };
 
-inline void vtkChartXYZ::Private::SetMatrix(bool transformed)
+inline void vtkChartXYZ::Private::CalculateTransforms()
 {
-  double *M = 0;
+  // First the rotation transform...
+  // Calculate the correct translation vector before the rotation is applied
+  vtkVector3f translation(
+        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
+        + axes[0]->GetPosition1()[0],
+        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
+        + axes[1]->GetPosition1()[1],
+        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
+        + axes[2]->GetPosition1()[1]);
+  vtkVector3f mtranslation = -1.0 * translation;
 
-  if (transformed)
+  this->Rotation->Identity();
+  this->Rotation->Translate(translation.GetData());
+  if (isX)
+    this->Rotation->RotateX(this->angle);
+  else
+    this->Rotation->RotateY(this->angle);
+
+  this->Rotation->Translate(mtranslation.GetData());
+  this->Rotation->Concatenate(this->Transform.GetPointer());
+
+
+  // Next the box rotation transform.
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
     {
-    // Calculate the correct translation vector before the rotation is applied
-    vtkVector3f translation(
-          (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-          + axes[0]->GetPosition1()[0],
-          (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-          + axes[1]->GetPosition1()[1],
-          (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-          + axes[2]->GetPosition1()[1]);
-    vtkVector3f mtranslation = -1.0 * translation;
-
-    this->Rotation->Identity();
-    this->Rotation->Translate(translation.GetData());
-    if (isX)
-      this->Rotation->RotateX(this->angle);
+    if (i == 0)
+      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
     else
-      this->Rotation->RotateY(this->angle);
+      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+    }
 
-    this->Rotation->Translate(mtranslation.GetData());
+  this->Box->Identity();
+  this->Box->PostMultiply();
+  this->Box->Translate(-0.5, -0.5, -0.5);
+  if (isX)
+    this->Box->RotateX(this->angle);
+  else
+    this->Box->RotateY(this->angle);
+  this->Box->Translate(0.5, 0.5, 0.5);
 
-    this->Rotation->Concatenate(this->Transform.GetPointer());
+  this->Box->Scale(scale);
 
-    // Construct a matrix of the correct size.
-    M = this->Rotation->GetMatrix()->Element[0];
+  if (isX)
+    {
+    this->Box->Translate(axes[0]->GetPosition1()[0],
+                         axes[1]->GetPosition1()[1],
+                         axes[2]->GetPosition1()[1]);
     }
   else
     {
-    double scale[3] = { 300, 300, 300 };
-    for (int i = 0; i < 3; ++i)
-      {
-      if (i == 0)
-        scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
-      else
-        scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
-      }
-
-    this->Box->Identity();
-    this->Box->PostMultiply();
-    this->Box->Translate(-0.5, -0.5, -0.5);
-    if (isX)
-      this->Box->RotateX(this->angle);
-    else
-      this->Box->RotateY(this->angle);
-    this->Box->Translate(0.5, 0.5, 0.5);
-
-    this->Box->Scale(scale);
-
-    if (isX)
-      {
-      this->Box->Translate(axes[0]->GetPosition1()[0],
-                           axes[1]->GetPosition1()[1],
-                           axes[2]->GetPosition1()[1]);
-      }
-    else
-      {
-      this->Box->Translate(axes[0]->GetPosition1()[0],
-                           axes[1]->GetPosition1()[1],
-                           axes[2]->GetPosition1()[0]);
-      }
-
-    M = this->Box->GetMatrix()->Element[0];
+    this->Box->Translate(axes[0]->GetPosition1()[0],
+                         axes[1]->GetPosition1()[1],
+                         axes[2]->GetPosition1()[0]);
     }
-
-  double matrix[16];
-
-  // Convert the row/column ordering...
-  matrix[0] = M[0];
-  matrix[1] = M[4];
-  matrix[2] = M[8];
-  matrix[3] = M[12];
-
-  matrix[4] = M[1];
-  matrix[5] = M[5];
-  matrix[6] = M[9];
-  matrix[7] = M[13];
-
-  matrix[8] = M[2];
-  matrix[9] = M[6];
-  matrix[10] = M[10];
-  matrix[11] = M[14];
-
-  matrix[12] = M[3];
-  matrix[13] = M[7];
-  matrix[14] = M[11];
-  matrix[15] = M[15];
-
-  glMultMatrixd(matrix);
 }
 
 vtkStandardNewMacro(vtkChartXYZ)
@@ -162,52 +127,50 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   if (!this->Visible || d->points.size() == 0)
     return false;
 
-  // This is where the magic happens for now...
-  painter->PushMatrix();
+  // Get the 3D context.
+  vtkContext3D *context = painter->GetContext3D();
 
-  d->SetMatrix();
+  if (!context)
+    return false;
+
+  // Calculate the transforms required for the current rotation.
+  d->CalculateTransforms();
+
+  context->PushMatrix();
+  context->AppendTransform(d->Rotation.GetPointer());
+
   // First lets draw the points in 3d.
-  glColor4ub(0, 0, 0, 255);
-  glPointSize(5);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, d->points[0].GetData());
-  glDrawArrays(GL_POINTS, 0, d->points.size());
-  glDisableClientState(GL_VERTEX_ARRAY);
-  painter->PopMatrix();
+  context->ApplyPen(this->Pen.GetPointer());
+  context->DrawPoints(d->points[0].GetData(), d->points.size());
+  context->PopMatrix();
 
+  // Now to draw the axes - pretty basic for now but could be extended.
+  context->PushMatrix();
+  context->AppendTransform(d->Box.GetPointer());
+  context->ApplyPen(this->AxisPen.GetPointer());
 
-  painter->PushMatrix();
-  d->SetMatrix(false);
-  glColor4ub(0, 0, 0, 255);
-  // Now lets draw the axes over the top.
-  glBegin(GL_LINE_LOOP);
-  // Front
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 1, 0);
-  glVertex3f(1, 1, 0);
-  glVertex3f(1, 0, 0);
-  glEnd();
-
-  glBegin(GL_LINE_LOOP);
-  // Back
-  glVertex3f(0, 0, 1);
-  glVertex3f(0, 1, 1);
-  glVertex3f(1, 1, 1);
-  glVertex3f(1, 0, 1);
-  glEnd();
-
-  glBegin(GL_LINES);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, 1);
-  glVertex3f(0, 1, 0);
-  glVertex3f(0, 1, 1);
-  glVertex3f(1, 1, 0);
-  glVertex3f(1, 1, 1);
-  glVertex3f(1, 0, 0);
-  glVertex3f(1, 0, 1);
-  glEnd();
-
-  painter->PopMatrix();
+  vtkVector3f box[4];
+  box[0] = vtkVector3f(0, 0, 0);
+  box[1] = vtkVector3f(0, 1, 0);
+  box[2] = vtkVector3f(1, 1, 0);
+  box[3] = vtkVector3f(1, 0, 0);
+  context->DrawLine(box[0], box[1]);
+  context->DrawLine(box[1], box[2]);
+  context->DrawLine(box[2], box[3]);
+  context->DrawLine(box[3], box[0]);
+  for (int i = 0; i < 4; ++i)
+    {
+    box[i].SetZ(1);
+    }
+  context->DrawLine(box[0], box[1]);
+  context->DrawLine(box[1], box[2]);
+  context->DrawLine(box[2], box[3]);
+  context->DrawLine(box[3], box[0]);
+  context->DrawLine(vtkVector3f(0, 0, 0), vtkVector3f(0, 0, 1));
+  context->DrawLine(vtkVector3f(1, 0, 0), vtkVector3f(1, 0, 1));
+  context->DrawLine(vtkVector3f(0, 1, 0), vtkVector3f(0, 1, 1));
+  context->DrawLine(vtkVector3f(1, 1, 0), vtkVector3f(1, 1, 1));
+  context->PopMatrix();
 
   return true;
 }
@@ -369,6 +332,10 @@ void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10)
 {
   d = new Private;
+  this->Pen->SetWidth(5);
+  this->Pen->SetColor(0, 0, 0, 255);
+  this->AxisPen->SetWidth(1);
+  this->AxisPen->SetColor(0, 0, 0, 255);
 }
 
 vtkChartXYZ::~vtkChartXYZ()

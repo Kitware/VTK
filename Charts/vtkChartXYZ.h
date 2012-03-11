@@ -22,12 +22,14 @@
 
 #include "vtkContextItem.h"
 #include "vtkRect.h"        // For vtkRectf ivars
+#include "vtkNew.h"         // For ivars
 
 class vtkAnnotationLink;
 class vtkAxis;
 class vtkPlot;
 class vtkTable;
 class vtkTransform;
+class vtkPen;
 
 class VTK_CHARTS_EXPORT vtkChartXYZ : public vtkContextItem
 {
@@ -83,6 +85,9 @@ protected:
                               vtkTransform *transform);
 
   vtkRectf Geometry;
+
+  vtkNew<vtkPen> Pen;
+  vtkNew<vtkPen> AxisPen;
 
   class Private;
   Private *d;
