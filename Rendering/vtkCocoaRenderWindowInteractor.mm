@@ -81,12 +81,7 @@ class vtkEarlyCocoaSetup
     protected:
     void DestroyPoolOfLastResort()
     {
-    // See Apple docs for drain vs release.  Alas, to support 10.3, we need this #if.
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
       [Pool drain];
-#else
-      [Pool release];
-#endif
       Pool = nil;
     }
     
