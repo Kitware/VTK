@@ -41,8 +41,8 @@ public:
 
   // Description:
   // Set the input data
-  virtual void SetInput( vtkDataSet * );
-  virtual void SetInput( vtkOverlappingAMR * );
+  virtual void SetInputData( vtkDataSet * );
+  virtual void SetInputData( vtkOverlappingAMR * );
   virtual void SetInputConnection (int port, vtkAlgorithmOutput *input);   
   virtual void SetInputConnection (vtkAlgorithmOutput *input)
   {this->SetInputConnection(0, input);}

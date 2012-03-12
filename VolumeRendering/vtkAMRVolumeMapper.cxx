@@ -79,13 +79,13 @@ vtkAMRVolumeMapper::~vtkAMRVolumeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetInput(vtkDataSet *genericInput)
+void vtkAMRVolumeMapper::SetInputData(vtkDataSet *genericInput)
 {
   vtkErrorMacro("Mapper expects a hierarchical dataset as input" );
   this->Resampler->SetInputConnection(0, 0);
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetInput(vtkOverlappingAMR *hdata)
+void vtkAMRVolumeMapper::SetInputData(vtkOverlappingAMR *hdata)
 {
   if (!hdata)
     {
