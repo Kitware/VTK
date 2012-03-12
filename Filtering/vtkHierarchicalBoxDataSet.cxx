@@ -15,6 +15,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkHierarchicalBoxDataIterator.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
@@ -34,6 +35,15 @@ vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+
+//----------------------------------------------------------------------------
+vtkCompositeDataIterator* vtkHierarchicalBoxDataSet::NewIterator()
+{
+  vtkCompositeDataIterator* iter = vtkHierarchicalBoxDataIterator::New();
+  iter->SetDataSet(this);
+  return iter;
 }
 
 //-----------------------------------------------------------------------------
