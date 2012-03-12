@@ -210,7 +210,7 @@ public:
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
   // Description:
-  // This method crops the data object (if necesary) so that the extent
+  // This method crops the data object (if necessary) so that the extent
   // matches the update extent.
   virtual void Crop(const int* updateExtent);
 

@@ -778,7 +778,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       // When the axis is not initialized
       if(this->Point1[0] == 0 && this->Point2[0] == 0)
         {
-        // 500 is an intial guess for the length of the axis in pixels
+        // 500 is an initial guess for the length of the axis in pixels
         scaling = 500 / (this->Maximum - this->Minimum);
         }
       else

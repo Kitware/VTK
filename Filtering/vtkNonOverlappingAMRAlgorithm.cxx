@@ -69,4 +69,3 @@ int vtkNonOverlappingAMRAlgorithm::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkNonOverlappingAMR");
   return 1;
 }
-

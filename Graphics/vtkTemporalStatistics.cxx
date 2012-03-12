@@ -60,7 +60,7 @@ inline vtkStdString vtkTemporalStatisticsMangleName(const char *originalName,
 }
 
 //-----------------------------------------------------------------------------
-// The interm stddev array keeps a sum of squares.
+// The interim stddev array keeps a sum of squares.
 template<class T>
 inline void vtkTemporalStatisticsInitializeStdDev(T *outArray,
                                                   vtkIdType arraySize)
@@ -188,7 +188,7 @@ int vtkTemporalStatistics::RequestInformation(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // The output data of this filter has no time assoicated with it.  It is the
+  // The output data of this filter has no time associated with it.  It is the
   // result of computations that happen over all time.
   outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());

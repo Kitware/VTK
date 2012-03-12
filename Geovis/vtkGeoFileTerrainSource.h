@@ -46,7 +46,7 @@ public:
   virtual bool FetchRoot(vtkGeoTreeNode* root);
 
   // Description:
-  // Retreive the child's geometry from disk.
+  // Retrieve the child's geometry from disk.
   virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
 
   // Description:

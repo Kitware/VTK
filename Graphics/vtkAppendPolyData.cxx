@@ -582,7 +582,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     }
   newStrips->Delete();
 
-  // When all optimizations are complete, this squeeze will be unecessary.
+  // When all optimizations are complete, this squeeze will be unnecessary.
   // (But it does not seem to cost much.)
   output->Squeeze();
 

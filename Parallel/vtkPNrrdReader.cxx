@@ -275,7 +275,7 @@ int vtkPNrrdReader::ReadHeader()
 
     // Find a blank line (which signals the end of the header).  Be careful
     // because line endings can be "\n", "\r\n", or both.  It is possible that
-    // the entire file is the header (happens with "detatched headers").
+    // the entire file is the header (happens with "detached headers").
     char *bufferStart = headerBuffer->GetPointer(0);
     char *s = bufferStart;
     while ((s = strchr(s+1, '\n')) != NULL)

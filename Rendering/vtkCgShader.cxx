@@ -270,7 +270,7 @@ int vtkCgShader::Compile()
     }
   if (this->Internals->LastError != CG_NO_ERROR)
     {
-    vtkErrorMacro("Error occured during Shader compile.");
+    vtkErrorMacro("Error occurred during Shader compile.");
     return 0;
     }
   return 1;

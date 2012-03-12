@@ -25,7 +25,7 @@
 //
 // The depth peeling algorithm works by rendering the translucent polygonal
 // geometry multiple times (once for each peel). The actually rendering of
-// the translucent polygonal geometry is peformed by its delegate
+// the translucent polygonal geometry is performed by its delegate
 // TranslucentPass. This delegate is therefore used multiple times.
 //
 // Its delegate is usually set to a vtkTranslucentPass.

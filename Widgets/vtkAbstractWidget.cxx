@@ -188,7 +188,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->SetCurrentRenderer(NULL);
     }
 
-  // We no longer call render when enabled state changes. It's the applicaitons
+  // We no longer call render when enabled state changes. It's the applications
   // resposibility to explicitly call render after changing enable state.
   //// Should only render if there is no parent
   //if ( this->Interactor && !this->Parent )

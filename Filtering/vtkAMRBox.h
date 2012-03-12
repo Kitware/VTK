@@ -210,7 +210,7 @@ public:
   // Description:
   // Get the world space origin of this box. The origin is the
   // location of the lower corner cell's lower corner node,
-  // which is not necessarilly the orgin of the data set! For
+  // which is not necessarilly the origin of the data set! For
   // that use GetDataSetOrigin(). The value is computed each time,
   // so that operations on the box are are appropriately reflected.
   void GetBoxOrigin(double x0[3]) const;

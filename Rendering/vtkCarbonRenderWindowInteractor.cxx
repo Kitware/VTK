@@ -37,7 +37,7 @@ void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
   = (void (*)(void *))NULL;
 
 //--------------------------------------------------------------------------
-// Translate a char to the Tk equivalent keysym for compability
+// Translate a char to the Tk equivalent keysym for compatibility
 static const char *vtkMacCharCodeToKeySymTable[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -59,7 +59,7 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
 };
 
 //--------------------------------------------------------------------------
-// Translate a virtual keycode to the Tk equivalent keysym for compability
+// Translate a virtual keycode to the Tk equivalent keysym for compatibility
 static const char *vtkMacKeyCodeToKeySymTable[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

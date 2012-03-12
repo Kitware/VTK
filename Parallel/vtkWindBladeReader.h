@@ -180,7 +180,7 @@ protected:
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
 
-  // Controlls initializing and querrying MPI
+  // Controls initializing and querrying MPI
   vtkMultiProcessController * MPIController;
 
   // Read the header file describing the dataset

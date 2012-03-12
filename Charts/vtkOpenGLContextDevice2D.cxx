@@ -318,7 +318,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     // Four 2D points on the quad.
     float p[4 * 2] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-    // This will be the same everytime
+    // This will be the same every time
     float texCoord[] = { 0.0, 0.0,
                          1.0, 0.0,
                          1.0, 1.0,

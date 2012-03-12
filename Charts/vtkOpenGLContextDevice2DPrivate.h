@@ -97,7 +97,7 @@ public:
   // Description:
   // Return the cache associated to a key. If the key doesn't exist yet in the
   // cache list, create a new cache.
-  // The returned cache is moved at the begining of the cache list for faster
+  // The returned cache is moved at the beginning of the cache list for faster
   // search next time. The most use cache is faster to be searched.
   CacheData& GetCacheData(const Key& key);
 

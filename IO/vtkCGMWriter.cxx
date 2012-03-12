@@ -1430,7 +1430,7 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1491,7 +1491,7 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1573,7 +1573,7 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
     return 0;  /* you must allocate a color before you use it */
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1646,7 +1646,7 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1712,7 +1712,7 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
     return 0;  /* you must allocate a color before you use it */
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1784,7 +1784,7 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1861,7 +1861,7 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -1916,7 +1916,7 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2000,7 +2000,7 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
     return 0;  /* you must allocate a color before you use it */
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2061,7 +2061,7 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2137,7 +2137,7 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2198,7 +2198,7 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
     return 0;  /* you must allocate a color before you use it */
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2254,7 +2254,7 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2312,7 +2312,7 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2363,7 +2363,7 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
   int octet_count;
 
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -2436,7 +2436,7 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2496,7 +2496,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
     return 1;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2576,7 +2576,7 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
     return 0;  /* you must allocate a color before you use it */
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
   if (!es) 
     {
@@ -2905,7 +2905,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
   if (( numco > 0) && (numco < 10)) 
     {
     /* we can use the short form of the command */
-    /* allocate sufficent space. Should be 32 bits * 10 to be safe*/
+    /* allocate sufficient space. Should be 32 bits * 10 to be safe*/
     cts = static_cast<unsigned char *>( calloc(4*10, SIZEOF(unsigned char ) ));
     if (!cts) 
       {
@@ -2922,7 +2922,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
   else if ((numco > 9) && (numco < 256)) 
     {
     /* we must use the long form of the command */
-    /* allocate sufficent space. Should be 32 bits*256 to be safe*/
+    /* allocate sufficient space. Should be 32 bits*256 to be safe*/
     cts = static_cast<unsigned char *>(calloc(256*4, SIZEOF(unsigned char ) ));
     if (!cts) 
       {
@@ -3135,7 +3135,7 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
   short int sweet;
   short int sour;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
@@ -3143,7 +3143,7 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3207,7 +3207,7 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
   unsigned char *es, *esp;
   int octet_count;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!cgmImageBoundsSafe(im, x,y) )
@@ -3215,7 +3215,7 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3265,7 +3265,7 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
   short int sweet;
   short int sour;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
@@ -3273,7 +3273,7 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3342,7 +3342,7 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
   short int sweet;
   short int sour;
 
-  /* check to make sure the circle is withing the scope of the picture
+  /* check to make sure the circle is within the scope of the picture
    * ie. the values you give for drawing the circle are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, cx,cy)))
@@ -3350,7 +3350,7 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3411,7 +3411,7 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
   short int sweet;
   short int sour;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
@@ -3419,7 +3419,7 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3500,7 +3500,7 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
   unsigned char *es, *esp;
   int octet_count;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
@@ -3514,7 +3514,7 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 6 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 6 to be safe */
   es = (unsigned char *) calloc(4*6, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3570,7 +3570,7 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
   unsigned char *es, *esp;
   int octet_count;
 
-  /* check to make sure the line is withing the scope of the picture
+  /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
   if (!(cgmImageBoundsSafe(im, cx,cy)) || !(cgmImageBoundsSafe(im, d1x,d1y)) || !(cgmImageBoundsSafe(im, d2x, d2y)))
@@ -3578,7 +3578,7 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
     return 0;
     }
 
-  /* allocate sufficent space.  should be 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be 32 bits * 4 to be safe */
   es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
   if (!es) 
     {
@@ -3649,7 +3649,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
     {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
-    /* allocate sufficent space. Should be 32 bits*10 to be safe */
+    /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -3678,7 +3678,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
      * keep in mind that if CGMGROWLISTSIZE is smaller than n*4
      * (at most 32769) then things could fail in a most unsavory fashion.
      */
-    /* allocate sufficent space.  32 bits*(n+1) to be safe */
+    /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -3752,7 +3752,7 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
     {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
-    /* allocate sufficent space. Should be 48 bits*10 to be safe */
+    /* allocate sufficient space. Should be 48 bits*10 to be safe */
     es = (unsigned char *) calloc(6*10,SIZEOF(unsigned char ));
     if (!es) 
       {
@@ -3782,7 +3782,7 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
      * keep in mind that if CGMGROWLISTSIZE is smaller than n*6
      * (at most 32769) then things could fail in a most unsavory fashion.
      */
-    /* allocate sufficent space.  48 bits*(n+1) to be safe */
+    /* allocate sufficient space.  48 bits*(n+1) to be safe */
     es = (unsigned char *) calloc(6*(n+1), SIZEOF(unsigned char ));
     if (!es) 
       {
@@ -3853,7 +3853,7 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
     {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
-    /* allocate sufficent space. Should be 32 bits*10 to be safe */
+    /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>(calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -3878,7 +3878,7 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
      * keep in mind that if CGMGROWLISTSIZE is smaller than n*4
      * (at most 32769) then the list may have to grow several times
      */
-    /* allocate sufficent space.  32 bits*(n+1) to be safe */
+    /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -3946,7 +3946,7 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
     {
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
-    /* allocate sufficent space. Should be 32 bits*10 to be safe */
+    /* allocate sufficient space. Should be 32 bits*10 to be safe */
     es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -3972,7 +3972,7 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
      * keep in mind that if CGMGROWLISTSIZE is smaller than n*4
      * (at most 32769) then the list may have to grow several times
      */
-    /* allocate sufficent space.  32 bits*(n+1) to be safe */
+    /* allocate sufficient space.  32 bits*(n+1) to be safe */
     es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
     if (!es) 
       {
@@ -4045,7 +4045,7 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
     return 0;
     }
 
-  /* allocate sufficent space.  should be tslen+ 32 bits * 4 to be safe */
+  /* allocate sufficient space.  should be tslen+ 32 bits * 4 to be safe */
   tslen = strlen(ts);
 
   /* if there are more than 32700 characters fail 
@@ -4155,7 +4155,7 @@ static int cgmImageDashedLine(cgmImagePtr im, int x1, int y1, int x2, int y2, in
     return 0;
     }
 
-  /* everthing is A-OK */
+  /* everything is A-OK */
   return 1;
 }
 

@@ -342,7 +342,7 @@ void vtkRenderer::Render(void)
 
 
   // If we aborted, do not record the last render time.
-  // Lets play around with determining the acuracy of the
+  // Lets play around with determining the accuracy of the
   // EstimatedRenderTimes.  We can try to adjust for bad
   // estimates with the TimeFactor.
   if ( ! this->RenderWindow->GetAbortRender() )

@@ -147,7 +147,7 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
 
     // Calculate a preferred interpolation direction.
     // Has to be done in same direction to insure coincident points are
-    // merged (different interpolation direction causes pertubations).
+    // merged (different interpolation direction causes perturbations).
     s1 = cellScalars->GetComponent(tets[0],0);
     s2 = cellScalars->GetComponent(tets[1],0);
 
@@ -353,7 +353,7 @@ void vtkCell3D::Clip(double value, vtkDataArray *cellScalars,
 
     // Calculate a preferred interpolation direction.
     // Has to be done in same direction to insure coincident points are
-    // merged (different interpolation direction causes pertubations).
+    // merged (different interpolation direction causes perturbations).
     s1 = cellScalars->GetComponent(verts[0],0);
     s2 = cellScalars->GetComponent(verts[1],0);
 

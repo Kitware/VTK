@@ -127,7 +127,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       if (values[i] < 0. || values[i] > 1.)
         {
         vtkWarningMacro( << "Opacity at point " << i << " is " << values[i]
-                         << " wich is outside the valid range of [0,1]");
+                         << " which is outside the valid range of [0,1]");
         }
       this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
       ptr+=4;

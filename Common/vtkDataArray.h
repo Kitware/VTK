@@ -324,7 +324,7 @@ public:
 
   // Description:
   // Return the maximum norm for the tuples.
-  // Note that the max. is computed everytime GetMaxNorm is called.
+  // Note that the max. is computed every time GetMaxNorm is called.
   virtual double GetMaxNorm();
 
   // Description:

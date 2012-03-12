@@ -54,7 +54,7 @@ public:
   // within the cell is stored in \c intersectionLengths.  The point
   // scalars \c scalars are interpolated and stored in \c nearIntersections
   // and \c farIntersections.  \c intersectedCells, \c intersectionLengths,
-  // or \c scalars may be \c NULL to supress passing the associated
+  // or \c scalars may be \c NULL to suppress passing the associated
   // information.  The number of intersections actually encountered is
   // returned.  0 is returned if and only if no more intersections are to
   // be found.

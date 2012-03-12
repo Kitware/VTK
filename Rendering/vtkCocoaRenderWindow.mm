@@ -985,7 +985,7 @@ void vtkCocoaRenderWindow::PrefFullScreen()
 void vtkCocoaRenderWindow::WindowRemap()
 {
   vtkWarningMacro(<< "Can't remap the window.");
-  // Aquire the display and capture the screen.
+  // Acquire the display and capture the screen.
   // Create the full-screen window.
   // Add the context.
 }

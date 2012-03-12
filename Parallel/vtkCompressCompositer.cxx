@@ -111,7 +111,7 @@ vtkCompressCompositer::~vtkCompressCompositer()
 // Compress background pixels with runlength encoding.
 // z values above 1.0 mean: Repeat background for that many pixels.
 // We could easily compress inplace, but it works out better for buffer 
-// managment if we do not.  zIn == zOut is allowed....
+// management if we do not.  zIn == zOut is allowed....
 template <class P>
 int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
                                   int numPixels)
@@ -170,7 +170,7 @@ int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
 // Compress background pixels with runlength encoding.
 // z values above 1.0 mean: Repeat background for that many pixels.
 // We could easily compress inplace, but it works out better for buffer 
-// managment if we do not.  zIn == zOut is allowed....
+// management if we do not.  zIn == zOut is allowed....
 void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
                                      vtkFloatArray *zOut, vtkDataArray *pOut)
 {
@@ -183,7 +183,7 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
   
   vtkTimerLog::MarkStartEvent("Compress");
 
-  // This is just a complex switch statment 
+  // This is just a complex switch statement 
   // to call the correct templated function.
   if (pIn->GetDataType() == VTK_UNSIGNED_CHAR) 
     {
@@ -266,7 +266,7 @@ void vtkCompressCompositerUncompress(float *zIn, P *pIn, float *zOut, P *pOut,
 // Compress background pixels with runlength encoding.
 // z values above 1.0 mean: Repeat background for that many pixels.
 // We could easily compress inplace, but it works out better for buffer 
-// managment if we do not.  zIn == zOut is allowed....
+// management if we do not.  zIn == zOut is allowed....
 void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
                                        vtkFloatArray *zOut, vtkDataArray *pOut,
                                        int lengthOut)
@@ -279,7 +279,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
   
   vtkTimerLog::MarkStartEvent("Uncompress");
 
-  // This is just a complex switch statment 
+  // This is just a complex switch statement 
   // to call the correct templated function.
   if (pIn->GetDataType() == VTK_UNSIGNED_CHAR) 
     {
@@ -466,7 +466,7 @@ void vtkCompressCompositer::CompositeImagePair(
   
   //vtkTimerLog::MarkStartEvent("Coomposite Image Pair");
 
-  // This is just a complex switch statment 
+  // This is just a complex switch statement 
   // to call the correct templated function.
   if (localP->GetDataType() == VTK_UNSIGNED_CHAR) 
     {

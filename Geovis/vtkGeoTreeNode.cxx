@@ -99,7 +99,7 @@ bool vtkGeoTreeNode::IsDescendantOf(vtkGeoTreeNode* elder)
     {
     return false;
     }
-  // All decendents will have the same first N bits in their Id.
+  // All descendants will have the same first N bits in their Id.
   int N = ((elder->GetLevel() * 2) + 1);
   unsigned long mask = (1 << N) - 1;
   if ((this->Id & mask) == elder->GetId())

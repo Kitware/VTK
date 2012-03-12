@@ -230,7 +230,7 @@ int vtkProbePolyhedron::RequestUpdateExtent(
 
   int usePiece = 0;
 
-  // What ever happend to CopyUpdateExtent in vtkDataObject?
+  // What ever happened to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());

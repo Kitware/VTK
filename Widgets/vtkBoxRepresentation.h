@@ -75,7 +75,7 @@ public:
   void GetPlanes(vtkPlanes *planes);
 
   // Description:
-  // Set/Get the InsideOut flag. This data memeber is used in conjunction
+  // Set/Get the InsideOut flag. This data member is used in conjunction
   // with the GetPlanes() method. When off, the normals point out of the
   // box. When on, the normals point into the hexahedron.  InsideOut is off
   // by default.

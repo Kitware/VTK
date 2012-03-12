@@ -264,7 +264,7 @@ void vtkTransmitRectilinearGridPiece::SatelliteExecute(
   int wExtent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
 
-  //recieve root's response
+  //receive root's response
   this->Controller->Receive(tmp, 0, 22342);
 
   //recover structure

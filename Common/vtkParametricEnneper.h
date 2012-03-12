@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkParametricEnneper generates Enneper's surface.
 // Enneper's surface is a a self-intersecting minimal surface
-// posessing constant negative Gaussian curvature
+// possessing constant negative Gaussian curvature
 //
 // For further information about this surface, please consult the 
 // technical description "Parametric surfaces" in http://www.vtk.org/documents.php 

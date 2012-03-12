@@ -175,7 +175,7 @@ public:
 //ETX
 
   // Description:
-  // Have the text preceding the scalar bar or suceeding it ?
+  // Have the text preceding the scalar bar or succeeding it ?
   // Succeed implies the that the text is Above scalar bar if orientation 
   // is horizontal or Right of scalar bar if orientation is vertical.
   // Precede is the opposite

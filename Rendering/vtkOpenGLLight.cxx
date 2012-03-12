@@ -96,7 +96,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     glLightf(static_cast<GLenum>(light_index), 
              GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
 
-    // set up spot parameters if neccesary
+    // set up spot parameters if necessary
     if (this->ConeAngle < 180.0)
       {
       Info[0] = dx;

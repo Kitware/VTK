@@ -63,4 +63,3 @@ void vtkUniformGridAMRDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

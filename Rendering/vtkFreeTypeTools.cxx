@@ -906,7 +906,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(vtkTextProperty *tprop,
       // Starting position given the bearings.  Move the pen to the upper-left
       // extent of this character.
 
-      // Substract 1 to the bearing Y, because this is the vertical distance
+      // Subtract 1 to the bearing Y, because this is the vertical distance
       // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
       // (more precisely, to the pixel just above the bitmap). This distance is
       // expressed in integer pixels, and is positive for upwards y.
@@ -1101,7 +1101,7 @@ bool vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
     if (bitmap->width && bitmap->rows)
       {
       // Starting position given the bearings.
-      // Substract 1 to the bearing Y, because this is the vertical distance
+      // Subtract 1 to the bearing Y, because this is the vertical distance
       // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
       // (more precisely, to the pixel just above the bitmap). This distance is
       // expressed in integer pixels, and is positive for upwards y.

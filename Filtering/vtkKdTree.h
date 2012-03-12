@@ -109,7 +109,7 @@ public:
   //  Some algorithms on k-d trees require a value that is a very
   //  small distance relative to the diameter of the entire space
   //  divided by the k-d tree.  This factor is the maximum axis-aligned
-  //  width of the space multipled by 10e-6.
+  //  width of the space multiplied by 10e-6.
 
   vtkGetMacro(FudgeFactor, double);
   vtkSetMacro(FudgeFactor, double);
@@ -194,7 +194,7 @@ public:
   vtkDataSet *GetDataSet(int n);
 
   // Description:
-  // Return the 0'th data set.  For compatability with the superclass'
+  // Return the 0'th data set.  For compatibility with the superclass'
   // interface.
   vtkDataSet *GetDataSet(){ return this->GetDataSet(0); }
 

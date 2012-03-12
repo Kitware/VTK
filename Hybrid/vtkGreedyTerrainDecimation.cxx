@@ -324,7 +324,7 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
     i3 = (i+2) % 3;
 
     // create a 2D edge normal to define a "half-space"; evaluate points (i.e.,
-    // candiate point and other triangle vertex not on this edge).
+    // candidate point and other triangle vertex not on this edge).
     n[0] = -(p[i2][1] - p[i][1]);
     n[1] = p[i2][0] - p[i][0];
     vtkMath::Normalize2D(n);
@@ -919,7 +919,7 @@ int vtkGreedyTerrainDecimation::RequestData(
                 o    min
  
   This way we can scan the two subtriangles independently without worrying about
-  the transistion in interpolation that occurs at the vertices.
+  the transition in interpolation that occurs at the vertices.
  
   A triangle may be characterized in one of four ways:
     VTK_TWO_TRIANGLES: We can create a two triangle representation

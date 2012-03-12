@@ -48,7 +48,7 @@
 //     least a list of all the block IDs that appear in the file.  And 
 //     we need the element array of block IDs for the input unstructured grid.
 //
-//     In the absense of a vtkModelMetadata object, you can also provide
+//     In the absence of a vtkModelMetadata object, you can also provide
 //     time step information which we will include in the output Exodus
 //     file.
 //

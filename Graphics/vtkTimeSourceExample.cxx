@@ -173,7 +173,7 @@ int vtkTimeSourceExample::RequestInformation(
     2);
 
   //tell the caller if this filter can provide values ONLY at discrete times
-  //or anywhere withing the time range
+  //or anywhere within the time range
   if (!this->Analytic)
     {
     info->Set(

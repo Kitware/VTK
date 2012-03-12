@@ -111,7 +111,7 @@ int vtkSpherePuzzle::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // We are about to create/destroy alot of objects.  Defer garbage
+  // We are about to create/destroy a lot of objects.  Defer garbage
   // collection until we are done.
   vtkGarbageCollector::DeferredCollectionPush();
 

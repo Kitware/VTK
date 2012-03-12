@@ -1123,7 +1123,7 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
   // the floating-point values represent the real data values
   if (imageDataType == VTK_FLOAT || imageDataType == VTK_DOUBLE)
     {
-    // If the data type of the input is floating point, but the orginal
+    // If the data type of the input is floating point, but the original
     // data type stored in ImageAttributes was an integer type, then 
     // we will rescale the floating-point values to integer.
     if (this->ImageAttributes &&
@@ -1959,7 +1959,7 @@ void vtkMINCImageWriter::Write()
     // Call Update to execute pipeline and write slice to disk.
     this->Update();
 
-    // If MINCFileID was set to zero, an error occured
+    // If MINCFileID was set to zero, an error occurred
     if (this->MINCFileId == 0)
       {
       break;
@@ -2063,7 +2063,7 @@ int vtkMINCImageWriter::RequestInformation(
   int components = 0;
   int dataType = 0;
 
-  // For each connection on port 0, check agains the first connection
+  // For each connection on port 0, check against the first connection
   for (int i = 0; i < this->GetNumberOfInputConnections(0); i++)
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);

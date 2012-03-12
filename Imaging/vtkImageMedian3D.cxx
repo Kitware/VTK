@@ -96,7 +96,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
     *(Median) = val;
     // length of up and down arrays inclusive of current 
     UpNum = DownNum = 1; 
-    // median is gaurenteed to be in this range (length of array) 
+    // median is guaranteed to be in this range (length of array) 
     DownMax = UpMax = (NumNeighborhood + 1) / 2;
     return Median;
     }

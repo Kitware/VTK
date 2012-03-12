@@ -448,7 +448,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
     E[0] += this->EyeSeparation / 2.0;
     }
 
-  // First tranform the eye to new position.
+  // First transform the eye to new position.
   this->EyeTransformMatrix->MultiplyPoint(E, E);
 
   // Now transform the eye and screen corner points into the screen

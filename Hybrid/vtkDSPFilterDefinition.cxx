@@ -123,7 +123,7 @@ bool vtkDSPFilterDefinition::IsThisInputVariableInstanceNeeded( int a_timestep, 
     else
       {
       //future inputs not used for 1d filter
-      //printf("FILTER doesnt use FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
+      //printf("FILTER doesn't use FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
       return(false);
       }
     }

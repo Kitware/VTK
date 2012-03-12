@@ -1173,7 +1173,7 @@ float *fromPt, *toPt;
 
 // Partition global array into three intervals, the first all values < T,
 // the second all values = T, the third all values > T.  Return two
-// global indices: The index to the begining of the second interval, and
+// global indices: The index to the beginning of the second interval, and
 // the index to the beginning of the third interval.  "T" is the value
 // at array index K.
 //

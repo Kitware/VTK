@@ -1414,7 +1414,7 @@ void vtkImageResliceConversion<F, T>::Clamp(
   outPtr0 = outPtr;
 }
 
-// get the convertion function
+// get the conversion function
 template<class F>
 void vtkGetConversionFunc(
   void (**conversion)(void *&out, const F *in, int numscalars, int n),

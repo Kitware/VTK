@@ -32,7 +32,7 @@
 // the provided weights, to produce new tuples in the destination. 
 // Each attribute type has pass, copy and interpolate "copy" flags that 
 // can be set in the destination to choose which attribute arrays will be
-// transfered from the source to the destination. 
+// transferred from the source to the destination. 
 // 
 // Finally this class provides a mechanism to determine which attributes a 
 // group of sources have in common, and to copy tuples from a source into 
@@ -167,7 +167,7 @@ public:
   //  vtkDataSetAttributes::GLOBALIDS = 5
   //  vtkDataSetAttributes::PEDIGREEIDS = 6
   //  vtkDataSetAttributes::EDGEFLAG = 7
-  // Returns the index of the array if succesful, -1 if the array 
+  // Returns the index of the array if successful, -1 if the array 
   // is not in the list of arrays.
   int SetActiveAttribute(const char* name, int attributeType);
 

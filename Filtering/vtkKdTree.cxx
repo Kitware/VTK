@@ -1427,7 +1427,7 @@ int vtkKdTree::Select(int dim, float *c1, int *ids, int nvals, double &coord)
   // We need to be careful in the case where the "mid"
   // value is repeated several times in the array.  We
   // want to roll the dividing index (mid) back to the
-  // first occurence in the array, so that there is no
+  // first occurrence in the array, so that there is no
   // ambiguity about which spatial region a given point
   // belongs in.
   //

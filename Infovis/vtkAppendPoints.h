@@ -15,7 +15,7 @@
 // .NAME vtkAppendPoints - appends points of one or more vtkPolyData data sets
 //
 // .SECTION Description
-// vtkAppendPoints is a filter that appends the points and assoicated data
+// vtkAppendPoints is a filter that appends the points and associated data
 // of one or more polygonal (vtkPolyData) datasets. This filter can optionally 
 // add a new array marking the input index that the point came from.
 

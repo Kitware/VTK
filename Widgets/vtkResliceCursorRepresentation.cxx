@@ -749,7 +749,7 @@ void vtkResliceCursorRepresentation::InvertTable()
 void vtkResliceCursorRepresentation::CreateDefaultResliceAlgorithm()
 {
   // Allows users to optionally use their own reslice filters or other
-  // algoritms here.
+  // algorithms here.
   if (!this->Reslice)
     {
     this->Reslice = vtkImageReslice::New();

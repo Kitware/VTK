@@ -87,7 +87,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
       //R = S + (1.0 - S)*R;
       //G = S + (1.0 - S)*G;
       //B = S + (1.0 - S)*B;
-      // what happend to this?
+      // what happened to this?
       R = S*R + (1.0 - S);
       G = S*G + (1.0 - S);
       B = S*B + (1.0 - S);
@@ -96,7 +96,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
       // normalize RGB first then apply intensity
       temp = R + G + B; 
       //I = 3 * I / (temp * max);
-      // and what happend to this?
+      // and what happened to this?
       I = 3 * I / (temp);
       R = R * I;
       G = G * I;

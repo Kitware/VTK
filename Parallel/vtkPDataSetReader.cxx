@@ -362,7 +362,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     }
   // Terminate the parameter string.
   *tmp = '\0';
-  // Expect an equals sign imediately after parameter string (no spaces).
+  // Expect an equals sign immediately after parameter string (no spaces).
   if (*ptr != '=')
     {
     vtkErrorMacro("Reached end of line before =");
@@ -1413,10 +1413,10 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
     return;
     }
 
-  // Mark the choosen piece in the mask.
+  // Mark the chosen piece in the mask.
   pieceMask[best] = 1;
 
-  // Now recompute the coverage for the choosen piece.
+  // Now recompute the coverage for the chosen piece.
   i = best;
   for (j = 0; j < 3; ++j)
     { // Intersection of piece and extent to cover.

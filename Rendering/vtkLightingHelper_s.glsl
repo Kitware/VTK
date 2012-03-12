@@ -21,7 +21,7 @@
 // This file defines some lighting functions.
 // They can be used either in a vertex or fragment shader.
 
-// It is intented to be used in conjunction with vtkLightsSwitches class.
+// It is intended to be used in conjunction with vtkLightsSwitches class.
 
 // Those functions expect uniform variables about the status of lights
 // 1. In fixed-mode pipeline (glUseProgram(0)),

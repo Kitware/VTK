@@ -1479,7 +1479,7 @@ void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
     this->RemoveEdgeInternal(*ei, directed);
     }
 
-  // Replace all occurences of last vertex id with v
+  // Replace all occurrences of last vertex id with v
   vtkIdType lv = this->GetNumberOfVertices() - 1;
   this->Internals->Adjacency[v] = this->Internals->Adjacency[lv];
   oiEnd = this->Internals->Adjacency[v].OutEdges.end();

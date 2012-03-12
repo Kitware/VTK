@@ -799,7 +799,7 @@ vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
       }
     }
 
-  // Return ths information object.
+  // Return the information object.
   return info;
 }
 
@@ -828,7 +828,7 @@ vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
       }
     }
 
-  // Return ths information object.
+  // Return the information object.
   return info;
 }
 

@@ -586,7 +586,7 @@ void vtkSliceCubes::Execute()
           {
           vtkWarningMacro(<<"SwapWrite failed.");
           }
-        // swap if neccessary
+        // swap if necessary
         if(status)
           {
           status=vtkByteSwap::SwapWrite4BERange(&t,1,outFP);

@@ -347,7 +347,7 @@ int vtkXGMLReader::RequestData(
     vtkXGMLReaderNextToken(fin, tok);
     while (tok.Type == vtkXGMLReaderToken::KEYWORD)
       {
-      // Assume that all edge groups will list id, source, and dest fiels
+      // Assume that all edge groups will list id, source, and dest fields
       // before any edge property.
       if (tok.StringValue == "id")
         {

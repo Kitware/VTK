@@ -303,7 +303,7 @@ private:
   int  ContainsDuplicatePointsOnly( const double pnt[3] );
   
   // Description:
-  // Given a number (>= threshold) of all exactly duplicate points (accessable
+  // Given a number (>= threshold) of all exactly duplicate points (accessible
   // via points and pntIds, but with exactly the same 3D coordinate) maintained
   // in this leaf node and a point (absolutely not a duplicate any more, with 
   // pntIdx storing the index in points)) to be inserted to this node, separate

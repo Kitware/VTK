@@ -275,7 +275,7 @@ protected:
 class vtkLSDynaPart::SparsePointsUsed : public vtkLSDynaPart::InternalPointsUsed
 {
   //uses a set to store highly unrelated points. I doubt this is used by
-  //many parts as the part would need to use a few points whose indicies was
+  //many parts as the part would need to use a few points whose indices was
   //at the extremes of the global point set
 public:
   SparsePointsUsed(BitVector *pointsUsed, const vtkIdType& min,
@@ -991,7 +991,7 @@ void vtkLSDynaPart::BuildUniquePoints()
   //we do a two phase because we can minimize memory usage
   //we should make this a class like DensePointsUsed since
   //we can use the ratio to determine if a vector or a map is more
-  //space efficent
+  //space efficient
   std::vector<vtkIdType> uniquePoints;
   const vtkIdType size( 1 + max-min );
   uniquePoints.resize(size,-1);

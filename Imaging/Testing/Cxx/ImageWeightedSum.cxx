@@ -69,7 +69,7 @@ int ImageWeightedSum(int argc, char *argv[])
   sum->AddInputConnection( reader->GetOutputPort() );
   sum->AddInputConnection( reader->GetOutputPort() );
 
-  // Substract the original image
+  // Subtract the original image
   vtkImageMathematics *math = vtkImageMathematics::New();
   math->SetOperationToSubtract();
   math->SetInputConnection( 0, reader->GetOutputPort() );

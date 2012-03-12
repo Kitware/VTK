@@ -74,9 +74,9 @@ vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j,
 const vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
 {
   vtkArrayExtents result;
-  // IA64 HP-UX doesnt seem to have the vector<T> vector1(n, value) 
+  // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value) 
   // overload nor the assign(n, value) method, so we use the single 
-  // arguement constructor and initialize the values manually.
+  // argument constructor and initialize the values manually.
   // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
 
   result.Storage = std::vector<vtkArrayRange>(n);

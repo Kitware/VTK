@@ -205,4 +205,3 @@ int TestAMRBlanking(int, char *[])
   rc += status;
   return( rc );
 }
-

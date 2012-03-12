@@ -277,7 +277,7 @@ void vtkContourWidget::AddNode()
       return;
       }
 
-    // if in continous draw mode, we dont want to cose the loop until we are at least
+    // if in continuous draw mode, we dont want to cose the loop until we are at least
     // numNodes > pixelTolerance away
 
     int distance2 = static_cast<int>((X - displayPos[0]) * (X - displayPos[0]) +

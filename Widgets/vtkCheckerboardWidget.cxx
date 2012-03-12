@@ -153,7 +153,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
     
-    // Configure ths slider widgets
+    // Configure this slider widgets
     this->TopSlider->SetInteractor(this->Interactor);
     this->RightSlider->SetInteractor(this->Interactor);
     this->BottomSlider->SetInteractor(this->Interactor);

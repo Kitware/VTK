@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Enable/Disable passing of the CellData in the input to
-  // the output as FieldData. Note the field data is tranformed.
+  // the output as FieldData. Note the field data is transformed.
   vtkBooleanMacro(PassCellDataAsFieldData, int);
   vtkSetMacro(PassCellDataAsFieldData, int);
   vtkGetMacro(PassCellDataAsFieldData, int);

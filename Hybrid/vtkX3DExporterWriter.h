@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Opens the file specified with file
-  // returns 1 if sucessfull otherwise 0
+  // returns 1 if successful otherwise 0
   virtual int OpenFile(const char* file) = 0;
 
   // Description:

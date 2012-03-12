@@ -195,7 +195,7 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
   
   // The whole problem is here to find the proper size for a descent hash table
   // Since we do not allow check our size as we go the hash table
-  // Should be big enough from the begining otherwise we'll loose the
+  // Should be big enough from the beginning otherwise we'll loose the
   // constant time access
   // But on the other hand we do not want it to be too big for mem consumption
   // A compromise of 4093 was found fo be working in a lot of case
@@ -255,7 +255,7 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
 
   vtkIdType pos = this->HashFunction(e1, e2);
 
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
   
   //Need to check size again
@@ -550,7 +550,7 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId)
   assert("check: valid range pos" &&
          static_cast<unsigned>(pos)<this->HashPoints->PointVector.size() );
  
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
     this->HashPoints->PointVector[pos];
 
@@ -585,7 +585,7 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId, double point[3],
   assert("check: valid range pos" &&
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
-  // Be carefull with reference the equal is not overloaded
+  // Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
     this->HashPoints->PointVector[pos];
 
@@ -624,7 +624,7 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
   assert("check: valid range pos" && 
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
     this->HashPoints->PointVector[pos];
 
@@ -651,7 +651,7 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
   assert("check: valid range pos" && 
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = 
     this->HashPoints->PointVector[pos];
 
@@ -700,7 +700,7 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
     kk++;
     }
 
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = this->HashPoints->PointVector[pos];
 
   //Please keep the following:
@@ -762,7 +762,7 @@ void vtkGenericEdgeTable::IncrementPointReferenceCount(vtkIdType ptId )
   assert("check: valid range pos" &&
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
-  //Be carefull with reference the equal is not overloaded
+  //Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType &vect = this->HashPoints->PointVector[pos];
 
   //vtkDebugMacro(<< "IncrementPointReferenceCount:" << ptId << ":" << vect.size() );

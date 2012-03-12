@@ -70,7 +70,7 @@ public:
   // Description:
   // If on, uses LatitudeArrayName and LongitudeArrayName to
   // move values in data arrays into the points of the data set.
-  // Turn off if the lattitude and longitude are already in
+  // Turn off if the latitude and longitude are already in
   // the points.
   vtkSetMacro(CoordinatesInArrays, bool);
   vtkGetMacro(CoordinatesInArrays, bool);
