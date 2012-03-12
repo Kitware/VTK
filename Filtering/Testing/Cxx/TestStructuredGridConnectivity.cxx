@@ -49,7 +49,7 @@
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkMathUtilities.h"
 
-#define ENABLE_IO
+//#define ENABLE_IO
 
 //------------------------------------------------------------------------------
 // Description:
@@ -564,12 +564,14 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
   int expected      = 100*100*100;
   int expectedCells = 99*99*99;
   int rc = 0;
-  int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
-  int numGhostLayers[]     = { 0, 1, 2, 3 };
+  int numberOfPartitions[] = {128};
+  int numGhostLayers[]     = {3};
+//  int numberOfPartitions[] = { 2, 4, 8, 16, 32, 64, 128, 256 };
+//  int numGhostLayers[]     = { 0, 1, 2, 3 };
 
-  for( int i=0; i < 8; ++i )
+  for( int i=0; i < 1; ++i )
     {
-    for( int j=0; j < 4; ++j )
+    for( int j=0; j < 1; ++j )
       {
       // STEP 0: Construct the dataset
       std::cout << "===\n";
