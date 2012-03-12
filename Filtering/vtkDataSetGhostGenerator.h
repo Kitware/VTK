@@ -29,7 +29,7 @@
 #ifndef VTKDATASETGHOSTGENERATOR_H_
 #define VTKDATASETGHOSTGENERATOR_H_
 
-#include "vtkMultiBlockDataSetAlgorithm.h" // Superclass
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
 // Forward Declarations
 class vtkInformation;

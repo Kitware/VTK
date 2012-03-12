@@ -39,7 +39,7 @@ class VTK_FILTERING_EXPORT vtkRectilinearGridPartitioner :
   public:
     static vtkRectilinearGridPartitioner *New();
     vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf(std::ostream &oss, vtkIndent indent);
+    void PrintSelf(ostream &oss, vtkIndent indent);
 
     // Description:
     // Set/Get macro for the number of subdivisions.
@@ -73,8 +73,8 @@ class VTK_FILTERING_EXPORT vtkRectilinearGridPartitioner :
     int NumberOfGhostLayers;
 
   private:
-    vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &);
-    void operator=(const vtkRectilinearGridPartitioner &);
+    vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented
+    void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
 };
 
 #endif /* VTKRECTILINEARGRIDPARTITIONER_H_ */

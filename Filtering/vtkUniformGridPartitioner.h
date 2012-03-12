@@ -38,7 +38,7 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
   public:
       static vtkUniformGridPartitioner *New();
       vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf( std::ostream &oss, vtkIndent indent );
+      void PrintSelf(ostream &oss, vtkIndent indent );
 
       // Description:
       // Set/Get macro for the number of subdivisions.
