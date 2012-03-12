@@ -31,8 +31,8 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->NumberOfPartitions   = 2;
   for( int i=0; i < 3; ++i )
     {
-      this->GlobalExtent[ i ]   = 0;
-      this->GlobalExtent[ i+3 ] = 1;
+    this->GlobalExtent[ i ]   = 0;
+    this->GlobalExtent[ i+3 ] = 1;
     }
 }
 
@@ -46,6 +46,14 @@ vtkExtentRCBPartitioner::~vtkExtentRCBPartitioner()
 void vtkExtentRCBPartitioner::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
+  oss << "Number of partitions: " << this->NumberOfPartitions << std::endl;
+  oss << "Number of extents: " << this->NumExtents << std::endl;
+  oss << "Global Extent: ";
+  for( int i=0; i < 6; ++i )
+    {
+    oss << this->GlobalExtent[ i ] << " ";
+    }
+  oss << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -92,14 +100,18 @@ void vtkExtentRCBPartitioner::GetExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
+    {
     ext[ i ] = this->pextents[ idx*6+i ];
+    }
 }
 
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::AddExtent( const int vtkNotUsed(idx), int ext[6] )
 {
   for( int i=0; i < 6; ++i )
+    {
     this->pextents.push_back( ext[ i ] );
+    }
   ++this->NumExtents;
 }
 
@@ -111,7 +123,9 @@ void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
+    {
     this->pextents[ idx*6+i ] = ext[ i ];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -122,7 +136,9 @@ void vtkExtentRCBPartitioner::GetPartitionExtent( const int idx, int ext[6] )
            ( (idx >=0) && (idx < this->NumExtents) ) );
 
   for( int i=0; i < 6; ++i )
+    {
     ext[i] = this->pextents[idx*6+i];
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -199,11 +215,18 @@ int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
   int klength = (ext[5]-ext[2])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
-   return ilength;
+    {
+    return ilength;
+    }
   else if ((jlength >= ilength) && (jlength >= klength))
+    {
     return jlength;
+    }
   else if ((klength >= ilength) && (klength >= jlength))
+    {
     return klength;
+    }
+
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }
@@ -216,11 +239,18 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
   int klength = (ext[5]-ext[2])+1;
 
   if ((ilength >= jlength) && (ilength >= klength))
+    {
     return 1;
+    }
   else if ((jlength >= ilength) && (jlength >= klength))
-     return 2;
+    {
+    return 2;
+    }
   else if ((klength >= ilength) && (klength >= jlength))
-     return 3;
+    {
+    return 3;
+    }
+
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }
