@@ -24,7 +24,7 @@ vtkImageFFT fft1
 fft1 SetDimensionality 2
 fft1 SetInputConnection [s1 GetOutputPort]
 fft1 ReleaseDataFlagOff
-
+fft1 Update
 
 # Pad kernel out to same size as image.
 
@@ -36,17 +36,19 @@ vtkImageFFT fft2
 fft2 SetDimensionality 2
 fft2 SetInputConnection [pad2 GetOutputPort]
 fft2 ReleaseDataFlagOff
+fft2 Update
 
 # conjugate is necessary for correlation (not convolution)
 vtkImageMathematics conj
 conj SetOperationToConjugate
-conj SetInput1 [fft2 GetOutput]
+conj SetInput1Data [fft2 GetOutput]
+conj Update
 
 # Corrleation is multiplication in frequencey space.
 vtkImageMathematics mult
 mult SetOperationToComplexMultiply
-mult SetInput1 [fft1 GetOutput]
-mult SetInput2 [conj GetOutput]
+mult SetInput1Data [fft1 GetOutput]
+mult SetInput2Data [conj GetOutput]
 
 vtkImageRFFT rfft
 rfft SetDimensionality 2

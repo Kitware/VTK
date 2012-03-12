@@ -28,7 +28,7 @@ vtkImageStencil stencil
 stencil SetInputConnection [reader1 GetOutputPort]
 stencil SetBackgroundValue 0
 stencil ReverseStencilOn
-stencil SetStencil [imageToStencil GetOutput]
+stencil SetStencilConnection [imageToStencil GetOutputPort]
 
 vtkImageViewer viewer
 viewer SetInputConnection [stencil GetOutputPort]

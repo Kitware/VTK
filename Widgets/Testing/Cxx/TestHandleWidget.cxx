@@ -582,7 +582,7 @@ int TestHandleWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -591,8 +591,8 @@ int TestHandleWidget( int argc, char *argv[] )
   // This just makes things simpler to manage.
   vtkSmartPointer<vtkAppendPolyData> apd =
     vtkSmartPointer<vtkAppendPolyData>::New();
-  apd->AddInput(glyph->GetOutput());
-  apd->AddInput(sphere->GetOutput());
+  apd->AddInputConnection(glyph->GetOutputPort());
+  apd->AddInputConnection(sphere->GetOutputPort());
 
   // This portion of the code clips the mace with the vtkPlanes 
   // implicit function. The cut region is colored green.

@@ -67,7 +67,7 @@ protected:
   vtkJPEGWriter();
   ~vtkJPEGWriter();
   
-  void WriteSlice(vtkImageData *data);
+  void WriteSlice(vtkImageData *data, int* uExtent);
 
 private:
   int Quality;

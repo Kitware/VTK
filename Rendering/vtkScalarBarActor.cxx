@@ -83,7 +83,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   this->ScalarBar = vtkPolyData::New();
   this->ScalarBarMapper = vtkPolyDataMapper2D::New();
-  this->ScalarBarMapper->SetInput(this->ScalarBar);
+  this->ScalarBarMapper->SetInputData(this->ScalarBar);
   this->ScalarBarActor = vtkActor2D::New();
   this->ScalarBarActor->SetMapper(this->ScalarBarMapper);
   this->ScalarBarActor->GetPositionCoordinate()->
@@ -100,7 +100,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   
   this->TexturePolyData = vtkPolyData::New();
   vtkPolyDataMapper2D * textureMapper = vtkPolyDataMapper2D::New();
-  textureMapper->SetInput(this->TexturePolyData);
+  textureMapper->SetInputData(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
   this->TextureActor->SetMapper(textureMapper);
   textureMapper->Delete();
@@ -135,8 +135,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   const unsigned int dim = 128;
   vtkImageData *image = vtkImageData::New();
   image->SetDimensions(dim, dim, 1);
-  image->SetScalarTypeToUnsignedChar();
-  image->AllocateScalars();
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
   
   for (unsigned int y = 0; y < dim; y++)
     {
@@ -150,7 +149,7 @@ vtkScalarBarActor::vtkScalarBarActor()
     }
 
   this->Texture = vtkTexture::New();
-  this->Texture->SetInput( image );
+  this->Texture->SetInputData( image );
   this->Texture->RepeatOn();
   image->Delete();
 
@@ -167,7 +166,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->DrawBackground = 0;
   this->Background = vtkPolyData::New();
   this->BackgroundMapper = vtkPolyDataMapper2D::New();
-  this->BackgroundMapper->SetInput(this->Background);
+  this->BackgroundMapper->SetInputData(this->Background);
   this->BackgroundActor = vtkActor2D::New();
   this->BackgroundActor->SetMapper(this->BackgroundMapper);
   this->BackgroundActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
@@ -175,7 +174,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->DrawFrame = 0;
   this->Frame = vtkPolyData::New();
   this->FrameMapper = vtkPolyDataMapper2D::New();
-  this->FrameMapper->SetInput(this->Frame);
+  this->FrameMapper->SetInputData(this->Frame);
   this->FrameActor = vtkActor2D::New();
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);

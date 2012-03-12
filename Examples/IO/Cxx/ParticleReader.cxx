@@ -21,7 +21,7 @@ int main ( int argc, char* argv[] )
  
   vtkSmartPointer<vtkXMLPolyDataWriter> writer =
     vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-  writer->SetInput(reader->GetOutput());
+  writer->SetInputConnection(reader->GetOutputPort());
   writer->SetFileName(outputFileName.c_str());
   writer->Write();
  

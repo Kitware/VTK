@@ -94,10 +94,8 @@ vtkClustering2DLayoutStrategy::~vtkClustering2DLayoutStrategy()
 // Helper functions
 void vtkClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
 
@@ -130,10 +128,8 @@ void vtkClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, i
 
 void vtkClustering2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
   
@@ -290,7 +286,7 @@ void vtkClustering2DLayoutStrategy::Initialize()
   
   // Set up the image splatter
   this->GenerateGaussianSplat(this->SplatImage, 41, 41);
-  this->DensityGrid->SetInput(1, this->SplatImage);
+  this->DensityGrid->SetInputData(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 
 }
@@ -309,7 +305,7 @@ void vtkClustering2DLayoutStrategy::Layout()
     }
     
   // Set my graph as input into the density grid
-  this->DensityGrid->SetInput(this->Graph);
+  this->DensityGrid->SetInputData(this->Graph);
   
   // Set up some variables
   vtkPoints* pts = this->Graph->GetPoints();

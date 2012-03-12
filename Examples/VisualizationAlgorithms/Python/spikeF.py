@@ -47,7 +47,7 @@ transformF.SetTransform(transform)
 # we previosuly generated.
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(ptMask.GetOutputPort())
-glyph.SetSource(transformF.GetOutput())
+glyph.SetSourceConnection(transformF.GetOutputPort())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor(0.004)

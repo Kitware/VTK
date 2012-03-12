@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -269,7 +268,7 @@ int vtkRCalculatorFilter::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         vtkDataObject* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }
@@ -823,6 +822,7 @@ int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
 
   FILE *fp;
   long len;
+  long rlen;
 
   if(fname && (strlen(fname) > 0) )
     {
@@ -845,9 +845,17 @@ int vtkRCalculatorFilter::SetRscriptFromFile(const char* fname)
       }
 
     this->RfileScript = new char[len+1];
-    fread(this->RfileScript,len,1,fp);
+    rlen = static_cast<long>(fread(this->RfileScript,1,len,fp));
     this->RfileScript[len] = '\0';
     fclose(fp);
+
+    if (rlen != len)
+      {
+      delete [] this->RfileScript;
+      this->RfileScript = 0;
+      vtkErrorMacro(<<"Error reading R script");
+      return(0);
+      }
 
     this->Modified();
 

@@ -593,7 +593,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData *pd)
     vtkCubeSource *cube = vtkCubeSource::New();
     cube->SetBounds( bl[i].bounds );
     cube->Update();
-    polys->AddInput(cube->GetOutput());
+    polys->AddInputConnection(cube->GetOutputPort());
     cube->Delete();
     }
   polys->Update();

@@ -21,17 +21,31 @@
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTrivialProducer.h"
 
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
-vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
+
+class vtk3DWidgetConnection : public vtkAlgorithm
+{
+public:
+  static vtk3DWidgetConnection *New();
+  vtkTypeMacro(vtk3DWidgetConnection,vtkAlgorithm);
+
+  vtk3DWidgetConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtk3DWidgetConnection);
 
 //----------------------------------------------------------------------------
 vtk3DWidget::vtk3DWidget()
 {
   this->Placed = 0;
   this->Prop3D = NULL;
-  this->Input = NULL;
+  this->ConnectionHolder = vtk3DWidgetConnection::New();
   this->PlaceFactor = 0.5;
 
   this->Priority = 0.5;
@@ -43,15 +57,23 @@ vtk3DWidget::vtk3DWidget()
 //----------------------------------------------------------------------------
 vtk3DWidget::~vtk3DWidget()
 {
-  if ( this->Input )
-    {
-    this->Input->Delete();
-    this->Input = NULL;
-    }
+  this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
+
   if ( this->Prop3D )
     {
     this->Prop3D->Delete();
     this->Prop3D = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtk3DWidget::UpdateInput()
+{
+  vtkAlgorithm* inpAlg = this->ConnectionHolder->GetInputAlgorithm();
+  if (inpAlg)
+    {
+    inpAlg->Update();
     }
 }
 
@@ -64,10 +86,10 @@ void vtk3DWidget::PlaceWidget()
     {
     this->Prop3D->GetBounds(bounds);
     }
-  else if ( this->Input )
+  else if ( this->GetInput() )
     {
-    this->Input->Update();
-    this->Input->GetBounds(bounds);
+    this->ConnectionHolder->GetInputAlgorithm()->Update();
+    this->GetInput()->GetBounds(bounds);
     }
   else
     {
@@ -167,10 +189,31 @@ void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Prop3D: " << this->Prop3D << "\n";
-  os << indent << "Input: " << this->Input << "\n";
+  os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Handle Size: " << this->HandleSize << "\n";
   os << indent << "Place Factor: " << this->PlaceFactor << "\n";
 
 }
 
+//----------------------------------------------------------------------------
+void vtk3DWidget::SetInputConnection(vtkAlgorithmOutput* ao)
+{
+  this->ConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtk3DWidget::SetInputData(vtkDataSet* ds)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(ds);
+  this->SetInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtk3DWidget::GetInput()
+{
+  return vtkDataSet::SafeDownCast(
+    this->ConnectionHolder->GetInputDataObject(0, 0));
+}
 

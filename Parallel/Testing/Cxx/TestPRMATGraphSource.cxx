@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
       = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
-    bfs->SetInput(g);
+    bfs->SetInputData(g);
     bfs->SetOriginVertex(g->GetDistributedGraphHelper()->MakeDistributedId(0, 0));
 
     // Run the breadth-first search
@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLShortestPaths> sssp
       = vtkSmartPointer<vtkPBGLShortestPaths>::New();
-    sssp->SetInput(g);
+    sssp->SetInputData(g);
     sssp->SetOriginVertex(g->GetDistributedGraphHelper()->MakeDistributedId(0, 0));
     sssp->SetEdgeWeightArrayName("Weight");
 
@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLConnectedComponents> cc
       = vtkSmartPointer<vtkPBGLConnectedComponents>::New();
-    cc->SetInput(g);
+    cc->SetInputData(g);
 
     // Run the connected components algorithm
     if (world.rank() == 0)

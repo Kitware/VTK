@@ -74,11 +74,12 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->BuildTube();
 
   this->TubeXForm = vtkTransformPolyDataFilter::New();
-  this->TubeXForm->SetInput(this->Tube);
+  this->TubeXForm->SetInputData(this->Tube);
   this->TubeXForm->SetTransform(this->XForm);
 
   this->TubeMapper = vtkPolyDataMapper2D::New();
-  this->TubeMapper->SetInput(this->TubeXForm->GetOutput());
+  this->TubeMapper->SetInputConnection(
+    this->TubeXForm->GetOutputPort());
   
   this->TubeProperty = vtkProperty2D::New();
   this->TubeProperty->SetOpacity(0.6);
@@ -102,11 +103,12 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->Slider->SetPolys(this->SliderCells);
 
   this->SliderXForm = vtkTransformPolyDataFilter::New();
-  this->SliderXForm->SetInput(this->Slider);
+  this->SliderXForm->SetInputData(this->Slider);
   this->SliderXForm->SetTransform(XForm);
 
   this->SliderMapper = vtkPolyDataMapper2D::New();
-  this->SliderMapper->SetInput(this->SliderXForm->GetOutput());
+  this->SliderMapper->SetInputConnection(
+    this->SliderXForm->GetOutputPort());
   
   this->SliderProperty = vtkProperty2D::New();
   this->SliderProperty->SetColor(1,1,1);

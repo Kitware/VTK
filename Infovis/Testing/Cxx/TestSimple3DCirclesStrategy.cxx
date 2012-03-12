@@ -81,7 +81,7 @@ int TestSimple3DCirclesStrategy(int argc, char *argv[])
   strategy->AutoHeightOn();
   strategy->SetDirection(0.0,-1.0,0.0);
   strategy->SetMinimumDegree( 45.0 );
-  layout->SetInput( graph );
+  layout->SetInputData( graph );
   layout->SetLayoutStrategy( strategy );
 
   // Uncomment the following for a more interesting result!
@@ -99,8 +99,8 @@ int TestSimple3DCirclesStrategy(int argc, char *argv[])
   edgeLayout->Update();
 
   graphToPoly->EdgeGlyphOutputOn();
-  graphToPoly->SetInput( edgeLayout->GetOutput() );
-  vertGlyph->SetInput( edgeLayout->GetOutput() );
+  graphToPoly->SetInputConnection( edgeLayout->GetOutputPort() );
+  vertGlyph->SetInputConnection( edgeLayout->GetOutputPort() );
 
   edgeMapper->ScalarVisibilityOff();
   edgeMapper->ImmediateModeRenderingOn();

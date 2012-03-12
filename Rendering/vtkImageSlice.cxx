@@ -411,9 +411,9 @@ unsigned long vtkImageSlice::GetRedrawMTime()
     {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetInput() != NULL)
+    if (this->GetMapper()->GetInputAlgorithm() != NULL)
       {
-      this->GetMapper()->GetInput()->Update();
+      this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }

@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Specify the implicit function to convert into a stencil.
-  virtual void SetInput(vtkPolyData*);
+  virtual void SetInputData(vtkPolyData*);
   vtkPolyData *GetInput();
   
   // Description:

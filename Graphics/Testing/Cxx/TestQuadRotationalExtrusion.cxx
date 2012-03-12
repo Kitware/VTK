@@ -59,7 +59,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   // Create 3/4 of a cylinder by rotational extrusion
   vtkNew<vtkQuadRotationalExtrusionFilter> lineSweeper;
   lineSweeper->SetResolution( 20 );
-  lineSweeper->SetInput( lineMB.GetPointer() );
+  lineSweeper->SetInputData( lineMB.GetPointer() );
   lineSweeper->SetDefaultAngle( 270 );
   lineSweeper->Update();
 
@@ -69,7 +69,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create normals for smooth rendering
   vtkNew<vtkPolyDataNormals> normals;
-  normals->SetInput( cyl );
+  normals->SetInputData( cyl );
 
   // Create mapper for surface representation
   vtkNew<vtkPolyDataMapper> cylMapper;
@@ -79,7 +79,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create mapper for wireframe representation
   vtkNew<vtkPolyDataMapper> cylMapperW;
-  cylMapperW->SetInput( cyl );
+  cylMapperW->SetInputData( cyl );
   cylMapperW->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   cylMapperW->SetResolveCoincidentTopologyToPolygonOffset();
 

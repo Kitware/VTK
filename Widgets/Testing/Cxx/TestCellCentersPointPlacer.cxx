@@ -1123,13 +1123,14 @@ int TestCellCentersPointPlacer(int argc, char *argv[])
       vtkSmartPointer< vtkMatrixToLinearTransform > mlt =
         vtkSmartPointer< vtkMatrixToLinearTransform >::New();
       mlt->SetInput(matrix);
-      transformFilter->SetInput(actors[index]->GetMapper()->GetInput());
+      transformFilter->SetInputConnection(
+        actors[index]->GetMapper()->GetInputConnection(0, 0));
       transformFilter->SetTransform(mlt);
       transformFilter->Update();
 
       vtkSmartPointer< vtkDataSetMapper > mapper2 =
         vtkSmartPointer< vtkDataSetMapper >::New();
-      mapper2->SetInput(transformFilter->GetOutput());
+      mapper2->SetInputConnection(transformFilter->GetOutputPort());
       actors[index]->SetMapper(mapper2);
 
       renderer->AddActor(actors[index]);
@@ -1240,7 +1241,7 @@ void CreateHexahedronActor(vtkActor* actor)
   // Visualize
   vtkSmartPointer<vtkDataSetMapper> mapper =
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInputConnection(uGrid->GetProducerPort());
+  mapper->SetInputData(uGrid);
 
   actor->SetMapper(mapper);
 }
@@ -1289,7 +1290,7 @@ void CreatePentagonalPrismActor(vtkActor* actor)
   // Visualize
   vtkSmartPointer<vtkDataSetMapper> mapper =
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInputConnection(uGrid->GetProducerPort());
+  mapper->SetInputData(uGrid);
 
   actor->SetMapper(mapper);
 
@@ -1333,7 +1334,7 @@ void CreatePyramidActor(vtkActor* actor)
   //Create an actor and mapper
   vtkSmartPointer<vtkDataSetMapper> mapper =
       vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(ug);
+  mapper->SetInputData(ug);
 
   actor->SetMapper(mapper);
 }
@@ -1371,7 +1372,7 @@ void CreateTetraActor(vtkActor* actor)
   // Create a mapper and actor
   vtkSmartPointer<vtkDataSetMapper> mapper =
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInputConnection(unstructuredGrid->GetProducerPort());
+  mapper->SetInputData(unstructuredGrid);
 
   actor->SetMapper(mapper);
 }
@@ -1413,7 +1414,7 @@ void CreateVoxelActor(vtkActor* actor)
   // Visualize
   vtkSmartPointer<vtkDataSetMapper> mapper =
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(ug);
+  mapper->SetInputData(ug);
 
   actor->SetMapper(mapper);
 }
@@ -1452,7 +1453,7 @@ void CreateWedgeActor(vtkActor* actor)
   // Visualize
   vtkSmartPointer<vtkDataSetMapper> mapper =
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(ug);
+  mapper->SetInputData(ug);
 
   actor->SetMapper(mapper);
 }

@@ -23,6 +23,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkProbeSelectedLocations);
@@ -123,11 +124,19 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   inputClone->ShallowCopy(dataInput);
 
   vtkProbeFilter* subFilter = vtkProbeFilter::New();
-  subFilter->SetInputConnection(1, inputClone->GetProducerPort());
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(inputClone);
+  subFilter->SetInputConnection(1, tp->GetOutputPort());
   inputClone->Delete();
+  tp->Delete();
+  tp = 0;
 
-  subFilter->SetInputConnection(0, tempInput->GetProducerPort());
+  tp = vtkTrivialProducer::New();
+  tp->SetOutput(tempInput);
+  subFilter->SetInputConnection(0, tp->GetOutputPort());
   tempInput->Delete();
+  tp->Delete();
+  tp = 0;
 
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(

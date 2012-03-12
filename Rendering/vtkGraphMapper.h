@@ -188,7 +188,7 @@ public:
 
   // Description:
   // Set the Input of this mapper.
-  void SetInput(vtkGraph *input);
+  void SetInputData(vtkGraph *input);
   vtkGraph *GetInput();
   
   // Description:

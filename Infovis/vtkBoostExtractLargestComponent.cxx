@@ -68,7 +68,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   // Find all of the connected components
   vtkSmartPointer<vtkBoostConnectedComponents> connectedComponents =
     vtkSmartPointer<vtkBoostConnectedComponents>::New();
-  connectedComponents->SetInputConnection(inputCopy->GetProducerPort());
+  connectedComponents->SetInputData(inputCopy);
   connectedComponents->Update();
 
   vtkIntArray* components = vtkIntArray::SafeDownCast(
@@ -146,8 +146,8 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   // Extract them
   vtkSmartPointer<vtkExtractSelectedGraph> extractSelectedGraph =
     vtkSmartPointer<vtkExtractSelectedGraph>::New();
-  extractSelectedGraph->SetInput(0, inputCopy);
-  extractSelectedGraph->SetInput(1, selection);
+  extractSelectedGraph->SetInputData(0, inputCopy);
+  extractSelectedGraph->SetInputData(1, selection);
   extractSelectedGraph->Update();
 
   output->ShallowCopy(extractSelectedGraph->GetOutput());

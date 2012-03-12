@@ -20,8 +20,8 @@ reader.SetDataScalarTypeToUnsignedShort()
 reader.UpdateWholeExtent()
 
 # Calculate the center of the volume
-reader.GetOutput().UpdateInformation()
-(xMin, xMax, yMin, yMax, zMin, zMax) = reader.GetOutput().GetWholeExtent()
+reader.Update()
+(xMin, xMax, yMin, yMax, zMin, zMax) = reader.GetExecutive().GetWholeExtent(reader.GetOutputInformation(0))
 (xSpacing, ySpacing, zSpacing) = reader.GetOutput().GetSpacing()
 (x0, y0, z0) = reader.GetOutput().GetOrigin()
 
@@ -76,7 +76,7 @@ color.SetInputConnection(reslice.GetOutputPort())
 
 # Display the image
 actor = vtk.vtkImageActor()
-actor.SetInput(color.GetOutput())
+actor.GetMapper().SetInputConnection(color.GetOutputPort())
 
 renderer = vtk.vtkRenderer()
 renderer.AddActor(actor)
@@ -106,7 +106,7 @@ def MouseMoveCallback(obj, event):
     (mouseX, mouseY) = interactor.GetEventPosition()
     if actions["Slicing"] == 1:
         deltaY = mouseY - lastY
-        reslice.GetOutput().UpdateInformation()
+        reslice.Update()
         sliceSpacing = reslice.GetOutput().GetSpacing()[2]
         matrix = reslice.GetResliceAxes()
         # move the center point that we are slicing through

@@ -54,7 +54,6 @@ static vtkSmartPointer<vtkRectilinearGrid> MakeRectilinearGrid()
     extent[i+1] = extent[i] + vtkMath::Round(vtkMath::Random(0, 10));
     }
 
-  grid->SetWholeExtent(extent);
   grid->SetExtent(extent);
 
   vtkSmartPointer<vtkDataArray> coord;
@@ -80,7 +79,7 @@ int TestRectilinearGridToPointSet(int, char*[])
   vtkSmartPointer<vtkRectilinearGrid> inData = MakeRectilinearGrid();
 
   vtkNew<vtkRectilinearGridToPointSet> rect2points;
-  rect2points->SetInput(inData);
+  rect2points->SetInputData(inData);
   rect2points->Update();
 
   vtkDataSet *outData = rect2points->GetOutput();

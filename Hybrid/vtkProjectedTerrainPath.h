@@ -83,10 +83,17 @@ public:
   static vtkProjectedTerrainPath* New();
 
   // Description:
-  // Specify the second input (the terrain) onto which the polyline(s) should
-  // be projected.
-  void SetSource(vtkImageData *source);
+  // Specify the second input (the terrain) onto which the polyline(s) should be projected. 
+  // Note: This assigns a data object as the input terrain.
+  // To establish a pipeline connection, use 
+  // SetSourceConnection() method.
+  void SetSourceData(vtkImageData *source);
   vtkImageData *GetSource();
+
+  // Description:
+  // Specify the second input (the terrain) onto which the polyline(s) should be projected. 
+  // Note: vtkImageData* is required
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
 //BTX
   enum {SIMPLE_PROJECTION=0,NONOCCLUDED_PROJECTION,HUG_PROJECTION};

@@ -14,21 +14,14 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkDataObject.h"
 
-#include "vtkAlgorithmOutput.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkSource.h"
-#include "vtkTrivialProducer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationExecutivePortKey.h"
-#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -72,33 +65,6 @@ vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 vtkInformationKeyMacro(vtkDataObject, DATA_GEOMETRY_UNMODIFIED, Integer);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
 
-class vtkDataObjectToSourceFriendship
-{
-public:
-  static void SetOutput(vtkSource* source, int i, vtkDataObject* newData)
-    {
-    if(source)
-      {
-      // Make sure there is room in the source for this output.
-      if(i >= source->NumberOfOutputs)
-        {
-        source->SetNumberOfOutputs(i+1);
-        }
-
-      // Update the source's Outputs array.
-      vtkDataObject* oldData = source->Outputs[i];
-      if(newData)
-        {
-        newData->Register(source);
-        }
-      source->Outputs[i] = newData;
-      if(oldData)
-        {
-        oldData->UnRegister(source);
-        }
-      }
-    }
-};
 
 // Initialize static member that controls global data release 
 // after use by filter
@@ -119,9 +85,6 @@ const char vtkDataObject
 //----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
-  this->Source = NULL;
-  this->PipelineInformation = 0;
-
   this->Information = vtkInformation::New();
 
   // We have to assume that if a user is creating the data on their own,
@@ -137,7 +100,6 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
-  this->SetPipelineInformation(0);
   this->SetInformation(0);
   this->SetFieldData(NULL);
 }
@@ -147,15 +109,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->Source )
-    {
-    os << indent << "Source: " << this->Source << "\n";
-    }
-  else
-    {
-    os << indent << "Source: (none)\n";
-    }
-  
   if ( this->Information )
     {
     os << indent << "Information: " << this->Information << "\n";
@@ -172,194 +125,8 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UpdateTime: " << this->UpdateTime << endl;
 
-  if(vtkInformation* pInfo = this->GetPipelineInformation())
-    {
-    os << indent << "Release Data: "
-       << (this->GetReleaseDataFlag() ? "On\n" : "Off\n");
-    if(pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()))
-      {
-      os << indent << "UpdateExtent: Initialized\n";
-      }
-    else
-      {
-      os << indent << "UpdateExtent: Not Initialized\n";
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-      {
-      int updateExtent[6] = {0,-1,0,-1,0,-1};
-      this->GetUpdateExtent(updateExtent);
-      os << indent << "UpdateExtent: " << updateExtent[0] << ", "
-         << updateExtent[1] << ", " << updateExtent[2] << ", "
-         << updateExtent[3] << ", " << updateExtent[4] << ", "
-         << updateExtent[5] << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT()))
-      {
-      int combinedExtent[6];
-      pInfo->Get(vtkStreamingDemandDrivenPipeline::COMBINED_UPDATE_EXTENT(),
-                 combinedExtent);
-      os << indent << "CombinedUpdateExtent: " << combinedExtent[0] << ", "
-         << combinedExtent[1] << ", " << combinedExtent[2] << ", "
-         << combinedExtent[3] << ", " << combinedExtent[4] << ", "
-         << combinedExtent[5] << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
-      {
-      os << indent << "Update Number Of Pieces: "
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES())
-         << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-      {
-      os << indent << "Update Piece: "
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
-         << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
-      {
-      os << indent << "Update Ghost Level: "
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
-         << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION()))
-      {
-      os << indent << "Update Resolution: "
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_RESOLUTION())
-         << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-      {
-      int wholeExtent[6] = {0,-1,0,-1,0,-1};
-      this->GetWholeExtent(wholeExtent);
-      os << indent << "WholeExtent: " << wholeExtent[0] << ", "
-         << wholeExtent[1] << ", " << wholeExtent[2] << ", "
-         << wholeExtent[3] << ", " << wholeExtent[4] << ", "
-         << wholeExtent[5] << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
-      {
-      os << indent << "MaximumNumberOfPieces: "
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES())
-         << endl;
-      }
-    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()))
-      {
-      os << indent << "ExtentTranslator: ("
-         << pInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR())
-         << ")\n";
-      }
-    if(pInfo->Get(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT()))
-      {
-      os << indent << "RequestExactExtent: On\n ";
-      }
-    else
-      {
-      os << indent << "RequestExactExtent: Off\n ";
-      }
-    }
-
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
-    {
-    // this code used to check the return value of the
-    // SetUpdateExtent method which would indicate if the
-    // UpdatePiece, UpdateNumberOfPieces, or UpdateGhostLevel
-    // had changed, and call Modified(). We actually don't want
-    // to do this - just a change in the update extent does not
-    // make this object modified!
-    sddp->SetUpdateExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()), piece, numPieces, ghostLevel);
-    }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
-{
-  vtkInformation* oldInfo = this->PipelineInformation;
-  if(newInfo != oldInfo)
-    {
-    // Remove any existing compatibility link to a source.
-    this->Source = 0;
-
-    if(newInfo)
-      {
-      // Reference the new information.
-      newInfo->Register(this);
-
-      // Detach the output that used to be held by the new information.
-      if(vtkDataObject* oldData = newInfo->Get(vtkDataObject::DATA_OBJECT()))
-        {
-        oldData->Register(this);
-        oldData->SetPipelineInformation(0);
-        oldData->UnRegister(this);
-        }
-
-      // Tell the new information about this object.
-      newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
-
-      // If the new producer is a vtkSource then setup the backward
-      // compatibility link.
-      vtkExecutive* newExec = vtkExecutive::PRODUCER()->GetExecutive(newInfo);
-      int newPort = vtkExecutive::PRODUCER()->GetPort(newInfo);
-      if(newExec)
-        {
-        vtkSource* newSource = vtkSource::SafeDownCast(newExec->GetAlgorithm());
-        if(newSource)
-          {
-          vtkDataObjectToSourceFriendship::SetOutput(newSource, newPort, this);
-          this->Source = newSource;
-          }
-        }
-      }
-
-    // Save the pointer to the new information.
-    this->PipelineInformation = newInfo;
-
-    if(oldInfo)
-      {
-      // If the old producer was a vtkSource then remove the backward
-      // compatibility link.
-      vtkExecutive* oldExec = vtkExecutive::PRODUCER()->GetExecutive(oldInfo);
-      int oldPort = vtkExecutive::PRODUCER()->GetPort(oldInfo);
-      if(oldExec)
-        {
-        vtkSource* oldSource = vtkSource::SafeDownCast(oldExec->GetAlgorithm());
-        if(oldSource)
-          {
-          vtkDataObjectToSourceFriendship::SetOutput(oldSource, oldPort, 0);
-          }
-        }
-
-      // Remove the old information's reference to us.
-      oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
-
-      // Remove our reference to the old information.
-      oldInfo->UnRegister(this);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkAlgorithmOutput* vtkDataObject::GetProducerPort()
-{  
-  // Make sure there is an executive.
-  if(!this->GetExecutive())
-    {
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(this);
-    tp->FastDelete();
-    }
-
-  // Get the port from the executive.
-  return this->GetExecutive()->GetProducerPort(this);
 }
 
 //----------------------------------------------------------------------------
@@ -407,66 +174,6 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
     return;
     }
   vtkDataObjectGlobalReleaseDataFlag = val;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyInformationToPipeline(vtkInformation *request, 
-                                              vtkInformation *input,
-                                              vtkInformation *output,
-                                              int vtkNotUsed(forceCopy))
-{
-  // Set default pipeline information during a request for information.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    // Copy point and cell data from the input if available.  Otherwise use our
-    // current settings.
-
-    if (input)
-      {
-      // copy point data.
-      if (input->Has(POINT_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
-        }
-      // copy cell data.
-      if (input && input->Has(CELL_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
-        }
-      // copy vertex data.
-      if (input->Has(VERTEX_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, VERTEX_DATA_VECTOR(), 1);
-        }
-      // copy edge data.
-      if (input && input->Has(EDGE_DATA_VECTOR()))
-        {
-        output->CopyEntry(input, EDGE_DATA_VECTOR(), 1);
-        }
-
-      // copy the actual time
-      if (input->Has(DATA_TIME_STEPS()))
-        {
-        output->CopyEntry(input, DATA_TIME_STEPS());
-        }
-      }
-    }
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    if (input)
-      {
-      if (input->Has(DATA_RESOLUTION()))
-        {
-        output->CopyEntry(input, DATA_RESOLUTION());
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyInformationFromPipeline(vtkInformation*)
-{
-  // Copy nothing by default.
 }
 
 //----------------------------------------------------------------------------
@@ -788,38 +495,6 @@ void vtkDataObject::ReleaseData()
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObject::ShouldIReleaseData()
-{
-  return vtkDataObjectGlobalReleaseDataFlag || this->GetReleaseDataFlag();
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetSource(vtkSource* newSource)
-{
-  vtkDebugMacro( << this->GetClassName() << " ("
-                 << this << "): setting Source to " << newSource );
-  if(newSource)
-    {
-    // Find the output index on the source producing this data object.
-    int index = newSource->GetOutputIndex(this);
-    if(index >= 0)
-      {
-      newSource->GetExecutive()->SetOutputData(index, this);
-      }
-    else
-      {
-      vtkErrorMacro("SetSource cannot find the output index of this "
-                    "data object from the source.");
-      this->SetPipelineInformation(0);
-      }
-    }
-  else
-    {
-    this->SetPipelineInformation(0);
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkDataObject::Register(vtkObjectBase* o)
 {
   this->RegisterInternal(o, 1);
@@ -837,79 +512,11 @@ unsigned long vtkDataObject::GetUpdateTime()
   return this->UpdateTime.GetMTime();
 }
 
-unsigned long vtkDataObject::GetEstimatedMemorySize()
-{
-  // This should be implemented in a subclass. If not, default to
-  // estimating that no memory is used.
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-vtkExecutive* vtkDataObject::GetExecutive()
-{
-  if(this->PipelineInformation)
-    {
-    return vtkExecutive::PRODUCER()->GetExecutive(this->PipelineInformation);
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetPortNumber()
-{
-  if(this->PipelineInformation)
-    {
-    return vtkExecutive::PRODUCER()->GetPort(this->PipelineInformation);
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-vtkStreamingDemandDrivenPipeline* vtkDataObject::TrySDDP(const char* method)
-{
-  // Make sure there is an executive.
-  if(!this->GetExecutive())
-    {
-    vtkTrivialProducer* tp = vtkTrivialProducer::New();
-    tp->SetOutput(this);
-    tp->FastDelete();
-    }
-
-  // Try downcasting the executive to the proper type.
-  if(SDDP* sddp = SDDP::SafeDownCast(this->GetExecutive()))
-    {
-    return sddp;
-    }
-  else if(method)
-    {
-    vtkErrorMacro("Method " << method << " cannot be called unless the "
-                  "data object is managed by a "
-                  "vtkStreamingDemandDrivenPipeline.");
-    }
-  return 0;
-}
-
 //----------------------------------------------------------------------------
 
 unsigned long vtkDataObject::GetActualMemorySize()
 {
   return this->FieldData->GetActualMemorySize();
-}
-
-//----------------------------------------------------------------------------
-
-void vtkDataObject::CopyInformation( vtkDataObject *data )
-{
-  if ( this->GetExtentType() == VTK_3D_EXTENT &&
-       data->GetExtentType() == VTK_3D_EXTENT )
-    {
-    this->SetWholeExtent(data->GetWholeExtent());
-    }
-  else
-    {
-    this->SetMaximumNumberOfPieces(data->GetMaximumNumberOfPieces());
-    }
-  this->SetExtentTranslator(data->GetExtentTranslator());
 }
 
 //----------------------------------------------------------------------------
@@ -1009,7 +616,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 
 //----------------------------------------------------------------------------
 // This should be a pure virutal method.
-void vtkDataObject::Crop()
+void vtkDataObject::Crop(const int*)
 {
 }
 
@@ -1018,433 +625,8 @@ void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->Information, "Information");
-  vtkGarbageCollectorReport(collector, this->PipelineInformation,
-                            "PipelineInformation");
 }
 
-//----------------------------------------------------------------------------
-void vtkDataObject::Update()
-{
-  if(SDDP* sddp = this->TrySDDP("Update"))
-    {
-    sddp->Update(this->GetPortNumber());
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UpdateInformation()
-{
-  if(SDDP* sddp = this->TrySDDP("UpdateInformation"))
-    {
-    sddp->UpdateInformation();
-    }
-} 
-
-//----------------------------------------------------------------------------
-void vtkDataObject::PropagateUpdateExtent()
-{
-  if(SDDP* sddp = this->TrySDDP("PropagateUpdateExtent"))
-    {
-    sddp->PropagateUpdateExtent(this->GetPortNumber());
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::TriggerAsynchronousUpdate()
-{
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UpdateData()
-{
-  if(SDDP* sddp = this->TrySDDP("UpdateData"))
-    {
-    sddp->UpdateData(this->GetPortNumber());
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtentToWholeExtent()
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtentToWholeExtent"))
-    {
-    // this code used to check the return value of the
-    // SetUpdateExtentToWholeExtent method which would 
-    // indicate if the update extent had changed, and call 
-    // Modified(). We actually don't want to do this - just 
-    // a change in the update extent does not make this object 
-    // modified!
-    sddp->SetUpdateExtentToWholeExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()));
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetMaximumNumberOfPieces(int n)
-{
-  if(SDDP* sddp = this->TrySDDP("SetMaximumNumberOfPieces"))
-    {
-    if(sddp->SetMaximumNumberOfPieces
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), n))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetMaximumNumberOfPieces()
-{
-  if(SDDP* sddp = this->TrySDDP("GetMaximumNumberOfPieces"))
-    {
-    return sddp->GetMaximumNumberOfPieces
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()));
-    }
-  return -1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetWholeExtent(int x0, int x1, int y0, int y1,
-                                   int z0, int z1)
-{
-  int extent[6] = {x0, x1, y0, y1, z0, z1};
-  this->SetWholeExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetWholeExtent(int extent[6])
-{
-  if(SDDP* sddp = this->TrySDDP("SetWholeExtent"))
-    {
-    if(sddp->SetWholeExtent
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), extent))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-int* vtkDataObject::GetWholeExtent()
-{
-  if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
-    {
-    return sddp->GetWholeExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()));
-    }
-  else
-    {
-    static int extent[6] = {0,-1,0,-1,0,-1};
-    return extent;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetWholeExtent(int& x0, int& x1, int& y0, int& y1,
-                                   int& z0, int& z1)
-{
-  int extent[6];
-  this->GetWholeExtent(extent);
-  x0 = extent[0];
-  x1 = extent[1];
-  y0 = extent[2];
-  y1 = extent[3];
-  z0 = extent[4];
-  z1 = extent[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetWholeExtent(int extent[6])
-{
-  if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
-    {
-    sddp->GetWholeExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()), extent);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetWholeBoundingBox(double x0, double x1, double y0, 
-                                        double y1, double z0, double z1)
-{
-  double bb[6] = {x0, x1, y0, y1, z0, z1};
-  this->SetWholeBoundingBox(bb);
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetWholeBoundingBox(double bb[6])
-{
-  if(SDDP* sddp = this->TrySDDP("SetWholeBoundingBox"))
-    {
-    if(sddp->SetWholeBoundingBox(this->GetPortNumber(), bb))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-double* vtkDataObject::GetWholeBoundingBox()
-{
-  if(SDDP* sddp = this->TrySDDP("GetWholeBoundingBox"))
-    {
-    return sddp->GetWholeBoundingBox(this->GetPortNumber());
-    }
-  else
-    {
-    static double bb[6] = {0,-1,0,-1,0,-1};
-    return bb;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetWholeBoundingBox(double& x0, double& x1, double& y0, 
-                                        double& y1, double& z0, double& z1)
-{
-  double extent[6];
-  this->GetWholeBoundingBox(extent);
-  x0 = extent[0];
-  x1 = extent[1];
-  y0 = extent[2];
-  y1 = extent[3];
-  z0 = extent[4];
-  z1 = extent[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetWholeBoundingBox(double extent[6])
-{
-  if(SDDP* sddp = this->TrySDDP("GetWholeBoundingBox"))
-    {
-    sddp->GetWholeBoundingBox(this->GetPortNumber(), extent);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtent(int x0, int x1, int y0, int y1,
-                                    int z0, int z1)
-{
-  int extent[6] = {x0, x1, y0, y1, z0, z1};
-  this->SetUpdateExtent(extent);
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtent(int extent[6])
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
-    {
-    // this code used to check the return value of the
-    // SetUpdateExtent method which would indicate if the 
-    // update extent had changed, and call Modified(). We 
-    // actually don't want to do this - just a change in 
-    // the update extent does not make this object modified!
-    sddp->SetUpdateExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()), extent);
-    }
-}
-
-//----------------------------------------------------------------------------
-int* vtkDataObject::GetUpdateExtent()
-{
-  if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
-    {
-    return sddp->GetUpdateExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()));
-    }
-  else
-    {
-    static int extent[6] = {0,-1,0,-1,0,-1};
-    return extent;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                                    int& z0, int& z1)
-{
-  int extent[6];
-  this->GetUpdateExtent(extent);
-  x0 = extent[0];
-  x1 = extent[1];
-  y0 = extent[2];
-  y1 = extent[3];
-  z0 = extent[4];
-  z1 = extent[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::GetUpdateExtent(int extent[6])
-{
-  if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
-    {
-    sddp->GetUpdateExtent
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()), extent);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdatePiece(int piece)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdatePiece"))
-    {
-    if(sddp->SetUpdatePiece
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), piece))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetUpdatePiece()
-{
-  if(SDDP* sddp = this->TrySDDP("GetUpdatePiece"))
-    {
-    return sddp->GetUpdatePiece
-      (sddp->GetOutputInformation()->GetInformationObject
-       (this->GetPortNumber()));
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateNumberOfPieces(int n)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateNumberOfPieces"))
-    {
-    if(sddp->SetUpdateNumberOfPieces
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), n))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetUpdateNumberOfPieces()
-{
-  if(SDDP* sddp = this->TrySDDP("GetUpdateNumberOfPieces"))
-    {
-    return sddp->GetUpdateNumberOfPieces
-      (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()));
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateGhostLevel(int level)
-{
-  if(SDDP* sddp = this->TrySDDP("SetUpdateGhostLevel"))
-    {
-    if(sddp->SetUpdateGhostLevel
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), level))
-      {
-      this->Modified();
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetUpdateGhostLevel()
-{
-  if(SDDP* sddp = this->TrySDDP("GetUpdateGhostLevel"))
-    {
-    return sddp->GetUpdateGhostLevel
-      (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()));
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetExtentTranslator(vtkExtentTranslator* translator)
-{
-  if(SDDP* sddp = this->TrySDDP("SetExtentTranslator"))
-    {
-    if(sddp->SetExtentTranslator
-       (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()), translator))
-      {
-      this->Modified();
-      }
-    }
-}
-  
-//----------------------------------------------------------------------------
-vtkExtentTranslator* vtkDataObject::GetExtentTranslator()
-{
-  if(SDDP* sddp = this->TrySDDP("GetExtentTranslator"))
-    {
-    return sddp->GetExtentTranslator
-      (sddp->GetOutputInformation()->GetInformationObject
-        (this->GetPortNumber()));
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetReleaseDataFlag(int value)
-{
-  if(SDDP* sddp = this->TrySDDP("SetReleaseDataFlag"))
-    {
-    if(sddp->SetReleaseDataFlag(this->GetPortNumber(), value))
-      {
-      this->Modified();
-      }
-    }
-}
-  
-//----------------------------------------------------------------------------
-int vtkDataObject::GetReleaseDataFlag()
-{
-  if(SDDP* sddp = this->TrySDDP("GetReleaseDataFlag"))
-    {
-    return sddp->GetReleaseDataFlag(this->GetPortNumber());
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-unsigned long vtkDataObject::GetPipelineMTime()
-{
-  if(SDDP* sddp = this->TrySDDP("GetPipelineMTime"))
-    {
-    return sddp->GetPipelineMTime();
-    }    
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetRequestExactExtent(int flag)
-{
-  if(SDDP* sddp = this->TrySDDP("SetRequestExactExtent"))
-    {
-    sddp->SetRequestExactExtent(this->GetPortNumber(), flag);
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::GetRequestExactExtent()
-{
-  if(SDDP* sddp = this->TrySDDP("GetRequestExactExtent"))
-    {
-    return sddp->GetRequestExactExtent(this->GetPortNumber());
-    }
-  return 0;
-}
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::GetData(vtkInformation* info)

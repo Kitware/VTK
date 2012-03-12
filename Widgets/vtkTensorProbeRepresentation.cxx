@@ -55,21 +55,21 @@ vtkTensorProbeRepresentation::~vtkTensorProbeRepresentation()
 //----------------------------------------------------------------------
 void vtkTensorProbeRepresentation::SetTrajectory( vtkPolyData * args )
 {
-  if (this->Trajectory != args)                                       
-    {                                                           
-    vtkPolyData * tempSGMacroVar = this->Trajectory;                          
-    this->Trajectory = args;                                          
-    if (this->Trajectory != NULL) 
-      { 
-      this->Trajectory->Register(this); 
-      } 
-    if (tempSGMacroVar != NULL)                                 
-      {                                                         
-      tempSGMacroVar->UnRegister(this);                         
-      }                                                         
-    this->TrajectoryMapper->SetInput( this->Trajectory );
+  if (this->Trajectory != args)
+    {
+    vtkPolyData * tempSGMacroVar = this->Trajectory;
+    this->Trajectory = args;
+    if (this->Trajectory != NULL)
+      {
+      this->Trajectory->Register(this);
+      }
+    if (tempSGMacroVar != NULL)
+      {
+      tempSGMacroVar->UnRegister(this);
+      }
+    this->TrajectoryMapper->SetInputData( this->Trajectory );
     this->Modified();
-    }                                                           
+    }
 }
 
 //----------------------------------------------------------------------

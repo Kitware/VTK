@@ -42,7 +42,7 @@ vtkPolyData pd
 # triangulate them
 #
 vtkPolyDataMapper mapHull
-    mapHull SetInput pd 
+    mapHull SetInputData pd
 vtkActor hullActor
     hullActor SetMapper mapHull
 
@@ -68,5 +68,3 @@ iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

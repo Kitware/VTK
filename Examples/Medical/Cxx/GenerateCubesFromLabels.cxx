@@ -68,7 +68,7 @@ int main (int argc, char *argv[])
  
   reader->SetFileName(argv[1]);
  
-  histogram->SetInput(reader->GetOutput());
+  histogram->SetInputConnection(reader->GetOutputPort());
   histogram->SetComponentExtent(0, endLabel, 0, 0, 0, 0);
   histogram->SetComponentOrigin(0, 0, 0);
   histogram->SetComponentSpacing(1, 1, 1);
@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
   // Pad the volume so that we can change the point data into cell
   // data.
   int *extent = reader->GetOutput()->GetExtent();
-  pad->SetInput(reader->GetOutput());
+  pad->SetInputConnection(reader->GetOutputPort());
   pad->SetOutputWholeExtent(extent[0], extent[1] + 1,
                             extent[2], extent[3] + 1,
                             extent[4], extent[5] + 1);
@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
   pad->GetOutput()->GetCellData()->SetScalars(
     reader->GetOutput()->GetPointData()->GetScalars());
  
-  selector->SetInput(pad->GetOutput());
+  selector->SetInputConnection(pad->GetOutputPort());
   selector->SetInputArrayToProcess(0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                    vtkDataSetAttributes::SCALARS);
@@ -96,18 +96,18 @@ int main (int argc, char *argv[])
   // Shift the geometry by 1/2
   transform->Translate (-.5, -.5, -.5);
   transformModel->SetTransform(transform);
-  transformModel->SetInput(selector->GetOutput());
+  transformModel->SetInputConnection(selector->GetOutputPort());
  
   // Strip the scalars from the output
-  scalarsOff->SetInput(transformModel->GetOutput());
+  scalarsOff->SetInputConnection(transformModel->GetOutputPort());
   scalarsOff->CopyAttributeOff(vtkMaskFields::POINT_DATA,
                                vtkDataSetAttributes::SCALARS);
   scalarsOff->CopyAttributeOff(vtkMaskFields::CELL_DATA,
                                vtkDataSetAttributes::SCALARS);
  
-  geometry->SetInput(scalarsOff->GetOutput());
+  geometry->SetInputConnection(scalarsOff->GetOutputPort());
  
-  writer->SetInput(geometry->GetOutput());
+  writer->SetInputConnection(geometry->GetOutputPort());
  
   for (unsigned int i = startLabel; i <= endLabel; i++)
     {

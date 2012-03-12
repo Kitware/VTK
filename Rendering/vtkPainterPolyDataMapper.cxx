@@ -28,7 +28,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLExtensionManager.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPrimitivePainter.h"
@@ -313,7 +312,7 @@ void vtkPainterPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     if (!this->Static)
       {
-      input->Update();
+      this->GetInputAlgorithm()->Update();
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 

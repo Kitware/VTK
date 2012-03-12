@@ -477,7 +477,7 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   vtkNew<vtkConeSource> cone;
   vtkNew<vtkGlyph3D> glyph;
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -486,8 +486,8 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
   vtkNew<vtkAppendPolyData> apd;
-  apd->AddInput(glyph->GetOutput());
-  apd->AddInput(sphere->GetOutput());
+  apd->AddInputConnection(glyph->GetOutputPort());
+  apd->AddInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> maceMapper;
   maceMapper->SetInputConnection(apd->GetOutputPort());

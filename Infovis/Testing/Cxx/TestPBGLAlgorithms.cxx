@@ -130,7 +130,7 @@ void TestDirectedGraph()
   // Build the breadth-first search filter
   vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
     = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
-  bfs->SetInput(graph);
+  bfs->SetInputData(graph);
   bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 
   // Run the breadth-first search
@@ -262,7 +262,7 @@ void TestUndirectedGraph()
   // Build the breadth-first search filter
   vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
     = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
-  bfs->SetInput(graph);
+  bfs->SetInputData(graph);
   bfs->SetOriginVertex(helper->MakeDistributedId(0, verticesPerNode));
 
   // Run the breadth-first search

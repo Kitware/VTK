@@ -170,9 +170,7 @@ void vtkColorLegend::ComputeTexture()
   this->ImageData->SetExtent(0, 0,
                              0, dimension-1,
                              0, 0);
-  this->ImageData->SetNumberOfScalarComponents(3);
-  this->ImageData->SetScalarTypeToUnsignedChar();
-  this->ImageData->AllocateScalars();
+  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   for (int i = 0; i < dimension; ++i)
     {

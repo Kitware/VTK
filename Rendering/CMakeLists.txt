@@ -96,6 +96,7 @@ SET( Kit_SRCS
   vtkInteractorStyleRubberBand3D.cxx
   vtkInteractorStyleRubberBandPick.cxx
   vtkInteractorStyleRubberBandZoom.cxx
+  vtkInteractorStyleSwitchBase.cxx
   vtkInteractorStyleSwitch.cxx
   vtkInteractorStyleTerrain.cxx
   vtkInteractorStyleTrackballActor.cxx
@@ -206,14 +207,6 @@ SET( Kit_SRCS
   vtkWindowToImageFilter.cxx
   vtkWorldPointPicker.cxx
   )
-
-IF (NOT VTK_LEGACY_REMOVE)
-  SET (Kit_Deprecated_SRCS
-    vtkVisibleCellSelector.cxx
-    vtkIdentColoredPainter.cxx)
-
-  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
-ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF(VTK_USE_GL2PS)
   SET(Kit_SRCS ${Kit_SRCS} vtkGL2PSExporter.cxx)
@@ -328,9 +321,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
-  vtkShader2
-  vtkShader2Collection
-  vtkShaderProgram2
   vtkTextureUnitManager
   vtkTestingInteractor
   vtkTestingObjectFactory
@@ -765,8 +755,9 @@ IF (TK_FOUND AND VTK_USE_TK)
 ENDIF (TK_FOUND AND VTK_USE_TK)
 
 IF(VTK_GENERATE_TK_INTERNALS)
-  SET (HAVE_LIMITS_H ${CMAKE_HAVE_LIMITS_H})
-  SET (HAVE_UNISTD_H ${CMAKE_HAVE_UNISTD_H})
+  INCLUDE (CheckIncludeFiles)
+  CHECK_INCLUDE_FILES("limits.h" HAVE_LIMITS_H)
+  CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
   CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkTkInternals.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkTkInternals.h)

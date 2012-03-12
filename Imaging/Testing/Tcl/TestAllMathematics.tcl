@@ -15,6 +15,7 @@ sphere1 SetInValue .75
 sphere1 SetOutValue .3
 sphere1 SetOutputScalarTypeToFloat
 sphere1 SetWholeExtent 0 99 0 74 0 0
+sphere1 Update
 
 vtkImageEllipsoidSource sphere2
 sphere2 SetCenter 60 30 0
@@ -23,6 +24,7 @@ sphere2 SetInValue .2
 sphere2 SetOutValue .5
 sphere2 SetOutputScalarTypeToFloat
 sphere2 SetWholeExtent 0 99 0 74 0 0
+sphere2 Update
 
 set mathematics "\
 Add \
@@ -47,8 +49,8 @@ AddConstant"
 
 foreach operator $mathematics {
     vtkImageMathematics mathematic${operator}
-      mathematic${operator} SetInput1 [sphere1 GetOutput]
-      mathematic${operator} SetInput2 [sphere2 GetOutput]
+      mathematic${operator} SetInput1Data [sphere1 GetOutput]
+      mathematic${operator} SetInput2Data [sphere2 GetOutput]
       mathematic${operator} SetOperationTo${operator}
       mathematic${operator} SetConstantK .3
       mathematic${operator} SetConstantC .75

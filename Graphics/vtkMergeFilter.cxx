@@ -163,9 +163,9 @@ vtkDataSet* vtkMergeFilter::GetGeometry()
     this->GetExecutive()->GetInputData(0, 0));
 }
 
-void vtkMergeFilter::SetScalars(vtkDataSet *input)
+void vtkMergeFilter::SetScalarsData(vtkDataSet *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 vtkDataSet *vtkMergeFilter::GetScalars()
 {
@@ -177,9 +177,9 @@ vtkDataSet *vtkMergeFilter::GetScalars()
     this->GetExecutive()->GetInputData(1, 0));
 }
 
-void vtkMergeFilter::SetVectors(vtkDataSet *input)
+void vtkMergeFilter::SetVectorsData(vtkDataSet *input)
 {
-  this->SetInput(2, input);
+  this->SetInputData(2, input);
 }
 vtkDataSet *vtkMergeFilter::GetVectors()
 {
@@ -191,9 +191,9 @@ vtkDataSet *vtkMergeFilter::GetVectors()
     this->GetExecutive()->GetInputData(2, 0));
 }
 
-void vtkMergeFilter::SetNormals(vtkDataSet *input)
+void vtkMergeFilter::SetNormalsData(vtkDataSet *input)
 {
-  this->SetInput(3, input);
+  this->SetInputData(3, input);
 }
 vtkDataSet *vtkMergeFilter::GetNormals()
 {
@@ -205,9 +205,9 @@ vtkDataSet *vtkMergeFilter::GetNormals()
     this->GetExecutive()->GetInputData(3, 0));
 }
 
-void vtkMergeFilter::SetTCoords(vtkDataSet *input)
+void vtkMergeFilter::SetTCoordsData(vtkDataSet *input)
 {
-  this->SetInput(4, input);
+  this->SetInputData(4, input);
 }
 vtkDataSet *vtkMergeFilter::GetTCoords()
 {
@@ -219,9 +219,9 @@ vtkDataSet *vtkMergeFilter::GetTCoords()
     this->GetExecutive()->GetInputData(4, 0));
 }
 
-void vtkMergeFilter::SetTensors(vtkDataSet *input)
+void vtkMergeFilter::SetTensorsData(vtkDataSet *input)
 {
-  this->SetInput(5, input);
+  this->SetInputData(5, input);
 }
 vtkDataSet *vtkMergeFilter::GetTensors()
 {

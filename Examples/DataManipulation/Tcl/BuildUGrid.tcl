@@ -32,7 +32,7 @@ vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid InsertNextCell [aVoxel GetCellType] [aVoxel GetPointIds]
   aVoxelGrid SetPoints voxelPoints
 vtkDataSetMapper aVoxelMapper
-  aVoxelMapper SetInput aVoxelGrid
+  aVoxelMapper SetInputData aVoxelGrid
 vtkActor aVoxelActor
   aVoxelActor SetMapper aVoxelMapper
   [aVoxelActor GetProperty] SetDiffuseColor 1 0 0
@@ -61,7 +61,7 @@ vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid InsertNextCell [aHexahedron GetCellType] [aHexahedron GetPointIds]
   aHexahedronGrid SetPoints hexahedronPoints
 vtkDataSetMapper aHexahedronMapper
-  aHexahedronMapper SetInput aHexahedronGrid
+  aHexahedronMapper SetInputData aHexahedronGrid
 vtkActor aHexahedronActor
   aHexahedronActor SetMapper aHexahedronMapper
   aHexahedronActor AddPosition 2 0 0
@@ -83,7 +83,7 @@ vtkUnstructuredGrid aTetraGrid
   aTetraGrid InsertNextCell [aTetra GetCellType] [aTetra GetPointIds]
   aTetraGrid SetPoints tetraPoints
 vtkDataSetMapper aTetraMapper
-  aTetraMapper SetInput aTetraGrid
+  aTetraMapper SetInputData aTetraGrid
 vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
   aTetraActor AddPosition 4 0 0
@@ -109,7 +109,7 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
   aWedgeGrid SetPoints wedgePoints
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
   aWedgeActor AddPosition 6 0 0
@@ -133,7 +133,7 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid InsertNextCell [aPyramid GetCellType] [aPyramid GetPointIds]
   aPyramidGrid SetPoints pyramidPoints
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper
   aPyramidActor AddPosition 8 0 0
@@ -155,7 +155,7 @@ vtkUnstructuredGrid aPixelGrid
   aPixelGrid InsertNextCell [aPixel GetCellType] [aPixel GetPointIds]
   aPixelGrid SetPoints pixelPoints
 vtkDataSetMapper aPixelMapper
-  aPixelMapper SetInput aPixelGrid
+  aPixelMapper SetInputData aPixelGrid
 vtkActor aPixelActor
   aPixelActor SetMapper aPixelMapper
   aPixelActor AddPosition 0 0 2
@@ -177,7 +177,7 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid InsertNextCell [aQuad GetCellType] [aQuad GetPointIds]
   aQuadGrid SetPoints quadPoints
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
   aQuadActor AddPosition 2 0 2
@@ -204,7 +204,7 @@ vtkUnstructuredGrid aTriangleGrid
   aTriangleGrid SetPoints trianglePoints
   [aTriangleGrid GetPointData] SetTCoords triangleTCoords
 vtkDataSetMapper aTriangleMapper
-  aTriangleMapper SetInput aTriangleGrid
+  aTriangleMapper SetInputData aTriangleGrid
 vtkActor aTriangleActor
   aTriangleActor SetMapper aTriangleMapper
   aTriangleActor AddPosition 4 0 2
@@ -227,7 +227,7 @@ vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid InsertNextCell [aPolygon GetCellType] [aPolygon GetPointIds]
   aPolygonGrid SetPoints polygonPoints
 vtkDataSetMapper aPolygonMapper
-  aPolygonMapper SetInput aPolygonGrid
+  aPolygonMapper SetInputData aPolygonGrid
 vtkActor aPolygonActor
   aPolygonActor SetMapper aPolygonMapper
   aPolygonActor AddPosition 6 0 2
@@ -261,7 +261,7 @@ vtkUnstructuredGrid aTriangleStripGrid
   aTriangleStripGrid SetPoints triangleStripPoints
   [aTriangleStripGrid GetPointData] SetTCoords triangleStripTCoords
 vtkDataSetMapper aTriangleStripMapper
-  aTriangleStripMapper SetInput aTriangleStripGrid
+  aTriangleStripMapper SetInputData aTriangleStripGrid
 vtkActor aTriangleStripActor
   aTriangleStripActor SetMapper aTriangleStripMapper
   aTriangleStripActor AddPosition 8 0 2
@@ -279,7 +279,7 @@ vtkUnstructuredGrid aLineGrid
   aLineGrid InsertNextCell [aLine GetCellType] [aLine GetPointIds]
   aLineGrid SetPoints linePoints
 vtkDataSetMapper aLineMapper
-  aLineMapper SetInput aLineGrid
+  aLineMapper SetInputData aLineGrid
 vtkActor aLineActor
   aLineActor SetMapper aLineMapper
   aLineActor AddPosition 0 0 4
@@ -300,7 +300,7 @@ vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid InsertNextCell [aPolyLine GetCellType] [aPolyLine GetPointIds]
   aPolyLineGrid SetPoints polyLinePoints
 vtkDataSetMapper aPolyLineMapper
-  aPolyLineMapper SetInput aPolyLineGrid
+  aPolyLineMapper SetInputData aPolyLineGrid
 vtkActor aPolyLineActor
   aPolyLineActor SetMapper aPolyLineMapper
   aPolyLineActor AddPosition 2 0 4
@@ -316,7 +316,7 @@ vtkUnstructuredGrid aVertexGrid
   aVertexGrid InsertNextCell [aVertex GetCellType] [aVertex GetPointIds]
   aVertexGrid SetPoints vertexPoints
 vtkDataSetMapper aVertexMapper
-  aVertexMapper SetInput aVertexGrid
+  aVertexMapper SetInputData aVertexGrid
 vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
   aVertexActor AddPosition 0 0 6
@@ -337,7 +337,7 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid InsertNextCell [aPolyVertex GetCellType] [aPolyVertex GetPointIds]
   aPolyVertexGrid SetPoints polyVertexPoints
 vtkDataSetMapper aPolyVertexMapper
-  aPolyVertexMapper SetInput aPolyVertexGrid
+  aPolyVertexMapper SetInputData aPolyVertexGrid
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
   aPolyVertexActor AddPosition 2 0 6

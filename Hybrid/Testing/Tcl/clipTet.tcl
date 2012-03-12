@@ -29,7 +29,7 @@ vtkUnstructuredGrid Grid
 
 #Clip the tetra
 vtkClipDataSet clipper
-    clipper SetInput Grid
+    clipper SetInputData Grid
     clipper SetValue 0.5
     clipper Update
 
@@ -63,7 +63,7 @@ vtkActor Tets
 
 #build a model of the cube
 vtkExtractEdges Edges
-    Edges SetInput Grid
+    Edges SetInputData Grid
 vtkTubeFilter Tubes
     Tubes SetInputConnection [Edges GetOutputPort]
     Tubes SetRadius .01
@@ -84,11 +84,11 @@ vtkSphereSource Sphere
     Sphere SetPhiResolution 20
     Sphere SetThetaResolution 20
 vtkThresholdPoints ThresholdIn
-    ThresholdIn SetInput Grid
+    ThresholdIn SetInputData Grid
     ThresholdIn ThresholdByUpper .5
 vtkGlyph3D Vertices
     Vertices SetInputConnection [ThresholdIn GetOutputPort]
-    Vertices SetSource [Sphere GetOutput]
+    Vertices SetSourceConnection [Sphere GetOutputPort]
 vtkPolyDataMapper SphereMapper
     SphereMapper SetInputConnection [Vertices GetOutputPort]
     SphereMapper ScalarVisibilityOff

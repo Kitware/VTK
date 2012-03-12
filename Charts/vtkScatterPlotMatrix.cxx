@@ -461,8 +461,7 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         this->Private->BigChart->ClearPlots();
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
         }
-      plot->SetInput(this->Input.GetPointer(), column, row);
-      plot->Update();
+      plot->SetInputData(this->Input.GetPointer(), column, row);
       plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
                    ->PlotPen.GetPointer());
       this->ApplyAxisSetting(this->Private->BigChart.GetPointer(), column, row);
@@ -1244,7 +1243,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         chart->SetActionToButton(vtkChart::ZOOM, -1);
         chart->SetActionToButton(vtkChart::SELECT, -1);
         vtkPlot *plot = chart->AddPlot(vtkChart::POINTS);
-        plot->SetInput(this->Input.GetPointer(), column, row);
+        plot->SetInputData(this->Input.GetPointer(), column, row);
         plot->SetPen(this->Private->ChartSettings[SCATTERPLOT]
                      ->PlotPen.GetPointer());
         // set plot marker size and style
@@ -1266,8 +1265,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
         plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
                        ->PlotBrush.GetPointer());
         vtkStdString name(this->VisibleColumns->GetValue(i));
-        plot->SetInput(this->Private->Histogram.GetPointer(),
-                       name + "_extents", name + "_pops");
+        plot->SetInputData(this->Private->Histogram.GetPointer(),
+                           name + "_extents", name + "_pops");
         vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         axis->SetLabelsVisible(false);

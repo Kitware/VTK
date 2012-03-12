@@ -42,7 +42,7 @@ public:
 
   // Description:
   // Set / get the input image used to perform the blanking.
-  void SetBlankingInput(vtkImageData *input);
+  void SetBlankingInputData(vtkImageData *input);
   vtkImageData *GetBlankingInput();
 
 protected:

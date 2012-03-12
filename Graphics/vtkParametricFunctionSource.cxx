@@ -495,14 +495,14 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   if ( this->ParametricFunction->GetDerivativesAvailable() )
     {
     //Generate polygons from the triangle strips
-    tri->SetInput(pd);
+    tri->SetInputData(pd);
     }
   else
     {
     // Calculate Normals
-    norm->SetInput(pd);
+    norm->SetInputData(pd);
     // Generate polygons from the triangle strips
-    tri->SetInput(norm->GetOutput());
+    tri->SetInputConnection(norm->GetOutputPort());
     }
   tri->PassLinesOn();
   tri->PassVertsOff();

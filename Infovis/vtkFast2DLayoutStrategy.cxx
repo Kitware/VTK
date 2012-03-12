@@ -97,10 +97,8 @@ vtkFast2DLayoutStrategy::~vtkFast2DLayoutStrategy()
 // Helper functions
 void vtkFast2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
 
@@ -133,10 +131,8 @@ void vtkFast2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, 
 
 void vtkFast2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
 {
-  splat->SetScalarTypeToFloat();
-  splat->SetNumberOfScalarComponents(1);
   splat->SetDimensions(x, y, 1);
-  splat->AllocateScalars();
+  splat->AllocateScalars(VTK_FLOAT, 1);
   
   const int *dimensions = splat->GetDimensions();
   
@@ -275,7 +271,7 @@ void vtkFast2DLayoutStrategy::Initialize()
   
   // Set up the image splatter
   this->GenerateGaussianSplat(this->SplatImage, 41, 41);
-  this->DensityGrid->SetInput(1, this->SplatImage);
+  this->DensityGrid->SetInputData(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
 
 }
@@ -301,7 +297,7 @@ void vtkFast2DLayoutStrategy::Layout()
     }
     
   // Set my graph as input into the graph to polydata
-  this->GraphToPoly->SetInput(this->Graph);
+  this->GraphToPoly->SetInputData(this->Graph);
 
   // Set the polydata graph as input to the fast splatter
   this->DensityGrid->SetInputConnection(this->GraphToPoly->GetOutputPort());

@@ -81,7 +81,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   // Extract submesh corresponding with cells containing material 2
   cellData->SetActiveScalars( "Material Id" );
   vtkNew<vtkThreshold> threshold2;
-  threshold2->SetInput( mesh );
+  threshold2->SetInputData( mesh );
   threshold2->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS );
   threshold2->ThresholdByLower( 2 );
   threshold2->Update();
@@ -89,7 +89,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
   // Extract submesh corresponding with cells containing material 3
   vtkNew<vtkThreshold> threshold3;
-  threshold3->SetInput( mesh );
+  threshold3->SetInputData( mesh );
   threshold3->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS );
   threshold3->ThresholdByUpper( 3 );
   threshold3->Update();
@@ -106,7 +106,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   // Create mapper for submesh corresponding to material 2;
   double* matRange = cellData->GetScalars()->GetRange();
   vtkNew<vtkDataSetMapper> meshMapper;
-  meshMapper->SetInput( meshMat2 );
+  meshMapper->SetInputData( meshMat2 );
   meshMapper->SetScalarRange( matRange );
   meshMapper->SetScalarModeToUseCellData();
   meshMapper->SetColorModeToMapScalars();
@@ -123,7 +123,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   cellData->SetActiveScalars("frac_pres[1]");
   // Reconstruct Youngs material interface
   vtkNew<vtkYoungsMaterialInterface> youngs;
-  youngs->SetInput( meshMB.GetPointer() );
+  youngs->SetInputData( meshMB.GetPointer() );
   youngs->SetNumberOfMaterials( 2 );
   youngs->SetMaterialVolumeFractionArray( 0, "frac_pres[1]" );
   youngs->SetMaterialVolumeFractionArray( 1, "frac_pres[2]" );
@@ -157,7 +157,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
     // Create mapper for interface
     vtkNew<vtkDataSetMapper> interfaceMapper;
-    interfaceMapper->SetInput( interface );
+    interfaceMapper->SetInputData( interface );
     interfaceIterator->GoToNextItem();
     interfaceMapper->ScalarVisibilityOff();
     interfaceMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );

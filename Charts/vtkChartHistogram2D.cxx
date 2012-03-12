@@ -61,9 +61,9 @@ void vtkChartHistogram2D::Update()
 }
 
 //-----------------------------------------------------------------------------
-void vtkChartHistogram2D::SetInput(vtkImageData *data, vtkIdType z)
+void vtkChartHistogram2D::SetInputData(vtkImageData *data, vtkIdType z)
 {
-  this->Histogram->SetInput(data, z);
+  this->Histogram->SetInputData(data, z);
 }
 
 //-----------------------------------------------------------------------------

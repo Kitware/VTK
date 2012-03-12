@@ -138,7 +138,7 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
   vtkRenderWindow * renWin = vtkRenderWindow::New();
 
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
+  mapper->SetInputData(polyData);
 
   vtkActor * actor = vtkActor::New();
 

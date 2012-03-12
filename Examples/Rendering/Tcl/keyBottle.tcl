@@ -43,7 +43,7 @@ profile SetLines lines
 
 # Extrude profile to make bottle
 vtkRotationalExtrusionFilter extrude
-extrude SetInput profile
+extrude SetInputData profile
 extrude SetResolution 60
 
 vtkPolyDataMapper map

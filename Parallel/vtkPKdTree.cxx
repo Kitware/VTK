@@ -413,12 +413,6 @@ void vtkPKdTree::BuildLocator()
     this->FreeSearchStructure();
     this->ReleaseTables();
 
-    // Make sure input is up to date.
-    for (int i = 0; i < this->GetNumberOfDataSets(); i++)
-      {
-      this->GetDataSet(i)->Update();
-      }
-
     this->AllCheckParameters();   // global operation to ensure same parameters
 
     double volBounds[6];
@@ -3413,15 +3407,6 @@ int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, double range[2])
 
   return 0;
 }
-
-#ifndef VTK_LEGACY_REMOVE
-int vtkPKdTree::DepthOrderAllProcesses(double *dop, vtkIntArray *orderedList)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkPKdTree::DepthOrderAllProcesses, "VTK 5.2",
-                           vtkPKdTree::ViewOrderAllProcessesInDirection);
-  return this->ViewOrderAllProcessesInDirection(dop, orderedList);
-}
-#endif //VTK_LEGACY_REMOVE
 
 int vtkPKdTree::ViewOrderAllProcessesInDirection(const double dop[3],
                                                  vtkIntArray *orderedList)

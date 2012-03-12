@@ -76,7 +76,8 @@ int vtkImageAlgorithm::RequestData(
   this->SetErrorCode( vtkErrorCode::NoError );
   if (outInfo)
     {
-    this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+    this->ExecuteDataWithInformation( outInfo->Get(vtkDataObject::DATA_OBJECT()),
+                                      outInfo );
     }
   else
     {
@@ -115,6 +116,11 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
     }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+void vtkImageAlgorithm::ExecuteDataWithInformation(vtkDataObject *dobj, vtkInformation*)
+{
+  this->ExecuteData(dobj);
 }
 
 //----------------------------------------------------------------------------
@@ -189,37 +195,28 @@ int vtkImageAlgorithm::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output, 
+void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output,
+                                           vtkInformation *outInfo,
                                            int *uExtent)
-{ 
+{
   // set the extent to be the update extent
   output->SetExtent(uExtent);
-  output->AllocateScalars();
+  int scalarType = vtkImageData::GetScalarType(outInfo);
+  int numComponents = vtkImageData::GetNumberOfScalarComponents(outInfo);
+  output->AllocateScalars(scalarType, numComponents);
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output)
+vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output,
+                                                    vtkInformation* outInfo)
 { 
   // set the extent to be the update extent
   vtkImageData *out = vtkImageData::SafeDownCast(output);
   if (out)
     {
-    // this needs to be fixed -Ken
-    vtkStreamingDemandDrivenPipeline *sddp = 
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-    int numInfoObj = sddp->GetNumberOfOutputPorts();
-    if (sddp && numInfoObj == 1)
-      {
-      int extent[6];
-      sddp->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
-      out->SetExtent(extent);
-      }
-    else
-      {
-      vtkWarningMacro( "There are multiple output ports. You cannot use AllocateOutputData" );
-      return NULL;
-      }
-    out->AllocateScalars();
+    int* uExtent = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    this->AllocateOutputData(out, outInfo, uExtent);
     }
   return out;
 }
@@ -397,23 +394,15 @@ int vtkImageAlgorithm::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(vtkDataObject* input)
+void vtkImageAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkImageAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
@@ -429,16 +418,13 @@ vtkImageData* vtkImageAlgorithm::GetImageDataInput(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(vtkDataObject* input)
+void vtkImageAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkImageAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }

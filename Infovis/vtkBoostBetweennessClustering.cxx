@@ -336,7 +336,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
   output2Copy->ShallowCopy(output2);
 
-  bcc->SetInput(0, output2Copy);
+  bcc->SetInputData(0, output2Copy);
   bcc->Update();
 
   vtkSmartPointer<vtkGraph> bccOut = bcc->GetOutput(0);

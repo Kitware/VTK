@@ -30,7 +30,7 @@ reader.SetDataSpacing(3.2,3.2,1.5)
 #---------------------------------------------------------
 # set up the volume rendering
 volumeMapper = vtk.vtkVolumeTextureMapper3D()
-volumeMapper.SetInput(reader.GetOutput())
+volumeMapper.SetInputConnection(reader.GetOutputPort())
 volumeMapper.CroppingOn()
 volumeMapper.SetCroppingRegionPlanes((0.0, 141.6, 0.0, 201.6, 0.0, 138.0))
 
@@ -105,10 +105,10 @@ table.SetSaturationRange(0,0)
 mapToColors = vtk.vtkImageMapToColors()
 mapToColors.SetInputConnection(reader.GetOutputPort())
 mapToColors.SetLookupTable(table)
-mapToColors.GetOutput().Update()
+mapToColors.Update()
 
 imageActor = vtk.vtkImageActor()
-imageActor.SetInput(mapToColors.GetOutput())
+imageActor.GetMapper().SetInputConnection(mapToColors.GetOutputPort())
 imageActor.SetDisplayExtent(32,32,0,63,0,92)
 
 #---------------------------------------------------------

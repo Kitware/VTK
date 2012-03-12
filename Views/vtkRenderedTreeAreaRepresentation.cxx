@@ -152,7 +152,7 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   this->TreeAggregation->LeafVertexUnitSizeOn();
 
   // Highlight
-  this->HighlightMapper->SetInput(this->HighlightData);
+  this->HighlightMapper->SetInputData(this->HighlightData);
   this->HighlightActor->SetMapper(this->HighlightMapper);
   this->HighlightActor->VisibilityOff();
   this->HighlightActor->PickableOff();
@@ -181,7 +181,7 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   this->AreaMapper->SelectColorArray("vtkApplyColors color");
   this->AreaActor->SetMapper(this->AreaMapper);
 
-  this->AreaLabelHierarchy->SetInput(this->EmptyPolyData);
+  this->AreaLabelHierarchy->SetInputData(this->EmptyPolyData);
 
   // Set the orientation array to be the text rotation array produced by
   // vtkStackedTreeLayoutStrategy.
@@ -502,11 +502,11 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
         
         vtkSmartPointer<vtkExtractEdges> extract =
           vtkSmartPointer<vtkExtractEdges>::New();
-        extract->SetInput(sector->GetOutput());
+        extract->SetInputConnection(sector->GetOutputPort());
         
         vtkSmartPointer<vtkAppendPolyData> append =
           vtkSmartPointer<vtkAppendPolyData>::New();
-        append->AddInput(extract->GetOutput());
+        append->AddInputConnection(extract->GetOutputPort());
         append->Update();
         
         this->HighlightData->ShallowCopy(append->GetOutput());
@@ -628,7 +628,7 @@ void vtkRenderedTreeAreaRepresentation::SetAreaLabelVisibility(bool b)
     }
   else
     {
-    this->AreaLabelHierarchy->SetInput(this->EmptyPolyData);
+    this->AreaLabelHierarchy->SetInputData(this->EmptyPolyData);
     }
 }
 

@@ -51,7 +51,8 @@ class vtkInformationStringKey;
 class vtkInformationDataObjectKey;
 class vtkInformationIntegerKey;
 
-class VTK_FILTERING_EXPORT vtkCompositeDataPipeline : public vtkStreamingDemandDrivenPipeline
+class VTK_FILTERING_EXPORT vtkCompositeDataPipeline :
+  public vtkStreamingDemandDrivenPipeline
 {
 public:
   static vtkCompositeDataPipeline* New();
@@ -75,6 +76,11 @@ public:
   // input port
   vtkDataObject* GetCompositeInputData(
     int port, int index, vtkInformationVector **inInfoVec);
+
+  // Description:
+  // An integer key that indicates to the source to load all requested
+  // blocks specified in UPDATE_COMPOSITE_INDICES.
+  static vtkInformationIntegerKey*  LOAD_REQUESTED_BLOCKS();
 
   // Description:
   // vtkCompositeDataPipeline specific keys

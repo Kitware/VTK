@@ -64,7 +64,7 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
   //
   VTK_CREATE(vtkSphereSource, ss);
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
   VTK_CREATE(vtkActor, actor);
   actor->SetMapper(mapper);
 

@@ -92,11 +92,11 @@ int TestGlobeSource(int argc, char* argv[])
     }
 
   globeSource->GetOutput(0)->GetPointData()->SetTCoords(textureCoords);
-  mapper->SetInput( globeSource->GetOutput(0) );
+  mapper->SetInputConnection( globeSource->GetOutputPort() );
   actor->SetMapper(mapper);
 
   VTK_CREATE(vtkTexture, texture);
-  texture->SetInput(reader->GetOutputDataObject(0));
+  texture->SetInputConnection(reader->GetOutputPort());
   actor->SetTexture(texture);
 
   // Get the right view.

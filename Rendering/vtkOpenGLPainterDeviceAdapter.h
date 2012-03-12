@@ -134,10 +134,6 @@ public:
   virtual void MakeVertexEmphasis(bool mode);
   
   // Description:
-  // @deprecated
-  VTK_LEGACY(virtual void MakeVertexEmphasisWithStencilCheck(int mode));
-  
-  // Description:
   // Control use of the stencil buffer (for vertex selection).
   virtual void Stencil(int on);
   virtual void WriteStencil(vtkIdType value);

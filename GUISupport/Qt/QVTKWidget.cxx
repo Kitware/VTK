@@ -96,7 +96,6 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
   mPaintEngine = new QVTKPaintEngine;
 
   this->mCachedImage = vtkImageData::New();
-  this->mCachedImage->SetScalarTypeToUnsignedChar();
   this->mCachedImage->SetOrigin(0,0,0);
   this->mCachedImage->SetSpacing(1,1,1);
 
@@ -314,9 +313,8 @@ void QVTKWidget::saveImageToCache()
 
   int w = this->width();
   int h = this->height();
-  this->mCachedImage->SetNumberOfScalarComponents(3);
   this->mCachedImage->SetExtent(0, w-1, 0, h-1, 0, 0);
-  this->mCachedImage->AllocateScalars();
+  this->mCachedImage->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
     this->mCachedImage->GetPointData()->GetScalars());
   // We use back-buffer if
@@ -332,7 +330,6 @@ void QVTKWidget::setAutomaticImageCacheEnabled(bool flag)
   if (!flag)
     {
     this->mCachedImage->Initialize();
-    this->mCachedImage->SetScalarTypeToUnsignedChar();
     this->mCachedImage->SetOrigin(0,0,0);
     this->mCachedImage->SetSpacing(1,1,1);
     }

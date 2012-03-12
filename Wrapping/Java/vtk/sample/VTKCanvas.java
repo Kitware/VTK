@@ -41,7 +41,7 @@ public class VTKCanvas extends JPanel {
         vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
         vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-        coneMapper.SetInput(cone.GetOutput());
+        coneMapper.SetInputConnection(cone.GetOutputPort());
 
         vtkActor coneActor = new vtkActor();
         coneActor.SetMapper(coneMapper);

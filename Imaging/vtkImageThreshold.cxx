@@ -108,7 +108,6 @@ int vtkImageThreshold::RequestInformation (
 
   if (this->OutputScalarType == -1)
     {
-    // This information already copied from input to output in CopyInformationToPipeline?
     vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (!inScalarInfo)

@@ -27,7 +27,7 @@ vtkVolume16Reader v16
   v16 SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
   v16 Update
 
-scan [[v16 GetOutput] GetWholeExtent] "%d %d %d %d %d %d" \
+scan [[v16 GetExecutive] GetWholeExtent [v16 GetOutputInformation 0]] "%d %d %d %d %d %d" \
         xMin xMax yMin yMax zMin zMax
 
 set spacing [[v16 GetOutput] GetSpacing]
@@ -43,10 +43,10 @@ set oz [lindex $origin 2]
 # Create an outline of the 3D image data bounds.
 #
 vtkOutlineFilter outline
-  outline SetInput [ v16 GetOutput ]
+  outline SetInputConnection [ v16 GetOutputPort ]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [ outline GetOutput ]
+  outlineMapper SetInputConnection [ outline GetOutputPort ]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
@@ -74,7 +74,7 @@ vtkImagePlaneWidget ipw
   ipw DisplayTextOn
   ipw TextureInterpolateOff
   ipw UserControlledLookupTableOff
-  ipw SetInput [ v16 GetOutput ]
+  ipw SetInputConnection [ v16 GetOutputPort ]
   ipw SetResliceInterpolateToNearestNeighbour
   ipw KeyPressActivationOff
   [ ipw GetPlaneProperty ] SetColor 1 0 0  
@@ -88,7 +88,7 @@ vtkImagePlaneWidget ipw
 # Create a vtkSplineWidget to interactively probe the data.
 #
 vtkSplineWidget spline
-  spline SetInput [ v16 GetOutput ]
+  spline SetInputConnection [ v16 GetOutputPort ]
   spline PlaceWidget
   spline SetPriority 1.0
   spline KeyPressActivationOff
@@ -108,13 +108,13 @@ vtkPolyData poly
 # The filter to probe the image data.
 #
 vtkProbeFilter probe
-  probe SetInput poly
-  probe SetSource [ v16 GetOutput ]
+  probe SetInputData poly
+  probe SetSourceConnection [ v16 GetOutputPort ]
 
 # The plot of the profile data.
 #
 vtkXYPlotActor profile
-  profile AddInput [ probe GetOutput ]
+  profile AddDataSetInputConnection [ probe GetOutputPort ]
   [ profile GetPositionCoordinate ] SetValue 0.05 0.05 0
   [ profile GetPosition2Coordinate ] SetValue 0.95 0.95 0
   profile SetXValuesToNormalizedArcLength

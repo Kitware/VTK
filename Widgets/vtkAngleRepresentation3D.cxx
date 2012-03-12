@@ -45,7 +45,8 @@ vtkAngleRepresentation3D::vtkAngleRepresentation3D()
   this->Line1Source = vtkLineSource::New();
   this->Line1Source->SetResolution(5);
   this->Line1Mapper = vtkPolyDataMapper::New();
-  this->Line1Mapper->SetInput(this->Line1Source->GetOutput());
+  this->Line1Mapper->SetInputConnection(
+    this->Line1Source->GetOutputPort());
   this->Ray1 = vtkActor::New();
   this->Ray1->SetMapper(this->Line1Mapper);
   this->Ray1->GetProperty()->SetColor( 1.0, 0.0, 0.0 );
@@ -54,7 +55,8 @@ vtkAngleRepresentation3D::vtkAngleRepresentation3D()
   this->Line2Source = vtkLineSource::New();
   this->Line2Source->SetResolution(5);
   this->Line2Mapper = vtkPolyDataMapper::New();
-  this->Line2Mapper->SetInput(this->Line2Source->GetOutput());
+  this->Line2Mapper->SetInputConnection(
+    this->Line2Source->GetOutputPort());
   this->Ray2 = vtkActor::New();
   this->Ray2->SetMapper(this->Line2Mapper);
   this->Ray2->GetProperty()->SetColor( 1.0, 0.0, 0.0 );
@@ -63,7 +65,8 @@ vtkAngleRepresentation3D::vtkAngleRepresentation3D()
   this->ArcSource = vtkArcSource::New();
   this->ArcSource->SetResolution(30);
   this->ArcMapper = vtkPolyDataMapper::New();
-  this->ArcMapper->SetInput(this->ArcSource->GetOutput());
+  this->ArcMapper->SetInputConnection(
+    this->ArcSource->GetOutputPort());
   this->Arc = vtkActor::New();
   this->Arc->SetMapper(this->ArcMapper);
   this->Arc->GetProperty()->SetColor( 1.0, 0.1, 0.0 );
@@ -71,7 +74,8 @@ vtkAngleRepresentation3D::vtkAngleRepresentation3D()
   this->TextInput = vtkVectorText::New();
   this->TextInput->SetText( "0" );
   this->TextMapper = vtkPolyDataMapper::New();
-  this->TextMapper->SetInput( this->TextInput->GetOutput() );
+  this->TextMapper->SetInputConnection(
+    this->TextInput->GetOutputPort());
   this->TextActor = vtkFollower::New();
   this->TextActor->SetMapper(this->TextMapper);
   this->TextActor->GetProperty()->SetColor( 1.0, 0.1, 0.0 );

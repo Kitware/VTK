@@ -39,7 +39,6 @@ public:
 
   // Description:
   // Set/Get the input data
-  virtual void SetInput( vtkDataSet * );
   vtkDataSet *GetDataSetInput();
   vtkDataObject *GetDataObjectInput();
   

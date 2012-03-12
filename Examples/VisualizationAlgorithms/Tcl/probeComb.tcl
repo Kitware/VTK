@@ -6,12 +6,14 @@ package require vtkinteraction
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 
 # We create three planes and position them in the correct position
 # using transform filters. They are then appended together and used as
@@ -75,19 +77,19 @@ vtkAppendPolyData appendF
 # probing process generates new data values resampled from the source.
 vtkProbeFilter probe
     probe SetInputConnection  [appendF GetOutputPort]
-    probe SetSourceConnection [pl3d GetOutputPort]
+    probe SetSourceData $pl3dOutput
 
 vtkContourFilter contour
     contour SetInputConnection [probe GetOutputPort]
-    eval contour GenerateValues 50 [[pl3d GetOutput] GetScalarRange]
+    eval contour GenerateValues 50 [$pl3dOutput GetScalarRange]
 vtkPolyDataMapper contourMapper
     contourMapper SetInputConnection [contour GetOutputPort]
-    eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval contourMapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper contourMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

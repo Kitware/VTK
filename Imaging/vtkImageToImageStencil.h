@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Specify the image data to convert into a stencil.
-  void SetInput(vtkImageData *input);
+  void SetInputData(vtkImageData *input);
   vtkImageData *GetInput();
 
   // Description:

@@ -32,7 +32,7 @@ selectRect = vtk.vtkPolyData()
 selectRect.SetPoints(pts)
 selectRect.SetLines(rect)
 rectMapper = vtk.vtkPolyDataMapper2D()
-rectMapper.SetInput(selectRect)
+rectMapper.SetInputData(selectRect)
 rectActor = vtk.vtkActor2D()
 rectActor.SetMapper(rectMapper)
 

@@ -194,6 +194,7 @@ protected:
   // Description:
   // Override Update to handle some tricky details.
   void Update();
+  void Update(int port);
 
   // Description:
   // Garbage collection for reference loops.

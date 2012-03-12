@@ -58,6 +58,7 @@ vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkErrorCode.cxx
 vtkEventForwarderCommand.cxx
+vtkExtentRCBPartitioner.cxx
 vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
 vtkFastNumericConversion.cxx

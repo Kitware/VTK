@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -68,6 +68,9 @@ int TestGaussianBlurPass(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
+
+  vtkOpenGLRenderer *glrenderer =
+      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
 
   vtkSmartPointer<vtkCameraPass> cameraP=
     vtkSmartPointer<vtkCameraPass>::New();
@@ -110,7 +113,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
     vtkSmartPointer<vtkGaussianBlurPass>::New();
   blurP->SetDelegatePass(cameraP);
   
-  renderer->SetPass(blurP);
+  glrenderer->SetPass(blurP);
   
 //  renderer->SetPass(cameraP);
   

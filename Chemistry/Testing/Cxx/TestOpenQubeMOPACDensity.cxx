@@ -57,14 +57,14 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
     {
     cout << "No bonds found. Running simple bond perception...\n";
     vtkNew<vtkSimpleBondPerceiver> bonder;
-    bonder->SetInput(mol);
+    bonder->SetInputData(mol);
     bonder->Update();
     mol = bonder->GetOutput();
     cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
     }
 
   vtkNew<vtkMoleculeMapper> molMapper;
-  molMapper->SetInput(mol);
+  molMapper->SetInputData(mol);
   molMapper->UseLiquoriceStickSettings();
   molMapper->SetBondRadius(0.1);
   molMapper->SetAtomicRadiusScaleFactor(0.1);
@@ -91,12 +91,11 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
     }
 
   double range[2];
-  data->Update();
   data->GetScalarRange(range);
   cout << "ImageData range: " << range[0] <<" "<< range[1] << "\n";
 
   vtkNew<vtkImageShiftScale> t;
-  t->SetInput(data.GetPointer());
+  t->SetInputData(data.GetPointer());
   t->SetShift(0.0);
   double magnitude = range[1];
   if(fabs(magnitude) < 1e-10)

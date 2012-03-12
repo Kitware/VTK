@@ -473,7 +473,7 @@ int BoxWidget2( int , char *[] )
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -481,8 +481,8 @@ int BoxWidget2( int , char *[] )
                                                         
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
-  append->AddInput(glyph->GetOutput());
-  append->AddInput(sphere->GetOutput());
+  append->AddInputConnection(glyph->GetOutputPort());
+  append->AddInputConnection(sphere->GetOutputPort());
   
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

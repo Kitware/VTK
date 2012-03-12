@@ -183,7 +183,7 @@ protected:
   void SetupOutputInformation(int num_slices);
 
   virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
 
   //
   // Constructor

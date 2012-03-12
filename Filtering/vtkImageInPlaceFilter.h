@@ -19,9 +19,6 @@
 // if the requested region has different extent than the input region
 // or some other object is referencing the input region.  
 
-// .SECTION See Also
-// vtkImageToImageFilter vtkImageMultipleInputFilter vtkImageTwoInputFilter
-
 
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
@@ -42,7 +39,7 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  void CopyData(vtkImageData *in, vtkImageData *out);
+  void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
   
 private:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.

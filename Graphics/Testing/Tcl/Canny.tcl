@@ -34,21 +34,23 @@ imgGradient SetDimensionality 2
 
 vtkImageMagnitude imgMagnitude
 imgMagnitude SetInputConnection [imgGradient GetOutputPort]
+imgMagnitude Update
 
 # non maximum suppression
 vtkImageNonMaximumSuppression nonMax;
-nonMax SetMagnitudeInput [imgMagnitude GetOutput];
-nonMax SetVectorInput [imgGradient GetOutput];
+nonMax SetMagnitudeInputData [imgMagnitude GetOutput];
+nonMax SetVectorInputData [imgGradient GetOutput];
 nonMax SetDimensionality 2
 
 vtkImageConstantPad pad
 pad SetInputConnection [imgGradient GetOutputPort]
 pad SetOutputNumberOfScalarComponents 3
 pad SetConstant 0
+pad Update
 
 vtkImageToStructuredPoints i2sp1
 i2sp1 SetInputConnection [nonMax GetOutputPort]
-i2sp1 SetVectorInput [pad GetOutput]
+i2sp1 SetVectorInputData [pad GetOutput]
 
 # link edgles
 vtkLinkEdgels imgLink;
@@ -66,12 +68,13 @@ gf SetInputConnection [thresholdEdgels GetOutputPort]
 
 vtkImageToStructuredPoints i2sp
 i2sp SetInputConnection [imgMagnitude GetOutputPort]
-i2sp SetVectorInput [pad GetOutput]
+i2sp SetVectorInputData [pad GetOutput]
+i2sp Update
 
 # subpixel them
 vtkSubPixelPositionEdgels spe;
 spe SetInputConnection [gf GetOutputPort];
-spe SetGradMaps [i2sp GetOutput];
+spe SetGradMapsData [i2sp GetOutput];
 
 vtkStripper strip
 strip SetInputConnection [spe GetOutputPort]

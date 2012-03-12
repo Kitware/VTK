@@ -151,7 +151,6 @@ int TestBareScalarsToColors(int argc, char *argv[])
 
     vtkNew<vtkImageData> image;
     image->SetDimensions(80, 80, 1);
-    image->SetScalarTypeToUnsignedChar();
     vtkUnsignedCharArray *colors =
       table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     image->GetPointData()->SetScalars(colors);
@@ -164,7 +163,7 @@ int TestBareScalarsToColors(int argc, char *argv[])
     vtkNew<vtkImageMapper> mapper;
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInput(image.GetPointer());
+    mapper->SetInputData(image.GetPointer());
 
     vtkNew<vtkActor2D> actor;
     actor->SetMapper(mapper.GetPointer());

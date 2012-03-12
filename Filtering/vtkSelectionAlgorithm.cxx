@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkSelectionAlgorithm);
 
@@ -93,17 +92,9 @@ vtkSelection* vtkSelectionAlgorithm::GetOutput(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkSelectionAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

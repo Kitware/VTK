@@ -46,7 +46,7 @@ public:
   // Description:
   // UserManagedInputs allows the user to set inputs by number instead of
   // using the AddInput/RemoveInput functions. Calls to
-  // SetNumberOfInputs/SetInputByNumber should not be mixed with calls
+  // SetNumberOfInputs/SetInputConnectionByNumber should not be mixed with calls
   // to AddInput/RemoveInput. By default, UserManagedInputs is false.
   vtkSetMacro(UserManagedInputs,int);
   vtkGetMacro(UserManagedInputs,int);
@@ -55,12 +55,12 @@ public:
   // Description:
   // Add a dataset to the list of data to append. Should not be
   // used when UserManagedInputs is true, use SetInputByNumber instead.
-  void AddInput(vtkPolyData *);
+  void AddInputData(vtkPolyData *);
 
   // Description:
   // Remove a dataset from the list of data to append. Should not be
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
-  void RemoveInput(vtkPolyData *);
+  void RemoveInputData(vtkPolyData *);
 
 //BTX
   // Description:
@@ -75,7 +75,8 @@ public:
   void SetNumberOfInputs(int num);
 
   // Set Nth input, should only be used when UserManagedInputs is true.
-  void SetInputByNumber(int num, vtkPolyData *input);
+  void SetInputConnectionByNumber(int num, vtkAlgorithmOutput *input);
+  void SetInputDataByNumber(int num, vtkPolyData *ds);
 
   // Description:
   // ParallelStreaming is for a particular application.
@@ -117,7 +118,7 @@ protected:
 
  private:
   // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
+  void AddInputData(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
 
   int UserManagedInputs;

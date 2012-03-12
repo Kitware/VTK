@@ -92,6 +92,8 @@ int vtkImageGaussianSource::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
+  outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent,6);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 1);
@@ -118,7 +120,7 @@ int vtkImageGaussianSource::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);  
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (data->GetScalarType() != VTK_DOUBLE)
     {

@@ -55,7 +55,7 @@ warp.SetScaleFactor(Scale)
 
 # Create the contour bands.
 bcf = vtk.vtkBandedPolyDataContourFilter()
-bcf.SetInput(warp.GetPolyDataOutput())
+bcf.SetInputConnection(warp.GetOutputPort())
 bcf.GenerateValues(15, demModel.GetOutput().GetScalarRange())
 bcf.SetScalarModeToIndex()
 bcf.GenerateContourEdgesOn()
@@ -78,7 +78,7 @@ demActor.SetMapper(demMapper)
 
 ## Create contour edges
 edgeMapper = vtk.vtkPolyDataMapper()
-edgeMapper.SetInput(bcf.GetContourEdgesOutput())
+edgeMapper.SetInputConnection(bcf.GetOutputPort())
 edgeMapper.SetResolveCoincidentTopologyToPolygonOffset()
 edgeActor = vtk.vtkActor()
 edgeActor.SetMapper(edgeMapper)
@@ -87,7 +87,7 @@ edgeActor.GetProperty().SetColor(0, 0, 0)
 ## Test clipping
 # Create the contour bands.
 bcf2 = vtk.vtkBandedPolyDataContourFilter()
-bcf2.SetInput(warp.GetPolyDataOutput())
+bcf2.SetInputConnection(warp.GetOutputPort())
 bcf2.ClippingOn()
 bcf2.GenerateValues(10, 1000, 2000)
 bcf2.SetScalarModeToValue()

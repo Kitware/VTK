@@ -173,12 +173,14 @@ vtkModifiedBSPTree.cxx
 vtkMultiBlockDataGroupFilter.cxx
 vtkMultiBlockMergeFilter.cxx
 vtkMultiThreshold.cxx
+vtkNonOverlappingAMRLevelIdScalars.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
 vtkOutlineCornerSource.cxx
 vtkOutlineFilter.cxx
 vtkOutlineSource.cxx
+vtkOverlappingAMRLevelIdScalars.cxx
 vtkParametricFunctionSource.cxx
 vtkPlaneSource.cxx
 vtkPlatonicSolidSource.cxx
@@ -242,6 +244,7 @@ vtkSphereSource.cxx
 vtkSplineFilter.cxx
 vtkSplitField.cxx
 vtkStreamer.cxx
+vtkStreamerBase.cxx
 vtkStreamingTessellator.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
@@ -306,6 +309,7 @@ vtkGeodesicPath
 vtkGraphGeodesicPath
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
+vtkStreamerBase
 ABSTRACT
 )
 

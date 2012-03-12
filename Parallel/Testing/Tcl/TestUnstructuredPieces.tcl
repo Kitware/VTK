@@ -7,13 +7,15 @@ math RandomSeed 22
 vtkParallelFactory pf
 pf RegisterFactory pf
 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
 pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
 pl3d SetScalarFunctionNumber 100
+pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 
 vtkDataSetTriangleFilter dst
-dst SetInputConnection [pl3d GetOutputPort]
+dst SetInputData $output
 
 vtkExtractUnstructuredGridPiece extract
 extract SetInputConnection [dst GetOutputPort]

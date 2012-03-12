@@ -35,7 +35,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCompositeRenderManager.h"
@@ -54,6 +54,9 @@
 #include "vtkRenderPassCollection.h"
 
 #include "vtkProcess.h"
+
+
+#include "vtkPolyDataWriter.h"
 
 class MyProcess : public vtkProcess
 {
@@ -154,7 +157,7 @@ void MyProcess::Execute()
   pass->SetController(this->Controller);
   if (me == 0)
     {
-    pass->SetInput(sp);
+    pass->SetInputData(sp);
     }
   else 
     {
@@ -162,23 +165,27 @@ void MyProcess::Execute()
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
-  cf->SetInput(pass->GetOutput());
+  cf->SetInputConnection(pass->GetOutputPort());
   cf->SetNumberOfContours(1);
   cf->SetValue(0,10.0);
-  (cf->GetInput())->RequestExactExtentOn();
+  // I am not sure that this is needed.
+  //(cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
   vtkElevationFilter *elev = vtkElevationFilter::New();
-  elev->SetInput(cf->GetOutput());
+  elev->SetInputConnection(cf->GetOutputPort());
   elev->SetScalarRange(me, me + .001);
 
   // COMPOSITE RENDER
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(vtkPolyData::SafeDownCast(elev->GetOutput()));
+  mapper->SetInputConnection(elev->GetOutputPort());
   mapper->SetScalarRange(0, numProcs);
+  mapper->SetPiece(me);
+  mapper->SetNumberOfPieces(numProcs);
+  // mapper->SetNumberOfPieces(2);
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   vtkRenderer *renderer = prm->MakeRenderer();
-  
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   
   // the rendering passes
   vtkCameraPass *cameraP=vtkCameraPass::New();
@@ -205,7 +212,7 @@ void MyProcess::Execute()
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   opaque->Delete();
   peeling->Delete();
@@ -240,10 +247,18 @@ void MyProcess::Execute()
   // If it executes here, dd will be up-to-date won't have to 
   // execute in GetActiveCamera.
 
-  mapper->SetPiece(me);
-  mapper->SetNumberOfPieces(numProcs);
+  // mapper->SetPiece(me);
+  // mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
-  
+
+  if (me ==1)
+    {
+    vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
+    writer->SetInputConnection(elev->GetOutputPort());
+    writer->SetFileName("contour1.vtk");
+    writer->Write();
+    }
+
   const int MY_RETURN_VALUE_MESSAGE=0x11;
 
   if (me == 0)

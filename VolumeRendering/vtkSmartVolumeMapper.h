@@ -192,13 +192,13 @@ public:
   // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
   // falls at or above this rate, the render is considered interactive and
   // the mapper may be adjusted (depending on the render mode).
-  // Initial value is 1.0e-5.
+  // Initial value is 1.0.
   vtkSetClampMacro( InteractiveUpdateRate, double, 1.0e-10, 1.0e10 );
 
   // Description:
   // Get the update rate at or above which this is considered an
   // interactive render.
-  // Initial value is 1.0e-5.
+  // Initial value is 1.0.
   vtkGetMacro( InteractiveUpdateRate, double );
 
   // Description:

@@ -92,9 +92,9 @@ proc SetImages {} {
   global Position tphoto sphoto cphoto
   set Window [.c.w get]
   set Level [.c.l get]
-  vtkImageDataToTkPhoto [resample GetOutput] $tphoto $Position(z) transverse $Window $Level
-  vtkImageDataToTkPhoto [resample GetOutput] $sphoto $Position(x) sagittal $Window $Level
-  vtkImageDataToTkPhoto [resample GetOutput] $cphoto $Position(y) coronal $Window $Level
+  vtkImageDataToTkPhoto [resample GetOutputPort] $tphoto $Position(z) transverse $Window $Level
+  vtkImageDataToTkPhoto [resample GetOutputPort] $sphoto $Position(x) sagittal $Window $Level
+  vtkImageDataToTkPhoto [resample GetOutputPort] $cphoto $Position(y) coronal $Window $Level
 }
 
 proc CastToUnsignedChar {} {

@@ -26,6 +26,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTrivialProducer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTextureMapper3D.h"
@@ -198,15 +199,21 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
 {
-
-  if ( !this->GetInput() )
+  vtkImageData *input = this->GetInput();
+  if (!input)
     {
     this->Initialized = 0;
     return;
     }
 
   int usingCellColors=0;
-  vtkDataArray *scalars  = this->GetScalars(this->GetInput(), this->ScalarMode,
+  // In order to perform a GetScalars we need to make sure that the
+  // input is up to date
+//  input->UpdateInformation();
+//  input->SetUpdateExtentToWholeExtent();
+//  input->Update();
+
+  vtkDataArray *scalars  = this->GetScalars(input, this->ScalarMode,
                                             this->ArrayAccessMode,
                                             this->ArrayId, this->ArrayName,
                                             usingCellColors);
@@ -521,7 +528,10 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.
     input2=vtkImageData::New();
-    m->SetInputConnection(input2->GetProducerPort());
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(input2);
+    m->SetInputConnection(tp->GetOutputPort());
+    tp->Delete();
     input2->Delete();
     needShallowCopy=true;
     }
@@ -547,7 +557,7 @@ void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample *f)
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.
     input2=vtkImageData::New();
-    f->SetInputConnection(input2->GetProducerPort());
+    f->SetInputConnection(f->GetInputConnection(0, 0));
     input2->Delete();
     needShallowCopy=true;
     }

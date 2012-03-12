@@ -11,16 +11,17 @@ vtkTransformFilter tf
   tf SetInputConnection [disk GetOutputPort]
 vtkStripper strips
   strips SetInputConnection [tf GetOutputPort]
+  strips Update
 
 vtkAppendPolyData app
-  app AddInput [disk GetOutput]
-  app AddInput [strips GetOutput]
+  app AddInputData [disk GetOutput]
+  app AddInputData [strips GetOutput]
   app Update
 
 set model [app GetOutput]
 
 vtkLinearExtrusionFilter extrude
-  extrude SetInput $model
+  extrude SetInputData $model
 
 # create random cell scalars for the model before extrusion.
 

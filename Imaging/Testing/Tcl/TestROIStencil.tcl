@@ -12,6 +12,7 @@ reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 vtkImageShiftScale shiftScale
 shiftScale SetInputConnection [reader GetOutputPort]
 shiftScale SetScale 0.2
+shiftScale Update
 
 vtkROIStencilSource roiStencil1
 roiStencil1 SetShapeToEllipsoid
@@ -35,23 +36,23 @@ roiStencil4 SetInformationInput [reader GetOutput]
 
 vtkImageStencil stencil1
 stencil1 SetInputConnection [reader GetOutputPort]
-stencil1 SetBackgroundInput [shiftScale GetOutput]
-stencil1 SetStencil [roiStencil1 GetOutput]
+stencil1 SetBackgroundInputData [shiftScale GetOutput]
+stencil1 SetStencilConnection [roiStencil1 GetOutputPort]
 
 vtkImageStencil stencil2
 stencil2 SetInputConnection [reader GetOutputPort]
-stencil2 SetBackgroundInput [shiftScale GetOutput]
-stencil2 SetStencil [roiStencil2 GetOutput]
+stencil2 SetBackgroundInputData [shiftScale GetOutput]
+stencil2 SetStencilConnection [roiStencil2 GetOutputPort]
 
 vtkImageStencil stencil3
 stencil3 SetInputConnection [reader GetOutputPort]
-stencil3 SetBackgroundInput [shiftScale GetOutput]
-stencil3 SetStencil [roiStencil3 GetOutput]
+stencil3 SetBackgroundInputData [shiftScale GetOutput]
+stencil3 SetStencilConnection [roiStencil3 GetOutputPort]
 
 vtkImageStencil stencil4
 stencil4 SetInputConnection [reader GetOutputPort]
-stencil4 SetBackgroundInput [shiftScale GetOutput]
-stencil4 SetStencil [roiStencil4 GetOutput]
+stencil4 SetBackgroundInputData [shiftScale GetOutput]
+stencil4 SetStencilConnection [roiStencil4 GetOutputPort]
 
 vtkImageMapper mapper1
   mapper1 SetInputConnection [stencil1 GetOutputPort]

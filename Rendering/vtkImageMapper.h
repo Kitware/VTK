@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Set the Input of a filter. 
-  virtual void SetInput(vtkImageData *input);
+  virtual void SetInputData(vtkImageData *input);
   vtkImageData *GetInput();
 
   // Description:

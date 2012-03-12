@@ -103,8 +103,8 @@ vtkPolyData polyData
 # direction to indicate inside and outside of the polygon.
 #
 vtkDelaunay2D del
-    del SetInput polyData
-    del SetSource polyData
+    del SetInputData polyData
+    del SetSourceData polyData
 vtkPolyDataMapper mapMesh
     mapMesh SetInputConnection [del GetOutputPort]
 vtkActor meshActor

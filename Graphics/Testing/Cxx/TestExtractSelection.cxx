@@ -52,7 +52,7 @@ int TestExtractSelection( int argc, char* argv[] )
 
   vtkExtractSelectedPolyDataIds* selFilter = 
     vtkExtractSelectedPolyDataIds::New();
-  selFilter->SetInput(1, sel);
+  selFilter->SetInputData(1, sel);
   selFilter->SetInputConnection(0,sphere->GetOutputPort());
   sel->Delete();
   node->Delete();

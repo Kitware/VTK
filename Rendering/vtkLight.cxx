@@ -141,30 +141,6 @@ void vtkLight::SetColor(double R, double G, double B)
   this->SetSpecularColor(R, G, B);
 }
 
-#ifndef VTK_LEGACY_REMOVE
-// This method assumes that the SetColor() method was called which sets both
-// the specular and diffuse colors to the same value. In the future, we may
-// want to change this to compute the composite light color, similar to
-// vtkProperty.
-double *vtkLight::GetColor()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkLight::GetColor,"VTK 5.7",
-                           vtkLight::GetDiffuseColor);
-  return this->DiffuseColor;
-}
-
-void vtkLight::GetColor(double rgb[3])
-{
-  VTK_LEGACY_REPLACED_BODY(vtkLight::GetColor,"VTK 5.7",
-                           vtkLight::GetDiffuseColor);
-  // May want to change this to compute the composite
-  // light color, similar to vtkProperty.
-  rgb[0] = this->DiffuseColor[0];
-  rgb[1] = this->DiffuseColor[1];
-  rgb[2] = this->DiffuseColor[2];
-}
-#endif // #ifndef VTK_LEGACY_REMOVE
-
 int vtkLight::LightTypeIsHeadlight()
 {
   return this->LightType == VTK_LIGHT_TYPE_HEADLIGHT;

@@ -8,6 +8,9 @@
  */
 #include "vtkSESAMEReader.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
 #include <vtkObjectFactory.h>
@@ -164,9 +167,10 @@ static int TableIndex(int tableId)
 }
 
 
-vtkSESAMEReader::vtkSESAMEReader() : vtkRectilinearGridSource()
+vtkSESAMEReader::vtkSESAMEReader()
 {
   this->Internal = new MyInternal();
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkSESAMEReader::~vtkSESAMEReader()
@@ -266,13 +270,11 @@ void vtkSESAMEReader::CloseFile()
 
 int vtkSESAMEReader::GetNumberOfTableIds()
 {
-  this->ExecuteInformation();
   return static_cast<int>(this->Internal->TableIds.size());
 }
 
 int* vtkSESAMEReader::GetTableIds()
 {
-  this->ExecuteInformation();
   return &this->Internal->TableIds[0];
 }
 
@@ -280,7 +282,6 @@ vtkIntArray* vtkSESAMEReader::GetTableIdsAsArray()
 {
   this->Internal->TableIdsArray->Initialize();
   this->Internal->TableIdsArray->SetNumberOfComponents(1);
-  this->ExecuteInformation();
   int numTableIds = static_cast<int>(this->Internal->TableIds.size());
   for (int i=0; i < numTableIds; ++i)
     {
@@ -307,19 +308,16 @@ void vtkSESAMEReader::SetTable(int tableId)
 
 int vtkSESAMEReader::GetTable()
 {
-  this->ExecuteInformation();
   return this->Internal->TableId;
 }
 
 int vtkSESAMEReader::GetNumberOfTableArrayNames()
 {
-  this->ExecuteInformation();
   return static_cast<int>(this->Internal->TableArrays.size());
 }
 
 const char* vtkSESAMEReader::GetTableArrayName(int index)
 {
-  this->ExecuteInformation();
   int s = static_cast<int>(this->Internal->TableArrays.size());
   if(s > index)
     {
@@ -344,7 +342,6 @@ void vtkSESAMEReader::SetTableArrayStatus(const char* name, int flag)
 
 int vtkSESAMEReader::GetTableArrayStatus(const char* name)
 {
-  this->ExecuteInformation();
   int i, numArrays;
   numArrays = static_cast<int>(this->Internal->TableArrays.size());
   for(i=0; i<numArrays; i++)
@@ -358,12 +355,14 @@ int vtkSESAMEReader::GetTableArrayStatus(const char* name)
 }
 
 
-void vtkSESAMEReader::ExecuteInformation()
+int vtkSESAMEReader::RequestInformation(vtkInformation *,
+                                        vtkInformationVector **,
+                                        vtkInformationVector *outputVector)
 {
   // open the file
   if(!this->OpenFile())
     {
-    return;
+    return 1;
     }
 
   if(this->Internal->TableIds.empty())
@@ -408,8 +407,11 @@ void vtkSESAMEReader::ExecuteInformation()
       {
       // first two values are dimensions of
       // grid
-      this->GetOutput()->SetWholeExtent(0, (int)(v[0]) - 1,
-                                        0, (int)(v[1]) - 1, 0, 0 );
+      outputVector->GetInformationObject(0)->Set(
+        vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+        0, (int)(v[0]) - 1,
+        0, (int)(v[1]) - 1, 
+        0, 0 );
       }
     }
 
@@ -426,6 +428,7 @@ void vtkSESAMEReader::ExecuteInformation()
                                                       // by default
       }
     }
+  return 0;
 }
 
 int vtkSESAMEReader::JumpToTable( int toTable )
@@ -443,20 +446,27 @@ int vtkSESAMEReader::JumpToTable( int toTable )
   return 0;
 }
 
-void vtkSESAMEReader::Execute()
+int vtkSESAMEReader::RequestData(vtkInformation *,
+                                 vtkInformationVector **,
+                                 vtkInformationVector *outputVector)
 {
+  vtkRectilinearGrid* output = vtkRectilinearGrid::GetData(outputVector);
+  if (!this->Internal->File)
+      {
+      return 0;
+      }
+
   // read the file
   JumpToTable(this->Internal->TableId);
-  this->ReadTable();
+  this->ReadTable(output);
+  return 0;
 }
 
-void vtkSESAMEReader::ReadTable() 
+void vtkSESAMEReader::ReadTable(vtkRectilinearGrid* output)
 {
   vtkFloatArray *xCoords = vtkFloatArray::New();
   vtkFloatArray *yCoords = vtkFloatArray::New();
   vtkFloatArray *zCoords = vtkFloatArray::New();
-  
-  vtkRectilinearGrid *output = this->GetOutput();
 
   float v[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
   int datadims[2] = { 0, 0 };

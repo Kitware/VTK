@@ -62,7 +62,7 @@ protected:
   ~vtkSLCReader();
 
   // Reads the file name and builds a vtkStructuredPoints dataset.
-  virtual void ExecuteData(vtkDataObject*);
+  virtual void ExecuteDataWithInformation(vtkDataObject*, vtkInformation*);
 
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,

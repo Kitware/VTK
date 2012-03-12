@@ -131,11 +131,11 @@ protected:
   // Description:
   // Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
   void AllocateOutputData(vtkDataObject *output,
-                          int outputPort);
+                          vtkInformation *outInfo);
   
   // Description:
   // Stolen from vtkImageData. Should be in vtkStructuredGrid.
-  void AllocateScalars(vtkStructuredGrid *sg);
+  void AllocateScalars(vtkStructuredGrid *sg, vtkInformation *outInfo);
   
   // Description:
   // This is called by the superclass.

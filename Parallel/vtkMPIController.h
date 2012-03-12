@@ -220,7 +220,6 @@ public:
       source, tag, flag, actualSource, type, size); }
 
 //ETX
-
   static const char* GetProcessorName();
 
   // Description:

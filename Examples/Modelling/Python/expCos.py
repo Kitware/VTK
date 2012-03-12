@@ -50,7 +50,7 @@ besselF.SetExecuteMethod(bessel)
 
 # We warp the plane based on the scalar values calculated above
 warp = vtk.vtkWarpScalar()
-warp.SetInput(besselF.GetPolyDataOutput())
+warp.SetInputConnection(besselF.GetOutputPort())
 warp.XYPlaneOn()
 warp.SetScaleFactor(0.5)
 
@@ -58,7 +58,7 @@ warp.SetScaleFactor(0.5)
 # We create a mapper and actor as usual. In the case we adjust the
 # scalar range of the mapper to match that of the computed scalars
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInput(warp.GetPolyDataOutput())
+mapper.SetInputConnection(warp.GetOutputPort())
 mapper.SetScalarRange(besselF.GetPolyDataOutput().GetScalarRange())
 carpet = vtk.vtkActor()
 carpet.SetMapper(mapper)

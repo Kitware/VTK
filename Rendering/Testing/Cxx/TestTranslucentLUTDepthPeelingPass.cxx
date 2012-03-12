@@ -25,7 +25,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -89,6 +89,8 @@ int TestTranslucentLUTDepthPeelingPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
   vtkCameraPass *cameraP=vtkCameraPass::New();
   
   vtkSequencePass *seq=vtkSequencePass::New();
@@ -113,7 +115,7 @@ int TestTranslucentLUTDepthPeelingPass(int argc, char* argv[])
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   opaque->Delete();
   peeling->Delete();

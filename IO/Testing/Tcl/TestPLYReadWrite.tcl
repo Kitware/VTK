@@ -7,11 +7,11 @@ vtkSphereSource ss
 vtkSimpleElevationFilter ele
    ele SetInputConnection [ss GetOutputPort]
 vtkPointDataToCellData pd2cd
-   pd2cd SetInput [ele GetPolyDataOutput]
+   pd2cd SetInputConnection [ele GetOutputPort]
 
 # First way or writing
 vtkPLYWriter w
-   w SetInput [pd2cd GetPolyDataOutput]
+   w SetInputConnection [pd2cd GetOutputPort]
    w SetFileName "plyWriter.ply"
    w SetFileTypeToBinary
    w SetDataByteOrderToLittleEndian
@@ -31,7 +31,7 @@ vtkActor plyActor
 vtkLookupTable lut
    lut Build
 vtkPLYWriter w2
-   w2 SetInput [pd2cd GetPolyDataOutput]
+   w2 SetInputConnection [pd2cd GetOutputPort]
    w2 SetFileName "plyWriter.ply"
    w2 SetFileTypeToBinary
    w2 SetDataByteOrderToLittleEndian

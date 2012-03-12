@@ -3,19 +3,21 @@ package require vtkinteraction
 
 # pipeline stuff
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set pl3d_output [[pl3d GetOutput] GetBlock 0]
+
 vtkGeometryFilter gf
-    gf SetInputConnection [pl3d GetOutputPort]
+    gf SetInputData $pl3d_output
 vtkTriangleFilter tf
     tf SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper gMapper
     gMapper SetInputConnection [gf GetOutputPort]
-    eval gMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval gMapper SetScalarRange [$pl3d_output GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 

@@ -36,7 +36,7 @@ vtkProgrammableAttributeDataFilter randomColors
 
 # mapper and actor
 vtkPolyDataMapper mapper
-    mapper SetInput [randomColors GetPolyDataOutput]
+    mapper SetInputConnection [randomColors GetOutputPort]
     eval mapper SetScalarRange [[randomColors GetPolyDataOutput] GetScalarRange]
 vtkActor sphereActor
     sphereActor SetMapper mapper

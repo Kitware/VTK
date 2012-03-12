@@ -95,7 +95,7 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->BorderPolyData->SetLines(lines); lines->Delete();
 
   this->BorderMapper = vtkPolyDataMapper2D::New();
-  this->BorderMapper->SetInput(this->BorderPolyData);
+  this->BorderMapper->SetInputData(this->BorderPolyData);
 
   this->BorderActor = vtkActor2D::New();
   this->BorderActor->SetMapper(this->BorderMapper);
@@ -112,7 +112,7 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->BoxPolyData->SetPolys(polys); polys->Delete();
 
   this->BoxMapper = vtkPolyDataMapper2D::New();
-  this->BoxMapper->SetInput(this->BoxPolyData);
+  this->BoxMapper->SetInputData(this->BoxPolyData);
 
   this->BoxActor = vtkActor2D::New();
   this->BoxActor->SetMapper(this->BoxMapper);
@@ -315,7 +315,8 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       symbolTransform[i] = vtkTransformPolyDataFilter::New();
       symbolTransform[i]->SetTransform(transform[i]);
       symbolMapper[i] = vtkPolyDataMapper2D::New();
-      symbolMapper[i]->SetInput(symbolTransform[i]->GetOutput());
+      symbolMapper[i]->SetInputConnection(
+        symbolTransform[i]->GetOutputPort());
       symbolActor[i] = vtkActor2D::New();
       symbolActor[i]->SetMapper(symbolMapper[i]);
 
@@ -334,7 +335,8 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       iconTransformFilter[i]->SetTransform(iconTransform[i]);
 
       iconMapper[i] = vtkPolyDataMapper2D::New();
-      iconMapper[i]->SetInput(iconTransformFilter[i]->GetOutput());
+      iconMapper[i]->SetInputConnection(
+        iconTransformFilter[i]->GetOutputPort());
 
       iconActor[i] = vtkTexturedActor2D::New();
       iconActor[i]->SetMapper(iconMapper[i]);
@@ -688,7 +690,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       if ( this->Symbol[i] ) //if there is a symbol
         {
         symbolExists = true;
-        this->Symbol[i]->Update();
+        //this->Symbol[i]->Update();
         bounds = this->Symbol[i]->GetBounds();
         if ( (bounds[3]-bounds[2]) == 0.0 )
           {
@@ -791,7 +793,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->Background->SetPoint1(p2[0], p1[1], 0.0);
       this->Background->SetPoint2(p1[0], p2[1], 0.0);
 
-      this->BackgroundMapper->SetInput(this->Background->GetOutput());
+      this->BackgroundMapper->SetInputConnection(
+        this->Background->GetOutputPort());
       this->BackgroundActor->GetProperty()->SetOpacity(this->BackgroundOpacity);
       this->BackgroundActor->GetProperty()->SetColor(this->BackgroundColor);
       }
@@ -852,7 +855,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if ( this->Symbol[i] )
         {
-        this->SymbolTransform[i]->SetInput(this->Symbol[i]);
+        this->SymbolTransform[i]->SetInputData(this->Symbol[i]);
         bounds = this->Symbol[i]->GetBounds();
 
         if ( (bounds[1]-bounds[0]) == 0.0 )
@@ -906,11 +909,12 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         if ( this->IconImage[i] )
           {
           vtkTexture *texture (vtkTexture::New());
-          texture->SetInput(this->IconImage[i]);
+          texture->SetInputData(this->IconImage[i]);
           this->IconActor[i]->SetTexture(texture);
           texture->Delete();
           this->Icon[i]->Update();
-          this->IconTransformFilter[i]->SetInput(this->Icon[i]->GetOutput());
+          this->IconTransformFilter[i]->SetInputConnection(
+            this->Icon[i]->GetOutputPort());
           this->IconTransformFilter[i]->Update();
           bounds = this->Icon[i]->GetOutput(0)->GetBounds();
 

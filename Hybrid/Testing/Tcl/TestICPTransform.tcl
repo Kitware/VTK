@@ -77,8 +77,8 @@ for {set ridx 1} {$ridx <= 3} {incr ridx} {
                     ren${ridx}s${sidx}fe ManifoldEdgesOff
 
                 vtkPolyDataMapper ren${ridx}s${sidx}fem
-                    ren${ridx}s${sidx}fem SetInput \
-                                          [ren${ridx}s${sidx}fe GetOutput]
+                    ren${ridx}s${sidx}fem SetInputConnection \
+                                          [ren${ridx}s${sidx}fe GetOutputPort]
                     ren${ridx}s${sidx}fem \
                                     SetResolveCoincidentTopologyToPolygonOffset
 

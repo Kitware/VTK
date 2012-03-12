@@ -12,18 +12,21 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
+
 vtkPlaneSource ps
     ps SetXResolution 4
     ps SetYResolution 4
     ps SetOrigin 2 -2 26
     ps SetPoint1 2  2 26
     ps SetPoint2 2 -2 32
+
 vtkPolyDataMapper psMapper
     psMapper SetInputConnection [ps GetOutputPort]
 vtkActor psActor
@@ -33,8 +36,8 @@ vtkActor psActor
 vtkRungeKutta4 rk4
 
 vtkStreamLine streamer
-    streamer SetInputConnection [pl3d GetOutputPort]
-    streamer SetSource [ps GetOutput]
+    streamer SetInputData $output
+    streamer SetSourceData [ps GetOutput]
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
     streamer SetStepLength .001
@@ -48,12 +51,12 @@ vtkRibbonFilter rf
     rf SetWidthFactor 5
 vtkPolyDataMapper streamMapper
     streamMapper SetInputConnection [rf GetOutputPort]
-    eval streamMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval streamMapper SetScalarRange [$output GetScalarRange]
 vtkActor streamline
     streamline SetMapper streamMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

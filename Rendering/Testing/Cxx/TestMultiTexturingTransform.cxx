@@ -128,7 +128,7 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   iren->SetRenderWindow(renWin);
   
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(polyData);
+  mapper->SetInputData(polyData);
   vtkActor * actor = vtkActor::New();
 
   vtkOpenGLHardwareSupport * hardware = 

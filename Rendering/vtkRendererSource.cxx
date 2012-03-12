@@ -69,7 +69,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
   output->SetExtent(uExtent);  
 
-  output->AllocateScalars();
+  output->AllocateScalars(info);
   vtkUnsignedCharArray *outScalars = 
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
 
@@ -264,14 +264,15 @@ unsigned long vtkRendererSource::GetMTime()
       data = mapper->GetInput();
       if (data)
         {
-        data->UpdateInformation();
+        mapper->GetInputAlgorithm()->UpdateInformation();
         }
       t2 = data->GetMTime();
       if (t2 > t1)
         {
         t1 = t2;
         }
-      t2 = data->GetPipelineMTime();
+      t2 = vtkDemandDrivenPipeline::SafeDownCast(
+        mapper->GetInputExecutive())->GetPipelineMTime();
       if (t2 > t1)
         {
         t1 = t2;

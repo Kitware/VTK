@@ -183,15 +183,15 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
     if (this->ComputeNormals)
       {
       mesh->aNormals = polyNormals = vtkPolyDataNormals::New ();
-      polyNormals->SetInput (polyData);
-      polyStripper->SetInput (polyNormals->GetOutput ());
+      polyNormals->SetInputData (polyData);
+      polyStripper->SetInputConnection(polyNormals->GetOutputPort());
       }
     else
       {
-      polyStripper->SetInput (polyData);
+      polyStripper->SetInputData(polyData);
       }
     
-    polyMapper->SetInput (polyStripper->GetOutput ());
+    polyMapper->SetInputConnection(polyStripper->GetOutputPort());
     vtkDebugMacro (<< "Importing Actor: " << mesh->name);
     mesh->anActor = actor = vtkActor::New ();
     actor->SetMapper (polyMapper);

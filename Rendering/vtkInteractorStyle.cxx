@@ -60,7 +60,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->OutlineActor        = NULL;
   this->OutlineMapper       = vtkPolyDataMapper::New();
 
-  this->OutlineMapper->SetInput(this->Outline->GetOutput());
+  this->OutlineMapper->SetInputConnection(
+    this->Outline->GetOutputPort());
 
   this->PickedRenderer      = NULL;
   this->CurrentProp         = NULL;

@@ -89,17 +89,9 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataMapper2D::SetInput(vtkPolyData *input)
+void vtkPolyDataMapper2D::SetInputData(vtkPolyData *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

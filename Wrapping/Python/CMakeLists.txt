@@ -145,20 +145,20 @@ SET(VTKPYTHON_LINK_LIBS
   vtkFiltering
   vtkIO
   vtkGraphics
-  vtkImaging )
+  vtkImaging)
 
 SET (vtkpython_pyc_depends
     vtkCommonPython
     vtkFilteringPython
     vtkIOPython
     vtkGraphicsPython
-    vtkImagingPython
-    )
+    vtkImagingPython)
 
 IF(BORLAND)
   SET(KITS Common Filtering Graphics IO Imaging)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
+    SET(KITS ${KITS} AMR)
   ENDIF(VTK_USE_PARALLEL)
   IF(VTK_USE_CHARTS)
     SET(KITS ${KITS} Charts)
@@ -210,10 +210,11 @@ IF (VTK_USE_RENDERING)
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_PARALLEL)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkParallel)
+  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkParallel vtkAMR)
   SET(vtkpython_pyc_depends
       ${vtkpython_pyc_depends}
       vtkParallelPython
+      vtkAMRPython
       )
 ENDIF (VTK_USE_PARALLEL)
 
@@ -283,8 +284,8 @@ IF(VTK_WRAP_TCL)
   TARGET_LINK_LIBRARIES(vtkpython ${VTK_TK_LIBRARIES})
 ENDIF(VTK_WRAP_TCL)
 
-IF(HAVE_PTHREAD_H AND CMAKE_USE_PTHREADS)
-  TARGET_LINK_LIBRARIES(vtkpython ${CMAKE_THREAD_LIBS_INIT})
+IF(HAVE_PTHREAD_H AND VTK_USE_PTHREADS)
+  TARGET_LINK_LIBRARIES(vtkpython ${CMAKE_THREAD_LIBS})
 ENDIF()
 
 IF(VTK_USE_FFMPEG_ENCODER)
@@ -650,6 +651,11 @@ IF(VTK_USE_CHARTS)
 ELSE(VTK_USE_CHARTS)
   SET(VTK_PYTHON_USE_CHARTS 0)
 ENDIF(VTK_USE_CHARTS)
+IF(VTK_USE_CHEMISTRY)
+  SET(VTK_PYTHON_USE_CHEMISTRY 1)
+ELSE()
+  SET(VTK_PYTHON_USE_CHEMISTRY 0)
+ENDIF()
 IF(VTK_USE_GEOVIS)
   SET(VTK_PYTHON_USE_GEOVIS 1)
 ELSE(VTK_USE_GEOVIS)

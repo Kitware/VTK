@@ -70,7 +70,7 @@ vtkTextActor::vtkTextActor()
   this->ImageData = vtkImageData::New();
   this->Texture = NULL;
   vtkTexture* texture = vtkTexture::New();
-  texture->SetInput(this->ImageData);
+  texture->SetInputData(this->ImageData);
   this->SetTexture(texture);
   texture->Delete();
 
@@ -155,7 +155,7 @@ void vtkTextActor::SetMapper(vtkPolyDataMapper2D *mapper)
 
   if (mapper)
     {
-    mapper->SetInput(this->Rectangle);
+    mapper->SetInputData(this->Rectangle);
     }
 }
 
@@ -307,7 +307,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->ComputeRectangle(viewport);
 
     this->ImageData->Modified();
-    this->Texture->SetInput(this->ImageData);
+    this->Texture->SetInputData(this->ImageData);
     this->Texture->Modified();
     this->InputRendered = true;
     this->BuildTime.Modified();
@@ -794,44 +794,6 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
       break;
     }
 }
-
-//-----------------------------------------------------------------------------
-// Depricated methods.
-#ifndef VTK_LEGACY_REMOVE
-
-void vtkTextActor::SetScaledText(int flag)
-{
-  VTK_LEGACY_REPLACED_BODY(SetScaledText, "5.4", SetTextScaleMode);
-  if (flag)
-    {
-    this->SetTextScaleModeToProp();
-    }
-  else
-    {
-    this->SetTextScaleModeToNone();
-    }
-}
-
-int vtkTextActor::GetScaledText()
-{
-  VTK_LEGACY_REPLACED_BODY(GetScaledText, "5.4", GetTextScaleMode);
-  return static_cast<int>(this->TextScaleMode == TEXT_SCALE_MODE_PROP);
-}
-
-void vtkTextActor::ScaledTextOn()
-{
-  VTK_LEGACY_REPLACED_BODY(ScaledTextOn, "5.4", SetTextScaleModeToProp);
-  this->SetTextScaleModeToProp();
-}
-
-void vtkTextActor::ScaledTextOff()
-{
-  VTK_LEGACY_REPLACED_BODY(ScaledTextOff, "5.4", SetTextScaleModeToNone);
-  this->SetTextScaleModeToNone();
-}
-
-#endif //VTK_LEGACY_REMOVE
-
 
 // ----------------------------------------------------------------------------
 void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)

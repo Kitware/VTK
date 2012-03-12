@@ -182,18 +182,6 @@ public:
                                 vtkIdList *cellIds);
 
   // Description:
-  // For streaming.  User/next filter specifies which piece the want updated.
-  // The source of this poly data has to return exactly this piece.
-  void GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel);
-
-  // Description:
-  // We need this here to avoid hiding superclass method
-  virtual int* GetUpdateExtent();
-  virtual void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                               int& z0, int& z1);
-  virtual void GetUpdateExtent(int extent[6]);
-
-  // Description:
   // Set / Get the piece and the number of pieces. Similar to extent in 3D.
   virtual int GetPiece();
   virtual int GetNumberOfPieces();

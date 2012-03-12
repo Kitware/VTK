@@ -44,12 +44,11 @@ public:
   virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
 
   // Description:
-  // Set an Input of this filter.  This method is only for support of
-  // old-style pipeline connections.  When writing new code you should
-  // use SetInputConnection(), AddInputConnection(), and
-  // ReplaceNthInputConnection() instead.
-  void SetInput(int num, vtkDataObject *input);
-  void SetInput(vtkDataObject *input) { this->SetInput(0, input); };
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(int num, vtkDataObject *input);
+  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); };
 
   // Description:
   // Get one input to this filter. This method is only for support of
@@ -117,8 +116,10 @@ protected:
 
   // overridden to allocate all of the output arrays, not just active scalars
   virtual void AllocateOutputData(vtkImageData *out,
+                                  vtkInformation* outInfo,
                                   int *uExtent);
-  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
+                                           vtkInformation* outInfo);
 
   // overridden to prevent shallow copies across, since we have to do it elementwise
   virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,

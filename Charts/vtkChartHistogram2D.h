@@ -45,7 +45,7 @@ public:
   // Paint function is invoked.
   virtual void Update();
 
-  virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
+  virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
   virtual void SetTransferFunction(vtkScalarsToColors *function);
 
   // Description:

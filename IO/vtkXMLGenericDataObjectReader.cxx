@@ -246,7 +246,7 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
     if(result)
       {
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
 
 //      outInfo->Set(vtkDataObject::DATA_OBJECT(),output);
       if(output!=0)

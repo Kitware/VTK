@@ -62,25 +62,6 @@ public:
   // to receive a message.
   void WaitForReceiver();
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define SendMessageA SendMessage
-# define SendMessageW SendMessage
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkThreadMessager::SendWakeMessage() as of
-  // VTK 5.0.
-  VTK_LEGACY(void SendMessage());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SendMessageW
-# undef SendMessageA
-  //BTX
-  VTK_LEGACY(void SendMessageA());
-  VTK_LEGACY(void SendMessageW());
-  //ETX
-#endif
-
 protected:
   vtkThreadMessager();
   ~vtkThreadMessager();
@@ -100,8 +81,3 @@ private:
 };
 
 #endif
-
-
-
-
-

@@ -21,8 +21,8 @@ camCBS SetZLength 0.8
 camCBS SetCenter 0.4 0 0
 
 vtkAppendFilter camAPD
-camAPD AddInput [camCS GetOutput]
-camAPD AddInput [camCBS GetOutput]
+camAPD AddInputConnection [camCS GetOutputPort]
+camAPD AddInputConnection [camCBS GetOutputPort]
 
 vtkDataSetMapper camMapper
     camMapper SetInputConnection [camAPD GetOutputPort]
@@ -68,7 +68,7 @@ pd2 SetPoints fp2
 pd2 SetLines ca2
 
 vtkImplicitModeller arrowIM
-arrowIM SetInput pd
+arrowIM SetInputData pd
 arrowIM SetSampleDimensions 50 20 8
 
 vtkContourFilter arrowCF
@@ -149,7 +149,7 @@ arrowT2 Scale 1 0.6 1
 arrowT2 RotateY 90
 
 vtkTransformPolyDataFilter arrowTF2
-arrowTF2 SetInput pd2
+arrowTF2 SetInputData pd2
 arrowTF2 SetTransform arrowT2
 
 vtkRotationalExtrusionFilter arrowREF

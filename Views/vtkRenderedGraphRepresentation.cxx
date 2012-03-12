@@ -197,13 +197,13 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
 
   this->GraphToPoints->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->EdgeCenters->SetInputConnection(this->VertexDegree->GetOutputPort());
-  this->EdgeLabelHierarchy->SetInput(this->EmptyPolyData);
-  this->VertexLabelHierarchy->SetInput(this->EmptyPolyData);
+  this->EdgeLabelHierarchy->SetInputData(this->EmptyPolyData);
+  this->VertexLabelHierarchy->SetInputData(this->EmptyPolyData);
 
   // Set default parameters
   vtkSmartPointer<vtkDirectedGraph> g =
     vtkSmartPointer<vtkDirectedGraph>::New();
-  this->Layout->SetInput(g);
+  this->Layout->SetInputData(g);
   vtkSmartPointer<vtkFast2DLayoutStrategy> strategy =
     vtkSmartPointer<vtkFast2DLayoutStrategy>::New();
   this->Layout->SetLayoutStrategy(strategy);
@@ -303,7 +303,7 @@ void vtkRenderedGraphRepresentation::SetVertexLabelVisibility(bool b)
     }
   else
     {
-    this->VertexLabelHierarchy->SetInput(this->EmptyPolyData);
+    this->VertexLabelHierarchy->SetInputData(this->EmptyPolyData);
     }
 }
 
@@ -315,7 +315,7 @@ void vtkRenderedGraphRepresentation::SetEdgeLabelVisibility(bool b)
     }
   else
     {
-    this->EdgeLabelHierarchy->SetInput(this->EmptyPolyData);
+    this->EdgeLabelHierarchy->SetInputData(this->EmptyPolyData);
     }
 }
 
@@ -1042,7 +1042,7 @@ void vtkRenderedGraphRepresentation::PrepareForRendering(vtkRenderView* view)
     this->VertexIconGlyph->SetDisplaySize(view->GetDisplaySize());
     this->VertexIconGlyph->SetUseIconSize(false);
     this->VertexIconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
-    this->VertexIconActor->GetTexture()->GetInput()->Update();
+    this->VertexIconActor->GetTexture()->GetInputAlgorithm()->Update();
     int* dim = this->VertexIconActor->GetTexture()->GetInput()->GetDimensions();
     this->VertexIconGlyph->SetIconSheetSize(dim);
     }

@@ -33,12 +33,12 @@ vtkTransform xfm
     xfm RotateZ 90
 
 vtkTransformPolyDataFilter xfmPd
-    xfmPd SetInput profile
+    xfmPd SetInputData profile
     xfmPd SetTransform xfm
 
 vtkAppendPolyData appendPD
-  appendPD AddInput profile
-  appendPD AddInput [xfmPd GetOutput]
+  appendPD AddInputData profile
+  appendPD AddInputConnection [xfmPd GetOutputPort]
 
 # extrude profile to make wall
 #

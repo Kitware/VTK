@@ -60,7 +60,7 @@ vtkConeSource cone
 #
 vtkGlyph3D glyph
     glyph SetInputConnection [sphere GetOutputPort]
-    glyph SetSource [cone GetOutput]
+    glyph SetSourceConnection [cone GetOutputPort]
     glyph SetVectorModeToUseNormal 
     glyph SetScaleModeToScaleByVector 
     glyph SetScaleFactor 0.25

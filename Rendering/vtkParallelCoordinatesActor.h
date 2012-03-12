@@ -57,12 +57,14 @@
 
 #include "vtkActor2D.h"
 
+class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkDataObject;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
+class vtkParallelCoordinatesActorConnection;
 
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW    1
@@ -129,12 +131,18 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
   
   // Description:
-  // Set the input to the parallel coordinates actor.
-  virtual void SetInput(vtkDataObject*);
+  // Set the input to the parallel coordinates actor. Creates
+  // a pipeline connection.
+  virtual void SetInputConnection(vtkAlgorithmOutput*);
+
+  // Description:
+  // Set the input to the parallel coordinates actor. Does not
+  // create a pipeline connection.
+  virtual void SetInputData(vtkDataObject*);
 
   // Description:
   // Remove a dataset from the list of data to append.
-  vtkGetObjectMacro(Input,vtkDataObject);
+  vtkDataObject* GetInput();
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -147,7 +155,8 @@ protected:
   ~vtkParallelCoordinatesActor();
 
 private:
-  vtkDataObject *Input;        // List of data sets to plot
+
+  vtkParallelCoordinatesActorConnection* ConnectionHolder;
 
   int IndependentVariables;    // Use column or row
   vtkIdType N;                 // The number of independent variables

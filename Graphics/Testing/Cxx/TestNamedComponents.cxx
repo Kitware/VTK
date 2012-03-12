@@ -125,7 +125,7 @@ int TestNamedComponents(int , char *[])
   poly->BuildCells();
   
   vtkSmartPointer<vtkThreshold> thresh = vtkSmartPointer<vtkThreshold>::New();  
-  thresh->SetInput(poly);
+  thresh->SetInputData(poly);
   thresh->SetInputArrayToProcess(0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                    vtkDataSetAttributes::SCALARS);
@@ -163,7 +163,7 @@ int TestNamedComponents(int , char *[])
 
   //Test component names with the calculator
   vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();  
-  calc->SetInput( poly );
+  calc->SetInputData( poly );
   calc->SetAttributeModeToUsePointData();
   // Add coordinate scalar and vector variables
   calc->AddCoordinateScalarVariable( "coordsX", 0 );    

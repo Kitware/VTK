@@ -3,7 +3,7 @@ package require vtk
 
 # Image pipeline
 vtkImageReader reader
-reader ReleaseDataFlagOff
+[reader GetExecutive] SetReleaseDataFlag 0 0
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 63 0 63 1 93
 reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
@@ -23,9 +23,9 @@ vtkImageFlip flipY
   flipY FlipAboutOriginOn
 
 vtkImageAppend imageAppend
-  imageAppend AddInput [imageFloat GetOutput]
-  imageAppend AddInput [flipX GetOutput]
-  imageAppend AddInput [flipY GetOutput]
+  imageAppend AddInputConnection [imageFloat GetOutputPort]
+  imageAppend AddInputConnection [flipX GetOutputPort]
+  imageAppend AddInputConnection [flipY GetOutputPort]
   imageAppend SetAppendAxis 0
 
 vtkImageViewer viewer

@@ -347,42 +347,6 @@ public:
   virtual int CheckForAbortComposite() {return 0;}  
 //ETX
 
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (push)
-# pragma warning (disable:858)
-#endif
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define StartServiceA StartService
-# define StartServiceW StartService
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkParallelRenderManager::StartServices()
-  // as of VTK 5.0.
-  VTK_LEGACY(virtual void StartService());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef StartServiceW
-# undef StartServiceA
-  //BTX
-  VTK_LEGACY(virtual void StartServiceA());
-  VTK_LEGACY(virtual void StartServiceW());
-  //ETX
-#endif
-
-// Reset disabled warning about qualifiers on return types.
-#if defined(__INTEL_COMPILER)
-# pragma warning (pop)
-#endif
-#if defined(_COMPILER_VERSION)
-# pragma reset woff 3303
-#endif
-
   //Description:
   //The default is to allow the use of the back buffer for compositing.
   //If set to false, this will prevent to manager from swapping buffers.

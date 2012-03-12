@@ -395,20 +395,20 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
     }
 }
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInput(vtkTable *table)
+void vtkPlot::SetInputData(vtkTable *table)
 {
-  this->Data->SetInput(table);
+  this->Data->SetInputData(table);
   this->AutoLabels = 0;  // No longer valid
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInput(vtkTable *table, const vtkStdString &xColumn,
-                       const vtkStdString &yColumn)
+void vtkPlot::SetInputData(vtkTable *table, const vtkStdString &xColumn,
+                           const vtkStdString &yColumn)
 {
   vtkDebugMacro(<< "Setting input, X column = \"" << xColumn.c_str()
                 << "\", " << "Y column = \"" << yColumn.c_str() << "\"");
 
-  this->Data->SetInput(table);
+  this->Data->SetInputData(table);
   this->Data->SetInputArrayToProcess(0, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      xColumn.c_str());
@@ -419,12 +419,12 @@ void vtkPlot::SetInput(vtkTable *table, const vtkStdString &xColumn,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot::SetInput(vtkTable *table, vtkIdType xColumn,
-                       vtkIdType yColumn)
+void vtkPlot::SetInputData(vtkTable *table, vtkIdType xColumn,
+                           vtkIdType yColumn)
 {
-  this->SetInput(table,
-                 table->GetColumnName(xColumn),
-                 table->GetColumnName(yColumn));
+  this->SetInputData(table,
+                     table->GetColumnName(xColumn),
+                     table->GetColumnName(yColumn));
 }
 
 //-----------------------------------------------------------------------------

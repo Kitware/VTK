@@ -434,14 +434,14 @@ vtkResliceCursor * vtkResliceImageViewer::GetResliceCursor()
 }
 
 //----------------------------------------------------------------------------
-void vtkResliceImageViewer::SetInput(vtkImageData *in)
+void vtkResliceImageViewer::SetInputData(vtkImageData *in)
 {
   if(!in)
     {
     return;
     }
 
-  this->WindowLevel->SetInput(in);
+  this->WindowLevel->SetInputData(in);
   this->GetResliceCursor()->SetImage(in);
   this->GetResliceCursor()->SetCenter(in->GetCenter());
   this->UpdateDisplayExtent();

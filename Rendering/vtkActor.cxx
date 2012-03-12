@@ -29,7 +29,6 @@
 
 #include <math.h>
 
-
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 vtkCxxSetObjectMacro(vtkActor,Mapper,vtkMapper);
 vtkCxxSetObjectMacro(vtkActor,BackfaceProperty,vtkProperty);
@@ -38,7 +37,6 @@ vtkCxxSetObjectMacro(vtkActor,Property,vtkProperty);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkActor);
-
 
 // Creates an actor with the following defaults: origin(0,0,0)
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -430,7 +428,7 @@ unsigned long int vtkActor::GetRedrawMTime()
     mTime = ( time > mTime ? time : mTime );
     if (this->GetMapper()->GetInput() != NULL)
       {
-      this->GetMapper()->GetInput()->Update();
+      this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }
@@ -484,49 +482,6 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
 }
-
-//----------------------------------------------------------------------------
-// Compatibility methods...to be deprecated in the future.
-#ifndef VTK_LEGACY_REMOVE
-#include "vtkAssemblyNode.h"
-#include "vtkAssemblyPath.h"
-void vtkActor::InitPartTraversal()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkActor::InitPartTraversal, "VTK 5.2",
-                           vtkActor::InitPathTraversal);
-  this->InitPathTraversal();
-}
-
-//----------------------------------------------------------------------------
-vtkActor *vtkActor::GetNextPart()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNextPart, "VTK 5.2",
-                           vtkActor::GetNextPath);
-  vtkAssemblyPath *path = this->GetNextPath();
-  if ( !path )
-    {
-    return NULL;
-    }
-  else
-    {
-    vtkAssemblyNode *node = path->GetLastNode();
-    if ( node && node->GetViewProp()->IsA("vtkActor") )
-      {
-      return static_cast<vtkActor *>(node->GetViewProp());
-      }
-    }
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
-int vtkActor::GetNumberOfParts()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkActor::GetNumberOfParts, "VTK 5.2",
-                           vtkActor::GetNumberOfPaths);
-  return this->GetNumberOfPaths();
-}
-#endif
-
 
 //----------------------------------------------------------------------------
 bool vtkActor::GetSupportsSelection()

@@ -75,7 +75,7 @@ int TestStringToCategory(int argc, char* argv[])
   graph->GetEdgeData()->AddArray(edgeString);
 
   VTK_CREATE(vtkStringToCategory, vertexCategory);
-  vertexCategory->SetInput(graph);
+  vertexCategory->SetInputData(graph);
   vertexCategory->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "vertex string");
   vertexCategory->SetCategoryArrayName("vertex category");
 

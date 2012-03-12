@@ -90,7 +90,7 @@ GUI4::GUI4()
   // put cone in one window
   vtkConeSource* cone = vtkConeSource::New();
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(cone->GetOutput());
+  mapper->SetInputConnection(cone->GetOutputPort());
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
   Ren1->AddViewProp(actor);
@@ -126,7 +126,7 @@ GUI4::GUI4()
   // put sphere in other window
   vtkSphereSource* sphere = vtkSphereSource::New();
   mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(sphere->GetOutput());
+  mapper->SetInputConnection(sphere->GetOutputPort());
   actor = vtkActor::New();
   actor->SetMapper(mapper);
   Ren2->AddViewProp(actor);

@@ -48,7 +48,8 @@ vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
   this->Extrude = 0;
   this->ExtrusionFilter1 = vtkLinearExtrusionFilter::New();
   this->ExtrusionFilter2 = vtkLinearExtrusionFilter::New();
-  this->ExtrusionFilter2->SetInput(this->ExtrusionFilter1->GetOutput());
+  this->ExtrusionFilter2->SetInputConnection(
+    this->ExtrusionFilter1->GetOutputPort());
 
   for (int i = 0; i < 6; i++)
     {
@@ -297,9 +298,9 @@ void vtkResliceCursorPolyDataAlgorithm
   this->ExtrusionFilter1->SetScaleFactor(smax);
   this->ExtrusionFilter2->SetScaleFactor(smax);
 
-  this->ClipWithBox->SetInput(input);
+  this->ClipWithBox->SetInputData(input);
   this->ClipWithBox->Update();
-  this->ExtrusionFilter1->SetInput(input);
+  this->ExtrusionFilter1->SetInputData(input);
 
   double normal[3];
   this->ResliceCursor->GetPlane(this->ReslicePlaneNormal)->GetNormal(normal);

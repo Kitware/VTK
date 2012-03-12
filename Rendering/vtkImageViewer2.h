@@ -33,7 +33,8 @@
 //
 // It is possible to mix images and geometry, using the methods:
 //
-// viewer->SetInput( myImage );
+// viewer->SetInputConnection( imageSource->GetOutputPort() );
+// // or viewer->SetInputData ( image );
 // viewer->GetRenderer()->AddActor( myActor );
 //
 // This can be used to annotate an image with a PolyData of "edges" or
@@ -56,10 +57,12 @@
 
 #include "vtkObject.h"
 
+class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkImageActor;
 class vtkImageData;
 class vtkImageMapToWindowLevelColors;
+class vtkInformation;
 class vtkInteractorStyleImage;
 class vtkRenderWindow;
 class vtkRenderer;
@@ -82,7 +85,7 @@ public:
   
   // Description:
   // Set/Get the input image to the viewer.
-  virtual void SetInput(vtkImageData *in);
+  virtual void SetInputData(vtkImageData *in);
   virtual vtkImageData *GetInput();
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
   
@@ -185,22 +188,6 @@ public:
   virtual int GetOffScreenRendering();
   vtkBooleanMacro(OffScreenRendering,int);
 
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSliceMin() as of VTK 5.0.
-  VTK_LEGACY(int GetWholeZMin());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSliceMax() as of VTK 5.0.
-  VTK_LEGACY(int GetWholeZMax());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::GetSlice() as of VTK 5.0.
-  VTK_LEGACY(int GetZSlice());
-
-  // Description:
-  // @deprecated Replaced by vtkImageViewer2::SetSlice() as of VTK 5.0.
-  VTK_LEGACY(void SetZSlice(int));
-
 protected:
   vtkImageViewer2();
   ~vtkImageViewer2();
@@ -220,6 +207,11 @@ protected:
   int Slice;
 
   virtual void UpdateOrientation();
+
+  vtkAlgorithm* GetInputAlgorithm();
+  vtkInformation* GetInputInformation();
+
+  friend class vtkImageViewer2Callback;
 
 private:
   vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.

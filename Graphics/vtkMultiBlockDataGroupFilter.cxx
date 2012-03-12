@@ -122,18 +122,15 @@ int vtkMultiBlockDataGroupFilter::RequestData(
 }
 
 //-----------------------------------------------------------------------------
-void vtkMultiBlockDataGroupFilter::AddInput(vtkDataObject* input)
+void vtkMultiBlockDataGroupFilter::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //-----------------------------------------------------------------------------
-void vtkMultiBlockDataGroupFilter::AddInput(int index, vtkDataObject* input)
+void vtkMultiBlockDataGroupFilter::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 
 //-----------------------------------------------------------------------------

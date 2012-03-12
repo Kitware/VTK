@@ -63,7 +63,7 @@ public:
   // Set the surface to be used to test for containment. Two methods are 
   // provided: one directly for vtkPolyData, and one for the output of a
   // filter.
-  void SetSurface(vtkPolyData *pd);
+  void SetSurfaceData(vtkPolyData *pd);
   void SetSurfaceConnection(vtkAlgorithmOutput* algOutput);
 
   // Description:

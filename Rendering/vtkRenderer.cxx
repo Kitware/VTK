@@ -37,18 +37,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
-#include "vtkRenderPass.h"
-#include "vtkRenderState.h"
 #include "vtkTexture.h"
 
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
-vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
-
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkIdentColoredPainter.h"
-vtkCxxSetObjectMacro(vtkRenderer, IdentPainter, vtkIdentColoredPainter);
-#endif
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -117,14 +109,6 @@ vtkRenderer::vtkRenderer()
   this->Erase = 1;
   this->Draw = 1;
 
-#if !defined(VTK_LEGACY_REMOVE)
-  this->SelectMode = vtkRenderer::NOT_SELECTING;
-  this->SelectConst = 1;
-  this->PropsSelectedFrom = NULL;
-  this->PropsSelectedFromCount = 0;
-  this->IdentPainter = NULL;
-#endif
-
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
@@ -132,7 +116,6 @@ vtkRenderer::vtkRenderer()
 
   this->Selector = 0;
   this->Delegate=0;
-  this->Pass=0;
 
   this->TexturedBackground = false;
   this->BackgroundTexture = NULL;
@@ -168,27 +151,9 @@ vtkRenderer::~vtkRenderer()
   this->Cullers->Delete();
   this->Cullers = NULL;
 
-#if !defined(VTK_LEGACY_REMOVE)
-  if ( this->PropsSelectedFrom)
-    {
-    delete [] this->PropsSelectedFrom;
-    this->PropsSelectedFrom = NULL;
-    }
-  this->PropsSelectedFromCount = 0;
-  if (this->IdentPainter)
-    {
-    this->IdentPainter->Delete();
-    this->IdentPainter = NULL;
-    }
-#endif
-
   if(this->Delegate!=0)
     {
     this->Delegate->UnRegister(this);
-    }
-  if(this->Pass!=0)
-    {
-    this->Pass->UnRegister(this);
     }
 
   if(this->BackgroundTexture != NULL)
@@ -333,17 +298,7 @@ void vtkRenderer::Render(void)
     }
 
   // do the render library specific stuff
-  if(this->Pass!=0)
-    {
-    vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray,this->PropArrayCount);
-    s.SetFrameBuffer(0);
-    this->Pass->Render(&s);
-    }
-  else
-    {
-    this->DeviceRender();
-    }
+  this->DeviceRender();
 
   // If we aborted, restore old estimated times
   // Setting the allocated render time to zero also sets the
@@ -588,21 +543,6 @@ int vtkRenderer::UpdateGeometry()
     {
     return 0;
     }
-
-#if !defined(VTK_LEGACY_REMOVE)
-  if (this->SelectMode != vtkRenderer::NOT_SELECTING)
-    {
-    //we are doing a visible polygon selection instead of a normal render
-    int ret = this->UpdateGeometryForSelection();
-
-    this->RenderTime.Modified();
-
-    vtkDebugMacro( << "Rendered " <<
-                   this->NumberOfPropsRendered << " actors" );
-
-    return ret;
-    }
-#endif
 
   if (this->Selector)
     {
@@ -1269,10 +1209,7 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // what about lights?
     // what about cullers?
 
-    if(this->Pass!=0 && this->RenderWindow!=0)
-      {
-      this->Pass->ReleaseGraphicsResources(this->RenderWindow);
-      }
+    this->ReleaseGraphicsResources(this->RenderWindow);
 
     if(this->BackgroundTexture != 0 && this->RenderWindow!=0)
       {
@@ -1460,16 +1397,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
       os << "null" << endl;
     }
   os << indent << "Selector: " << this->Selector << endl;
-
-  os << indent << "Pass:";
-  if(this->Pass!=0)
-    {
-      os << "exists" << endl;
-    }
-  else
-    {
-      os << "null" << endl;
-    }
 
   os << indent << "TexturedBackground: "
     << (this->TexturedBackground ? "On" : "Off") << "\n";
@@ -1915,183 +1842,3 @@ double vtkRenderer::GetTiledAspectRatio()
     }
   return finalAspect;
 }
-
-#if !defined(VTK_LEGACY_REMOVE)
-//----------------------------------------------------------------------------
-int vtkRenderer::UpdateGeometryForSelection()
-{
-
-  int        i;
-  if ( this->PropsSelectedFrom)
-    {
-    delete [] this->PropsSelectedFrom;
-    this->PropsSelectedFrom = NULL;
-    }
-  this->PropsSelectedFromCount = this->PropArrayCount;
-  this->PropsSelectedFrom = new vtkProp *[this->PropsSelectedFromCount];
-
-  //change the renderer's background to black, which will indicate a miss
-  double origBG[3];
-  this->GetBackground(origBG);
-  this->SetBackground(0.0,0.0,0.0);
-  bool origGrad = this->GetGradientBackground();
-  this->GradientBackgroundOff();
-  this->Clear();
-
-  //todo: save off and swap in other renderer/renderwindow settings that
-  //could affect colors
-
-  //create holders for prop's original rendering settings
-  int orig_visibility;
-  vtkPainter*orig_painter = NULL;
-
-  //create a painter that will color each cell with an index
-  if (this->IdentPainter==NULL)
-    {
-    this->IdentPainter = vtkIdentColoredPainter::New();
-    }
-
-  switch (this->SelectMode)
-    {
-    case COLOR_BY_PROCESSOR:
-      //SelectConst should have been set to this node's rank
-      this->IdentPainter->ColorByConstant(this->SelectConst);
-      break;
-    case COLOR_BY_ACTOR:
-      //SelectConst will be incremented with each prop
-      break;
-    case COLOR_BY_CELL_ID_HIGH:
-      //Each polygon will gets its own color
-      this->IdentPainter->ColorByIncreasingIdent(2);
-      break;
-    case COLOR_BY_CELL_ID_MID:
-      //Each polygon will gets its own color
-      this->IdentPainter->ColorByIncreasingIdent(1);
-      break;
-    case COLOR_BY_CELL_ID_LOW:
-      //Each polygon will gets its own color
-      this->IdentPainter->ColorByIncreasingIdent(0);
-      break;
-    case COLOR_BY_VERTEX:
-      //Each polygon will gets its own color
-      this->IdentPainter->ColorByVertex();
-      break;
-    default:
-      //should never get here
-      return 0;
-    }
-
-  // loop through props and give them a chance to
-  // render themselves as opaque geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
-    {
-    this->PropsSelectedFrom[i] = this->PropArray[i];
-    if (this->SelectMode == vtkRenderer::COLOR_BY_ACTOR)
-      {
-      this->IdentPainter->ColorByActorId(this->PropArray[i]);
-      }
-    else if (this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_HIGH ||
-             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_MID ||
-             this->SelectMode == vtkRenderer::COLOR_BY_CELL_ID_LOW ||
-             this->SelectMode == vtkRenderer::COLOR_BY_VERTEX)
-      {
-      //each actor starts it's cell count at 0
-      this->IdentPainter->ResetCurrentId();
-      }
-
-    //try to swap the ident color painter for the original one
-    //if this prop can not be selected, its visibility is turned off
-    orig_painter = this->SwapInSelectablePainter(this->PropArray[i], orig_visibility);
-
-    //render the prop
-    if (this->PropArray[i]->GetVisibility())
-      {
-      this->NumberOfPropsRendered +=
-        this->PropArray[i]->RenderOpaqueGeometry(this);
-      }
-
-    //restore the prop's original settings
-    this->SwapOutSelectablePainter(this->PropArray[i], orig_painter, orig_visibility);
-    }
-
-  //restore original background
-  this->SetBackground(origBG);
-  this->SetGradientBackground(origGrad);
-
-  return this->NumberOfPropsRendered;
-}
-
-//----------------------------------------------------------------------------
-vtkPainter* vtkRenderer::SwapInSelectablePainter(
-  vtkProp *prop,
-  int &orig_visibility)
-{
-  vtkPainter* orig_painter = NULL;
-  vtkPainterPolyDataMapper *orig_mapper = NULL;
-
-  //try to find a polydatapainter that we can swap out
-  vtkActor *actor = vtkActor::SafeDownCast(prop);
-  if (actor &&
-      !
-      (actor->IsA("vtkFollower") ||
-       actor->IsA("vtkLODActor") ||
-       !actor->GetPickable())
-    )
-    {
-    orig_mapper =
-      vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
-
-    if (orig_mapper)
-      {
-      //found it, now swap it out
-      orig_painter = orig_mapper->GetPainter();
-
-      //Register this to prevent orig_painter from being deleted
-      //while we momentarily swap in a different painter
-      orig_painter->Register(this);
-
-      //ident painter colors each polygon based on the current selectmode.
-      orig_mapper->SetPainter(this->IdentPainter);
-      }
-    }
-  if (!orig_painter)
-    {
-    //if we couldn't find it, don't render the prop
-    orig_visibility = prop->GetVisibility();
-    prop->VisibilityOff();
-    }
-  return orig_painter;
-}
-
-//----------------------------------------------------------------------------
-void vtkRenderer::SwapOutSelectablePainter(
-  vtkProp *prop,
-  vtkPainter* orig_painter,
-  int orig_visibility)
-{
-  vtkPainterPolyDataMapper *orig_mapper = NULL;
-  //try to restore the swapped out painter
-  vtkActor *actor = vtkActor::SafeDownCast(prop);
-  if (actor &&
-      !
-      (actor->IsA("vtkFollower") ||
-       actor->IsA("vtkLODActor")  ||
-       !actor->GetPickable()))
-    {
-    orig_mapper =
-      vtkPainterPolyDataMapper::SafeDownCast(actor->GetMapper());
-
-    if (orig_painter)
-      {
-      orig_mapper->SetPainter(orig_painter);
-      orig_painter->UnRegister(this);
-      }
-    }
-  if (!orig_painter)
-    {
-    //if we never swapped in the ident painter, restore the prop's original
-    //visibility setting
-    prop->SetVisibility(orig_visibility);
-    }
-}
-#endif

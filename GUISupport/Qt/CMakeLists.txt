@@ -107,32 +107,6 @@ IF(VTK_USE_VIEWS)
   ENDIF(QT_QTWEBKIT_FOUND)
 ENDIF(VTK_USE_VIEWS)
 
-# Should we build the Qt charts - they are now deprecated.
-VTK_DEPENDENT_OPTION(VTK_USE_QTCHARTS "Build Qt based charts - DEPRECATED" OFF
-                     "VTK_USE_QT;VTK_USE_RENDERING" OFF)
-if(VTK_USE_QTCHARTS)
-  if(VTK_USE_VIEWS)
-    set(QVTKLibSrcs ${QVTKLibSrcs}
-      vtkQtBarChartView.cxx
-      vtkQtChartRepresentation.cxx
-      vtkQtChartView.cxx
-      vtkQtLineChartView.cxx
-      vtkQtStackedChartView.cxx
-      vtkQtStatisticalBoxChartView.cxx
-      )
-    set(QVTKMocHeaders ${QVTKMocHeaders}
-      vtkQtBarChartView.h
-      vtkQtChartView.h
-      vtkQtLineChartView.h
-      vtkQtStackedChartView.h
-      vtkQtStatisticalBoxChartView.h
-      )
-    set(QVTKNonMocHeaders ${QVTKNonMocHeaders}
-      vtkQtChartRepresentation.h
-      )
-  endif()
-endif()
-
 # import Qt4 build settings
 SET(QT_USE_QTNETWORK 1)
 INCLUDE(${QT_USE_FILE})
@@ -176,11 +150,6 @@ IF(APPLE)
   ENDIF(VTK_USE_CARBON)
 ENDIF(APPLE)
 
-if(VTK_USE_QTCHARTS)
-  add_subdirectory(Chart)
-  target_link_libraries(QVTK vtkQtChart)
-endif()
-
 # recurse into testing directory if testing is on
 IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(Testing/Cxx)
@@ -205,21 +174,17 @@ if(VTK_WRAP_PYTHON_SIP)
     vtkQtTreeView.h
     vtkQtView.h
     )
-  if(VTK_USE_QTCHARTS)
-    set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
-      vtkQtBarChartView.h
-      vtkQtChartRepresentation.h
-      vtkQtChartView.h
-      vtkQtLineChartView.h
-      vtkQtStackedChartView.h
-      vtkQtStatisticalBoxChartView.h
-      )
-  endif()
   IF(VTK_QT_USE_WEBKIT)
     set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
     vtkQtRichTextView.h
     )
   ENDIF(VTK_QT_USE_WEBKIT)
+
+  # GUISupport/Qt doesn't have a hierarchy file, use Rendering
+  IF(VTK_IGNORE_BTX)
+  SET(KIT_HIERARCHY_FILE
+      ${VTK_BINARY_DIR}/Rendering/vtkRenderingHierarchy.txt)
+  ENDIF(VTK_IGNORE_BTX)
 
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
   VTK_ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})

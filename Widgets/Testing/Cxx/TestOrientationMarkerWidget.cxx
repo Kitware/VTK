@@ -339,12 +339,13 @@ int TestOrientationMarkerWidget( int, char *[] )
 
   vtkSmartPointer<vtkTubeFilter> tube =
     vtkSmartPointer<vtkTubeFilter>::New();
-  tube->SetInput( wiggle );
+  tube->SetInputData( wiggle );
   tube->SetGenerateTCoordsToOff();
   tube->CappingOff();
   tube->SetVaryRadiusToVaryRadiusOff();
   tube->SetRadius( 0.02 );
   tube->SetNumberOfSides( 5 );
+  tube->Update();
 
   // part 2 is generated from vtkAnnotatedCubeActor to test
   // vtkAxesActor SetUserDefinedTip
@@ -388,7 +389,7 @@ int TestOrientationMarkerWidget( int, char *[] )
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
       if ( poly )
         {
-        transformFilter->SetInput( poly );
+        transformFilter->SetInputConnection( node->GetMapper()->GetInputConnection(0, 0) );
         transform->Identity();
         transform->SetMatrix( node->GetMatrix() );
         transform->Scale( 2.0, 2.0, 2.0 );
@@ -397,10 +398,12 @@ int TestOrientationMarkerWidget( int, char *[] )
         vtkSmartPointer<vtkPolyData> newpoly =
           vtkSmartPointer<vtkPolyData>::New();
         newpoly->DeepCopy( transformFilter->GetOutput() );
-        append->AddInput( newpoly );
+        append->AddInputData( newpoly );
         }
       }
     }
+
+  append->Update();
 
   // the final actor the widget will follow
   //

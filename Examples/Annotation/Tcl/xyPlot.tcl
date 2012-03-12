@@ -12,12 +12,14 @@ package require vtkinteraction
 
 # Create a PLOT3D reader and load the data.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 
 # Create three the line source to use for the probe lines.
 vtkLineSource line
@@ -34,7 +36,7 @@ vtkTransformPolyDataFilter tf
     tf SetTransform transL1
 vtkProbeFilter probe
     probe SetInputConnection [tf GetOutputPort]
-    probe SetSource [pl3d GetOutput]
+    probe SetSourceData $pl3dOutput
 
 # Move the line again and create another probe filter.
 vtkTransform transL2
@@ -46,7 +48,7 @@ vtkTransformPolyDataFilter tf2
     tf2 SetTransform transL2
 vtkProbeFilter probe2
     probe2 SetInputConnection [tf2 GetOutputPort]
-    probe2 SetSource [pl3d GetOutput]
+    probe2 SetSourceData $pl3dOutput
 
 # Move the line again and create a third probe filter.
 vtkTransform transL3
@@ -58,14 +60,14 @@ vtkTransformPolyDataFilter tf3
     tf3 SetTransform transL3
 vtkProbeFilter probe3
     probe3 SetInputConnection [tf3 GetOutputPort]
-    probe3 SetSource [pl3d GetOutput]
+    probe3 SetSourceData $pl3dOutput
 
 # Create a vtkAppendPolyData to merge the output of the three probe filters
 # into one data set.
 vtkAppendPolyData appendF
-    appendF AddInput [probe GetPolyDataOutput]
-    appendF AddInput [probe2 GetPolyDataOutput]
-    appendF AddInput [probe3 GetPolyDataOutput]
+    appendF AddInputConnection [probe GetOutputPort]
+    appendF AddInputConnection [probe2 GetOutputPort]
+    appendF AddInputConnection [probe3 GetOutputPort]
 
 # Create a tube filter to represent the lines as tubes.  Set up the associated
 # mapper and actor.
@@ -80,9 +82,9 @@ vtkActor lineActor
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are arc length.
 vtkXYPlotActor xyplot
-    xyplot AddInput [probe GetOutput]
-    xyplot AddInput [probe2 GetOutput]
-    xyplot AddInput [probe3 GetOutput]
+    xyplot AddDataSetInputConnection [probe GetOutputPort]
+    xyplot AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -104,9 +106,9 @@ vtkXYPlotActor xyplot
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are normalized arc length.
 vtkXYPlotActor xyplot2
-    xyplot2 AddInput [probe GetOutput]
-    xyplot2 AddInput [probe2 GetOutput]
-    xyplot2 AddInput [probe3 GetOutput]
+    xyplot2 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -128,9 +130,9 @@ vtkXYPlotActor xyplot2
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are the underlying point data values.
 vtkXYPlotActor xyplot3
-    xyplot3 AddInput [probe GetOutput]
-    xyplot3 AddInput [probe2 GetOutput]
-    xyplot3 AddInput [probe3 GetOutput]
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot3 SetXValuesToIndex
@@ -150,7 +152,7 @@ vtkXYPlotActor xyplot3
 
 # Draw an outline of the PLOT3D data set.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
