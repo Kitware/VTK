@@ -88,28 +88,3 @@ void vtkThreadMessager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent); 
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef SendMessage
-void vtkThreadMessager::SendMessageA()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
-                           vtkThreadMessager::SendWakeMessage);
-  this->SendWakeMessage();
-}
-void vtkThreadMessager::SendMessageW()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
-                           vtkThreadMessager::SendWakeMessage);
-  this->SendWakeMessage();
-}
-# endif
-void vtkThreadMessager::SendMessage()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
-                           vtkThreadMessager::SendWakeMessage);
-  this->SendWakeMessage();
-}
-#endif

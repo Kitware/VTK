@@ -309,31 +309,6 @@ int vtkDirectory::FileIsDirectory(const char *name)
    
   return result; 
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef CreateDirectory
-int vtkDirectory::CreateDirectoryA(const char* dir)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
-                           vtkDirectory::MakeDirectory);
-  return vtkDirectory::MakeDirectory(dir);
-}
-int vtkDirectory::CreateDirectoryW(const char* dir)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
-                           vtkDirectory::MakeDirectory);
-  return vtkDirectory::MakeDirectory(dir);
-}
-# endif
-int vtkDirectory::CreateDirectory(const char* dir)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
-                           vtkDirectory::MakeDirectory);
-  return vtkDirectory::MakeDirectory(dir);
-}
-#endif
   
 int vtkDirectory::DeleteDirectory(const char* dir)
 {
@@ -344,5 +319,3 @@ int vtkDirectory::Rename(const char* oldname, const char* newname)
 {
   return 0 == rename(oldname, newname);
 }
-
-

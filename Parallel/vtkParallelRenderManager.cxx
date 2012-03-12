@@ -2149,36 +2149,3 @@ void vtkParallelRenderManager::LightInfo::Save(vtkMultiProcessStream& stream)
     << this->FocalPoint[0] << this->FocalPoint[1] << this->FocalPoint[2]
     << this->Type;
 }
-//----------------------------------------------------------------------------
-
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (disable:858)
-#endif
-
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef StartService
-void vtkParallelRenderManager::StartServiceA()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
-                           vtkParallelRenderManager::StartServices);
-  this->StartServices();
-}
-void vtkParallelRenderManager::StartServiceW()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
-                           vtkParallelRenderManager::StartServices);
-  this->StartServices();
-}
-# endif
-void vtkParallelRenderManager::StartService()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
-                           vtkParallelRenderManager::StartServices);
-  this->StartServices();
-}
-#endif

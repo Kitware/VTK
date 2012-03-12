@@ -123,7 +123,6 @@ vtkIncrementalOctreeNode.cxx
 vtkIncrementalOctreePointLocator.cxx
 vtkIncrementalPointLocator.cxx
 vtkInEdgeIterator.cxx
-vtkInformation.cxx
 vtkInformationExecutivePortKey.cxx
 vtkInformationExecutivePortVectorKey.cxx
 vtkInterpolatedVelocityField.cxx
@@ -298,7 +297,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkFilteringInformationKeyManager.cxx
   vtkImageBSplineInternals.cxx
   vtkImageIterator.cxx
-  vtkInformation.cxx
   vtkImageProgressIterator.cxx
   vtkMarchingSquaresLineCases.cxx
   vtkMarchingCubesTriangleCases.cxx

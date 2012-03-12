@@ -598,17 +598,3 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "KeepDeadTrails: " 
     << this->KeepDeadTrails << "\n";
 }
-//---------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-void vtkTemporalPathLineFilter::SetScalarArray(const char *)
-{
-  VTK_LEGACY_BODY(SetScalarArray, "5.6");
-}
-
-const char *vtkTemporalPathLineFilter::GetScalarArray()
-{
-  VTK_LEGACY_BODY(GetScalarArray, "5.6");
-  return NULL;
-}
-#endif
-//-----------------------------------------------------------------------------

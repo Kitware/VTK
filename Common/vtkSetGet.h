@@ -787,37 +787,6 @@ virtual double *Get##name() \
 # define vtkArrayIteratorTemplateMacroCase_ui64(typeN, type, call) 
 #endif
 
-// Legacy versions of vtkTemplateMacro:
-#if !defined(VTK_LEGACY_REMOVE)
-# define vtkTemplateMacro3(func, a1, a2, a3) \
-          vtkTemplateMacro(func (a1, a2, a3))
-# define vtkTemplateMacro4(func, a1, a2, a3, a4) \
-          vtkTemplateMacro(func (a1, a2, a3, a4))
-# define vtkTemplateMacro5(func, a1, a2, a3, a4, a5) \
-          vtkTemplateMacro(func (a1, a2, a3, a4, a5))
-# define vtkTemplateMacro6(func, a1, a2, a3, a4, a5, a6) \
-          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6))
-# define vtkTemplateMacro7(func, a1, a2, a3, a4, a5, a6, a7) \
-          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7))
-# define vtkTemplateMacro8(func, a1, a2, a3, a4, a5, a6, a7, a8) \
-          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8))
-# define vtkTemplateMacro9(func, a1, a2, a3, a4, a5, a6, a7, a8, a9) \
-          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8, a9))
-# define vtkTemplateMacro10(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
-           vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10))
-// These are legacy macros, do not add anymore. Use vtkTemplateMacro instead
-#endif
-
-// Old-style legacy code marker macro.
-#if !defined(VTK_LEGACY_REMOVE) && !defined(NDEBUG)
-#define VTK_LEGACY_METHOD(oldMethod,versionStringMadeLegacy) \
-  vtkErrorMacro(<< #oldMethod \
-                << " was obsoleted for version " << #versionStringMadeLegacy \
-                << " and will be removed in a future version");
-#else
-#define VTK_LEGACY_METHOD(oldMethod,versionStringMadeLegacy)
-#endif
-
 //----------------------------------------------------------------------------
 // Setup legacy code policy.
 
