@@ -18,6 +18,7 @@
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
 #include "vtkPainterPolyDataMapper.h"
+#include "vtkInteractorStyleSwitch.h"
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
@@ -438,6 +439,12 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
+
+  // Temporarily added here, this will be replaced very soon in modular VTK.
+  if(strcmp(vtkclassname, "vtkInteractorStyleSwitchBase") == 0)
+    {
+    return vtkInteractorStyleSwitch::New();
+    }
         
   return 0;
 }
