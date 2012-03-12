@@ -35,7 +35,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCompositeRenderManager.h"
@@ -178,7 +178,7 @@ void MyProcess::Execute()
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   vtkRenderer *renderer = prm->MakeRenderer();
-  
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   
   // the rendering passes
   vtkCameraPass *cameraP=vtkCameraPass::New();
@@ -205,7 +205,7 @@ void MyProcess::Execute()
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   opaque->Delete();
   peeling->Delete();
