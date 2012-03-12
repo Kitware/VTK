@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLBreadthFirstSearch> bfs
       = vtkSmartPointer<vtkPBGLBreadthFirstSearch>::New();
-    bfs->SetInput(g);
+    bfs->SetInputData(g);
     bfs->SetOriginVertex(g->GetDistributedGraphHelper()->MakeDistributedId(0, 0));
 
     // Run the breadth-first search
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLVertexColoring> coloring
       = vtkSmartPointer<vtkPBGLVertexColoring>::New();
-    coloring->SetInput(g);
+    coloring->SetInputData(g);
 
     // Run the vertex-coloring
     if (world.rank() == 0)
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLConnectedComponents> cc
       = vtkSmartPointer<vtkPBGLConnectedComponents>::New();
-    cc->SetInput(g);
+    cc->SetInputData(g);
 
     // Run the connected components algorithm
     if (world.rank() == 0)
@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
     {
     vtkSmartPointer<vtkPBGLMinimumSpanningTree> mst
       = vtkSmartPointer<vtkPBGLMinimumSpanningTree>::New();
-    mst->SetInput(g);
+    mst->SetInputData(g);
     mst->SetEdgeWeightArrayName("Weight");
 
     // Create an edge-weight array with edge weights in [0, 1).

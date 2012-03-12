@@ -325,7 +325,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   if (cd)
     {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInput(cd);
+    gf->SetInputConnection(actor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     tempDS = gf->GetOutput();
     gf->Delete();
@@ -341,7 +341,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     {
     return;
     }
-  dataset->Update();
+  actor->GetMapper()->GetInputAlgorithm()->Update();
   
   // convert non polygon data to polygon data if needed
   vtkGeometryFilter *geometryFilter = NULL;
@@ -349,7 +349,8 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   if (dataset->GetDataObjectType() != VTK_POLY_DATA) 
     {
     geometryFilter = vtkGeometryFilter::New();
-    geometryFilter->SetInput(dataset);
+    geometryFilter->SetInputConnection(
+      actor->GetMapper()->GetInputConnection(0, 0));
     geometryFilter->Update();
     polys = geometryFilter->GetOutput();
     } 

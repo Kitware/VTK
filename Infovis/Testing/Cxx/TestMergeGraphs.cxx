@@ -135,14 +135,14 @@ int TestMergeGraphs(int, char*[])
   BuildTable(edge_table2, edge_data2, 3);
 
   vtkSmartPointer<vtkTableToGraph> ttg1 = vtkSmartPointer<vtkTableToGraph>::New();
-  ttg1->SetInput(0, edge_table1);
-  ttg1->SetInput(1, vert_table1);
+  ttg1->SetInputData(0, edge_table1);
+  ttg1->SetInputData(1, vert_table1);
   ttg1->AddLinkVertex("src", "id");
   ttg1->AddLinkVertex("tgt", "id");
   ttg1->AddLinkEdge("src", "tgt");
   vtkSmartPointer<vtkTableToGraph> ttg2 = vtkSmartPointer<vtkTableToGraph>::New();
-  ttg2->SetInput(0, edge_table2);
-  ttg2->SetInput(1, vert_table2);
+  ttg2->SetInputData(0, edge_table2);
+  ttg2->SetInputData(1, vert_table2);
   ttg2->AddLinkVertex("src", "id");
   ttg2->AddLinkVertex("tgt", "id");
   ttg2->AddLinkEdge("src", "tgt");

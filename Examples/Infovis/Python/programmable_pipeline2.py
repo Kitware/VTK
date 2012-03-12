@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # First Programmable Filter -- Add integer field to vertices
     # with a 1 for every vertex into G1
     G1_labeled = vtkProgrammableFilter()
-    G1_labeled.AddInputConnection( G1.GetProducerPort() )
+    G1_labeled.AddInputData( G1 )
 
     def vertex_labeler_g1():
         input = G1_labeled.GetInput()
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Second Programmable Filter -- Add integer field to vertices
     # with a 2 for every vertex into G2
     G2_labeled = vtkProgrammableFilter()
-    G2_labeled.AddInputConnection( G2.GetProducerPort() )
+    G2_labeled.AddInputData( G2 )
 
     def vertex_labeler_g2():
         input = G2_labeled.GetInput()

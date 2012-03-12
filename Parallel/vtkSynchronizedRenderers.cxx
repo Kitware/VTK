@@ -614,11 +614,9 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
     }
 
   vtkImageData* img = vtkImageData::New();
-  img->SetScalarTypeToUnsignedChar();
-  img->SetNumberOfScalarComponents(
-    this->Data->GetNumberOfComponents());
   img->SetDimensions(this->Size[0], this->Size[1], 1);
-  img->AllocateScalars();
+  img->AllocateScalars(VTK_UNSIGNED_CHAR,
+                       this->Data->GetNumberOfComponents());
   memcpy(img->GetScalarPointer(),
     this->GetRawPtr()->GetVoidPointer(0),
     sizeof(unsigned char)*this->Size[0]*this->Size[1]*
@@ -626,7 +624,7 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 
   vtkPNGWriter* writer = vtkPNGWriter::New();
   writer->SetFileName(filename);
-  writer->SetInput(img);
+  writer->SetInputData(img);
   writer->Write();
   writer->Delete();
   img->Delete();
@@ -747,18 +745,26 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   window_size[0] = ren->GetVTKWindow()->GetActualSize()[0];
   window_size[1] = ren->GetVTKWindow()->GetActualSize()[1];
 
+  int viewport_in_pixels[4];
+  viewport_in_pixels[0] = static_cast<int>(window_size[0] * viewport[0]);
+  viewport_in_pixels[1] = static_cast<int>(window_size[1] * viewport[1]);
+  viewport_in_pixels[2] = static_cast<int>(window_size[0] * viewport[2])-1;
+  viewport_in_pixels[3] = static_cast<int>(window_size[1] * viewport[3])-1;
+
+  // we need to ensure that the size computation is always done in pixels,
+  // otherwise we end up with rounding issues. In short, avoid doing
+  // additions/subtractions using normalized viewport coordinates. Those are
+  // better done in pixels.
   int image_size[2];
-  image_size[0] = static_cast<int>(window_size[0] * (viewport[2]-viewport[0]));
-  image_size[1] = static_cast<int>(window_size[1] * (viewport[3]-viewport[1]));
+  image_size[0] = viewport_in_pixels[2] - viewport_in_pixels[0] + 1;
+  image_size[1] = viewport_in_pixels[3] - viewport_in_pixels[1] + 1;
 
   // using RGBA always?
   this->Resize(image_size[0], image_size[1], 4);
 
   ren->GetRenderWindow()->GetRGBACharPixelData(
-    static_cast<int>(window_size[0] * viewport[0]),
-    static_cast<int>(window_size[1] * viewport[1]),
-    static_cast<int>(window_size[0] * viewport[2])-1,
-    static_cast<int>(window_size[1] * viewport[3])-1,
+    viewport_in_pixels[0], viewport_in_pixels[1],
+    viewport_in_pixels[2], viewport_in_pixels[3],
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr());
   this->MarkValid();

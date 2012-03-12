@@ -55,7 +55,7 @@ protected:
   vtkPNGWriter();
   ~vtkPNGWriter();
   
-  void WriteSlice(vtkImageData *data);
+  void WriteSlice(vtkImageData *data, int* uExtent);
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;

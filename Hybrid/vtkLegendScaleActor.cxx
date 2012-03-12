@@ -87,7 +87,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LegendPoints = vtkPoints::New();
   this->Legend->SetPoints(this->LegendPoints);
   this->LegendMapper = vtkPolyDataMapper2D::New();
-  this->LegendMapper->SetInput(this->Legend);
+  this->LegendMapper->SetInputData(this->Legend);
   this->LegendActor = vtkActor2D::New();
   this->LegendActor->SetMapper(this->LegendMapper);
   

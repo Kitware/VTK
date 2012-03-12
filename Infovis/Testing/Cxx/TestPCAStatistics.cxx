@@ -117,7 +117,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  pcas->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   pcas->SetNormalizationSchemeByName( normScheme );
   pcas->SetBasisSchemeByName( "FixedBasisEnergy" );
   pcas->SetFixedBasisEnergy( 1. - 1e-8 );
@@ -226,7 +226,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  pcas->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
+  pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
   paramsTables->Delete();
 
   // Test Assess only (Do not recalculate nor rederive nor retest a model)
@@ -291,7 +291,7 @@ bool TestEigen()
 
   vtkSmartPointer<vtkPCAStatistics> pcaStatistics =
       vtkSmartPointer<vtkPCAStatistics>::New();
-  pcaStatistics->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  pcaStatistics->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
 
   pcaStatistics->SetColumnStatus("M0", 1 );
   pcaStatistics->SetColumnStatus("M1", 1 );

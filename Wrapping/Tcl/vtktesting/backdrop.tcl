@@ -1,12 +1,12 @@
 proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
     if { [info command basePlane] == "" } {vtkCubeSource basePlane;}
-    basePlane SetCenter [expr ($maxX + $minX) / 2.0] $minY [expr ($maxZ + $minZ) / 2.0] 
+    basePlane SetCenter [expr ($maxX + $minX) / 2.0] $minY [expr ($maxZ + $minZ) / 2.0]
     basePlane SetXLength [expr ($maxX - $minX)]
     basePlane SetYLength $thickness
     basePlane SetZLength [expr ($maxZ - $minZ)]
 
     if { [info command baseMapper] == "" } {vtkPolyDataMapper baseMapper;}
-     baseMapper SetInput [basePlane GetOutput]
+     baseMapper SetInputConnection [basePlane GetOutputPort]
     if { [info command base] == "" } {vtkActor base;}
      base SetMapper baseMapper
 
@@ -17,7 +17,7 @@ proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
     backPlane SetZLength $thickness
 
     if { [info command backMapper] == "" } {vtkPolyDataMapper backMapper;}
-     backMapper SetInput [backPlane GetOutput]
+     backMapper SetInputConnection [backPlane GetOutputPort]
     if { [info command back] == "" } {vtkActor back;}
    back SetMapper backMapper
 
@@ -28,7 +28,7 @@ proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
     leftPlane SetZLength [expr ($maxZ - $minZ)]
 
     if { [info command leftMapper] == "" } {vtkPolyDataMapper leftMapper;}
-     leftMapper SetInput [leftPlane GetOutput]
+     leftMapper SetInputConnection [leftPlane GetOutputPort]
     if { [info command left] == "" } {vtkActor left;}
      left SetMapper leftMapper
 

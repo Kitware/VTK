@@ -26,13 +26,13 @@ vtkUnstructuredGrid aEdgeGrid
   aEdgeGrid SetPoints edgePoints
   [aEdgeGrid GetPointData] SetScalars edgeScalars
 vtkContourFilter edgeContours
-  edgeContours SetInput aEdgeGrid
+  edgeContours SetInputData aEdgeGrid
   edgeContours SetValue 0 0.5
 vtkDataSetMapper aEdgeContourMapper
   aEdgeContourMapper SetInputConnection [edgeContours GetOutputPort]
   aEdgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aEdgeMapper
-  aEdgeMapper SetInput aEdgeGrid
+  aEdgeMapper SetInputData aEdgeGrid
   aEdgeMapper ScalarVisibilityOff
 vtkActor aEdgeActor
   aEdgeActor SetMapper aEdgeMapper
@@ -73,13 +73,13 @@ vtkUnstructuredGrid aTriGrid
   aTriGrid SetPoints triPoints
   [aTriGrid GetPointData] SetScalars triScalars
 vtkContourFilter triContours
-  triContours SetInput aTriGrid
+  triContours SetInputData aTriGrid
   triContours SetValue 0 0.5
 vtkDataSetMapper aTriContourMapper
   aTriContourMapper SetInputConnection [triContours GetOutputPort]
   aTriContourMapper ScalarVisibilityOff
 vtkDataSetMapper aTriMapper
-  aTriMapper SetInput aTriGrid
+  aTriMapper SetInputData aTriGrid
   aTriMapper ScalarVisibilityOff
 vtkActor aTriActor
   aTriActor SetMapper aTriMapper
@@ -126,13 +126,13 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid SetPoints quadPoints
   [aQuadGrid GetPointData] SetScalars quadScalars
 vtkContourFilter quadContours
-  quadContours SetInput aQuadGrid
+  quadContours SetInputData aQuadGrid
   quadContours SetValue 0 0.5
 vtkDataSetMapper aQuadContourMapper
   aQuadContourMapper SetInputConnection [quadContours GetOutputPort]
   aQuadContourMapper ScalarVisibilityOff
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
   aQuadMapper ScalarVisibilityOff
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
@@ -183,13 +183,13 @@ vtkUnstructuredGrid BQuadGrid
   [BQuadGrid GetPointData] SetScalars BquadScalars
 
 vtkContourFilter BquadContours
-  BquadContours SetInput BQuadGrid
+  BquadContours SetInputData BQuadGrid
   BquadContours SetValue 0 0.5
 vtkDataSetMapper BQuadContourMapper
   BQuadContourMapper SetInputConnection [BquadContours GetOutputPort]
   BQuadContourMapper ScalarVisibilityOff
 vtkDataSetMapper BQuadMapper
-  BQuadMapper SetInput BQuadGrid
+  BQuadMapper SetInputData BQuadGrid
   BQuadMapper ScalarVisibilityOff
 vtkActor BQuadActor
   BQuadActor SetMapper BQuadMapper
@@ -231,13 +231,13 @@ vtkUnstructuredGrid QLQuadGrid
   [QLQuadGrid GetPointData] SetScalars QLquadScalars
 
 vtkContourFilter QLquadContours
-  QLquadContours SetInput QLQuadGrid
+  QLquadContours SetInputData QLQuadGrid
   QLquadContours SetValue 0 0.5
 vtkDataSetMapper QLQuadContourMapper
   QLQuadContourMapper SetInputConnection [QLquadContours GetOutputPort]
   QLQuadContourMapper ScalarVisibilityOff
 vtkDataSetMapper QLQuadMapper
-  QLQuadMapper SetInput QLQuadGrid
+  QLQuadMapper SetInputData QLQuadGrid
   QLQuadMapper ScalarVisibilityOff
 vtkActor QLQuadActor
   QLQuadActor SetMapper QLQuadMapper
@@ -292,13 +292,13 @@ vtkUnstructuredGrid aTetGrid
   aTetGrid SetPoints tetPoints
   [aTetGrid GetPointData] SetScalars tetScalars
 vtkContourFilter tetContours
-  tetContours SetInput aTetGrid
+  tetContours SetInputData aTetGrid
   tetContours SetValue 0 0.5
 vtkDataSetMapper aTetContourMapper
   aTetContourMapper SetInputConnection [tetContours GetOutputPort]
   aTetContourMapper ScalarVisibilityOff
 vtkDataSetMapper aTetMapper
-  aTetMapper SetInput aTetGrid
+  aTetMapper SetInputData aTetGrid
   aTetMapper ScalarVisibilityOff
 vtkActor aTetActor
   aTetActor SetMapper aTetMapper
@@ -380,13 +380,13 @@ vtkUnstructuredGrid aHexGrid
   aHexGrid SetPoints hexPoints
   [aHexGrid GetPointData] SetScalars hexScalars
 vtkContourFilter hexContours
-  hexContours SetInput aHexGrid
+  hexContours SetInputData aHexGrid
   hexContours SetValue 0 0.5
 vtkDataSetMapper aHexContourMapper
   aHexContourMapper SetInputConnection [hexContours GetOutputPort]
   aHexContourMapper ScalarVisibilityOff
 vtkDataSetMapper aHexMapper
-  aHexMapper SetInput aHexGrid
+  aHexMapper SetInputData aHexGrid
   aHexMapper ScalarVisibilityOff
 vtkActor aHexActor
   aHexActor SetMapper aHexMapper
@@ -489,13 +489,13 @@ vtkUnstructuredGrid TQHexGrid
   TQHexGrid SetPoints TQhexPoints
   [TQHexGrid GetPointData] SetScalars TQhexScalars
 vtkContourFilter TQhexContours
-  TQhexContours SetInput TQHexGrid
+  TQhexContours SetInputData TQHexGrid
   TQhexContours SetValue 0 0.5
 vtkDataSetMapper TQHexContourMapper
   TQHexContourMapper SetInputConnection [TQhexContours GetOutputPort]
   TQHexContourMapper ScalarVisibilityOff
 vtkDataSetMapper TQHexMapper
-  TQHexMapper SetInput TQHexGrid
+  TQHexMapper SetInputData TQHexGrid
   TQHexMapper ScalarVisibilityOff
 vtkActor TQHexActor
   TQHexActor SetMapper TQHexMapper
@@ -590,13 +590,13 @@ vtkUnstructuredGrid BQHexGrid
   BQHexGrid SetPoints BQhexPoints
   [BQHexGrid GetPointData] SetScalars BQhexScalars
 vtkContourFilter BQhexContours
-  BQhexContours SetInput BQHexGrid
+  BQhexContours SetInputData BQHexGrid
   BQhexContours SetValue 0 0.5
 vtkDataSetMapper BQHexContourMapper
   BQHexContourMapper SetInputConnection [BQhexContours GetOutputPort]
   BQHexContourMapper ScalarVisibilityOff
 vtkDataSetMapper BQHexMapper
-  BQHexMapper SetInput BQHexGrid
+  BQHexMapper SetInputData BQHexGrid
   BQHexMapper ScalarVisibilityOff
 vtkActor BQHexActor
   BQHexActor SetMapper BQHexMapper
@@ -665,13 +665,13 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid SetPoints wedgePoints
   [aWedgeGrid GetPointData] SetScalars wedgeScalars
 vtkContourFilter wedgeContours
-  wedgeContours SetInput aWedgeGrid
+  wedgeContours SetInputData aWedgeGrid
   wedgeContours SetValue 0 0.5
 vtkDataSetMapper aWedgeContourMapper
   aWedgeContourMapper SetInputConnection [wedgeContours GetOutputPort]
   aWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
@@ -732,13 +732,13 @@ vtkUnstructuredGrid QLWedgeGrid
   [QLWedgeGrid GetPointData] SetScalars QLwedgeScalars
 
 vtkContourFilter QLwedgeContours
-  QLwedgeContours SetInput QLWedgeGrid
+  QLwedgeContours SetInputData QLWedgeGrid
   QLwedgeContours SetValue 0 0.5
 vtkDataSetMapper QLWedgeContourMapper
   QLWedgeContourMapper SetInputConnection [QLwedgeContours GetOutputPort]
   QLWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper QLWedgeMapper
-  QLWedgeMapper SetInput QLWedgeGrid
+  QLWedgeMapper SetInputData QLWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 vtkActor QLWedgeActor
   QLWedgeActor SetMapper QLWedgeMapper
@@ -818,13 +818,13 @@ vtkUnstructuredGrid BQWedgeGrid
   [BQWedgeGrid GetPointData] SetScalars BQwedgeScalars
   
 vtkContourFilter BQwedgeContours
-  BQwedgeContours SetInput BQWedgeGrid
+  BQwedgeContours SetInputData BQWedgeGrid
   BQwedgeContours SetValue 0 0.5
 vtkDataSetMapper BQWedgeContourMapper
   BQWedgeContourMapper SetInputConnection [BQwedgeContours GetOutputPort]
   #BQWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper BQWedgeMapper
-  BQWedgeMapper SetInput BQWedgeGrid
+  BQWedgeMapper SetInputData BQWedgeGrid
   #BQWedgeMapper ScalarVisibilityOff
 vtkActor BQWedgeActor
   BQWedgeActor SetMapper BQWedgeMapper
@@ -886,13 +886,13 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid SetPoints pyraPoints
   [aPyramidGrid GetPointData] SetScalars pyraScalars
 vtkContourFilter pyraContours
-  pyraContours SetInput aPyramidGrid
+  pyraContours SetInputData aPyramidGrid
   pyraContours SetValue 0 0.5
 vtkDataSetMapper aPyramidContourMapper
   aPyramidContourMapper SetInputConnection [pyraContours GetOutputPort]
   aPyramidContourMapper ScalarVisibilityOff
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
   aPyramidMapper ScalarVisibilityOff
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper

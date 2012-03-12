@@ -24,11 +24,12 @@ reader.SetVectorsName("displacement9")
 castToUnstructuredGrid = vtk.vtkCastToConcrete()
 castToUnstructuredGrid.SetInputConnection(reader.GetOutputPort())
 warp = vtk.vtkWarpVector()
-warp.SetInput(castToUnstructuredGrid.GetUnstructuredGridOutput())
+warp.SetInputConnection(castToUnstructuredGrid.GetOutputPort())
 
 # The connectivity filter extracts the first two regions. These are
 # know to represent the mold.
 connect = vtk.vtkConnectivityFilter()
+
 connect.SetInputConnection(warp.GetOutputPort())
 connect.SetExtractionModeToSpecifiedRegions()
 connect.AddSpecifiedRegion(0)

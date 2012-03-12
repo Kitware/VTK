@@ -696,8 +696,8 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
 
   vtkSmartPointer< vtkDelaunay2D > del2D =
     vtkSmartPointer< vtkDelaunay2D >::New();
-  del2D->SetInput(pd);
-  del2D->SetSource(pd);
+  del2D->SetInputData(pd);
+  del2D->SetSourceData(pd); 
   del2D->SetTolerance(0.0);
   del2D->SetAlpha(0.0);
   del2D->SetOffset(10);
@@ -1099,11 +1099,9 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation*        vtkNotUsed
   // Set up new poly data for the inputs to build cells and links.
   vtkSmartPointer< vtkPolyData > mesh0 = vtkSmartPointer< vtkPolyData >::New();
   mesh0->DeepCopy(input0);
-  mesh0->SetSource(NULL);
 
   vtkSmartPointer< vtkPolyData > mesh1 = vtkSmartPointer< vtkPolyData >::New();
   mesh1->DeepCopy(input1);
-  mesh1->SetSource(NULL);
 
   // Find the triangle-triangle intersections between mesh0 and mesh1
   vtkSmartPointer< vtkOBBTree > obbTree0 = vtkSmartPointer< vtkOBBTree >::New();

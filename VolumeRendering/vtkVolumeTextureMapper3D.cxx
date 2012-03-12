@@ -1015,7 +1015,7 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 
   // Get the image data
   vtkImageData *input = this->GetInput();
-  input->Update();
+  this->GetInputAlgorithm()->Update();
  
   // Has the volume changed in some way?
   if ( this->SavedTextureInput != input ||
@@ -1218,7 +1218,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
 
   // Get the image data
   vtkImageData *input = this->GetInput();
-  input->Update();
+  this->GetInputAlgorithm()->Update();
 
   // Has the volume changed in some way?
   if ( this->SavedParametersInput != input ||

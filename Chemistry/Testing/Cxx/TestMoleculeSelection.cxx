@@ -202,7 +202,7 @@ int TestMoleculeSelection(int argc, char *argv[])
 
   // Set up render engine
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInput(mol.GetPointer());
+  molmapper->SetInputData(mol.GetPointer());
   molmapper->UseBallAndStickSettings();
   molmapper->SetAtomicRadiusTypeToUnitRadius();
 

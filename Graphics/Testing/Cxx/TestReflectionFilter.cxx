@@ -52,7 +52,7 @@ int TestReflectionFilter(int, char *[])
   for(int i=0; i<2; i++)
     {
     vtkSmartPointer<vtkReflectionFilter> reflectionFilter =  vtkSmartPointer<vtkReflectionFilter>::New();
-    reflectionFilter->SetInput(pyramid.GetPointer());
+    reflectionFilter->SetInputData(pyramid.GetPointer());
     i==0? reflectionFilter->CopyInputOff() : reflectionFilter->CopyInputOn(); 
     reflectionFilter->SetPlaneToZMin();
     reflectionFilter->Update();

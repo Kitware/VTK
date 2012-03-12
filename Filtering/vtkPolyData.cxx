@@ -1757,34 +1757,6 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
   return 0;
 }
 
-
-//----------------------------------------------------------------------------
-void vtkPolyData::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
-{
-  piece = this->GetUpdatePiece();
-  numPieces = this->GetUpdateNumberOfPieces();
-  ghostLevel = this->GetUpdateGhostLevel();
-}
-
-//----------------------------------------------------------------------------
-int* vtkPolyData::GetUpdateExtent()
-{
-  return this->Superclass::GetUpdateExtent();
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyData::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                                  int& z0, int& z1)
-{
-  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyData::GetUpdateExtent(int extent[6])
-{
-  this->Superclass::GetUpdateExtent(extent);
-}
-
 //----------------------------------------------------------------------------
 
 unsigned long vtkPolyData::GetActualMemorySize()
@@ -1908,10 +1880,6 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
       this->BuildLinks();
       }
     }
-}
-
-void vtkPolyData::Crop()
-{
 }
 
 void vtkPolyData::RemoveGhostCells(int level)

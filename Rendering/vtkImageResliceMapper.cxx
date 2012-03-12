@@ -143,7 +143,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 {
   if (this->ResliceNeedUpdate)
     {
-    this->ImageReslice->SetInput(this->GetInput());
+    this->ImageReslice->SetInputConnection(
+      this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
     this->ResliceNeedUpdate = 1;
     }
@@ -160,7 +161,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     }
      
   // delegate to vtkImageSliceMapper
-  this->SliceMapper->SetInput(this->ImageReslice->GetOutput());
+  this->SliceMapper->SetInputConnection(
+    this->ImageReslice->GetOutputPort());
   vtkMatrix4x4::DeepCopy(
     *this->SliceMapper->GetDataToWorldMatrix()->Element,
     *this->SliceToWorldMatrix->Element);
@@ -189,7 +191,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResliceMapper::Update()
+void vtkImageResliceMapper::Update(int port)
 {
   // I don't like to override Update, or call Modified() in Update,
   // but this allows updates to be forced where MTimes can't be used
@@ -269,8 +271,13 @@ void vtkImageResliceMapper::Update()
     this->Modified();
     }
 
-  this->Superclass::Update();
+  this->Superclass::Update(port);
   this->UpdateTime.Modified();
+}
+
+void vtkImageResliceMapper::Update()
+{
+  this->Superclass::Update();
 }
 
 //----------------------------------------------------------------------------

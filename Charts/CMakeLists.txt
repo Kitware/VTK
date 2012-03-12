@@ -25,6 +25,7 @@ SET(Kit_SRCS
   vtkChartMatrix.cxx
   vtkChartParallelCoordinates.cxx
   vtkChartXY.cxx
+  vtkChartXYZ.cxx
   vtkChartPie.cxx
   vtkColorLegend.cxx
   vtkPlotPie.cxx
@@ -34,10 +35,12 @@ SET(Kit_SRCS
   vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
   vtkContext2D.cxx
+  vtkContext3D.cxx
   vtkContextActor.cxx
   vtkContextBufferId.cxx
   vtkContextClip.cxx
   vtkContextDevice2D.cxx
+  vtkContextDevice3D.cxx
   vtkContextInteractorStyle.cxx
   vtkContextItem.cxx
   vtkContextKeyEvent.cxx
@@ -52,6 +55,7 @@ SET(Kit_SRCS
   vtkOpenGLContextBufferId.cxx
   vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextDevice2D.cxx
+  vtkOpenGLContextDevice3D.cxx
   vtkPen.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx
@@ -74,6 +78,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkAbstractContextItem
   vtkChart
   vtkContextDevice2D
+  vtkContextDevice3D
   vtkContextItem
   vtkContextMapper2D
   vtkControlPointsItem
@@ -91,6 +96,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOpenGLContextBufferId
   vtkOpenGL2ContextDevice2D
   vtkOpenGLContextDevice2D
+  vtkOpenGLContextDevice3D
   WRAP_EXCLUDE
 )
 

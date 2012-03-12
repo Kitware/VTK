@@ -61,7 +61,7 @@ int TestParallelCoordinates(int , char* [])
     table->SetValue(i, 3, tan(i * inc) + 0.5);
     }
 
-  chart->GetPlot(0)->SetInput(table.GetPointer());
+  chart->GetPlot(0)->SetInputData(table.GetPointer());
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

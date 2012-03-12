@@ -17,6 +17,7 @@
 //
 #include "vtkJPEGReader.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkFollower.h"
@@ -271,7 +272,7 @@ int TestFollowerPicking( int argc, char* argv[] )
   delete[] fname;
 
   VTK_CREATE(vtkImageActor,ia);
-  ia->SetInput(pnmReader->GetOutput());
+  ia->GetMapper()->SetInputConnection(pnmReader->GetOutputPort());
   ia->SetScale(0.01,0.01,0.01);
 
   VTK_CREATE(vtkProp3DFollower,p3dFollower);

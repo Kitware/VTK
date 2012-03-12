@@ -15,13 +15,14 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 # get the interactor ui
 
 # Create a reader and write out the field
-vtkPLOT3DReader comb
+vtkMultiBlockPLOT3DReader comb
     comb SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     comb SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     comb SetScalarFunctionNumber 100
-
+    comb Update
+    set output [[comb GetOutput] GetBlock 0]
 vtkStructuredGridWriter wsg
-  wsg SetInputConnection [comb GetOutputPort] 
+  wsg SetInputData $output
   wsg SetFileTypeToBinary
   wsg SetFileName "combsg.vtk"
   wsg Write
@@ -47,14 +48,17 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 0 "Points" 0 
     do2ds SetPointComponent 1 "Points" 1 
     do2ds SetPointComponent 2 "Points" 2 
+    do2ds Update
+
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInput [do2ds GetStructuredGridOutput]
+    fd2ad SetInputData [do2ds GetStructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad SetVectorComponent 0 "Momentum" 0 
     fd2ad SetVectorComponent 1 "Momentum" 1 
     fd2ad SetVectorComponent 2 "Momentum" 2 
     fd2ad SetScalarComponent 0 "Density" 0 
+    fd2ad Update
 
 # create pipeline
 #
@@ -72,7 +76,7 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetColor $bisque
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [fd2ad GetStructuredGridOutput]
+    outline SetInputData [fd2ad GetStructuredGridOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

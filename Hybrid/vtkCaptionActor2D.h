@@ -55,7 +55,9 @@
 #include "vtkActor2D.h"
 
 class vtkActor;
+class vtkAlgorithmOutput;
 class vtkAppendPolyData;
+class vtkCaptionActor2DConnection;
 class vtkGlyph2D;
 class vtkGlyph3D;
 class vtkPolyData;
@@ -108,9 +110,12 @@ public:
   // Specify a glyph to be used as the leader "head". This could be something
   // like an arrow or sphere. If not specified, no glyph is drawn. Note that
   // the glyph is assumed to be aligned along the x-axis and is rotated about
-  // the origin.
-  virtual void SetLeaderGlyph(vtkPolyData*);
-  vtkGetObjectMacro(LeaderGlyph,vtkPolyData);
+  // the origin. SetLeaderGlyphData() directly uses the polydata without
+  // setting a pipeline connection. SetLeaderGlyphConnection() sets up a
+  // pipeline connection and causes an update to the input during render.
+  virtual void SetLeaderGlyphData(vtkPolyData*);
+  virtual void SetLeaderGlyphConnection(vtkAlgorithmOutput*);
+  virtual vtkPolyData* GetLeaderGlyph();
 
   // Description:
   // Specify the relative size of the leader head. This is expressed as a
@@ -190,8 +195,6 @@ protected:
   double LeaderGlyphSize;
   int   MaximumLeaderGlyphSize;
 
-  vtkPolyData *LeaderGlyph; //what to put on the end of the leader
-
   int   Padding;
   int   AttachEdgeOnly;
 
@@ -217,6 +220,8 @@ private:
   // for 3D leader
   vtkPolyDataMapper   *LeaderMapper3D;
   vtkActor            *LeaderActor3D;
+
+  vtkCaptionActor2DConnection* LeaderGlyphConnectionHolder;
 
 private:
   vtkCaptionActor2D(const vtkCaptionActor2D&);  // Not implemented.

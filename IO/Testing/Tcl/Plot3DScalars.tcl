@@ -26,18 +26,19 @@ vtkTextProperty textProp
 
 set i 0
 foreach scalarFunction $scalarFunctions {
-  vtkPLOT3DReader pl3d$scalarFunction
+  vtkMultiBlockPLOT3DReader pl3d$scalarFunction
     pl3d$scalarFunction SetXYZFileName "$VTK_DATA_ROOT/Data/bluntfinxyz.bin"
     pl3d$scalarFunction SetQFileName "$VTK_DATA_ROOT/Data/bluntfinq.bin"
     pl3d$scalarFunction SetScalarFunctionNumber [expr int($scalarFunction)]
     pl3d$scalarFunction Update
+    set output [[ pl3d$scalarFunction GetOutput] GetBlock 0]
 vtkStructuredGridGeometryFilter plane$scalarFunction
-    plane$scalarFunction SetInputConnection [pl3d$scalarFunction GetOutputPort]
+    plane$scalarFunction SetInputData $output
     plane$scalarFunction SetExtent 25 25 0 100 0 100
 vtkPolyDataMapper mapper$scalarFunction
     mapper$scalarFunction SetInputConnection [plane$scalarFunction GetOutputPort]
     eval mapper$scalarFunction SetScalarRange \
-      [[[[pl3d$scalarFunction GetOutput] GetPointData] GetScalars] GetRange]
+      [[[$output GetPointData] GetScalars] GetRange]
 vtkActor actor$scalarFunction
     actor$scalarFunction SetMapper mapper$scalarFunction
 

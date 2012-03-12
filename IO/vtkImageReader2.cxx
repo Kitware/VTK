@@ -802,9 +802,10 @@ void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkImageReader2::ExecuteData(vtkDataObject *output)
+void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
+                                                 vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
   
   void *ptr;
   
@@ -850,5 +851,6 @@ void vtkImageReader2::SetDataScalarType(int type)
   this->Modified();
   this->DataScalarType = type;
   // Set the default output scalar type
-  this->GetOutput()->SetScalarType(this->DataScalarType);
+  vtkImageData::SetScalarType(this->DataScalarType,
+                              this->GetOutputInformation(0));
 }

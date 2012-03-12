@@ -187,7 +187,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
     if (this->ScalingArrayName)
       {
       vtkPolyData *circle = this->CreateCircle(true);
-      this->CircleGlyph->SetSource(circle);
+      this->CircleGlyph->SetSourceData(circle);
       circle->Delete();
       this->CircleGlyph->SetInputConnection(this->VertexGlyph->GetOutputPort());
       this->CircleGlyph->SetScaling(1);
@@ -197,7 +197,7 @@ void vtkGraphMapper::SetScaledGlyphs(bool arg)
       this->VertexMapper->SetInputConnection(this->CircleGlyph->GetOutputPort());
       
       vtkPolyData *outline = this->CreateCircle(false);
-      this->CircleOutlineGlyph->SetSource(outline);
+      this->CircleOutlineGlyph->SetSourceData(outline);
       outline->Delete();
       this->CircleOutlineGlyph->SetInputConnection(this->VertexGlyph->GetOutputPort());
       this->CircleOutlineGlyph->SetScaling(1);
@@ -424,17 +424,9 @@ vtkTexture *vtkGraphMapper::GetIconTexture()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphMapper::SetInput(vtkGraph *input)
+void vtkGraphMapper::SetInputData(vtkGraph *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -484,8 +476,8 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     }
   graph->ShallowCopy(input);
 
-  this->GraphToPoly->SetInput(graph);
-  this->VertexGlyph->SetInput(graph);
+  this->GraphToPoly->SetInputData(graph);
+  this->VertexGlyph->SetInputData(graph);
   graph->Delete();
   this->GraphToPoly->Update();
   this->VertexGlyph->Update();
@@ -560,7 +552,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     {
     this->IconTransform->SetViewport(ren);
     this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
-    this->IconActor->GetTexture()->GetInput()->Update();
+    this->IconActor->GetTexture()->GetInputAlgorithm()->Update();
     int *dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
     this->IconGlyph->SetIconSheetSize(dim);
     // Override the array for vtkIconGlyphFilter to process if we have 

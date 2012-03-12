@@ -212,7 +212,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
 
   this->InputArrayTable = vtkSmartPointer<vtkTable>::New();
   this->LinearThreshold = vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
-  this->LinearThreshold->SetInput(this->InputArrayTable);
+  this->LinearThreshold->SetInputData(this->InputArrayTable);
 
   this->Axes = NULL;
   this->NumberOfAxisLabels = 2;
@@ -459,7 +459,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     if (inputData->IsA("vtkArrayData"))
       {
       vtkSmartPointer<vtkArrayToTable> att = vtkSmartPointer<vtkArrayToTable>::New();
-      att->SetInput(inputData);
+      att->SetInputData(inputData);
       att->Update();
 
       this->InputArrayTable->ShallowCopy(att->GetOutput());
@@ -662,7 +662,7 @@ void vtkParallelCoordinatesRepresentation::SetAxisTitles(vtkStringArray* sa)
 {
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   t->AddColumn(sa);
-  this->SetInput(1,t);
+  this->SetInputData(1,t);
 }
 //------------------------------------------------------------------------------
 void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os, 
@@ -2065,7 +2065,7 @@ vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::InitializePlotMapper(
   vtkSmartPointer<vtkCoordinate> dummyCoord = vtkSmartPointer<vtkCoordinate>::New();
   dummyCoord->SetCoordinateSystemToNormalizedViewport();
 
-  mapper->SetInput(input);
+  mapper->SetInputData(input);
   mapper->SetTransformCoordinate(dummyCoord);
   mapper->ScalarVisibilityOff();
   actor->SetMapper(mapper);  

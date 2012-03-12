@@ -39,7 +39,7 @@ public:
 
   // Description:
   // Set/Get the input for this object - only accepts vtkTable as input.
-  virtual void SetInput(vtkTable *input);
+  virtual void SetInputData(vtkTable *input);
   virtual vtkTable * GetInput();
 
   // Description:

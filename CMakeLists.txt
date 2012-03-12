@@ -86,8 +86,8 @@ endif()
 
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
-SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 11)
+SET(VTK_MAJOR_VERSION 6)
+SET(VTK_MINOR_VERSION 0)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -443,6 +443,7 @@ ENDIF(VTK_USE_RENDERING)
 
 IF(VTK_USE_PARALLEL)
   SET(VTK_KITS ${VTK_KITS} PARALLEL)
+  SET(VTK_KITS ${VTK_KITS} AMR)
 ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_INFOVIS)
@@ -586,7 +587,7 @@ ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies except *Implicit.txx files.
   SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
 ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
+INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|Test|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.
@@ -1363,12 +1364,12 @@ ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
 ADD_SUBDIRECTORY(Utilities)
 
 # Build the subdirector for each kit.
-ADD_SUBDIRECTORY(  Common )
-ADD_SUBDIRECTORY(  Filtering )
-ADD_SUBDIRECTORY(  Imaging )
-ADD_SUBDIRECTORY(  Graphics )
-ADD_SUBDIRECTORY(  GenericFiltering )
-ADD_SUBDIRECTORY(  IO )
+ADD_SUBDIRECTORY(Common)
+ADD_SUBDIRECTORY(Filtering)
+ADD_SUBDIRECTORY(Imaging)
+ADD_SUBDIRECTORY(Graphics)
+ADD_SUBDIRECTORY(GenericFiltering)
+ADD_SUBDIRECTORY(IO)
 
 IF(VTK_USE_RENDERING)
   ADD_SUBDIRECTORY(Rendering)
@@ -1378,6 +1379,7 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_PARALLEL)
   ADD_SUBDIRECTORY(Parallel)
+  ADD_SUBDIRECTORY(AMR)
 ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_INFOVIS)
   ADD_SUBDIRECTORY(Infovis)
@@ -1431,6 +1433,7 @@ IF(BUILD_TESTING)
   ENDIF(VTK_USE_RENDERING)
   IF(VTK_USE_PARALLEL)
     ADD_SUBDIRECTORY(Parallel/Testing)
+    ADD_SUBDIRECTORY(AMR/Testing)
   ENDIF(VTK_USE_PARALLEL)
   IF(VTK_USE_INFOVIS)
     ADD_SUBDIRECTORY(Infovis/Testing)

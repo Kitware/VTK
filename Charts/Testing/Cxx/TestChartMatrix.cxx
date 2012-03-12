@@ -69,22 +69,22 @@ int TestChartMatrix( int, char * [] )
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 1);
+  line->SetInputData(table.GetPointer(), 0, 1);
   line->SetColor(0, 255, 0, 255);
 
   chart = matrix->GetChart(vtkVector2i(0, 1));
   line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInput(table.GetPointer(), 0, 2);
+  line->SetInputData(table.GetPointer(), 0, 2);
   line->SetColor(255, 0, 0, 255);
 
   chart = matrix->GetChart(vtkVector2i(1, 0));
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table.GetPointer(), 0, 3);
+  line->SetInputData(table.GetPointer(), 0, 3);
   line->SetColor(0, 0, 255, 255);
 
   chart = matrix->GetChart(vtkVector2i(1, 1));
   line = chart->AddPlot(vtkChart::BAR);
-  line->SetInput(table.GetPointer(), 0, 4);
+  line->SetInputData(table.GetPointer(), 0, 4);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

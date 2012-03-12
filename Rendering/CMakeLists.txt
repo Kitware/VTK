@@ -96,6 +96,7 @@ SET( Kit_SRCS
   vtkInteractorStyleRubberBand3D.cxx
   vtkInteractorStyleRubberBandPick.cxx
   vtkInteractorStyleRubberBandZoom.cxx
+  vtkInteractorStyleSwitchBase.cxx
   vtkInteractorStyleSwitch.cxx
   vtkInteractorStyleTerrain.cxx
   vtkInteractorStyleTrackballActor.cxx
@@ -320,9 +321,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkLightingHelper
   vtkRenderState
   vtkOpenGLState
-  vtkShader2
-  vtkShader2Collection
-  vtkShaderProgram2
   vtkTextureUnitManager
   vtkTestingInteractor
   vtkTestingObjectFactory

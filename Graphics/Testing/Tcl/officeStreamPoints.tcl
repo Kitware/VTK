@@ -15,7 +15,7 @@ vtkStructuredGridReader reader
 
 # to add coverage for vtkOnePieceExtentTranslator
 vtkOnePieceExtentTranslator translator
-[reader GetOutput] SetExtentTranslator translator
+[reader GetExecutive] SetExtentTranslator 0 translator
 
 set length [[reader GetOutput] GetLength]
 
@@ -233,7 +233,7 @@ vtkConeSource cone
     cone SetResolution 8
 vtkGlyph3D cones
     cones SetInputConnection [streamer GetOutputPort]
-    cones SetSource [cone GetOutput]
+    cones SetSourceConnection [cone GetOutputPort]
     cones SetScaleFactor 0.5
     cones SetScaleModeToScaleByVector
 vtkPolyDataMapper mapCones

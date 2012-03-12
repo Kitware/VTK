@@ -34,9 +34,17 @@ public:
 
   // Description:
   // Specify the stencil to use.  The stencil can be created
-  // from a vtkImplicitFunction or a vtkPolyData.
-  virtual void SetStencil(vtkImageStencilData *stencil);
+  // from a vtkImplicitFunction or a vtkPolyData. This
+  // function does not setup a pipeline connection.
+  virtual void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
+
+  // Description:
+  // Specify the stencil to use. This sets up a pipeline connection.
+  void SetStencilConnection(vtkAlgorithmOutput* outputPort)
+  {
+    this->SetInputConnection(2, outputPort);
+  }
 
   // Description:
   // Reverse the stencil.
@@ -48,7 +56,7 @@ public:
   // Set the second input.  This image will be used for the 'outside' of the
   // stencil.  If not set, the output voxels will be filled with
   // BackgroundValue instead.
-  virtual void SetBackgroundInput(vtkImageData *input);
+  virtual void SetBackgroundInputData(vtkImageData *input);
   vtkImageData *GetBackgroundInput();
 
   // Description:

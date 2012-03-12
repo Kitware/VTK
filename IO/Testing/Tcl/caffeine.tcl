@@ -31,7 +31,7 @@ vtkGlyph3D Glyph0
   #Glyph0 ScalingOn
   Glyph0 SetScaleMode 2
   Glyph0 SetScaleFactor .25
-  Glyph0 SetSource [Sphere0 GetOutput]
+  Glyph0 SetSourceConnection [Sphere0 GetOutputPort]
 
 vtkPolyDataMapper Mapper5
   Mapper5 SetInputConnection [Glyph0 GetOutputPort]

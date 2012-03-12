@@ -57,8 +57,14 @@ protected:
   virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int threadId);
+  virtual void ThreadedRequestData(
+    vtkInformation* vtkNotUsed( request ),
+    vtkInformationVector** inputVector,
+    vtkInformationVector* vtkNotUsed( outputVector ),
+    vtkImageData ***inDataVec,
+    vtkImageData **outDataVec,
+    int outExt[6],
+    int threadId);
 private:
   vtkImageFFT(const vtkImageFFT&);  // Not implemented.
   void operator=(const vtkImageFFT&);  // Not implemented.

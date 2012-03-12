@@ -97,7 +97,7 @@ protected:
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
 
-  void ExecuteData(vtkDataObject *data);
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
 private:
   vtkImageReader(const vtkImageReader&);  // Not implemented.
   void operator=(const vtkImageReader&);  // Not implemented.

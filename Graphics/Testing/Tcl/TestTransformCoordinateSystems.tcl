@@ -28,11 +28,12 @@ vtkGlyphSource2D gs
   gs SetScale 20
   gs FilledOff
   gs CrossOn
+  gs Update
 
 # Create a table of glyphs
 vtkGlyph2D glypher
   glypher SetInputConnection [xform GetOutputPort]
-  glypher SetSource 0 [gs GetOutput]
+  glypher SetSourceData 0 [gs GetOutput]
   glypher SetScaleModeToDataScalingOff
 
 vtkPolyDataMapper2D mapper

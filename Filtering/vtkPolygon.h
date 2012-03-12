@@ -106,11 +106,6 @@ public:
                               double centroid[3]);
 
   // Description:
-  // Compute interpolation weights using 1/r**2 normalized sum.
-  // @deprecated Replaced by vtkPolygon::InterpolateFunctions as of VTK 5.2
-  VTK_LEGACY(void ComputeWeights(double x[3], double *weights));
-
-  // Description:
   // Compute the area of a polygon in 3D. The area is returned, as well as
   // the normal (a side effect of using this method). If you desire to
   // compute the area of a triangle, use vtkTriangleArea which is faster.

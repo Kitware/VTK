@@ -48,7 +48,7 @@ $outputData DeepCopy [w2i GetOutput]
 vtkImageMapper im
    im SetColorWindow 255
    im SetColorLevel 127.5
-   im SetInput $outputData
+   im SetInputData $outputData
 vtkActor2D ia2
    ia2 SetMapper im
 

@@ -14,43 +14,45 @@ vtkRenderWindowInteractor iren
 
 # create pipeline for ren1
 #
-vtkPLOT3DReader pl3d2
+vtkMultiBlockPLOT3DReader pl3d2
     pl3d2 SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d2 SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d2 SetScalarFunctionNumber 153
     pl3d2 Update
+set output2 [[pl3d2 GetOutput] GetBlock 0]
 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 120
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 vtkContourFilter iso
-    iso SetInputConnection [pl3d GetOutputPort]
+    iso SetInputData $output
     iso SetValue 0 -100000
 
 vtkProbeFilter probe2
   probe2 SetInputConnection [iso GetOutputPort]
-  probe2 SetSource [pl3d2 GetOutput]
+  probe2 SetSourceData $output2
 
 vtkCastToConcrete cast2 
   cast2 SetInputConnection [probe2 GetOutputPort]
 
 vtkPolyDataNormals normals
-    normals SetInput [cast2 GetPolyDataOutput]
+    normals SetInputConnection [cast2 GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
     isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOn
-eval isoMapper SetScalarRange [[[[pl3d2 GetOutput] GetPointData] GetScalars] GetRange]
+eval isoMapper SetScalarRange [[[$output2 GetPointData] GetScalars] GetRange]
 
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $bisque
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

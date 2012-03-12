@@ -20,7 +20,7 @@ vtkPolyData polyData
     polyData SetVerts verts
 
 vtkPolyDataMapper mapper
-    mapper SetInput polyData
+    mapper SetInputData polyData
 
 vtkActor actor
     actor SetMapper mapper

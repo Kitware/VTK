@@ -50,23 +50,15 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput(int por
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSetAlgorithm::SetInput(vtkDataObject* input)
+void vtkHierarchicalBoxDataSetAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkHierarchicalBoxDataSetAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkHierarchicalBoxDataSetAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------

@@ -39,7 +39,7 @@ foreach order $orders {
     reader$order SetHeaderSize 0
     reader$order SetDataMask 0x7fff;
     reader$order SetDataByteOrderToLittleEndian
-    [reader$order GetOutput] ReleaseDataFlagOn
+    [reader$order GetExecutive] SetReleaseDataFlag 0 1
 
   vtkContourFilter iso$order
     iso$order SetInputConnection [reader$order GetOutputPort]

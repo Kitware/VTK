@@ -21,6 +21,10 @@
 #include "vtkCallbackCommand.h"
 #include "vtkImageData.h"
 #include "vtkTransform.h"
+#include "vtkAlgorithm.h"
+#include "vtkImageReslice.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
@@ -764,20 +768,23 @@ void vtkImageOrthoPlanes::ResetPlanes()
 //-----------------------------------------------------------------------
 void vtkImageOrthoPlanes::GetBounds(double bounds[6])
 {
-  vtkImageData *input = 
-    vtkImageData::SafeDownCast(this->Planes[0]->GetInput());
+  vtkAlgorithm* input =
+    this->Planes[0]->GetReslice()->GetInputAlgorithm();
+
   if (!input)
     {
     return;
     }
 
-  int extent[6];
-  double origin[3];
-  double spacing[3];
   input->UpdateInformation();
-  input->GetWholeExtent(extent);
-  input->GetOrigin(origin);
-  input->GetSpacing(spacing);
+  vtkInformation* info = input->GetOutputInformation(0);
+  int extent[6];
+  info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+  double origin[3];
+  info->Get(vtkDataObject::ORIGIN(), origin);
+  double spacing[3];
+  info->Get(vtkDataObject::SPACING(), spacing);
+
   for (int i = 0; i < 3; i++)
     {
     bounds[2*i] = origin[i] + spacing[i]*extent[2*i];

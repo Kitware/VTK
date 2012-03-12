@@ -479,6 +479,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // \pre not_this: source!=this
   void DeepCopy(vtkCamera *source);
 
+  // Description:
+  // Set/Get the value of the FreezeDolly instance variable. This
+  // determines if the camera should move the focal point with the camera position.
+  // HACK!!!
+  vtkSetMacro(FreezeFocalPoint,bool);
+  vtkGetMacro(FreezeFocalPoint,bool);
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -577,7 +583,7 @@ protected:
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
-
+  bool FreezeFocalPoint;
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
   void operator=(const vtkCamera&);  // Not implemented.

@@ -28,6 +28,7 @@
 
 class vtkWindow;
 
+class vtkContext3D;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkTextProperty;
@@ -353,6 +354,12 @@ public:
   // integer.
   static int FloatToInt(float x);
 
+  // Description:
+  // Get the vtkContext3D device, in order to do some 3D rendering. This API
+  // is very experimental, and may be moved around.
+  vtkGetObjectMacro(Context3D, vtkContext3D)
+  virtual void SetContext3D(vtkContext3D *context);
+
 //BTX
 protected:
   vtkContext2D();
@@ -362,6 +369,7 @@ protected:
   vtkTransform2D *Transform;  // Current transform
 
   vtkAbstractContextBufferId *BufferId;
+  vtkContext3D *Context3D; // May be very temporary - get at a 3D version.
 
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.

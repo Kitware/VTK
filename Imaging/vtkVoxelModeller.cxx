@@ -129,8 +129,9 @@ int vtkVoxelModeller::RequestData(
   
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
-  output->SetExtent(output->GetWholeExtent());
-  output->AllocateScalars();
+  output->SetExtent(outInfo->Get(
+                      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  output->AllocateScalars(outInfo);
 
   vtkIdType cellNum, i;
   int j, k;

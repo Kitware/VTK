@@ -27,6 +27,7 @@
 #include "vtkActor.h"
 #include "vtkPNGReader.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkCamera.h"
 
 int TestTranslucentImageActorAlphaBlending(int argc, char* argv[])
@@ -45,7 +46,7 @@ int TestTranslucentImageActorAlphaBlending(int argc, char* argv[])
   ia->Delete();
   
   vtkPNGReader *pnmReader=vtkPNGReader::New();
-  ia->SetInput(pnmReader->GetOutput());
+  ia->GetMapper()->SetInputConnection(pnmReader->GetOutputPort());
   pnmReader->Delete();
   
   char* fname = vtkTestUtilities::ExpandDataFileName(

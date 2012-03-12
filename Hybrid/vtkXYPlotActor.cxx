@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkXYPlotActor.h"
 
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkAppendPolyData.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCellArray.h"
@@ -35,6 +37,7 @@
 #include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
 #define VTK_MAX_PLOTS 50
@@ -45,6 +48,20 @@ vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkXYPlotActor,AxisLabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkXYPlotActor,AxisTitleTextProperty,vtkTextProperty);
 
+class vtkXYPlotActorConnections: public vtkAlgorithm
+{
+public:
+  static vtkXYPlotActorConnections *New();
+  vtkTypeMacro(vtkXYPlotActorConnections,vtkAlgorithm);
+
+  vtkXYPlotActorConnections()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkXYPlotActorConnections);
+
 //----------------------------------------------------------------------------
 // Instantiate object
 vtkXYPlotActor::vtkXYPlotActor()
@@ -53,10 +70,11 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->PositionCoordinate->SetValue(0.25,0.25);
   this->Position2Coordinate->SetValue(0.5, 0.5);
 
-  this->InputList = vtkDataSetCollection::New();
+  this->InputConnectionHolder = vtkXYPlotActorConnections::New();
   this->SelectedInputScalars = NULL;
   this->SelectedInputScalarsComponent = vtkIntArray::New();
-  this->DataObjectInputList = vtkDataObjectCollection::New();
+
+  this->DataObjectInputConnectionHolder = vtkXYPlotActorConnections::New();
 
   this->Title = NULL;
   this->XTitle = new char[7];
@@ -163,6 +181,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
+  this->GlyphSource->Update();
   this->GlyphSize = 0.020;
 
   this->ClipPlanes = vtkPlanes::New();
@@ -190,7 +209,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   polys->InsertCellPoint(3);
   this->ChartBoxPolyData->SetPolys(polys); polys->Delete();
   this->ChartBoxMapper = vtkPolyDataMapper2D::New();
-  this->ChartBoxMapper->SetInput(this->ChartBoxPolyData);
+  this->ChartBoxMapper->SetInputData(this->ChartBoxPolyData);
   this->ChartBoxActor = vtkActor2D::New();
   this->ChartBoxActor->SetMapper(this->ChartBoxMapper);
   // Box border
@@ -206,7 +225,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   lines->InsertCellPoint(0);
   this->ChartBorderPolyData->SetLines(lines); lines->Delete();
   this->ChartBorderMapper = vtkPolyDataMapper2D::New();
-  this->ChartBorderMapper->SetInput(this->ChartBorderPolyData);
+  this->ChartBorderMapper->SetInputData(this->ChartBorderPolyData);
   this->ChartBorderActor = vtkActor2D::New();
   this->ChartBorderActor->SetMapper(this->ChartBorderMapper);
 
@@ -230,7 +249,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   points->Delete();
   lines->Delete();
   this->ReferenceLinesMapper = vtkPolyDataMapper2D::New();
-  this->ReferenceLinesMapper->SetInput(this->ReferenceLinesPolyData);
+  this->ReferenceLinesMapper->SetInputData(this->ReferenceLinesPolyData);
   this->ReferenceLinesActor = vtkActor2D::New();
   this->ReferenceLinesActor->SetMapper(this->ReferenceLinesMapper);
 
@@ -253,7 +272,7 @@ vtkXYPlotActor::vtkXYPlotActor()
 vtkXYPlotActor::~vtkXYPlotActor()
 {
   // Get rid of the list of array names.
-  int num = this->InputList->GetNumberOfItems();
+  int num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
   if (this->SelectedInputScalars)
     {
     for (int i = 0; i < num; ++i)
@@ -271,11 +290,10 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->SelectedInputScalarsComponent = NULL;
 
   //  Now we can get rid of the inputs. 
-  this->InputList->Delete();
-  this->InputList = NULL;
+  this->InputConnectionHolder->Delete();
+  this->InputConnectionHolder = NULL;
 
-  this->DataObjectInputList->Delete();
-  this->DataObjectInputList = NULL;
+  this->DataObjectInputConnectionHolder->Delete();
 
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
@@ -341,10 +359,60 @@ void vtkXYPlotActor::InitializeEntries()
     this->NumberOfInputs = 0;
     }//if entries have been defined
 }
-  
+
+bool vtkXYPlotActor::DoesConnectionMatch(int i, vtkAlgorithmOutput* in)
+{
+  vtkAlgorithmOutput* conn =
+    this->InputConnectionHolder->GetInputConnection(0, i);
+  if (conn->GetProducer() == in->GetProducer() &&
+      conn->GetIndex() == in->GetIndex())
+    {
+    return true;
+    }
+  return false;
+}
+
+int vtkXYPlotActor::IsInputPresent(vtkAlgorithmOutput* in,
+                                   const char* arrayName,
+                                   int component)
+{
+  int numConns = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int idx=0; idx<numConns; idx++)
+    {
+    if (this->DoesConnectionMatch(idx, in))
+      {
+      if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
+        {
+        return idx + 1;
+        }
+      if (arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
+          strcmp(arrayName, this->SelectedInputScalars[idx]) == 0 &&
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
+        {
+        return idx + 1;
+        }
+      }
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::AddDataSetInput(vtkDataSet *ds,
+                                     const char *arrayName,
+                                     int component)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(ds);
+  this->AddDataSetInputConnection(tp->GetOutputPort(), arrayName, component);
+  tp->Delete();
+}
+
 //----------------------------------------------------------------------------
 // Add a dataset and array to the list of data to plot.
-void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int component)
+void vtkXYPlotActor::AddDataSetInputConnection(vtkAlgorithmOutput *in,
+                                               const char *arrayName,
+                                               int component)
 {
   int idx, num;
   char** newNames;
@@ -354,27 +422,17 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
   // because the index might change from render to render ...
   // I have to store the list of string array names.
 
-  // I believe idx starts at 1 and goes to "NumberOfItems".
-  idx = this->InputList->IsItemPresent(ds);
-  if (idx > 0)
-    { // Return if arrays are the same.
-    if (arrayName == NULL && this->SelectedInputScalars[idx-1] == NULL &&
-        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
-      {
-      return;
-      }
-    if (arrayName != NULL && this->SelectedInputScalars[idx-1] != NULL &&
-        strcmp(arrayName, this->SelectedInputScalars[idx-1]) == 0 &&
-        component == this->SelectedInputScalarsComponent->GetValue(idx-1))
-      {
-      return;
-      }
+  idx = this->IsInputPresent(in, arrayName, component);
+  // idx starts at 1 and goes to "NumberOfItems".
+  if (idx != 0)
+    {
+    return;
     }
 
   // The input/array/component must be a unique combination.  Add it to our input list.
 
   // Now reallocate the list of strings and add the new value.
-  num = this->InputList->GetNumberOfItems();
+  num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
   newNames = new char*[num+1];
   for (idx = 0; idx < num; ++idx)
     {
@@ -396,7 +454,7 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
   this->SelectedInputScalarsComponent->InsertValue(num, component);
 
   // Add the data set to the collection
-  this->InputList->AddItem(ds);
+  this->InputConnectionHolder->AddInputConnection(0, in);
 
   // In case of multiple use of a XYPlotActor the NumberOfEntries could be set
   // to n. Then when a call to SetEntryString(n+1, bla) was done the string was lost
@@ -407,12 +465,12 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::RemoveAllInputs()
+void vtkXYPlotActor::RemoveAllDataSetInputConnections()
 {
   int idx, num;
 
-  num = this->InputList->GetNumberOfItems();
-  this->InputList->RemoveAllItems();
+  num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  this->InputConnectionHolder->RemoveAllInputs();
 
   for (idx = 0; idx < num; ++idx)
     {
@@ -424,76 +482,114 @@ void vtkXYPlotActor::RemoveAllInputs()
     }
   this->SelectedInputScalarsComponent->Reset();
 
-  this->DataObjectInputList->RemoveAllItems();
+  this->DataObjectInputConnectionHolder->RemoveAllInputs();
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::RemoveDataSetInput(vtkDataSet *ds,
+                                        const char *arrayName,
+                                        int component)
+{
+  int numConns = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int idx=0; idx<numConns; idx++)
+    {
+    vtkAlgorithmOutput* aout =
+      this->InputConnectionHolder->GetInputConnection(0, idx);
+    vtkAlgorithm* alg =  aout ? aout->GetProducer() : 0;
+    if (alg)
+      {
+      if (ds == alg->GetOutputDataObject(aout->GetIndex()))
+        {
+        this->RemoveDataSetInputConnection(aout, arrayName, component);
+        return;
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to plot.
-void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int component)
+void vtkXYPlotActor::RemoveDataSetInputConnection(vtkAlgorithmOutput *in,
+                                                  const char *arrayName,
+                                                  int component)
 {
-  int idx, num;
-  vtkDataSet *input;
-  int found = -1;
-
-  // This is my own find routine, because the array names have to match also.
-  num = this->InputList->GetNumberOfItems();
-  vtkCollectionSimpleIterator dsit;
-  this->InputList->InitTraversal(dsit);
-  for (idx = 0; idx < num && found == -1; ++idx)
-    {
-    input = this->InputList->GetNextDataSet(dsit);
-    if (input == ds)
-      {
-      if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
-          component == this->SelectedInputScalarsComponent->GetValue(idx))
-        {
-        found = idx;
-        }
-      if (arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
-          strcmp(arrayName, this->SelectedInputScalars[idx]) == 0 &&
-          component == this->SelectedInputScalarsComponent->GetValue(idx))
-        {
-        found = idx;
-        }
-      }
-    }
-
+  // IsInputPresent returns 0 on failure, index+1 on success.
+  // Subtract 1 for the actual index.
+  int found = this->IsInputPresent(in, arrayName, component) - 1;
   if (found == -1)
     {
     return;
     }
-  
-  this->Modified();
-  // Collections index their items starting at 1.
-  this->InputList->RemoveItem(found);
 
-  // Do not bother reallocating the SelectedInputScalars 
+  this->Modified();
+
+  int num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+
+  this->InputConnectionHolder->RemoveInputConnection(0, found);
+
+  // Do not bother reallocating the SelectedInputScalars
   // string array to make it smaller.
   if (this->SelectedInputScalars[found])
     {
     delete [] this->SelectedInputScalars[found];
     this->SelectedInputScalars[found] = NULL;
     }
-  for (idx = found+1; idx < num; ++idx)
+  for (int idx = found+1; idx < num; ++idx)
     {
     this->SelectedInputScalars[idx-1] = this->SelectedInputScalars[idx];
-    this->SelectedInputScalarsComponent->SetValue(idx-1, 
+    this->SelectedInputScalarsComponent->SetValue(idx-1,
                           this->SelectedInputScalarsComponent->GetValue(idx));
     }
-  // Reseting the last item is not really necessary, 
+  // Reseting the last item is not really necessary,
   // but to be clean we do it anyway.
-  this->SelectedInputScalarsComponent->SetValue(num-1, -1); 
+  this->SelectedInputScalarsComponent->SetValue(num-1, -1);
   this->SelectedInputScalars[num-1] = NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkXYPlotActor::AddDataObjectInputConnection(vtkAlgorithmOutput *aout)
+{
+  // Return if the connection already exists
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
+    {
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    if (port == aout)
+      {
+      return;
+      }
+    }
+
+  this->DataObjectInputConnectionHolder->AddInputConnection(aout);
 }
 
 //----------------------------------------------------------------------------
 // Add a data object to the list of data to plot.
 void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
 {
-  if ( ! this->DataObjectInputList->IsItemPresent(in) )
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(in);
+  this->AddDataObjectInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Remove a data object from the list of data to plot.
+void vtkXYPlotActor::RemoveDataObjectInputConnection(vtkAlgorithmOutput *aout)
+{
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
     {
-    this->Modified();
-    this->DataObjectInputList->AddItem(in);
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    if (port == aout)
+      {
+      this->DataObjectInputConnectionHolder->RemoveInputConnection(0, i);
+      break;
+      }
     }
 }
 
@@ -501,10 +597,19 @@ void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
 // Remove a data object from the list of data to plot.
 void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
 {
-  if ( this->DataObjectInputList->IsItemPresent(in) )
+  int numDO =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int i=0 ; i<numDO; i++)
     {
-    this->Modified();
-    this->DataObjectInputList->RemoveItem(in);
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIdx = port->GetIndex();
+    if (alg->GetOutputDataObject(portIdx) == in)
+      {
+      this->DataObjectInputConnectionHolder->RemoveInputConnection(0, i);
+      break;
+      }
     }
 }
 
@@ -515,8 +620,8 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething = 0;
 
   // Make sure input is up to date.
-  if ( this->InputList->GetNumberOfItems() < 1 && 
-       this->DataObjectInputList->GetNumberOfItems() < 1 )
+  if ( this->InputConnectionHolder->GetNumberOfInputConnections(0) < 1 &&
+       this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0) < 1 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -558,23 +663,26 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   unsigned long mtime, dsMtime;
-  vtkDataSet *ds;
   vtkDataObject *dobj;
   int numDS, numDO, renderedSomething=0;
 
   // Initialize
   // Make sure input is up to date.
-  numDS = this->InputList->GetNumberOfItems();
-  numDO = this->DataObjectInputList->GetNumberOfItems();
+  numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  numDO = this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
   if ( numDS > 0 )
     {
     vtkDebugMacro(<<"Plotting input data sets");
-    vtkCollectionSimpleIterator dsit;
-    for (mtime=0, this->InputList->InitTraversal(dsit); 
-         (ds = this->InputList->GetNextDataSet(dsit)); )
+    mtime = 0;
+    for (int i = 0; i < numDS; i++)
       {
-      ds->Update();
-      dsMtime = ds->GetMTime();
+      vtkAlgorithmOutput* port =
+        this->InputConnectionHolder->GetInputConnection(0, i);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIdx = port->GetIndex();
+      alg->Update(portIdx);
+      dobj = alg->GetOutputDataObject(portIdx);
+      dsMtime = dobj->GetMTime();
       if ( dsMtime > mtime )
         {
         mtime = dsMtime;
@@ -584,11 +692,15 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   else if ( numDO > 0 )
     {
     vtkDebugMacro(<<"Plotting input data objects");
-    vtkCollectionSimpleIterator doit;
-    for (mtime=0, this->DataObjectInputList->InitTraversal(doit); 
-         (dobj = this->DataObjectInputList->GetNextDataObject(doit)); )
+    mtime = 0;
+    for (int i=0 ; i<numDO; i++)
       {
-      dobj->Update();
+      vtkAlgorithmOutput* port =
+        this->DataObjectInputConnectionHolder->GetInputConnection(0, i);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIdx = port->GetIndex();
+      alg->Update(portIdx);
+      dobj = alg->GetOutputDataObject(portIdx);
       dsMtime = dobj->GetMTime();
       if ( dsMtime > mtime )
         {
@@ -1103,20 +1215,18 @@ unsigned long vtkXYPlotActor::GetMTime()
 void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkIndent i2 = indent.GetNextIndent();
-  vtkDataSet *input;
+  vtkAlgorithmOutput *input;
   char *array;
   int component;
   int idx, num;
 
   this->Superclass::PrintSelf(os,indent);
 
-  vtkCollectionSimpleIterator dsit;
-  this->InputList->InitTraversal(dsit);
-  num = this->InputList->GetNumberOfItems();
+  num = this->InputConnectionHolder->GetNumberOfInputConnections(0);
   os << indent << "DataSetInputs: " << endl;
   for (idx = 0; idx < num; ++idx)
     {
-    input = this->InputList->GetNextDataSet(dsit);
+    input = this->InputConnectionHolder->GetInputConnection(0, idx);
     array = this->SelectedInputScalars[idx];
     component = this->SelectedInputScalarsComponent->GetValue((vtkIdType)idx);
     if (array == NULL)
@@ -1130,8 +1240,13 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Input DataObjects:\n";
-  this->DataObjectInputList->PrintSelf(os,indent.GetNextIndent());
-  
+  num = this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for (idx = 0; idx < num; ++idx)
+    {
+    input = this->DataObjectInputConnectionHolder->GetInputConnection(0, idx);
+    os << i2 << input << endl;
+    }
+
   if (this->TitleTextProperty)
     {
     os << indent << "Title Text Property:\n";
@@ -1263,10 +1378,14 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
 
   range[0] = VTK_DOUBLE_MAX, range[1] = VTK_DOUBLE_MIN;
 
-  vtkCollectionSimpleIterator dsit;
-  for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(dsit); 
-        (ds = this->InputList->GetNextDataSet(dsit)); dsNum++)
+  int numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for ( dsNum=0, maxNum=0; dsNum<numDS;  dsNum++)
     {
+    vtkAlgorithmOutput* port =
+      this->InputConnectionHolder->GetInputConnection(0, dsNum);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIndex = port->GetIndex();
+    ds = vtkDataSet::SafeDownCast(alg->GetOutputDataObject(portIndex));
     numPts = ds->GetNumberOfPoints();
     if (numPts == 0)
       {
@@ -1371,15 +1490,18 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
   vtkDataSet *ds;
   vtkDataArray *scalars;
   double sRange[2];
-  int count;
   int component;
 
   range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
 
-  vtkCollectionSimpleIterator dsit;
-  for ( this->InputList->InitTraversal(dsit), count = 0; 
-        (ds = this->InputList->GetNextDataSet(dsit)); ++count)
+  int numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int dsNum=0, count = 0; dsNum<numDS;  dsNum++, count++)
     {
+    vtkAlgorithmOutput* port =
+      this->InputConnectionHolder->GetInputConnection(0, dsNum);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIndex = port->GetIndex();
+    ds = vtkDataSet::SafeDownCast(alg->GetOutputDataObject(portIndex));
     scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[count]);
     component = this->SelectedInputScalarsComponent->GetValue(count);
     if ( !scalars)
@@ -1446,10 +1568,16 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
   
   xrange[0] = yrange[0] = VTK_DOUBLE_MAX;
   xrange[1] = yrange[1] = -VTK_DOUBLE_MAX;
-  vtkCollectionSimpleIterator doit;
-  for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(doit); 
-        (dobj = this->DataObjectInputList->GetNextDataObject(doit)); doNum++)
+  maxNum = 0;
+  int numDOs =
+    this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+  for ( doNum = 0; doNum < numDOs; doNum++ )
     {
+    vtkAlgorithmOutput* port =
+      this->DataObjectInputConnectionHolder->GetInputConnection(0, doNum);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIdx = port->GetIndex();
+    dobj = alg->GetOutputDataObject(portIdx);
 
     lengths[doNum] = 0.0;
     field = dobj->GetFieldData();
@@ -1614,7 +1742,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
                                     int numDS, int numDO)
 {
   double xyz[3]; xyz[2] = 0.0;
-  int i, numLinePts, dsNum, doNum, num;
+  int i, numLinePts, doNum, num;
   vtkIdType numPts, ptId, id;
   double length, x[3], xPrev[3];
   vtkDataArray *scalars;
@@ -1638,19 +1766,19 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     {
     this->PlotData[i] = vtkPolyData::New();
     this->PlotGlyph[i] = vtkGlyph2D::New();
-    this->PlotGlyph[i]->SetInput(this->PlotData[i]);
+    this->PlotGlyph[i]->SetInputData(this->PlotData[i]);
     this->PlotGlyph[i]->SetScaleModeToDataScalingOff();
     this->PlotAppend[i] = vtkAppendPolyData::New();
-    this->PlotAppend[i]->AddInput(this->PlotData[i]);
+    this->PlotAppend[i]->AddInputData(this->PlotData[i]);
     if ( this->LegendActor->GetEntrySymbol(i) != NULL &&
          this->LegendActor->GetEntrySymbol(i) != this->GlyphSource->GetOutput() )
       {
-      this->PlotGlyph[i]->SetSource(this->LegendActor->GetEntrySymbol(i));
+      this->PlotGlyph[i]->SetSourceData(this->LegendActor->GetEntrySymbol(i));
       this->PlotGlyph[i]->SetScaleFactor(this->ComputeGlyphScale(i,pos,pos2));
-      this->PlotAppend[i]->AddInput(this->PlotGlyph[i]->GetOutput());
+      this->PlotAppend[i]->AddInputConnection(this->PlotGlyph[i]->GetOutputPort());
       }
     this->PlotMapper[i] = vtkPolyDataMapper2D::New();
-    this->PlotMapper[i]->SetInput(this->PlotAppend[i]->GetOutput());
+    this->PlotMapper[i]->SetInputConnection(this->PlotAppend[i]->GetOutputPort());
     this->PlotMapper[i]->ScalarVisibilityOff();
     this->PlotActor[i] = vtkActor2D::New();
     this->PlotActor[i]->SetMapper(this->PlotMapper[i]);
@@ -1689,10 +1817,13 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
   //
   if ( numDS > 0 )
     {
-    vtkCollectionSimpleIterator dsit;
-    for ( dsNum=0, this->InputList->InitTraversal(dsit); 
-          (ds = this->InputList->GetNextDataSet(dsit)); dsNum++ )
+    for (int dsNum=0; dsNum<numDS;  dsNum++)
       {
+      vtkAlgorithmOutput* port =
+        this->InputConnectionHolder->GetInputConnection(0, dsNum);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIndex = port->GetIndex();
+      ds = vtkDataSet::SafeDownCast(alg->GetOutputDataObject(portIndex));
       clippingRequired = 0;
       numPts = ds->GetNumberOfPoints();
       scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[dsNum]);
@@ -1792,11 +1923,16 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     vtkIdType numRows, numTuples;
     vtkDataArray *array;
     vtkFieldData *field;
-    vtkCollectionSimpleIterator doit;
-    for ( doNum=0, this->DataObjectInputList->InitTraversal(doit); 
-          (dobj = this->DataObjectInputList->GetNextDataObject(doit)); 
-          doNum++ )
+    int numDOs =
+      this->DataObjectInputConnectionHolder->GetNumberOfInputConnections(0);
+    for ( doNum = 0; doNum < numDOs; doNum++ )
       {
+      vtkAlgorithmOutput* port =
+        this->DataObjectInputConnectionHolder->GetInputConnection(0, doNum);
+      vtkAlgorithm* alg = port->GetProducer();
+      int portIdx = port->GetIndex();
+      dobj = alg->GetOutputDataObject(portIdx);
+
       // determine the shape of the field
       field = dobj->GetFieldData();
       numColumns = field->GetNumberOfComponents(); //number of "columns"
@@ -2262,7 +2398,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
 double vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
 {
   vtkPolyData *pd=this->LegendActor->GetEntrySymbol(i);
-  pd->Update();
+  //pd->Update();
   double length=pd->GetLength();
   double sf = this->GlyphSize * sqrt((double)(pos[0]-pos2[0])*(pos[0]-pos2[0]) + 
                                     (pos[1]-pos2[1])*(pos[1]-pos2[1])) / length;
@@ -2619,12 +2755,16 @@ void vtkXYPlotActor::PrintAsCSV(ostream &os)
 {
   vtkDataArray *scalars;
   vtkDataSet *ds;
-  vtkCollectionSimpleIterator dsit;
   double s;
-  int dsNum,component;
-  for ( dsNum=0, this->InputList->InitTraversal(dsit); 
-    (ds = this->InputList->GetNextDataSet(dsit)); dsNum++ )
+  int component;
+  int numDS = this->InputConnectionHolder->GetNumberOfInputConnections(0);
+  for (int dsNum=0; dsNum<numDS;  dsNum++)
     {
+    vtkAlgorithmOutput* port =
+      this->InputConnectionHolder->GetInputConnection(0, dsNum);
+    vtkAlgorithm* alg = port->GetProducer();
+    int portIndex = port->GetIndex();
+    ds = vtkDataSet::SafeDownCast(alg->GetOutputDataObject(portIndex));
     vtkIdType numPts = ds->GetNumberOfPoints();
     scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[dsNum]);
     os << this->SelectedInputScalars[dsNum] << ",";
@@ -2644,7 +2784,7 @@ void vtkXYPlotActor::PrintAsCSV(ostream &os)
       }
     os << endl;
 
-    if (dsNum == this->InputList->GetNumberOfItems()-1)
+    if (dsNum == numDS-1)
       {
       os << "X or T,";
       for ( vtkIdType ptId=0; ptId < numPts; ptId++ )

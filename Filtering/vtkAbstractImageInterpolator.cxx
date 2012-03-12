@@ -269,7 +269,7 @@ void vtkAbstractImageInterpolator::Initialize(vtkDataObject *o)
   // get the image information
   data->GetSpacing(this->Spacing);
   data->GetOrigin(this->Origin);
-  data->GetWholeExtent(this->WholeExtent);
+  data->GetExtent(this->WholeExtent);
   data->GetExtent(this->Extent);
 
   // call update

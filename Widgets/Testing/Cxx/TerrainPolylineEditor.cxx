@@ -729,11 +729,11 @@ int TerrainPolylineEditor(int argc, char * argv[])
 
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
-  surface->SetInput(demReader->GetOutput());
+  surface->SetInputConnection(demReader->GetOutputPort());
 
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
-  warp->SetInput(surface->GetOutput());
+  warp->SetInputConnection(surface->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
   warp->SetNormal(0, 0, 1);
@@ -752,13 +752,13 @@ int TerrainPolylineEditor(int argc, char * argv[])
 
   vtkSmartPointer<vtkPolyDataNormals> normals =
     vtkSmartPointer<vtkPolyDataNormals>::New();
-  normals->SetInput(warp->GetPolyDataOutput());
+  normals->SetInputConnection(warp->GetOutputPort());
   normals->SetFeatureAngle(60);
   normals->SplittingOff();
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  demMapper->SetInput(normals->GetOutput());
+  demMapper->SetInputConnection(normals->GetOutputPort());
   normals->Update();
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);

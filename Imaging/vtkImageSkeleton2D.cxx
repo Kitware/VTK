@@ -86,7 +86,8 @@ template <class T>
 void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                                vtkImageData *inData, T *inPtr, 
                                vtkImageData *outData, int *outExt, 
-                               T *outPtr, int id)
+                               T *outPtr, int id,
+                               int wholeExt[6])
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
@@ -95,7 +96,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   vtkIdType outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   T *outPtr0, *outPtr1, *outPtr2;
-  int wholeMin0, wholeMax0, wholeMin1, wholeMax1, wholeMin2, wholeMax2;
+  int wholeMin0, wholeMax0, wholeMin1, wholeMax1;
   int prune = self->GetPrune();
   float n[8];
   int countFaces, countCorners;
@@ -103,14 +104,17 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   unsigned long target;
   int erodeCase;
 
+  wholeMin0 = wholeExt[0];
+  wholeMax0 = wholeExt[1];
+  wholeMin1 = wholeExt[2];
+  wholeMax1 = wholeExt[3];
+
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];  outMax0 = outExt[1];
   outMin1 = outExt[2];  outMax1 = outExt[3];
   outMin2 = outExt[4];  outMax2 = outExt[5];
-  self->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
-                                   wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   
   target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
@@ -309,14 +313,21 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData, 
-                                         int outExt[6], int id)
+void vtkImageSkeleton2D::ThreadedRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ),
+  vtkImageData ***inDataV,
+  vtkImageData **outDataV,
+  int outExt[6],
+  int id)
 {
+  vtkImageData* inData = inDataV[0][0];
+  vtkImageData* outData = outDataV[0];
   void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *tempData;
-  int inExt[6];
+  int inExt[6], wholeExt[6];
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
@@ -326,8 +337,9 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
     return;
     }
 
-  vtkInformation* inInfo = inData->GetPipelineInformation();
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 
   vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -339,10 +351,9 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
 
   // Make a temporary copy of the input data
   tempData = vtkImageData::New();
-  tempData->SetScalarType( inScalarInfo->Get(vtkImageData::FIELD_ARRAY_TYPE()) );
   tempData->SetExtent(inExt);
-  tempData->SetNumberOfScalarComponents(
-    inScalarInfo->Get(vtkImageData::FIELD_NUMBER_OF_COMPONENTS()) );
+  tempData->AllocateScalars(inScalarInfo->Get(vtkImageData::FIELD_ARRAY_TYPE()),
+                            inScalarInfo->Get(vtkImageData::FIELD_NUMBER_OF_COMPONENTS()));
   tempData->CopyAndCastFrom(inData, inExt);
 
   inPtr = tempData->GetScalarPointerForExtent(outExt);
@@ -351,7 +362,8 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
     vtkTemplateMacro(
       vtkImageSkeleton2DExecute(this, tempData,
                                 static_cast<VTK_TT *>(inPtr), outData, outExt, 
-                                static_cast<VTK_TT *>(outPtr), id));
+                                static_cast<VTK_TT *>(outPtr), id,
+                                wholeExt));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       tempData->Delete();

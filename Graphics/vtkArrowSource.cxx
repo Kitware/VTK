@@ -21,6 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
@@ -50,7 +51,7 @@ int vtkArrowSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int piece, numPieces, ghostLevel;
+  int piece, numPieces;
   vtkCylinderSource *cyl = vtkCylinderSource::New();
   vtkTransform *trans0 = vtkTransform::New();
   vtkTransformFilter *tf0 = vtkTransformFilter::New();
@@ -61,9 +62,9 @@ int vtkArrowSource::RequestData(
   vtkTransformFilter *tf2 = vtkTransformFilter::New();
   vtkAppendPolyData *append = vtkAppendPolyData::New();
 
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   cyl->SetResolution(this->ShaftResolution);
   cyl->SetRadius(this->ShaftRadius);
@@ -73,7 +74,7 @@ int vtkArrowSource::RequestData(
 
   trans0->RotateZ(-90.0);
   tf0->SetTransform(trans0);
-  tf0->SetInput(cyl->GetOutput());
+  tf0->SetInputConnection(cyl->GetOutputPort());
 
   cone->SetResolution(this->TipResolution);
   cone->SetHeight(this->TipLength);
@@ -81,10 +82,10 @@ int vtkArrowSource::RequestData(
 
   trans1->Translate(1.0-this->TipLength*0.5, 0.0, 0.0);
   tf1->SetTransform(trans1);
-  tf1->SetInput(cone->GetOutput());
+  tf1->SetInputConnection(cone->GetOutputPort());
 
-  append->AddInput(tf0->GetPolyDataOutput());
-  append->AddInput(tf1->GetPolyDataOutput());
+  append->AddInputConnection(tf0->GetOutputPort());
+  append->AddInputConnection(tf1->GetOutputPort());
 
  // used only when this->Invert is true.
  trans2->Translate(1, 0, 0);
@@ -92,7 +93,7 @@ int vtkArrowSource::RequestData(
  tf2->SetTransform(trans2);
  tf2->SetInputConnection(append->GetOutputPort());
 
-  if (output->GetUpdatePiece() == 0 && numPieces > 0)
+  if (piece == 0 && numPieces > 0)
     {
     if (this->Invert)
       {
@@ -105,9 +106,6 @@ int vtkArrowSource::RequestData(
       output->ShallowCopy(append->GetOutput());
       }
     }
-  output->SetUpdatePiece(piece);
-  output->SetUpdateNumberOfPieces(numPieces);
-  output->SetUpdateGhostLevel(ghostLevel);
 
   cone->Delete();
   trans0->Delete();

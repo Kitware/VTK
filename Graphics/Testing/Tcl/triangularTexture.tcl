@@ -54,7 +54,7 @@ vtkPolyData triangle
     [triangle GetPointData]  SetTCoords tCoords
 
 vtkPolyDataMapper triangleMapper
-    triangleMapper SetInput triangle
+    triangleMapper SetInputData triangle
 
 vtkTexture aTexture
     aTexture SetInputConnection [aTriangularTexture GetOutputPort]

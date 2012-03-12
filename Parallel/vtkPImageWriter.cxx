@@ -74,7 +74,8 @@ void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
 void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
-                                    ofstream *file)
+                                     vtkInformation* inInfo,
+                                     ofstream *file)
 {
   int             min, max, mid;
   vtkImageData    *data;
@@ -117,34 +118,25 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
 
     // Subclasses can write a header with this method call.
-    this->WriteFileHeader(file, cache);
+    this->WriteFileHeader(file, cache, inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
     ++this->FileNumber;
     }
-  
+
   // Get the pipeline information for the input
-  vtkImageData *input = this->GetInput();
-  vtkAlgorithm *alg = input->GetProducerPort()->GetProducer();
-  int idx = input->GetProducerPort()->GetIndex();
-  vtkStreamingDemandDrivenPipeline *exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(alg->GetExecutive());
+  vtkAlgorithm *inAlg = this->GetInputAlgorithm();
 
-  if (exec)
-    {
-    vtkInformation *info = exec->GetOutputInformation(idx);
+  // Set a hint not to combine with previous requests
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+    VTK_UPDATE_EXTENT_REPLACE);
 
-    // Set a hint not to combine with previous requests
-    info->Set(
-       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-       VTK_UPDATE_EXTENT_REPLACE);
+  // Propagate the update extent so we can determine pipeline size
+  inAlg->PropagateUpdateExtent();
 
-    // Propagate the update extent so we can determine pipeline size
-    exec->PropagateUpdateExtent(idx);
-
-    // Go back to the previous behaviour
-    info->Set(
-       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-       VTK_UPDATE_EXTENT_COMBINE);
-    }
+  // Go back to the previous behaviour
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
+    VTK_UPDATE_EXTENT_COMBINE);
 
   // Now we can ask how big the pipeline will be
   inputMemorySize = this->SizeEstimator->GetEstimatedSize(this,0,0);
@@ -154,19 +146,20 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if ( inputMemorySize < this->MemoryLimit )
     {
 #ifndef NDEBUG
-    int *ext = cache->GetUpdateExtent();
+    int *ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 #endif
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] << endl);
-    cache->Update();
+    this->GetInputAlgorithm()->Update();
     data = cache;
-    this->RecursiveWrite(axis,cache,data,file);
+    this->RecursiveWrite(axis,cache,data,inInfo,file);
     vtkPIWCloseFile;
     return;
     }
 
   // if the current request did not fit into memory
   // the we will split the current axis
-  this->GetInput()->GetAxisUpdateExtent(axis, min, max);
+  int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  this->GetInput()->GetAxisUpdateExtent(axis, min, max, updateExtent);
   
   vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
         << "), UpdateMemory: " << inputMemorySize 
@@ -176,7 +169,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     {
     if (axis > 0)
       {
-      this->RecursiveWrite(axis - 1,cache, file);
+      this->RecursiveWrite(axis - 1,cache, inInfo, file);
       }
     else
       {
@@ -188,30 +181,37 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
   mid = (min + max) / 2;
 
+  int axisUpdateExtent[6];
+
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     }
   else
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveWrite(axis,cache,file);
+    cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    this->RecursiveWrite(axis,cache,inInfo,file);
     }
     
   // restore original extent
-  cache->SetAxisUpdateExtent(axis, min, max);
+  cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
 
   // if we opened the file here, then we need to close it up
   vtkPIWCloseFile;

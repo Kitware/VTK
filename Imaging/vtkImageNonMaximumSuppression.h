@@ -40,8 +40,8 @@ public:
   
   // Description:
   // Set the magnitude and vector inputs.
-  void SetMagnitudeInput(vtkImageData *input) {this->SetInput(0,input);};
-  void SetVectorInput(vtkImageData *input) {this->SetInput(1,input);};
+  void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);};
+  void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);};
   
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated

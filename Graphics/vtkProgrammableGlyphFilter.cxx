@@ -57,10 +57,14 @@ vtkProgrammableGlyphFilter::~vtkProgrammableGlyphFilter()
     }
 }
 
-// Specify a source object at a specified table location.
-void vtkProgrammableGlyphFilter::SetSource(vtkPolyData *pd)
+void vtkProgrammableGlyphFilter::SetSourceConnection(vtkAlgorithmOutput* output)
 {
-  this->SetInput(1, pd);
+  this->SetInputConnection(1, output);
+}
+
+void vtkProgrammableGlyphFilter::SetSourceData(vtkPolyData *pd)
+{
+  this->SetInputData(1, pd);
 }
 
 // Get a pointer to a source object at a specified table location.
@@ -187,8 +191,10 @@ int vtkProgrammableGlyphFilter::RequestData(
     
     if ( source ) 
       {
-      source->Update();
-    
+      // Update the source in case the GlyphMethod changed
+      // its parameters.
+      this->GetInputAlgorithm(1, 0)->Update();
+
       sourcePts = source->GetPoints();
       numSourcePts = source->GetNumberOfPoints();
       numSourceCells = source->GetNumberOfCells();

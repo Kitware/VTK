@@ -102,7 +102,7 @@ boxWidget SetPlaceFactor 1.25
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
 #
-boxWidget SetInput [cone GetOutput]
+boxWidget SetInputConnection [cone GetOutputPort]
 boxWidget PlaceWidget
 boxWidget AddObserver InteractionEvent TransformActor
 

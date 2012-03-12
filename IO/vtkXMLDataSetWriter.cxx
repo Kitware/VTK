@@ -30,6 +30,7 @@
 #include "vtkXMLRectilinearGridWriter.h"
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkAlgorithmOutput.h"
 
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
@@ -63,47 +64,47 @@ vtkDataSet* vtkXMLDataSetWriter::GetInput()
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::WriteInternal()
 {  
-  vtkDataSet* input = vtkDataSet::SafeDownCast(this->GetInput());
+  vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
   vtkXMLWriter* writer = 0;
   
   // Create a writer based on the data set type.
-  switch (input->GetDataObjectType())
+  switch (this->GetInput()->GetDataObjectType())
     {
     case VTK_IMAGE_DATA:
     case VTK_STRUCTURED_POINTS:
       {
       vtkXMLImageDataWriter* w = vtkXMLImageDataWriter::New();
-      w->SetInput(static_cast<vtkImageData*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     case VTK_STRUCTURED_GRID:
       {
       vtkXMLStructuredGridWriter* w = vtkXMLStructuredGridWriter::New();
-      w->SetInput(static_cast<vtkStructuredGrid*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     case VTK_RECTILINEAR_GRID:
       {
       vtkXMLRectilinearGridWriter* w = vtkXMLRectilinearGridWriter::New();
-      w->SetInput(static_cast<vtkRectilinearGrid*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     case VTK_UNSTRUCTURED_GRID:
       {
       vtkXMLUnstructuredGridWriter* w = vtkXMLUnstructuredGridWriter::New();
-      w->SetInput(static_cast<vtkUnstructuredGrid*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     case VTK_POLY_DATA:
       {
       vtkXMLPolyDataWriter* w = vtkXMLPolyDataWriter::New();
-      w->SetInput(static_cast<vtkPolyData*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     case VTK_HYPER_OCTREE:
       {
       vtkXMLHyperOctreeWriter* w = vtkXMLHyperOctreeWriter::New();
-      w->SetInput(static_cast<vtkHyperOctree*>(input));
+      w->SetInputConnection(input);
       writer = w;
       } break;
     }
@@ -112,7 +113,7 @@ int vtkXMLDataSetWriter::WriteInternal()
   if(!writer)
     {
     vtkErrorMacro("Cannot write dataset type: "
-                  << input->GetDataObjectType());
+                  << this->GetInput()->GetDataObjectType());
     return 0;
     }
   

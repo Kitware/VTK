@@ -84,7 +84,7 @@ vtkActor * CreateActor2( int vtkNotUsed(argc), char **vtkNotUsed(argv), vtkRende
   ss->SetPhiResolution(30);
   ss->SetRadius(150.0);
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper); 
   actor->GetProperty()->SetColor(0.0,1.0,0.0);

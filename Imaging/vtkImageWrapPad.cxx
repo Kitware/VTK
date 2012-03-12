@@ -76,7 +76,8 @@ template <class T>
 void vtkImageWrapPadExecute(vtkImageWrapPad *self,
                             vtkImageData *inData, T *vtkNotUsed(inPtr),
                             vtkImageData *outData, T *outPtr,
-                            int outExt[6], int id)
+                            int outExt[6], int id,
+                            int wholeExt[6])
 {
   int min0, max0;
   int imageMin0, imageMax0, imageMin1, imageMax1, 
@@ -93,8 +94,13 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   
   // Get information to march through data 
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  inData->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
-                         imageMin2, imageMax2);
+  imageMin0 = wholeExt[0];
+  imageMax0 = wholeExt[1];
+  imageMin1 = wholeExt[2];
+  imageMax1 = wholeExt[3];
+  imageMin2 = wholeExt[4];
+  imageMax2 = wholeExt[5];
+
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
   // initialize pointers to coresponding pixels.
@@ -241,9 +247,12 @@ void vtkImageWrapPad::ThreadedRequestData (
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageWrapPadExecute(this, inData[0][0], 
-                             static_cast<VTK_TT *>(inPtr), outData[0], 
-                             static_cast<VTK_TT *>(outPtr), outExt, id));
+      vtkImageWrapPadExecute(
+        this, inData[0][0], 
+        static_cast<VTK_TT *>(inPtr), outData[0], 
+        static_cast<VTK_TT *>(outPtr), outExt, id,
+        inputVector[0]->GetInformationObject(0)->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

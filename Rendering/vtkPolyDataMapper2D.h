@@ -47,7 +47,7 @@ public:
   
   // Description:
   // Set the input to the mapper.  
-  void SetInput(vtkPolyData *in);
+  void SetInputData(vtkPolyData *in);
   vtkPolyData *GetInput();
 
   // Description:

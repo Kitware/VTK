@@ -52,7 +52,7 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array_data->AddArray(array);
    
     vtkSmartPointer<vtkSparseArrayToTable> convert = vtkSmartPointer<vtkSparseArrayToTable>::New();
-    convert->SetInputConnection(0, array_data->GetProducerPort());
+    convert->SetInputData(0, array_data);
     convert->SetValueColumn("value");
     convert->Update();
 

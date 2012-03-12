@@ -21,7 +21,7 @@ vtkDataSetReader reader
 vtkCastToConcrete castToUnstructuredGrid
     castToUnstructuredGrid SetInputConnection [reader GetOutputPort]
 vtkWarpVector warp
-    warp SetInput [castToUnstructuredGrid GetUnstructuredGridOutput]
+    warp SetInputConnection [castToUnstructuredGrid GetOutputPort]
 
 # The connectivity filter extracts the first two regions. These are
 # know to represent the mold.

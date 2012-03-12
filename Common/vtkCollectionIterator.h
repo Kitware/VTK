@@ -64,25 +64,6 @@ public:
   // IsDoneWithTraversal() returns 1.
   vtkObject* GetCurrentObject();
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define GetObjectA GetObject
-# define GetObjectW GetObject
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkCollectionIterator::GetCurrentObject() as
-  // of VTK 5.0.
-  VTK_LEGACY(vtkObject* GetObject());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef GetObjectW
-# undef GetObjectA
-  //BTX
-  VTK_LEGACY(vtkObject* GetObjectA());
-  VTK_LEGACY(vtkObject* GetObjectW());
-  //ETX
-#endif
-
 protected:
   vtkCollectionIterator();
   ~vtkCollectionIterator();

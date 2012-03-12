@@ -21,7 +21,7 @@ vtkTIFFReader reader
 # An actor to display the image.
 #
 vtkImageActor imageActor
-  imageActor SetInput [reader GetOutput]
+  [imageActor GetMapper] SetInputConnection [reader GetOutputPort]
 
 # Create a renderer and a render window,
 #

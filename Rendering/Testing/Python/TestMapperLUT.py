@@ -30,7 +30,7 @@ class TestMapperLUT(Testing.vtkTest):
         p.GetPointData().SetScalars(sc)
         l = vtk.vtkLookupTable()
         m = vtk.vtkPolyDataMapper()
-        m.SetInput(p)
+        m.SetInputData(p)
         m.SetScalarRange(0.0, 10.0)
         m.SetLookupTable(l)
         ret = m.MapScalars(0.5)
@@ -51,7 +51,7 @@ class TestMapperLUT(Testing.vtkTest):
         v16.SetDataSpacing(3.2, 3.2, 1.5)
         v16.Update()
 
-        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetOutput().GetWholeExtent()
+        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetExecutive().GetWholeExtent(v16.GetOutputInformation(0))
         img_data = v16.GetOutput()
         spacing = img_data.GetSpacing()
         sx, sy, sz = spacing
@@ -61,7 +61,7 @@ class TestMapperLUT(Testing.vtkTest):
 
         # An outline is shown for context.
         outline = vtk.vtkOutlineFilter()
-        outline.SetInput(img_data)
+        outline.SetInputData(img_data)
 
         outlineMapper = vtk.vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
@@ -77,7 +77,7 @@ class TestMapperLUT(Testing.vtkTest):
         # The 3 image plane widgets are used to probe the dataset.
         planeWidgetX = vtk.vtkImagePlaneWidget()
         planeWidgetX.DisplayTextOn()
-        planeWidgetX.SetInput(img_data)
+        planeWidgetX.SetInputData(img_data)
         planeWidgetX.SetPlaneOrientationToXAxes()
         planeWidgetX.SetSliceIndex(32)
         planeWidgetX.SetPicker(picker)
@@ -87,7 +87,7 @@ class TestMapperLUT(Testing.vtkTest):
 
         planeWidgetY = vtk.vtkImagePlaneWidget()
         planeWidgetY.DisplayTextOn()
-        planeWidgetY.SetInput(img_data)
+        planeWidgetY.SetInputData(img_data)
         planeWidgetY.SetPlaneOrientationToYAxes()
         planeWidgetY.SetSliceIndex(32)
         planeWidgetY.SetPicker(picker)
@@ -101,7 +101,7 @@ class TestMapperLUT(Testing.vtkTest):
         # cross-hair cursor snapping to pixel centers
         planeWidgetZ = vtk.vtkImagePlaneWidget()
         planeWidgetZ.DisplayTextOn()
-        planeWidgetZ.SetInput(img_data)
+        planeWidgetZ.SetInputData(img_data)
         planeWidgetZ.SetPlaneOrientationToZAxes()
         planeWidgetZ.SetSliceIndex(46)
         planeWidgetZ.SetPicker(picker)
@@ -120,7 +120,7 @@ class TestMapperLUT(Testing.vtkTest):
         p.SetPoints(pts)
         p.GetPointData().SetScalars(sc)
         m = vtk.vtkPolyDataMapper()
-        m.SetInput(p)
+        m.SetInputData(p)
         # Share the lookup table of the widgets.
         m.SetLookupTable(planeWidgetX.GetLookupTable())
         m.UseLookupTableScalarRangeOn()

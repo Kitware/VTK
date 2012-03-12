@@ -44,7 +44,7 @@ public:
 
   // Description:
   // Get/Set the input vtkMolecule.
-  void SetInput(vtkMolecule *in);
+  void SetInputData(vtkMolecule *in);
   vtkMolecule *GetInput();
 
   // Description:

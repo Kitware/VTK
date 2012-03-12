@@ -76,7 +76,7 @@ vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
   selData->SetPoints(this->SelectionPoints);
   selData->SetLines(selA);
   vtkPolyDataMapper *selMap = vtkPolyDataMapper::New();
-  selMap->SetInput(selData);
+  selMap->SetInputData(selData);
   this->SelectionActor = vtkActor::New();
   this->SelectionActor->SetMapper(selMap);
   this->SelectionActor->VisibilityOff();
@@ -86,7 +86,7 @@ vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
   highData->SetPoints(this->HighlightPoints);
   highData->SetLines(highA);
   vtkPolyDataMapper *highMap = vtkPolyDataMapper::New();
-  highMap->SetInput(highData);
+  highMap->SetInputData(highData);
   this->HighlightActor = vtkActor::New();
   this->HighlightActor->SetMapper(highMap);
   this->HighlightActor->VisibilityOff();

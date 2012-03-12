@@ -83,7 +83,8 @@ PURPOSE.  See the above copyright notice for more information.
 */
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
-vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUIRES_TIME_DOWNSTREAM, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, LOAD_REQUESTED_BLOCKS, Integer);
+vtkInformationKeyMacro(vtkCompositeDataPipeline, REQUIRES_TIME_DOWNSTREAM, Integer);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_DATA_META_DATA, ObjectBase);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, UPDATE_COMPOSITE_INDICES, IntegerVector);
 vtkInformationKeyMacro(vtkCompositeDataPipeline, COMPOSITE_INDICES, IntegerVector);
@@ -160,6 +161,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
     {
     return 0;
     }
+
 
   // Check if REQUIRES_TIME_DOWNSTREAM() key is in the output. If yes,
   // pass it to inputs.
@@ -383,7 +385,15 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
   //compositePort = temporal ? -1 : compositePort;  
   if (temporal || composite)
     {
-    this->ExecuteSimpleAlgorithm(request, inInfoVec, outInfoVec, compositePort);
+    if (this->GetNumberOfOutputPorts())
+      {
+      this->ExecuteSimpleAlgorithm(request, inInfoVec, outInfoVec, compositePort);
+      }
+    else
+      {
+       vtkErrorMacro("Can not execute simple alorithm without output ports");
+       return 0;
+      }
     }
   else
     {
@@ -463,8 +473,10 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(int& compositePort)
           }
 
         if (strcmp(inputType, "vtkCompositeDataSet") == 0 ||
-          strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
-          strcmp(inputType, "vtkMultiBlockDataSet") == 0)
+            strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
+            strcmp(inputType, "vtkOverlappingAMR") == 0 ||
+            strcmp(inputType, "vtkNonOverlappingAMR") == 0 ||
+            strcmp(inputType, "vtkMultiBlockDataSet") == 0)
           {
           vtkDebugMacro(<< "ShouldIterateOverInput return 0 (Composite)");
           return false;
@@ -703,7 +715,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
     if (curOutput != compositeOutput.GetPointer())
       {
-      compositeOutput->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), compositeOutput);
       }
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
@@ -755,17 +767,12 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   
   request->Set(REQUEST_INFORMATION());
 
-  // Make sure that pipeline informations is in sync with the data
-  if (dobj)
-    {
-    dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
-
-    // This should not be needed but since a lot of image filters do:
-    // img->GetScalarType(), it is necessary.
-    dobj->GetProducerPort(); // make sure there is pipeline info.
-    dobj->CopyInformationToPipeline
-      (request, 0, dobj->GetPipelineInformation(), 1);
-    }
+  // Berk TODO: Replace with a trivial producer
+  // // Make sure that pipeline informations is in sync with the data
+  // if (dobj)
+  //   {
+  //   dobj->CopyInformationToPipeline(request, 0, inInfo, 1);
+  //   }
 
   this->Superclass::ExecuteInformation(request,inInfoVec,outInfoVec);
   request->Remove(REQUEST_INFORMATION());
@@ -961,7 +968,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithmTime(
   vtkDataObject* curOutput = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (curOutput != temporalOutput.GetPointer())
     {
-    temporalOutput->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), temporalOutput);
     }
   this->ExecuteDataEnd(request,inInfoVec,outInfoVec);
 }
@@ -1199,6 +1206,39 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
 
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    if(outInfoVec->GetNumberOfInformationObjects() > 0)
+      {
+      // Copy information from the output port that made the request.
+      // Since VerifyOutputInformation has already been called we know
+      // there is output information with a data object.
+      vtkInformation* outInfo =
+        outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+
+      // Loop over all input ports.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        // Loop over all connections on this input port.
+        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          // Get the pipeline information for this input connection.
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
+          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
+          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
+          inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
+          inInfo->CopyEntry(outInfo, LOAD_REQUESTED_BLOCKS());
+          }
+        }
+      }
+
     // Find the port that has a data that we will iterator over.
     // If there is one, make sure that we use piece extent for
     // that port. Composite data pipeline works with piece extents
@@ -1207,7 +1247,7 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
     if (this->ShouldIterateOverInput(compositePort))
       {
       // Get the output port from which to copy the extent.
-      int outputPort = -1;
+      outputPort = -1;
       if(request->Has(FROM_OUTPUT_PORT()))
         {
         outputPort = request->Get(FROM_OUTPUT_PORT());
@@ -1231,17 +1271,13 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           vtkInformation* inInfo = 
             inInfoVec[compositePort]->GetInformationObject(j);
             
-          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
-          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
           vtkDebugMacro(<< "CopyEntry UPDATE_PIECE_NUMBER() " << outInfo->Get(UPDATE_PIECE_NUMBER()) << " " << outInfo);
 
           inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
           inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
           inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
-          inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
+          inInfo->CopyEntry(outInfo, LOAD_REQUESTED_BLOCKS());
           }
         }
       }
@@ -1261,6 +1297,7 @@ void vtkCompositeDataPipeline::ResetPipelineInformation(int port,
   info->Remove(REQUIRES_TIME_DOWNSTREAM());
   info->Remove(COMPOSITE_DATA_META_DATA());
   info->Remove(UPDATE_COMPOSITE_INDICES());
+  info->Remove(LOAD_REQUESTED_BLOCKS());
 }
 
 //----------------------------------------------------------------------------
@@ -1346,7 +1383,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
         vtkDebugMacro(<< "CheckCompositeData created " <<
           output->GetClassName() << "output");
         }
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       // Copy extent type to the output port information because
       // CreateOutputCompositeDataSet() changes it and some algorithms need it.
       this->GetAlgorithm()->GetOutputPortInformation(port)->Set(
@@ -1406,7 +1443,9 @@ vtkCompositeDataSet* vtkCompositeDataPipeline::CreateOutputCompositeDataSet(
   // pre: the algorithm is a non-composite algorithm.
   // pre: we are not create vtkTemporalDataSet for the output, the question is
   //      whether to create vtkHierarchicalBoxDataSet or vtkMultiBlockDataSet.
-  if (input->IsA("vtkHierarchicalBoxDataSet"))
+  if (input->IsA("vtkHierarchicalBoxDataSet") ||
+      input->IsA("vtkOverlappingAMR") ||
+      input->IsA("vtkNonOverlappingAMR") )
     {
     vtkSmartPointer<vtkUniformGrid> tempInput = vtkSmartPointer<vtkUniformGrid>::New();
 

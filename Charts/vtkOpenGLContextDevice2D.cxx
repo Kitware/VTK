@@ -54,7 +54,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLContextDevice2D);
+vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
@@ -92,7 +92,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   float offset = 0.5;
   glOrtho(offset, vp[2]+offset-1.0,
           offset, vp[3]+offset-1.0,
-          -1, 1);
+          -2000, 2000);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -300,7 +300,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Storage->SpriteTexture = vtkTexture::New();
         this->Storage->SpriteTexture->SetRepeat(false);
         }
-      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -914,7 +914,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
     {
     this->Storage->Texture = vtkTexture::New();
     }
-  this->Storage->Texture->SetInput(image);
+  this->Storage->Texture->SetInputData(image);
   this->Storage->TextureProperties = properties;
   this->Storage->Texture->SetRepeat(properties & vtkContextDevice2D::Repeat);
   this->Storage->Texture->SetInterpolate(properties & vtkContextDevice2D::Linear);

@@ -23,13 +23,7 @@
 // simply change it with SetNumberOfInputPorts etc. See this class
 // constructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be PolyData. If that
-// isn't the case then please override this method in your subclass. This
-// class breaks out the downstream requests into separate functions such as
-// ExecuteData and ExecuteInformation.  For new algorithms you should
-// implement RequestData( request, inputVec, outputVec) but for older filters
-// there is a default implementation that calls the old ExecuteData(output)
-// signature. For even older filters that don't implement ExecuteData the
-// default implementation calls the even older Execute() signature.
+// isn't the case then please override this method in your subclass.
 
 #ifndef __vtkPolyDataAlgorithm_h
 #define __vtkPolyDataAlgorithm_h
@@ -66,23 +60,18 @@ public:
   vtkPolyData *GetPolyDataInput(int port);
 
   // Description:
-  // Set an input of this algorithm. You should not override these
-  // methods because they are not the only way to connect a pipeline.
-  // Note that these methods support old-style pipeline connections.
-  // When writing new code you should use the more general
-  // vtkAlgorithm::SetInputConnection().  These methods transform the
-  // input index to the input port index, not an index of a connection
-  // within a single port.
-  void SetInput(vtkDataObject *);
-  void SetInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use SetInputConnection() to
+  // setup a pipeline connection.
+  void SetInputData(vtkDataObject *);
+  void SetInputData(int, vtkDataObject*);
 
   // Description:
-  // Add an input of this algorithm.  Note that these methods support
-  // old-style pipeline connections.  When writing new code you should
-  // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
-  void AddInput(vtkDataObject *);
-  void AddInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use AddInputConnection() to
+  // setup a pipeline connection.
+  void AddInputData(vtkDataObject *);
+  void AddInputData(int, vtkDataObject*);
 
 protected:
   vtkPolyDataAlgorithm();
@@ -106,11 +95,6 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
-
-  // Description:
-  // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output);
-  virtual void Execute();
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

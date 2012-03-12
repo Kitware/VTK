@@ -35,7 +35,7 @@
 #include "vtkMPIController.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
@@ -166,7 +166,7 @@ void MyProcess::Execute()
 
   vtkDistributedDataFilter *dd = vtkDistributedDataFilter::New();
 
-  dd->SetInput(ds);
+  dd->SetInputData(ds);
   dd->SetController(this->Controller);
 
   dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
@@ -199,6 +199,7 @@ void MyProcess::Execute()
   p->SetOpacity(0.3);
 
   vtkRenderer *renderer = prm->MakeRenderer();
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   
 #if 1
   // the rendering passes
@@ -235,7 +236,7 @@ void MyProcess::Execute()
   passes->AddItem(compositeRGBAPass);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   opaque->Delete();
 //  peeling->Delete();

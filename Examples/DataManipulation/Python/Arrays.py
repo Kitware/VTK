@@ -67,7 +67,7 @@ polydata.GetPointData().AddArray(vorticity)
 # Create the mapper and set the appropriate scalar range
 # (default is (0,1)
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInput(polydata)
+mapper.SetInputData(polydata)
 mapper.SetScalarRange(0, 40)
 
 # Create an actor.

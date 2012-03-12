@@ -103,7 +103,6 @@ unsigned long vtkImplicitDataSet::GetMTime()
 
   if ( this->DataSet != NULL )
     {
-    this->DataSet->Update ();
     DataSetMTime = this->DataSet->GetMTime();
     mTime = ( DataSetMTime > mTime ? DataSetMTime : mTime );
     }

@@ -99,7 +99,7 @@ int TestBoostBetweennessClustering(int vtkNotUsed(argc),
   // Test centrality
   vtkSmartPointer<vtkBoostBetweennessClustering> bbc (
     vtkSmartPointer<vtkBoostBetweennessClustering>::New());
-  bbc->SetInput(g);
+  bbc->SetInputData(g);
   bbc->SetThreshold(4);
   bbc->SetEdgeWeightArrayName("weights");
   bbc->SetEdgeCentralityArrayName("bbc_centrality");

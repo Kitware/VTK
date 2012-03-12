@@ -7,6 +7,7 @@ package require vtk
 vtkPNGReader reader
 reader SetDataSpacing 0.8 0.8 1.5
 reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
+reader Update
 
 # first center the image at (0,0,0)
 vtkImageReslice reslice
@@ -18,7 +19,7 @@ reslice SetInformationInput [reader GetOutput]
 # to do this, it is just put in as an example)
 vtkImageChangeInformation information2 
 information2 SetInputConnection [reslice GetOutputPort]
-information2 SetInformationInput [reader GetOutput]
+information2 SetInformationInputData [reader GetOutput]
 
 vtkImageViewer viewer
 viewer SetInputConnection [information2 GetOutputPort]

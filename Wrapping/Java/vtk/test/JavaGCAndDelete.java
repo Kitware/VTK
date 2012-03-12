@@ -20,7 +20,7 @@ public class JavaGCAndDelete {
 		while (System.currentTimeMillis() < timeout) {
 			final vtkArrowSource arrowSource = new vtkArrowSource();
 			final vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-			mapper.SetInput(arrowSource.GetOutput());
+			mapper.SetInputConnection(arrowSource.GetOutputPort());
 			final vtkActor actor = new vtkActor();
 			actor.SetMapper(mapper);
 

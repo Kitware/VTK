@@ -20,6 +20,7 @@
 #include "vtkExtractVOI.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkImageActor.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
 #include "vtkImageStencil.h"
@@ -269,7 +270,7 @@ public:
 
     if (!closed)
       {
-      Actor->SetInput(Extract->GetOutput());
+      Actor->GetMapper()->SetInputConnection(Extract->GetOutputPort());
       }
 
     int npts = tracerWidget->GetNumberOfHandles();
@@ -285,7 +286,7 @@ public:
       {
       SplineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
-      Actor->SetInput(Stencil->GetOutput());
+      Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
       }
   }
 
@@ -331,7 +332,7 @@ public:
         }
       splineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
-      Actor->SetInput(Stencil->GetOutput());
+      Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
       }
 
     TracerWidget->InitializeHandles(Points);
@@ -403,7 +404,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 //
   vtkSmartPointer<vtkImageActor> imageActor1 =
     vtkSmartPointer<vtkImageActor>::New();
-  imageActor1->SetInput(shifter->GetOutput());
+  imageActor1->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor1->VisibilityOn();
   imageActor1->SetDisplayExtent(31, 31, 0, 63, 0, 92);
   imageActor1->InterpolateOff();
@@ -418,7 +419,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkImageActor> imageActor2 =
     vtkSmartPointer<vtkImageActor>::New();
-  imageActor2->SetInput(extract->GetOutput());
+  imageActor2->GetMapper()->SetInputConnection(extract->GetOutputPort());
   imageActor2->VisibilityOn();
   imageActor2->SetDisplayExtent(extract->GetVOI());
   imageActor2->InterpolateOff();
@@ -437,7 +438,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   imageTracerWidget->SetProjectionNormalToXAxes();
   imageTracerWidget->SetProjectionPosition(imageActor1->GetBounds()[0]);
   imageTracerWidget->SetViewProp(imageActor1);
-  imageTracerWidget->SetInput(shifter->GetOutput());
+  imageTracerWidget->SetInputConnection(shifter->GetOutputPort());
   imageTracerWidget->SetInteractor(iren);
   imageTracerWidget->PlaceWidget();
   imageTracerWidget->SnapToImageOff();
@@ -450,7 +451,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkSplineWidget>::New();
   splineWidget->SetCurrentRenderer(ren2);
   splineWidget->SetDefaultRenderer(ren2);
-  splineWidget->SetInput(extract->GetOutput());
+  splineWidget->SetInputConnection(extract->GetOutputPort());
   splineWidget->SetInteractor(iren);
   splineWidget->PlaceWidget(imageActor2->GetBounds());
   splineWidget->ProjectToPlaneOn();
@@ -469,7 +470,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
 //
   vtkSmartPointer<vtkLinearExtrusionFilter> extrude =
     vtkSmartPointer<vtkLinearExtrusionFilter>::New();
-  extrude->SetInput(splinePoly);
+  extrude->SetInputData(splinePoly);
   extrude->SetScaleFactor(1);
   extrude->SetExtrusionTypeToNormalExtrusion();
   extrude->SetVector(1, 0, 0);
@@ -496,7 +497,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkImageStencil> stencil =
     vtkSmartPointer<vtkImageStencil>::New();
   stencil->SetInputConnection(extract->GetOutputPort());
-  stencil->SetStencil(dataToStencil->GetOutput());
+  stencil->SetStencilConnection(dataToStencil->GetOutputPort());
   stencil->ReverseStencilOff();
   stencil->SetBackgroundValue(128);
 

@@ -505,7 +505,7 @@ int TestButtonWidget(int argc, char *argv[] )
   VTK_CREATE(vtkConeSource, cone);
   VTK_CREATE(vtkGlyph3D, glyph);
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -513,8 +513,8 @@ int TestButtonWidget(int argc, char *argv[] )
 
   // Appending just makes things simpler to manage.
   VTK_CREATE(vtkAppendPolyData, apd);
-  apd->AddInput(glyph->GetOutput());
-  apd->AddInput(sphere->GetOutput());
+  apd->AddInputConnection(glyph->GetOutputPort());
+  apd->AddInputConnection(sphere->GetOutputPort());
 
   VTK_CREATE(vtkPolyDataMapper, maceMapper);
   maceMapper->SetInputConnection(apd->GetOutputPort());

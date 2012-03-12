@@ -102,7 +102,7 @@ vtkBarChartActor::vtkBarChartActor()
   
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
-  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotMapper->SetInputData(this->PlotData);
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
   this->TitleMapper = vtkTextMapper::New();
@@ -332,8 +332,6 @@ int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
     }
   
   // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
-
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
       this->Input->GetMTime() > this->BuildTime ||

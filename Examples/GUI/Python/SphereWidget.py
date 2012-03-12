@@ -45,7 +45,7 @@ elevation.SetScalarRange(lo, hi)
 elevation.ReleaseDataFlagOn()
 
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(elevation.GetPolyDataOutput())
+normals.SetInputConnection(elevation.GetOutputPort())
 normals.SetFeatureAngle(60)
 normals.ConsistencyOff()
 normals.SplittingOff()

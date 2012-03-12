@@ -468,21 +468,6 @@ vtkMPICommunicator::~vtkMPICommunicator()
 }
 
 //-----------------------------------------------------------------------------
-//#ifndef VTK_LEGACY_REMOVE
-//int vtkMPICommunicator::Initialize(vtkMPICommunicator  *mpiComm,
-//                                   vtkMPIGroup *deprecatedGroup)
-//{
-//  VTK_LEGACY_REPLACED_BODY(Initialize(vtkMPICommunicator *, vtkMPIGroup *),
-//                           "5.2", Initialize(vtkProcessGroup *));
-//
-//  VTK_CREATE(vtkProcessGroup, group);
-//  deprecatedGroup->CopyInto(group, mpiComm);
-//
-//  return this->Initialize(group);
-//}
-//#endif
-
-//-----------------------------------------------------------------------------
 int vtkMPICommunicator::Initialize(vtkProcessGroup *group)
 {
   if (this->Initialized)

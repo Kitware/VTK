@@ -416,8 +416,8 @@ int vtkTableToGraph::RequestData(
     list->InsertNextValue(1);
     activeSelNode->SetSelectionList(list);
     vtkExtractSelectedGraph* extract = vtkExtractSelectedGraph::New();
-    extract->SetInput(0, this->LinkGraph);
-    extract->SetInput(1, activeSel);
+    extract->SetInputData(0, this->LinkGraph);
+    extract->SetInputData(1, activeSel);
     extract->Update();
     vtkGraph* g = extract->GetOutput();
     this->LinkGraph->ShallowCopy(g);

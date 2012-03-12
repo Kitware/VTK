@@ -240,14 +240,15 @@ int vtkImageImport::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::ExecuteData(vtkDataObject *output)
+void vtkImageImport::ExecuteDataWithInformation(vtkDataObject *output,
+                                                vtkInformation* outInfo)
 {
   // If set, use the callbacks to prepare our input data.
   this->InvokeExecuteDataCallbacks();
   
   vtkImageData *data = vtkImageData::SafeDownCast(output);
   data->SetExtent(0,0,0,0,0,0);
-  data->AllocateScalars();
+  data->AllocateScalars(outInfo);
   void *ptr = this->GetImportVoidPointer();
   vtkIdType size = this->NumberOfScalarComponents;    
   size *= this->DataExtent[1] - this->DataExtent[0] + 1;

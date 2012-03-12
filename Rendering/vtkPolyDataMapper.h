@@ -46,12 +46,13 @@ public:
 
   // Description:
   // Specify the input data to map.
-  void SetInput(vtkPolyData *in);
+  void SetInputData(vtkPolyData *in);
   vtkPolyData *GetInput();
   
   // Description:
   // Update that sets the update piece first.
   void Update();
+  void Update(int port);
 
   // Description:
   // If you want only a part of the data, specify by setting the piece.

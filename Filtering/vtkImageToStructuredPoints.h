@@ -38,7 +38,7 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  void SetVectorInput(vtkImageData *input);
+  void SetVectorInputData(vtkImageData *input);
   vtkImageData *GetVectorInput();
 
   // Description:

@@ -96,17 +96,9 @@ vtkImageMapper3D::~vtkImageMapper3D()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper3D::SetInput(vtkImageData *input)
+void vtkImageMapper3D::SetInputData(vtkImageData *input)
 {
-  if (input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

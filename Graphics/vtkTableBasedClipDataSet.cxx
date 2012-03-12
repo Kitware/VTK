@@ -1997,7 +1997,7 @@ void vtkTableBasedClipDataSet::ClipDataSet( vtkDataSet * pDataSet,
      vtkDataArray * clipAray, vtkUnstructuredGrid * unstruct )
 {
   vtkClipDataSet * clipData = vtkClipDataSet::New();
-  clipData->SetInput( pDataSet );
+  clipData->SetInputData( pDataSet );
   clipData->SetValue( this->Value );
   clipData->SetInsideOut( this->InsideOut );
   clipData->SetClipFunction( this->ClipFunction );
@@ -2410,8 +2410,8 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
                                 polyData->GetCellData(), visItGrd, theCords );
 
     vtkAppendFilter * appender = vtkAppendFilter::New();
-    appender->AddInput( vtkUGrid );
-    appender->AddInput( visItGrd );
+    appender->AddInputData( vtkUGrid );
+    appender->AddInputData( visItGrd );
     appender->Update();
 
     outputUG->ShallowCopy( appender->GetOutput() );
@@ -3421,8 +3421,8 @@ void vtkTableBasedClipDataSet::ClipUnstructuredGridData( vtkDataSet * inputGrd,
                                 unstruct->GetCellData(), visItGrd, theCords );
 
     vtkAppendFilter * appender = vtkAppendFilter::New();
-    appender->AddInput( vtkUGrid );
-    appender->AddInput( visItGrd );
+    appender->AddInputData( vtkUGrid );
+    appender->AddInputData( visItGrd );
     appender->Update();
 
     outputUG->ShallowCopy( appender->GetOutput() );

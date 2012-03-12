@@ -46,22 +46,22 @@ pd SetPoints pts
 pd SetLines lines
 
 vtkGraphLayoutFilter layout2D
-    layout2D SetInput pd
+    layout2D SetInputData pd
     layout2D SetMaxNumberOfIterations 100
     layout2D ThreeDimensionalLayoutOff
     layout2D AutomaticBoundsComputationOff
     layout2D SetGraphBounds -2.0 0.0 -1.0 1.0 -1.0 1.0
 
 vtkGraphLayoutFilter layout3D
-    layout3D SetInput pd
+    layout3D SetInputData pd
     layout3D SetMaxNumberOfIterations 100
     layout3D ThreeDimensionalLayoutOn
     layout3D AutomaticBoundsComputationOff
     layout3D SetGraphBounds 0.0 2.0 -1.0 1.0 -1.0 1.0
 
 vtkAppendPolyData apf
-    apf AddInput [layout2D GetOutput]
-    apf AddInput [layout3D GetOutput]
+    apf AddInputConnection [layout2D GetOutputPort]
+    apf AddInputConnection [layout3D GetOutputPort]
 
 vtkTubeFilter tubes
     tubes SetInputConnection [apf GetOutputPort]
@@ -84,7 +84,7 @@ vtkSphereSource ball
     ball SetPhiResolution 12
 vtkGlyph3D balls
     balls SetInputConnection [apf GetOutputPort]
-    balls SetSource [ball GetOutput]
+    balls SetSourceConnection [ball GetOutputPort]
 vtkPolyDataMapper mapBalls
     mapBalls SetInputConnection [balls GetOutputPort]
 vtkActor ballActor

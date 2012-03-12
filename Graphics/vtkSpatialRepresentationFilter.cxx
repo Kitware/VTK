@@ -17,8 +17,18 @@
 #include "vtkLocator.h"
 #include "vtkInformation.h"
 #include "vtkGarbageCollector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+
+#include <set>
+
+class vtkSpatialRepresentationFilterInternal
+{
+public:
+  std::set<int> Levels;
+};
 
 vtkStandardNewMacro(vtkSpatialRepresentationFilter);
 vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
@@ -26,11 +36,11 @@ vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
 
 vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 {
-  this->NumberOfRequiredInputs = 1;
   this->SetNumberOfInputPorts(1);
   this->SpatialRepresentation = NULL;
-  this->Level = 0;
-  this->TerminalNodesRequested = 0;
+  this->MaximumLevel = 0;
+  this->GenerateLeaves = false;
+  this->Internal = new vtkSpatialRepresentationFilterInternal;
 }
 
 vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
@@ -40,119 +50,70 @@ vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
     this->SpatialRepresentation->UnRegister(this);
     this->SpatialRepresentation = NULL;
     }
+  delete this->Internal;
 }
 
-vtkPolyData *vtkSpatialRepresentationFilter::GetOutput()
+void vtkSpatialRepresentationFilter::AddLevel(int level)
 {
-  if ( !this->TerminalNodesRequested )
-    {
-    this->TerminalNodesRequested = 1;
-    this->Modified();
-    }
-  return this->vtkPolyDataSource::GetOutput();
+  this->Internal->Levels.insert(level);
 }
 
-vtkPolyData *vtkSpatialRepresentationFilter::GetOutput(int level)
+void vtkSpatialRepresentationFilter::ResetLevels()
 {
-  if ( level < 0 || !this->SpatialRepresentation || 
-  level > this->SpatialRepresentation->GetMaxLevel() )
-    {
-    vtkErrorMacro(<<"Level requested is <0 or >= Locator's MaxLevel");
-    return this->GetOutput();
-    }
-
-  if ( this->GetNumberOfOutputs() <= level ||
-       this->Outputs[level] == NULL )
-    {
-    this->vtkSource::SetNthOutput(level, vtkPolyData::New());
-    this->Modified(); //asking for new output
-    }
-
-  return (vtkPolyData *)(this->Outputs[level]);
+  this->Internal->Levels.clear();
 }
 
-void vtkSpatialRepresentationFilter::ResetOutput()
+int vtkSpatialRepresentationFilter::RequestData(
+  vtkInformation*,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  this->TerminalNodesRequested = 0;
-  for ( int i=0; i <= VTK_MAX_SPATIAL_REP_LEVEL; i++)
-    {
-    this->vtkSource::SetNthOutput(i, NULL);
-    }
-}    
-
-
-// Build OBB tree
-void vtkSpatialRepresentationFilter::Execute()
-{
-  vtkDebugMacro(<<"Building OBB representation");
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   if (this->SpatialRepresentation == NULL)
     {
     vtkErrorMacro(<< "SpatialRepresentation is NULL.");
-    return;
+    return 0;
     }
 
-  this->SpatialRepresentation->SetDataSet(this->GetInput());
+  this->SpatialRepresentation->SetDataSet(input);
   this->SpatialRepresentation->Update();
-  this->Level = this->SpatialRepresentation->GetLevel();
-
-  vtkDebugMacro(<<"OBB deepest tree level: " << this->Level);
-  this->GenerateOutput();
-}
-
-// Generate OBB representations at different requested levels.
-void vtkSpatialRepresentationFilter::GenerateOutput()
-{
-  vtkDataSet *input = this->GetInput();
-  if (!input)
-    {
-    return;
-    }
-  vtkPolyData *output;
-  int inputModified=(input->GetMTime() > this->GetMTime() ? 1 : 0);
-  int i;
-
-  //
-  // If input to filter is modified, have to update all levels of OBB
-  //
-  if ( inputModified )
-    {
-    for ( i=0; i <= this->Level; i++ )
-      {
-      if ( i < this->NumberOfOutputs && this->Outputs[i] != NULL )
-        {
-        output = (vtkPolyData *)(this->Outputs[i]);
-        output->Initialize();
-        }
-      }
-    }
+  this->MaximumLevel = this->SpatialRepresentation->GetLevel();
 
   //
   // Loop over all requested levels generating new levels as necessary
   //
-  for ( i=0; i <= this->Level && i < this->NumberOfOutputs; i++ )
+  std::set<int>::iterator it;
+  for ( it = this->Internal->Levels.begin();
+        it != this->Internal->Levels.end();
+        it++ )
     {
-    output = (vtkPolyData *)(this->Outputs[i]);
-    if ( output != NULL && output->GetNumberOfPoints() < 1 ) //compute OBB
+    if ( *it <= this->MaximumLevel )
       {
-      this->SpatialRepresentation->GenerateRepresentation(i, output);
+      vtkNew<vtkPolyData> level_representation;
+      output->SetBlock(*it, level_representation.GetPointer());
+      this->SpatialRepresentation->GenerateRepresentation(
+        *it, level_representation.GetPointer());
       }
     }
-  //
-  // If terminal leafs requested, generate rep
-  //
-  if ( this->TerminalNodesRequested )
+  if (this->GenerateLeaves)
     {
-    output = this->GetOutput();
-    this->SpatialRepresentation->GenerateRepresentation(-1, output);
+    vtkNew<vtkPolyData> leaf_representation;
+    output->SetBlock(this->MaximumLevel + 1, leaf_representation.GetPointer());
+    this->SpatialRepresentation->GenerateRepresentation(
+      -1, leaf_representation.GetPointer());
     }
+
+  return 1;
 }
 
 void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Level: " << this->Level << "\n";
+  os << indent << "Maximum Level: " << this->MaximumLevel << "\n";
+  os << indent << "GenerateLeaves: " << this->GenerateLeaves << "\n";
 
   if ( this->SpatialRepresentation )
     {
@@ -163,25 +124,6 @@ void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Spatial Representation: (none)\n";
     }
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkSpatialRepresentationFilter::SetInput(vtkDataSet *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkDataSet *vtkSpatialRepresentationFilter::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
 }
 
 

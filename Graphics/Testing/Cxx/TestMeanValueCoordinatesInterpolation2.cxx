@@ -114,7 +114,7 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   vtkSmartPointer<vtkProbeFilter> interp = 
     vtkSmartPointer<vtkProbeFilter>::New();
   interp->SetInputConnection(pSource->GetOutputPort());
-  interp->SetSource(polydata);
+  interp->SetSourceData(polydata);
 
   vtkSmartPointer<vtkPolyDataMapper> interpMapper = 
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -174,7 +174,7 @@ int TestMeanValueCoordinatesInterpolation2( int argc, char *argv[] )
   vtkSmartPointer<vtkProbeFilter> interp1 = 
     vtkSmartPointer<vtkProbeFilter>::New();
   interp1->SetInputConnection(pSource1->GetOutputPort());
-  interp1->SetSource(polydata1);
+  interp1->SetSourceData(polydata1);
 
   vtkSmartPointer<vtkPolyDataMapper> interpMapper1 = 
     vtkSmartPointer<vtkPolyDataMapper>::New();

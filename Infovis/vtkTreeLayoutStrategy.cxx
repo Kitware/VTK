@@ -72,7 +72,7 @@ void vtkTreeLayoutStrategy::Layout()
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
     bfs->SetReverseEdges(this->ReverseEdges);
-    bfs->SetInput(this->Graph);
+    bfs->SetInputData(this->Graph);
     bfs->Update();
     tree = vtkTree::New();
     tree->ShallowCopy(bfs->GetOutput());

@@ -65,7 +65,7 @@ proc bessel {} {
 # We warp the plane based on the scalar values calculated above
 #
 vtkWarpScalar warp
-    warp SetInput [besselF GetPolyDataOutput]
+    warp SetInputConnection [besselF GetOutputPort]
     warp XYPlaneOn
     warp SetScaleFactor 0.5
 
@@ -74,7 +74,7 @@ vtkWarpScalar warp
 # scalar range of the mapper to match that of the computed scalars
 #
 vtkPolyDataMapper mapper
-    mapper SetInput [warp GetPolyDataOutput]
+    mapper SetInputConnection [warp GetOutputPort]
     eval mapper SetScalarRange [[besselF GetPolyDataOutput] GetScalarRange]
 vtkActor carpet
     carpet SetMapper mapper

@@ -113,7 +113,7 @@ vtkPolyData polyData
   [polyData GetPointData] SetScalars scalars
 
 vtkBandedPolyDataContourFilter bf
-  bf SetInput polyData
+  bf SetInputData polyData
   bf GenerateValues 3 25 75 
 vtkPolyDataMapper mapper
   mapper SetInputConnection [bf GetOutputPort]

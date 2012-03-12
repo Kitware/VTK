@@ -31,9 +31,6 @@
 
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkPStreamTracer, 
-                     Interpolator,
-                     vtkAbstractInterpolatedVelocityField);
 
 vtkPStreamTracer::vtkPStreamTracer()
 {
@@ -397,7 +394,7 @@ int vtkPStreamTracer::RequestData(
     vtkPolyData* inp = it->GetPointer();
     if ( inp->GetNumberOfCells() > 0 )
       {
-      append->AddInput(inp);
+      append->AddInputData(inp);
       }
     }
   if (append->GetNumberOfInputConnections(0) > 0)
@@ -437,6 +434,23 @@ int vtkPStreamTracer::RequestData(
 
   this->InputData->UnRegister(this);
   return 1;
+}
+
+void vtkPStreamTracer::SetInterpolator(vtkAbstractInterpolatedVelocityField* interp)
+{
+  if (interp == this->Interpolator)
+    {
+    return;
+    }
+  if (this->Interpolator)
+    {
+    this->Interpolator->Delete();
+    }
+  this->Interpolator = interp;
+  if (interp)
+    {
+    interp->Register(this);
+    }
 }
 
 void vtkPStreamTracer::PrintSelf(ostream& os, vtkIndent indent)

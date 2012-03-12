@@ -78,7 +78,7 @@ public class Regression {
         vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
         vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-        coneMapper.SetInput(cone.GetOutput());
+        coneMapper.SetInputConnection(cone.GetOutputPort());
 
         vtkActor coneActor = new vtkActor();
         coneActor.SetMapper(coneMapper);
@@ -104,9 +104,7 @@ public class Regression {
         nimage.SetDimensions(image.GetDimensions());
         nimage.SetSpacing(image.GetSpacing());
         nimage.SetOrigin(image.GetOrigin());
-        nimage.SetScalarType(image.GetScalarType());
-        nimage.SetNumberOfScalarComponents(image.GetNumberOfScalarComponents());
-        nimage.AllocateScalars();
+        nimage.AllocateScalars(image.GetScalarType(), image.GetNumberOfScalarComponents());
         vtkUnsignedCharArray nida = (vtkUnsignedCharArray) nimage.GetPointData().GetScalars();
         nida.SetJavaArray(barray);
 
@@ -134,21 +132,21 @@ public class Regression {
         }
 
         vtkImageDifference imgDiff = new vtkImageDifference();
-        imgDiff.SetInput(nimage);
-        imgDiff.SetImage(image);
+        imgDiff.SetInputData(nimage);
+        imgDiff.SetImageConnection(w2i.GetOutputPort());
         imgDiff.Update();
 
         int retVal1 = vtkJavaTesting.PASSED;
         if (imgDiff.GetThresholdedError() != 0) {
             System.out.println("Problem with array conversion. Image difference is: " + imgDiff.GetThresholdedError());
             vtkPNGWriter wr = new vtkPNGWriter();
-            wr.SetInput(image);
+            wr.SetInputConnection(w2i.GetOutputPort());
             wr.SetFileName("im1.png");
             wr.Write();
-            wr.SetInput(nimage);
+            wr.SetInputData(nimage);
             wr.SetFileName("im2.png");
             wr.Write();
-            wr.SetInput(imgDiff.GetOutput());
+            wr.SetInputConnection(imgDiff.GetOutputPort());
             wr.SetFileName("diff.png");
             wr.Write();
             retVal1 = vtkJavaTesting.FAILED;

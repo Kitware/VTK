@@ -207,6 +207,7 @@ proc makeBooleanTexture {caseNumber resolution thickness} {
 	  eval booleanTexture$caseNumber SetOutOn  $clearTexture 
       }
   }
+  booleanTexture$caseNumber Update
   return booleanTexture$caseNumber
 }
 
@@ -257,7 +258,7 @@ vtkDataSetMapper aMapper
   # create a mapper, sphere and texture map for each case
 for  {set i 0} {$i < 16} {incr i} {
     vtkTexture aTexture$i 
-    aTexture$i SetInput  [[eval makeBooleanTexture $i 256 1] GetOutput]
+    aTexture$i SetInputData  [[eval makeBooleanTexture $i 256 1] GetOutput]
       aTexture$i InterpolateOff  
       aTexture$i RepeatOff   
     vtkActor anActor$i

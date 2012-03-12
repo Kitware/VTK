@@ -17,7 +17,6 @@ IF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
       TestImageStreamer
       TestPImageWriter
       TestCutMaterial
-      TestBranchExtentTranslator
       TestPDataSetReaderGrid
       )
   ELSE (VTK_DATA_ROOT)

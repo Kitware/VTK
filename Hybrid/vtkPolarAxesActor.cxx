@@ -195,7 +195,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   // Create and set polar arcs and ancillary objects, with default color white
   this->PolarArcs = vtkPolyData::New();
   this->PolarArcsMapper = vtkPolyDataMapper::New();
-  this->PolarArcsMapper->SetInput( this->PolarArcs );
+  this->PolarArcsMapper->SetInputData( this->PolarArcs );
   this->PolarArcsActor = vtkActor::New();
   this->PolarArcsActor->SetMapper( this->PolarArcsMapper );
   this->PolarArcsActor->GetProperty()->SetColor( 1., 1., 1. );

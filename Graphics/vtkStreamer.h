@@ -98,8 +98,13 @@ public:
 
   // Description:
   // Specify the source object used to generate starting points.
-  void SetSource(vtkDataSet *source);
+  void SetSourceData(vtkDataSet *source);
   vtkDataSet *GetSource();
+
+  //Description:
+  // Specify the source object used to generate starting points 
+  // by making a pipeline connection
+  void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.

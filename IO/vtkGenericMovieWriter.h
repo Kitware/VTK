@@ -25,20 +25,15 @@
 #ifndef __vtkGenericMovieWriter_h
 #define __vtkGenericMovieWriter_h
 
-#include "vtkProcessObject.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImageData;
 
-class VTK_IO_EXPORT vtkGenericMovieWriter : public vtkProcessObject
+class VTK_IO_EXPORT vtkGenericMovieWriter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGenericMovieWriter,vtkProcessObject);
+  vtkTypeMacro(vtkGenericMovieWriter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:
-  // Set/Get the input object from the image pipeline.
-  virtual void SetInput(vtkImageData *input);
-  virtual vtkImageData *GetInput();
 
   // Description:
   // Specify file name of avi file.

@@ -50,7 +50,7 @@ vtkPolyData Tubes4
 ### Finish the 4 pipelines
 for {set i 1} {$i<5} {incr i 1} {
   vtkPolyDataMapper mapEdges$i
-      mapEdges$i SetInput Tubes$i 
+      mapEdges$i SetInputData Tubes$i
   vtkActor edgeActor$i
     edgeActor$i SetMapper mapEdges$i
     eval [edgeActor$i GetProperty] SetColor $peacock

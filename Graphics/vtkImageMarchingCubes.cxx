@@ -19,6 +19,7 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMarchingCubesTriangleCases.h"
 #include "vtkObjectFactory.h"
@@ -85,6 +86,10 @@ int vtkImageMarchingCubes::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkDemandDrivenPipeline* inputExec =
+    vtkDemandDrivenPipeline::SafeDownCast(
+      vtkExecutive::PRODUCER()->GetExecutive(inInfo));
+  
   int extent[8], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
   int minSlicesPerChunk, chunkOverlap;
@@ -107,7 +112,7 @@ int vtkImageMarchingCubes::RequestData(
     minSlicesPerChunk = 2;
     chunkOverlap = 1;
     }
-  inData->UpdateInformation();
+  inputExec->UpdateInformation();
   // Each data type requires a different amount of memory.
   switch (inData->GetScalarType())
     {
@@ -205,7 +210,7 @@ int vtkImageMarchingCubes::RequestData(
     // Get the chunk from the input
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                 extent, 6);
-    inData->Update();
+    inputExec->Update();
     
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     this->March(inData, chunkMin, chunkMax, numContours, values);
@@ -215,7 +220,8 @@ int vtkImageMarchingCubes::RequestData(
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
-    if (inData->ShouldIReleaseData())
+    if (vtkDataObject::GetGlobalReleaseDataFlag() ||
+        inInfo->Has(vtkStreamingDemandDrivenPipeline::RELEASE_DATA()))
       {
       inData->ReleaseData();
       }

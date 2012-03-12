@@ -76,51 +76,6 @@ public:
   // of the prop and matrix.
   virtual unsigned long GetMTime();
 
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (push)
-# pragma warning (disable:858)
-#endif
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define SetPropA SetProp
-# define SetPropW SetProp
-# define GetPropA GetProp
-# define GetPropW GetProp
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkAssemblyNode::SetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual void SetProp(vtkProp* prop));
-
-  // Description:
-  // @deprecated Replaced by vtkAssemblyNode::GetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual vtkProp* GetProp());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetPropW
-# undef SetPropA
-# undef GetPropW
-# undef GetPropA
-  //BTX
-  VTK_LEGACY(virtual void SetPropA(vtkProp* prop));
-  VTK_LEGACY(virtual void SetPropW(vtkProp* prop));
-  VTK_LEGACY(virtual vtkProp* GetPropA());
-  VTK_LEGACY(virtual vtkProp* GetPropW());
-  //ETX
-#endif
-
-// Reset disabled warning about qualifiers on return types.
-#if defined(__INTEL_COMPILER)
-# pragma warning (pop)
-#endif
-#if defined(_COMPILER_VERSION)
-# pragma reset woff 3303
-#endif
-
 protected:
   vtkAssemblyNode();
   ~vtkAssemblyNode();

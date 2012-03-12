@@ -167,7 +167,7 @@ public:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested, 
   // and the source generated more than the update extent. 
-  virtual void Crop();
+  virtual void Crop(const int* updateExtent);
 
   //BTX
   // Description:
@@ -201,9 +201,6 @@ protected:
 private:
   void Cleanup();
 
-  // Description:
-  // For legacy compatibility. Do not use.
-  VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
 private:
   vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
   void operator=(const vtkRectilinearGrid&);  // Not implemented.
@@ -253,14 +250,5 @@ inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-inline void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, 
-  vtkIdList& ptIds, vtkIdList& cellIds)
-{
-  this->GetCellNeighbors(cellId, &ptIds, &cellIds);
-}
-#endif
 
 #endif

@@ -24,7 +24,8 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
-#include <vector>
+#include <limits>
+#include <cassert>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
@@ -120,10 +121,13 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
           }
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
+      amrBox.SetDimensionality( childDS->GetDataDimension() );
+      amrBox.SetGridDescription( childDS->GetGridDescription( ) );
       hbox->SetDataSet(level, index, amrBox, childDS); 
       }
     dataSetIndex++;
     }
+  this->SetMetaData( hbox );
   hbox->GenerateVisibilityArrays();
 }
 
@@ -139,6 +143,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
     vtkErrorMacro("Dataset must be a vtkHierarchicalBoxDataSet.");
     return;
     }
+
 
   if (this->GetFileMajorVersion() < 1)
     {
@@ -191,6 +196,16 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         }
       int box[6];
       vtkAMRBox amrBox;
+
+      // Note: the dimensionality is auto-detected by the AMR box now
+      int dimensionality = 3;
+      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
+        {
+        // default.
+        dimensionality = 3;
+        }
+      amrBox.SetDimensionality(dimensionality);
+
       if (datasetXML->GetVectorAttribute("amr_box", 6, box))
         {
         amrBox.SetDimensions(box[0],box[2],box[4],box[1],box[3],box[5]);
@@ -200,13 +215,6 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
         vtkWarningMacro("Missing amr box for level " << level << ",  dataset " << index);
         }
 
-      int dimensionality = 3;
-      if (!datasetXML->GetScalarAttribute("dimensionality", dimensionality))
-        {
-        // default.
-        dimensionality = 3;
-        }
-      amrBox.SetDimensionality(dimensionality);
 
       vtkSmartPointer<vtkUniformGrid> childDS = 0;
       if (this->ShouldReadDataSet(dataSetIndex))
@@ -220,11 +228,15 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
           }
         childDS.TakeReference(vtkUniformGrid::SafeDownCast(ds));
         }
-      hbox->SetDataSet(level, index, amrBox, childDS); 
+      amrBox.SetGridDescription( childDS->GetGridDescription( ) );
+//      hbox->SetDataSet( level, index, childDS );
+      hbox->SetDataSet(level, index, amrBox, childDS);
       dataSetIndex++;
       }
     }
 
+//  vtkAMRUtilities::GenerateMetaData( hbox, NULL );
+  this->SetMetaData( hbox );
   hbox->GenerateVisibilityArrays();
 }
 
@@ -243,4 +255,76 @@ vtkDataSet* vtkXMLHierarchicalBoxDataReader::ReadDataset(
     return ug;
     }
   return ds;
+}
+
+//-----------------------------------------------------------------------------
+void vtkXMLHierarchicalBoxDataReader::GetDataSetOrigin(
+    vtkHierarchicalBoxDataSet *hbox, double origin[3] )
+{
+  assert( "pre: hbox dataset is NULL" && (hbox != NULL) );
+
+  if( (hbox->GetNumberOfLevels()==0) || (hbox->GetNumberOfDataSets(0)==0) )
+    return;
+
+  origin[0] = origin[1] = origin[2] = std::numeric_limits<double>::max();
+
+  // Note, we only need to check at level 0 since, the grids at
+  // level 0 are guaranteed to cover the entire domain. Most datasets
+  // will have a single grid at level 0.
+  for( unsigned int idx=0; idx < hbox->GetNumberOfDataSets(0); ++idx )
+    {
+
+      vtkUniformGrid *gridPtr = hbox->GetDataSet( 0, idx );
+      if( gridPtr != NULL )
+        {
+          double *gridBounds = gridPtr->GetBounds();
+          assert( "Failed when accessing grid bounds!" && (gridBounds!=NULL) );
+
+          if( gridBounds[0] < origin[0] )
+            origin[0] = gridBounds[0];
+          if( gridBounds[2] < origin[1] )
+            origin[1] = gridBounds[2];
+          if( gridBounds[4] < origin[2] )
+            origin[2] = gridBounds[4];
+        }
+
+    } // END for all data-sets at level 0
+}
+
+//-----------------------------------------------------------------------------
+void vtkXMLHierarchicalBoxDataReader::SetMetaData(
+    vtkHierarchicalBoxDataSet *hbox )
+{
+  assert( "pre: hbox dataset is NULL" && (hbox != NULL) );
+
+  if( (hbox->GetNumberOfLevels()==0) || (hbox->GetNumberOfDataSets(0)==0) )
+      return;
+
+  double origin[3];
+  this->GetDataSetOrigin( hbox, origin );
+
+  unsigned int level=0;
+  for( ; level < hbox->GetNumberOfLevels(); ++level )
+    {
+      unsigned int dataIdx=0;
+      for( ; dataIdx < hbox->GetNumberOfDataSets(level); ++dataIdx )
+        {
+
+          vtkUniformGrid *ug = hbox->GetDataSet( level, dataIdx );
+          assert( "pre: NULL dataset encountered" && (ug != NULL) );
+
+          // NOTE: The dimensions for the AMR box are read from the
+          // XML, hence, they are not re-computed here!
+          vtkAMRBox box;
+          hbox->GetMetaData( level, dataIdx, box );
+          box.SetDataSetOrigin( origin );
+          box.SetGridSpacing( ug->GetSpacing() );
+          box.SetBlockId( dataIdx );
+          box.SetLevel( level );
+          box.SetProcessId( 0 ); // Data is serial!
+
+          hbox->SetMetaData( level, dataIdx, box );
+        } // END for all data at the current level
+    } // END for all levels
+
 }

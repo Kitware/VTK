@@ -104,7 +104,6 @@ ${_VTK_OGGTHEORA_SOURCES}
 vtkOpenFOAMReader.cxx
 vtkOutputStream.cxx
 vtkPDBReader.cxx
-vtkPLOT3DReader.cxx
 vtkPLY.cxx
 vtkPLYReader.cxx
 vtkPLYWriter.cxx

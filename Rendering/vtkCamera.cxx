@@ -135,6 +135,8 @@ vtkCamera::vtkCamera()
   this->ComputeViewTransform();
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
+
+  this->FreezeFocalPoint = false;
 }
 
 //----------------------------------------------------------------------------

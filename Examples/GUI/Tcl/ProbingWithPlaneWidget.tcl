@@ -7,17 +7,19 @@ package require vtktesting
 
 # Start by loading some data.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
+
 # The plane widget is used probe the dataset.
 #
 vtkPlaneWidget planeWidget
-    planeWidget SetInput [pl3d GetOutput]
+    planeWidget SetInputData $pl3dOutput
     planeWidget NormalToXAxisOn
     planeWidget SetResolution 20
     planeWidget SetRepresentationToOutline
@@ -26,19 +28,19 @@ vtkPolyData plane
     planeWidget GetPolyData plane
 
 vtkProbeFilter probe
-    probe SetInput plane
-    probe SetSource [pl3d GetOutput]
+    probe SetInputData plane
+    probe SetSourceData $pl3dOutput
 
 vtkPolyDataMapper contourMapper
     contourMapper SetInputConnection [probe GetOutputPort]
-    eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval contourMapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor contourActor
     contourActor SetMapper contourMapper
     contourActor VisibilityOff
 
 # An outline is shown for context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

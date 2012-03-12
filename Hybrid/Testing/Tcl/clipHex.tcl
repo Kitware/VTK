@@ -41,7 +41,7 @@ vtkUnstructuredGrid Grid
 
 #Clip the hex
 vtkClipDataSet clipper
-    clipper SetInput Grid
+    clipper SetInputData Grid
     clipper SetValue 0.5
 
 # build tubes for the triangle edges
@@ -100,11 +100,11 @@ vtkSphereSource Sphere
     Sphere SetPhiResolution 20
     Sphere SetThetaResolution 20
 vtkThresholdPoints ThresholdIn
-    ThresholdIn SetInput Grid
+    ThresholdIn SetInputData Grid
     ThresholdIn ThresholdByUpper .5
 vtkGlyph3D Vertices
     Vertices SetInputConnection [ThresholdIn GetOutputPort]
-    Vertices SetSource [Sphere GetOutput]
+    Vertices SetSourceConnection [Sphere GetOutputPort]
 vtkPolyDataMapper SphereMapper
     SphereMapper SetInputConnection [Vertices GetOutputPort]
     SphereMapper ScalarVisibilityOff

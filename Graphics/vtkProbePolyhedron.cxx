@@ -50,9 +50,9 @@ void vtkProbePolyhedron::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 }
  
 //----------------------------------------------------------------------------
-void vtkProbePolyhedron::SetSource(vtkPolyData *input)
+void vtkProbePolyhedron::SetSourceData(vtkPolyData *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------

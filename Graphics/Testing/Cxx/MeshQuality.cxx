@@ -44,7 +44,7 @@ int MeshQuality( int argc, char* argv[] )
   mr->Update();
 
   ug = mr->GetOutput();
-  iq->SetInput( ug );
+  iq->SetInputConnection( mr->GetOutputPort() );
 
   if ( ug->GetNumberOfCells() )
     {

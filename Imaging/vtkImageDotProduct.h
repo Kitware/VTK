@@ -32,8 +32,8 @@ public:
 
   // Description:
   // Set the two inputs to this filter
-  virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
-  virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
+  virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
+  virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
 
 protected:
   vtkImageDotProduct();

@@ -68,62 +68,51 @@ vtkUnstructuredGrid *vtkPointSetAlgorithm::GetUnstructuredGridOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::SetInput(vtkDataObject* input)
+void vtkPointSetAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkPointSetAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::SetInput(vtkPointSet* input)
+void vtkPointSetAlgorithm::SetInputData(vtkPointSet* input)
 {
-  this->SetInput(0, static_cast<vtkDataObject*>(input));
+  this->SetInputData(0, static_cast<vtkDataObject*>(input));
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::SetInput(int index, vtkPointSet* input)
+void vtkPointSetAlgorithm::SetInputData(int index, vtkPointSet* input)
 {
-  this->SetInput(index, static_cast<vtkDataObject*>(input));
+  this->SetInputData(index, static_cast<vtkDataObject*>(input));
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::AddInput(vtkDataObject* input)
+void vtkPointSetAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkPointSetAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::AddInput(vtkPointSet* input)
+void vtkPointSetAlgorithm::AddInputData(vtkPointSet* input)
 {
-  this->AddInput(0, static_cast<vtkDataObject*>(input));
+  this->AddInputData(0, static_cast<vtkDataObject*>(input));
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSetAlgorithm::AddInput(int index, vtkPointSet* input)
+void vtkPointSetAlgorithm::AddInputData(int index, vtkPointSet* input)
 {
-  this->AddInput(index, static_cast<vtkDataObject*>(input));
+  this->AddInputData(index, static_cast<vtkDataObject*>(input));
 }
 
 //----------------------------------------------------------------------------
@@ -190,7 +179,7 @@ int vtkPointSetAlgorithm::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         output = input->NewInstance();
-        output->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), output);
         output->Delete();
         }
       }

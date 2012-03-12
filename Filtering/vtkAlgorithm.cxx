@@ -39,6 +39,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkTrivialProducer.h"
 
 #include <set>
 #include <vector>
@@ -949,6 +950,12 @@ void vtkAlgorithm::RemoveAllInputs()
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::RemoveAllInputConnections(int port)
+{
+  this->SetInputConnection(port, 0);
+}
+
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->SetInputConnection(0,input);
@@ -1071,6 +1078,57 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 
   // This algorithm has been modified.
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::RemoveInputConnection(int port, int idx)
+{
+  if(!this->InputPortIndexInRange(port, "disconnect"))
+    {
+    return;
+    }
+
+  vtkAlgorithmOutput* input = this->GetInputConnection(port, idx);
+  if (input)
+    {
+    // We need to check if this connection exists multiple times.
+    // If it does, we can't remove this from the consumers list.
+    int numConnections = 0;
+    int numInputConnections = this->GetNumberOfInputConnections(0);
+    for (int i=0; i<numInputConnections; i++)
+      {
+      if (input == this->GetInputConnection(port, i))
+        {
+        numConnections++;
+        }
+      }
+
+    vtkExecutive* consumer = this->GetExecutive();
+    int consumerPort = port;
+
+    // Get the vector of connected input information objects.
+    vtkInformationVector* inputs = consumer->GetInputInformation(consumerPort);
+
+    // Get the producer/consumer pair for the connection.
+    vtkExecutive* producer = input->GetProducer()->GetExecutive();
+    int producerPort = input->GetIndex();
+
+    // Get the information object from the producer of the old input.
+    vtkInformation* oldInfo = producer->GetOutputInformation(producerPort);
+
+    // Only connected once, remove this from inputs consumer list.
+    if (numConnections == 1)
+      {
+      // Remove this consumer from the old input's list of consumers.
+      vtkExecutive::CONSUMERS()->Remove(oldInfo, consumer, consumerPort);
+      }
+
+    // Remove the information object from the list of inputs.
+    inputs->Remove(idx);
+
+    // This algorithm has been modified.
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1254,6 +1312,61 @@ int vtkAlgorithm::GetTotalNumberOfInputConnections()
 }
 
 //----------------------------------------------------------------------------
+vtkInformation* vtkAlgorithm::GetOutputInformation(int port)
+{
+  return this->GetExecutive()->GetOutputInformation(port);
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkAlgorithm::GetInputInformation(int port, int index)
+{
+  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", which has "
+                  << this->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  return this->GetExecutive()->GetInputInformation(port, index);
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithm* vtkAlgorithm::GetInputAlgorithm(int port, int index)
+{
+  vtkAlgorithmOutput* aoutput = this->GetInputConnection(port, index);
+  if (!aoutput)
+    {
+    return 0;
+    }
+  return aoutput->GetProducer();
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkAlgorithm::GetInputExecutive(int port, int index)
+{
+  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", which has "
+                  << this->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  if(vtkInformation* info =
+     this->GetExecutive()->GetInputInformation(port, index))
+    {
+    // Get the executive producing this input.  If there is none, then
+    // it is a NULL input.
+    vtkExecutive* producer;
+    int producerPort;
+    vtkExecutive::PRODUCER()->Get(info,producer,producerPort);
+    return producer;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))
@@ -1283,7 +1396,29 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::Update()
 {
-  this->GetExecutive()->Update();
+  int port = -1;
+  if (this->GetNumberOfOutputPorts())
+    {
+    port = 0;
+    }
+  this->Update(port);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::Update(int port)
+{
+  this->GetExecutive()->Update(port);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::PropagateUpdateExtent()
+{
+  vtkStreamingDemandDrivenPipeline* sddp =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (sddp)
+    {
+    sddp->PropagateUpdateExtent(-1);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1386,7 +1521,8 @@ int vtkAlgorithm::GetReleaseDataFlag()
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
+int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *pinfo,
+                                      vtkDataObject *output)
 {
   if (output == NULL)
     {
@@ -1395,11 +1531,9 @@ int vtkAlgorithm::UpdateExtentIsEmpty(vtkDataObject *output)
 
   // get the pinfo object then call the info signature
   return this->UpdateExtentIsEmpty(
-    output->GetPipelineInformation(),
+    pinfo,
     output->GetInformation()->Get(vtkDataObject::DATA_EXTENT_TYPE()));
 }
-
-
 //----------------------------------------------------------------------------
 int vtkAlgorithm::UpdateExtentIsEmpty(vtkInformation *info, int extentType)
 {
@@ -1480,3 +1614,82 @@ double vtkAlgorithm::ComputePriority()
   return sddp->ComputePriority(0);
 }
 
+//-------------------------------------------------------------
+int vtkAlgorithm::SetUpdateExtentToWholeExtent(
+  int port, int connection)
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    return
+      vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+        this->GetInputInformation(port, connection));
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//-------------------------------------------------------------
+int vtkAlgorithm::SetUpdateExtentToWholeExtent()
+{
+  return this->SetUpdateExtentToWholeExtent(0, 0);
+}
+
+//-------------------------------------------------------------
+void vtkAlgorithm::SetUpdateExtent(int port, int connection,
+                                   int piece,
+                                   int numPieces,
+                                   int ghostLevel)
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(port, connection),
+      piece,
+      numPieces,
+      ghostLevel);
+    }
+}
+
+//-------------------------------------------------------------
+void vtkAlgorithm::SetUpdateExtent(int port,
+                                   int connection,
+                                   int extent[6])
+{
+  if (this->GetInputInformation(port, connection))
+    {
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(port, connection),
+      extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::SetInputDataInternal(int port, vtkDataObject *input)
+{
+  if(input)
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(input);
+    this->SetInputConnection(port, tp->GetOutputPort());
+    tp->Delete();
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(port, 0);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::AddInputDataInternal(int port, vtkDataObject *input)
+{
+  if(input)
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(input);
+    this->AddInputConnection(port, tp->GetOutputPort());
+    tp->Delete();
+    }
+}

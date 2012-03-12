@@ -22,12 +22,13 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   # ====== Structured Grid ======
   # First save out a grid in parallel form.
-  vtkPLOT3DReader reader
+  vtkMultiBlockPLOT3DReader reader
     reader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
+    reader Update
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
-    writer SetInputConnection [reader GetOutputPort]
+    writer SetInputData [[reader GetOutput] GetBlock 0]
     writer SetNumberOfPieces 4
     writer Write
   vtkPDataSetReader pReader
@@ -72,7 +73,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   vtkPDataSetReader pReader2
     pReader2 SetFileName "fractal.pvtk"
- 
+
   vtkContourFilter iso
     iso SetInputConnection [pReader2 GetOutputPort]
     iso SetValue 0 4
@@ -94,7 +95,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     actor2 SetMapper mapper2
     actor2 SetScale 5 5 5
     actor2 SetPosition 6 6 6
-    
+
   # Add the actors to the renderer, set the background and size
   #
   ren1 AddActor actor2
@@ -114,7 +115,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   vtkPDataSetReader pReader3
     pReader3 SetFileName "sphere.pvtk"
- 
+
   vtkPolyDataMapper mapper3
     mapper3 SetInputConnection [pReader3 GetOutputPort]
     mapper3 SetNumberOfPieces 2

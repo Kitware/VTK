@@ -22,6 +22,7 @@
 #include "vtkAffineRepresentation2D.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -96,7 +97,7 @@ int TestAffineWidget( int argc, char *argv[] )
   
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
-  imageActor->SetInput(shifter->GetOutput());
+  imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->InterpolateOn();

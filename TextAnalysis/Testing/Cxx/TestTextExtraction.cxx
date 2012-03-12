@@ -82,7 +82,7 @@ int TestTextExtraction(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     // Make it happen ...
     vtkSmartPointer<vtkAssignMimeType> assign_mime_type = vtkSmartPointer<vtkAssignMimeType>::New();
-    assign_mime_type->SetInputConnection(0, documents->GetProducerPort());
+    assign_mime_type->SetInputData(0, documents);
 
     vtkSmartPointer<vtkTextExtraction> text_extraction = vtkSmartPointer<vtkTextExtraction>::New();
     text_extraction->SetInputConnection(0, assign_mime_type->GetOutputPort(0));

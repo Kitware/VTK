@@ -45,6 +45,7 @@
 #include "vtkTexture.h"
 #include "vtkImageActor.h"
 #include "vtkCamera.h"
+#include "vtkImageMapper3D.h"
 
 #include <vtksys/ios/sstream>
 
@@ -89,7 +90,8 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->LookupTable        = 0;
   this->ColorMap           = vtkImageMapToColors::New();
   this->Texture            = vtkTexture::New();
-  this->Texture->SetInput(this->ColorMap->GetOutput());
+  this->Texture->SetInputConnection(
+    this->ColorMap->GetOutputPort());
   this->Texture->SetInterpolate(1);
   this->TexturePlaneActor  = vtkActor::New();
 
@@ -100,8 +102,8 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->ColorMap->PassAlphaToOutputOn();
 
   vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
-  texturePlaneMapper->SetInput(
-    vtkPolyData::SafeDownCast(this->PlaneSource->GetOutput()));
+  texturePlaneMapper->SetInputConnection(
+    this->PlaneSource->GetOutputPort());
   texturePlaneMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   this->Texture->SetQualityTo32Bit();
@@ -117,7 +119,8 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
 
   this->UseImageActor = false;
   this->ImageActor = vtkImageActor::New();
-  this->ImageActor->SetInput(this->ColorMap->GetOutput());
+  this->ImageActor->GetMapper()->SetInputConnection(
+    this->ColorMap->GetOutputPort());
 
   // Represent the text: annotation for cursor position and W/L
 
@@ -219,7 +222,7 @@ void vtkResliceCursorRepresentation::SetManipulationMode( int m )
 //----------------------------------------------------------------------
 void vtkResliceCursorRepresentation::BuildRepresentation()
 {
-  this->Reslice->SetInput(this->GetResliceCursor()->GetImage());
+  this->Reslice->SetInputData(this->GetResliceCursor()->GetImage());
 
   this->TexturePlaneActor->SetVisibility(
       this->GetResliceCursor()->GetImage() ?
@@ -248,7 +251,7 @@ void vtkResliceCursorRepresentation::InitializeReslicePlane()
     return;
     }
 
-  this->GetResliceCursor()->GetImage()->UpdateInformation();
+  // this->GetResliceCursor()->GetImage()->UpdateInformation();
 
   // Initialize the reslice plane origins. Offset should be zero within
   // this function here.
@@ -401,13 +404,13 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 
   // Calculate appropriate pixel spacing for the reslicing
   //
-  this->GetResliceCursor()->GetImage()->UpdateInformation();
+  // this->GetResliceCursor()->UpdateInformation();
   double spacing[3];
   this->GetResliceCursor()->GetImage()->GetSpacing(spacing);
   double origin[3];
   this->GetResliceCursor()->GetImage()->GetOrigin(origin);
   int extent[6];
-  this->GetResliceCursor()->GetImage()->GetWholeExtent(extent);
+  this->GetResliceCursor()->GetImage()->GetExtent(extent);
 
   for (int i = 0; i < 3; i++)
     {
@@ -587,7 +590,7 @@ void vtkResliceCursorRepresentation
       GetScalarRange( range );
     reslice->SetBackgroundLevel(range[0]);
       
-    this->ColorMap->SetInput(reslice->GetOutput());
+    this->ColorMap->SetInputConnection(reslice->GetOutputPort());
     reslice->TransformInputSamplingOff();
     reslice->AutoCropOutputOn();
     reslice->SetResliceAxes(this->ResliceAxes);

@@ -361,8 +361,6 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         {
         this->DataScalarType = NrrdType2VTKType(description);
         if (this->DataScalarType == VTK_VOID) return 0;
-        // The superclass does this, but I'm not sure it's necessary.
-        this->GetOutput()->SetScalarType(this->DataScalarType);
         }
       else if (field == "encoding")
         {

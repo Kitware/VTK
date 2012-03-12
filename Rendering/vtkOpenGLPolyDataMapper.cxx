@@ -123,7 +123,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     if (!this->Static)
       {
-      input->Update();
+      this->GetInputAlgorithm()->Update();
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
@@ -176,7 +176,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
       }
-    this->InternalColorTexture->SetInput(this->ColorTextureMap);
+    this->InternalColorTexture->SetInputData(this->ColorTextureMap);
     // Keep color from interacting with texture.
     float info[4];
     info[0] = info[1] = info[2] = info[3] = 1.0;

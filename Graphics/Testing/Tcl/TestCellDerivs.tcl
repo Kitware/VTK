@@ -42,7 +42,7 @@ vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid SetPoints voxelPoints
 
 vtkDataSetMapper aVoxelMapper
-aVoxelMapper SetInput aVoxelGrid
+aVoxelMapper SetInputData aVoxelGrid
 
 vtkActor aVoxelActor
   aVoxelActor SetMapper aVoxelMapper
@@ -60,7 +60,7 @@ vtkPoints hexahedronPoints
   hexahedronPoints InsertPoint 5 1 0 1
   hexahedronPoints InsertPoint 6 1 1 1
   hexahedronPoints InsertPoint 7 0 1 1
-  
+
 vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 0 0
   [aHexahedron GetPointIds] SetId 1 1
@@ -70,15 +70,15 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 5 5
   [aHexahedron GetPointIds] SetId 6 6
   [aHexahedron GetPointIds] SetId 7 7
-  
-  
+
+
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
   aHexahedronGrid InsertNextCell [aHexahedron GetCellType] [aHexahedron GetPointIds]
   aHexahedronGrid SetPoints hexahedronPoints
 
 vtkDataSetMapper aHexahedronMapper
-  aHexahedronMapper SetInput aHexahedronGrid
+  aHexahedronMapper SetInputData aHexahedronGrid
 
 vtkActor aHexahedronActor
   aHexahedronActor SetMapper aHexahedronMapper
@@ -107,7 +107,7 @@ vtkUnstructuredGrid aTetraGrid
   aTetraGrid SetPoints tetraPoints
 
 vtkDataSetMapper aTetraMapper
-  aTetraMapper SetInput aTetraGrid
+  aTetraMapper SetInputData aTetraGrid
 
 vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
@@ -140,7 +140,7 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid SetPoints wedgePoints
 
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
 
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
@@ -171,7 +171,7 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid SetPoints pyramidPoints
 
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
 
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper
@@ -200,7 +200,7 @@ vtkUnstructuredGrid aPixelGrid
   aPixelGrid SetPoints pixelPoints
 
 vtkDataSetMapper aPixelMapper
-  aPixelMapper SetInput aPixelGrid
+  aPixelMapper SetInputData aPixelGrid
 
 vtkActor aPixelActor
   aPixelActor SetMapper aPixelMapper
@@ -229,7 +229,7 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid SetPoints quadPoints
 
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
 
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
@@ -247,9 +247,9 @@ vtkPoints trianglePoints
 vtkFloatArray triangleTCoords
   triangleTCoords SetNumberOfComponents 2
   triangleTCoords SetNumberOfTuples 3
-  triangleTCoords InsertTuple2 0 1 1 
-  triangleTCoords InsertTuple2 1 2 2 
-  triangleTCoords InsertTuple2 2 3 3 
+  triangleTCoords InsertTuple2 0 1 1
+  triangleTCoords InsertTuple2 1 2 2
+  triangleTCoords InsertTuple2 2 3 3
 
 vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 0 0
@@ -264,7 +264,7 @@ vtkUnstructuredGrid aTriangleGrid
   [aTriangleGrid GetPointData] SetTCoords triangleTCoords
 
 vtkDataSetMapper aTriangleMapper
-  aTriangleMapper SetInput aTriangleGrid
+  aTriangleMapper SetInputData aTriangleGrid
 
 vtkActor aTriangleActor
   aTriangleActor SetMapper aTriangleMapper
@@ -294,7 +294,7 @@ vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid SetPoints polygonPoints
 
 vtkDataSetMapper aPolygonMapper
-  aPolygonMapper SetInput aPolygonGrid
+  aPolygonMapper SetInputData aPolygonGrid
 
 vtkActor aPolygonActor
   aPolygonActor SetMapper aPolygonMapper
@@ -314,11 +314,11 @@ vtkPoints triangleStripPoints
 vtkFloatArray triangleStripTCoords
   triangleStripTCoords SetNumberOfComponents 2
   triangleStripTCoords SetNumberOfTuples 3
-  triangleStripTCoords InsertTuple2 0 1 1 
-  triangleStripTCoords InsertTuple2 1 2 2 
-  triangleStripTCoords InsertTuple2 2 3 3 
-  triangleStripTCoords InsertTuple2 3 4 4 
-  triangleStripTCoords InsertTuple2 4 5 5 
+  triangleStripTCoords InsertTuple2 0 1 1
+  triangleStripTCoords InsertTuple2 1 2 2
+  triangleStripTCoords InsertTuple2 2 3 3
+  triangleStripTCoords InsertTuple2 3 4 4
+  triangleStripTCoords InsertTuple2 4 5 5
 
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5
@@ -336,7 +336,7 @@ vtkUnstructuredGrid aTriangleStripGrid
   [aTriangleStripGrid GetPointData] SetTCoords triangleStripTCoords
 
 vtkDataSetMapper aTriangleStripMapper
-  aTriangleStripMapper SetInput aTriangleStripGrid
+  aTriangleStripMapper SetInputData aTriangleStripGrid
 
 vtkActor aTriangleStripActor
   aTriangleStripActor SetMapper aTriangleStripMapper
@@ -361,7 +361,7 @@ vtkUnstructuredGrid aLineGrid
   aLineGrid SetPoints linePoints
 
 vtkDataSetMapper aLineMapper
-  aLineMapper SetInput aLineGrid
+  aLineMapper SetInputData aLineGrid
 
 vtkActor aLineActor
   aLineActor SetMapper aLineMapper
@@ -389,7 +389,7 @@ vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid SetPoints polyLinePoints
 
 vtkDataSetMapper aPolyLineMapper
-  aPolyLineMapper SetInput aPolyLineGrid
+  aPolyLineMapper SetInputData aPolyLineGrid
 
 vtkActor aPolyLineActor
   aPolyLineActor SetMapper aPolyLineMapper
@@ -412,7 +412,7 @@ vtkUnstructuredGrid aVertexGrid
   aVertexGrid SetPoints vertexPoints
 
 vtkDataSetMapper aVertexMapper
-  aVertexMapper SetInput aVertexGrid
+  aVertexMapper SetInputData aVertexGrid
 
 vtkActor aVertexActor
   aVertexActor SetMapper aVertexMapper
@@ -440,7 +440,7 @@ vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid SetPoints polyVertexPoints
 
 vtkDataSetMapper aPolyVertexMapper
-  aPolyVertexMapper SetInput aPolyVertexGrid
+  aPolyVertexMapper SetInputData aPolyVertexGrid
 
 vtkActor aPolyVertexActor
   aPolyVertexActor SetMapper aPolyVertexMapper
@@ -452,16 +452,16 @@ vtkActor aPolyVertexActor
 
 vtkPoints pentaPoints
   pentaPoints SetNumberOfPoints 10
-  pentaPoints InsertPoint 0 0.25 0.0 0.0  
-  pentaPoints InsertPoint 1 0.75 0.0 0.0 
-  pentaPoints InsertPoint 2 1.0  0.5 0.0  
-  pentaPoints InsertPoint 3 0.5  1.0 0.0 
-  pentaPoints InsertPoint 4 0.0  0.5 0.0  
-  pentaPoints InsertPoint 5 0.25 0.0 1.0  
-  pentaPoints InsertPoint 6 0.75 0.0 1.0  
-  pentaPoints InsertPoint 7 1.0  0.5 1.0  
-  pentaPoints InsertPoint 8 0.5  1.0 1.0 
-  pentaPoints InsertPoint 9 0.0  0.5 1.0 
+  pentaPoints InsertPoint 0 0.25 0.0 0.0
+  pentaPoints InsertPoint 1 0.75 0.0 0.0
+  pentaPoints InsertPoint 2 1.0  0.5 0.0
+  pentaPoints InsertPoint 3 0.5  1.0 0.0
+  pentaPoints InsertPoint 4 0.0  0.5 0.0
+  pentaPoints InsertPoint 5 0.25 0.0 1.0
+  pentaPoints InsertPoint 6 0.75 0.0 1.0
+  pentaPoints InsertPoint 7 1.0  0.5 1.0
+  pentaPoints InsertPoint 8 0.5  1.0 1.0
+  pentaPoints InsertPoint 9 0.0  0.5 1.0
 
 vtkPentagonalPrism aPenta
   [aPenta GetPointIds] SetId 0 0
@@ -482,7 +482,7 @@ vtkUnstructuredGrid aPentaGrid
   aPentaGrid SetPoints pentaPoints
 
 vtkDataSetMapper aPentaMapper
-  aPentaMapper SetInput aPentaGrid
+  aPentaMapper SetInputData aPentaGrid
 
 vtkActor aPentaActor
   aPentaActor SetMapper aPentaMapper
@@ -493,19 +493,19 @@ vtkActor aPentaActor
 
 vtkPoints hexaPoints
   hexaPoints SetNumberOfPoints 12
-  hexaPoints InsertPoint 0 0.0 0.0 0.0  
-  hexaPoints InsertPoint 1 0.5 0.0 0.0 
-  hexaPoints InsertPoint 2 1.0 0.5 0.0  
-  hexaPoints InsertPoint 3 1.0 1.0 0.0 
-  hexaPoints InsertPoint 4 0.5 1.0 0.0  
-  hexaPoints InsertPoint 5 0.0 0.5 0.0 
-  hexaPoints InsertPoint 6 0.0 0.0 1.0  
-  hexaPoints InsertPoint 7 0.5 0.0 1.0 
-  hexaPoints InsertPoint 8 1.0 0.5 1.0  
-  hexaPoints InsertPoint 9 1.0 1.0 1.0 
-  hexaPoints InsertPoint 10 0.5 1.0 1.0  
+  hexaPoints InsertPoint 0 0.0 0.0 0.0
+  hexaPoints InsertPoint 1 0.5 0.0 0.0
+  hexaPoints InsertPoint 2 1.0 0.5 0.0
+  hexaPoints InsertPoint 3 1.0 1.0 0.0
+  hexaPoints InsertPoint 4 0.5 1.0 0.0
+  hexaPoints InsertPoint 5 0.0 0.5 0.0
+  hexaPoints InsertPoint 6 0.0 0.0 1.0
+  hexaPoints InsertPoint 7 0.5 0.0 1.0
+  hexaPoints InsertPoint 8 1.0 0.5 1.0
+  hexaPoints InsertPoint 9 1.0 1.0 1.0
+  hexaPoints InsertPoint 10 0.5 1.0 1.0
   hexaPoints InsertPoint 11 0.0 0.5 1.0
-                         
+
 vtkHexagonalPrism aHexa
   [aHexa GetPointIds] SetId 0 0
   [aHexa GetPointIds] SetId 1 1
@@ -527,7 +527,7 @@ vtkUnstructuredGrid aHexaGrid
   aHexaGrid SetPoints hexaPoints
 
 vtkDataSetMapper aHexaMapper
-  aHexaMapper SetInput aHexaGrid
+  aHexaMapper SetInputData aHexaGrid
 
 vtkActor aHexaActor
   aHexaActor SetMapper aHexaMapper
@@ -563,7 +563,7 @@ vtkSphereSource ball
 foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra aPixel aQuad aTriangle aPolygon \
 aTriangleStrip aLine aPolyLine aVertex aPolyVertex aPenta aHexa" {
   vtkFloatArray ${cell}Scalars
-   set N [${cell}Grid GetNumberOfPoints  ]   
+   set N [${cell}Grid GetNumberOfPoints  ]
   vtkFloatArray ${cell}Scalar
    ${cell}Scalar SetNumberOfTuples $N
    ${cell}Scalar SetNumberOfComponents 1
@@ -571,8 +571,8 @@ aTriangleStrip aLine aPolyLine aVertex aPolyVertex aPenta aHexa" {
    ${cell}Scalar SetValue $i 0}
    ${cell}Scalar SetValue 0 4
 
-  [${cell}Grid GetPointData] SetScalars ${cell}Scalar 
- 
+  [${cell}Grid GetPointData] SetScalars ${cell}Scalar
+
    }
 
 # write to the temp directory if possible, otherwise use .
@@ -586,7 +586,7 @@ foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra  aQuad aTriangle aTriang
 aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
 
   vtkCellDerivatives ${cell}derivs
-     ${cell}derivs SetInput ${cell}Grid 
+     ${cell}derivs SetInputData ${cell}Grid
      ${cell}derivs SetVectorModeToComputeGradient
 
  set FileName $dir
@@ -601,7 +601,7 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
    vtkUnstructuredGridWriter ${cell}Writer
      ${cell}Writer SetInputConnection [${cell}derivs GetOutputPort]
      ${cell}Writer SetFileName $FileName
-     ${cell}Writer Write   
+     ${cell}Writer Write
    # delete the file
    file delete -force $FileName
    }
@@ -609,7 +609,7 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
   vtkCellCenters ${cell}Centers
     ${cell}Centers SetInputConnection [${cell}derivs GetOutputPort]
     ${cell}Centers VertexCellsOn
-    
+
   vtkHedgeHog ${cell}hog
     ${cell}hog SetInputConnection [${cell}Centers GetOutputPort]
 
@@ -623,7 +623,7 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
 
   vtkGlyph3D ${cell}Glyph3D
     ${cell}Glyph3D SetInputConnection [${cell}Centers GetOutputPort]
-    ${cell}Glyph3D SetSource [ball GetOutput]
+    ${cell}Glyph3D SetSourceData [ball GetOutput]
   vtkPolyDataMapper ${cell}CentersMapper
     ${cell}CentersMapper SetInputConnection [${cell}Glyph3D GetOutputPort]
   vtkActor ${cell}CentersActor
@@ -647,7 +647,6 @@ renWin Render
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 wm withdraw .
-
 
 
 

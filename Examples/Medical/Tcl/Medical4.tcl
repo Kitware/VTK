@@ -33,7 +33,7 @@ vtkVolume16Reader v16
 vtkVolumeRayCastCompositeFunction rayCastFunction
 
 vtkVolumeRayCastMapper volumeMapper
-  volumeMapper SetInput [v16 GetOutput]
+  volumeMapper SetInputConnection [v16 GetOutputPort]
   volumeMapper SetVolumeRayCastFunction rayCastFunction
 
 # The color transfer function maps voxel intensities to colors.

@@ -178,8 +178,8 @@ int vtkConvertSelection::ConvertToIndexSelection(
   vtkSmartPointer<vtkExtractSelection> extract =
     vtkSmartPointer<vtkExtractSelection>::New();
   extract->PreserveTopologyOn();
-  extract->SetInput(0, data);
-  extract->SetInput(1, tempInput);
+  extract->SetInputData(0, data);
+  extract->SetInputData(1, tempInput);
   extract->Update();
   vtkDataSet* const extracted = vtkDataSet::SafeDownCast(extract->GetOutput());
   
@@ -1059,8 +1059,8 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   dataCopy->ShallowCopy(data);
   VTK_CREATE(vtkSelection, inputCopy);
   inputCopy->ShallowCopy(input);
-  convert->SetInput(0, inputCopy);
-  convert->SetInput(1, dataCopy);
+  convert->SetInputData(0, inputCopy);
+  convert->SetInputData(1, dataCopy);
   convert->SetOutputType(type);
   convert->SetArrayNames(arrayNames);
   convert->SetInputFieldType(inputFieldType);

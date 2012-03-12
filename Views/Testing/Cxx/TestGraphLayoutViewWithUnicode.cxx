@@ -1155,7 +1155,7 @@ int TestGraphLayoutViewWithUnicode(int argc, char* argv[])
   t->GetVertexData()->AddArray(vlabel);
 
   VTK_CREATE(vtkStringToNumeric, numeric);
-  numeric->SetInput(t);
+  numeric->SetInputData(t);
   
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);

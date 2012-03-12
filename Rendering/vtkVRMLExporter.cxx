@@ -287,7 +287,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   if (inputDO->IsA("vtkCompositeDataSet"))
     {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInput(inputDO);
+    gf->SetInputConnection(
+      anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     gf->Delete();
@@ -295,18 +296,20 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   else if (inputDO->GetDataObjectType() != VTK_POLY_DATA)
     {
     vtkGeometryFilter *gf = vtkGeometryFilter::New();
-    gf->SetInput(inputDO);
+    gf->SetInputConnection(
+      anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     gf->Delete();
     }
   else
     {
+    anActor->GetMapper()->Update();
     pd = static_cast<vtkPolyData *>(inputDO);
     }
 
   pm = vtkPolyDataMapper::New();
-  pm->SetInput(pd);
+  pm->SetInputData(pd);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
@@ -568,7 +571,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
       vtkErrorMacro(<< "texture has no input!\n");
       return;
       }
-    aTexture->GetInput()->Update();
+    aTexture->GetInputAlgorithm()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = aTexture->GetInput()->GetPointData()->GetScalars();
                 

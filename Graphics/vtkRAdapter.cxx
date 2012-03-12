@@ -194,15 +194,16 @@ SEXP vtkRAdapter::VTKDataArrayToR(vtkDataArray* da)
 vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
 {
 
-  int i;
-  int ndim;
+  vtkArray::SizeT i;
+  vtkArray::DimensionT j;
+  vtkArray::DimensionT ndim;
   SEXP dims;
   vtkArrayExtents extents;
   vtkTypedArray<double>* da;
   da = vtkTypedArray<double>::SafeDownCast(vtkArray::CreateArray(vtkArray::DENSE, VTK_DOUBLE));
 
-  dims = getAttrib(variable, R_DimSymbol); 
-  ndim = length(dims);
+  dims = getAttrib(variable, R_DimSymbol);
+  ndim = static_cast<vtkArray::DimensionT>(length(dims));
 
   if (!isMatrix(variable)&&!isArray(variable)&&isVector(variable))
     {
@@ -213,9 +214,9 @@ vtkArray* vtkRAdapter::RToVTKArray(SEXP variable)
 
   if (isMatrix(variable)||isArray(variable))
     {
-    for(i=0;i< ndim;i++)
+    for(j=0;j<ndim;j++)
       {
-      extents[i] = vtkArrayRange(0,INTEGER(dims)[i]);
+      extents[j] = vtkArrayRange(0,INTEGER(dims)[j]);
       }
     }
   else
@@ -257,15 +258,16 @@ SEXP vtkRAdapter::VTKArrayToR(vtkArray* da)
 
   SEXP a;
   SEXP dim;
-  int i;
+  vtkArray::SizeT i;
+  vtkArray::DimensionT j;
   vtkArrayCoordinates coords;
 
   PROTECT(dim = Rf_allocVector(INTSXP, da->GetDimensions()));
 
   assert(da->GetExtents().ZeroBased());
-  for(i=0;i<da->GetDimensions();i++)
+  for(j=0;j<da->GetDimensions();j++)
     {
-    INTEGER(dim)[i] = da->GetExtents()[i].GetSize();
+    INTEGER(dim)[j] = da->GetExtents()[j].GetSize();
     }
 
   PROTECT(a = Rf_allocArray(REALSXP, dim));

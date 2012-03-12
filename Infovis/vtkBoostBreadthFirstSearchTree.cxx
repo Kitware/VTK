@@ -49,11 +49,17 @@ vtkStandardNewMacro(vtkBoostBreadthFirstSearchTree);
 
 #if BOOST_VERSION >= 104800      // Boost 1.48.x
 namespace {
-  vtkIdType unwrap_edge_id(vtkEdgeType const &e) {
+  vtkIdType unwrap_edge_id(vtkEdgeType const &e)
+  {
     return e.Id;
   }
-  vtkIdType unwrap_edge_id(boost::detail::reverse_graph_edge_descriptor<vtkEdgeType> const &e) {
+  vtkIdType unwrap_edge_id(boost::detail::reverse_graph_edge_descriptor<vtkEdgeType> const &e)
+  {
+# if BOOST_VERSION == 104800
     return e.underlying_desc.Id;
+# else
+    return e.underlying_descx.Id;
+# endif
   }
 }
 #endif

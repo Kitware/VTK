@@ -51,7 +51,7 @@ public:
   
   // Description:
   // Set/Get the input to the viewer.
-  void SetInput(vtkImageData *in) {this->ImageMapper->SetInput(in);};
+  void SetInputData(vtkImageData *in) {this->ImageMapper->SetInputData(in);};
   vtkImageData *GetInput() { return this->ImageMapper->GetInput();};
   virtual void SetInputConnection(vtkAlgorithmOutput* input) {
     this->ImageMapper->SetInputConnection(input);};
@@ -122,6 +122,9 @@ protected:
   int FirstRender;
   vtkRenderWindowInteractor *Interactor;
   vtkInteractorStyleImage *InteractorStyle;
+
+  friend class vtkImageViewerCallback;
+  vtkAlgorithm* GetInputAlgorithm();
 
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.

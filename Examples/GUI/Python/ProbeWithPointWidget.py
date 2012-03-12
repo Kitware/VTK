@@ -9,34 +9,35 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Start by loading some data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # The plane widget is used probe the dataset.
 pointWidget = vtk.vtkPointWidget()
-pointWidget.SetInput(pl3d.GetOutput())
+pointWidget.SetInputData(pl3d_output)
 pointWidget.AllOff()
 pointWidget.PlaceWidget()
 point = vtk.vtkPolyData()
 pointWidget.GetPolyData(point)
 
 probe = vtk.vtkProbeFilter()
-probe.SetInput(point)
-probe.SetSource(pl3d.GetOutput())
+probe.SetInputData(point)
+probe.SetSourceData(pl3d_output)
 
 # create glyph
 cone = vtk.vtkConeSource()
 cone.SetResolution(16)
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(probe.GetOutputPort())
-glyph.SetSource(cone.GetOutput())
+glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseVector()
 glyph.SetScaleModeToDataScalingOff()
-glyph.SetScaleFactor(pl3d.GetOutput().GetLength()*0.1)
+glyph.SetScaleFactor(pl3d_output.GetLength()*0.1)
 glyphMapper = vtk.vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyph.GetOutputPort())
 glyphActor = vtk.vtkActor()
@@ -45,7 +46,7 @@ glyphActor.VisibilityOff()
 
 # An outline is shown for context.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

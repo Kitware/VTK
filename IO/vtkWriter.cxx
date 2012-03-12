@@ -40,22 +40,14 @@ vtkWriter::~vtkWriter()
 {
 }
 
-void vtkWriter::SetInput(vtkDataObject *input)
+void vtkWriter::SetInputData(vtkDataObject *input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
-void vtkWriter::SetInput(int index, vtkDataObject *input)
+void vtkWriter::SetInputData(int index, vtkDataObject *input)
 {
-  if (input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input remove the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 vtkDataObject *vtkWriter::GetInput()
@@ -122,9 +114,9 @@ int vtkWriter::RequestData(
 
   for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
     {
-    if (this->GetInput(idx) != NULL)
+    if (this->GetInputExecutive(idx, 0) != NULL)
       {
-      this->GetInput(idx)->Update();
+      this->GetInputExecutive(idx, 0)->Update();
       }
     }
 
@@ -150,15 +142,6 @@ int vtkWriter::RequestData(
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
   this->WriteData();
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
-
-  // Release any inputs if marked for release
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-    {
-    if (this->GetInput(idx) && this->GetInput(idx)->ShouldIReleaseData())
-      {
-      this->GetInput(idx)->ReleaseData();
-      }
-    }
 
   this->WriteTime.Modified();
 

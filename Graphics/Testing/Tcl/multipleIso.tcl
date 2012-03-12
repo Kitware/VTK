@@ -12,19 +12,20 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
-set range [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
+    set output [[pl3d GetOutput] GetBlock 0]
+set range [[[$output GetPointData] GetScalars] GetRange]
 set min [lindex $range 0]
 set max [lindex $range 1]
 set value [expr ($min + $max) / 2.0]
 
 vtkContourFilter cf
-    cf SetInputConnection [pl3d GetOutputPort]
+    cf SetInputData $output
     cf SetValue 0 $value
     cf UseScalarTreeOn
 
@@ -40,9 +41,9 @@ for {set i 1} { $i <= $numberOfContours } {incr i} {
     pd$i CopyStructure [cf GetOutput]
     [pd$i GetPointData] DeepCopy [[cf GetOutput] GetPointData]
   vtkPolyDataMapper mapper$i
-    mapper$i SetInput pd$i
+    mapper$i SetInputData pd$i
     eval mapper$i SetScalarRange \
-      [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
+      [[[$output GetPointData] GetScalars] GetRange]
   vtkActor actor$i
     actor$i AddPosition 0 [expr $i * 12] 0
   actor$i SetMapper mapper$i

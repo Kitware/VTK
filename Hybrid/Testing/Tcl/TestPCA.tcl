@@ -11,6 +11,7 @@ package require vtkinteraction
 vtkSphereSource sphere
   sphere SetPhiResolution 36
   sphere SetThetaResolution 36
+  sphere Update
 
 # make two copies of the shape and distort them a little
 
@@ -25,10 +26,12 @@ vtkTransform transform2
 vtkTransformPolyDataFilter transformer1
     transformer1 SetInputConnection [sphere GetOutputPort]
     transformer1 SetTransform transform1
+    transformer1 Update
 
 vtkTransformPolyDataFilter transformer2
     transformer2 SetInputConnection [sphere GetOutputPort]
     transformer2 SetTransform transform2
+    transformer2 Update
 
 #------------------------------------------------------------------
 # map these three shapes into the first renderer
@@ -55,27 +58,30 @@ vtkActor Actor1c
 # align the shapes using Procrustes (using SetModeToRigidBody)
 # and map the aligned shapes into the second renderer
 #------------------------------------------------------------------
+vtkMultiBlockDataGroupFilter group
+    group AddInputConnection [sphere GetOutputPort]
+    group AddInputConnection [transformer1 GetOutputPort]
+    group AddInputConnection [transformer2 GetOutputPort]
+
 vtkProcrustesAlignmentFilter procrustes
-    procrustes SetNumberOfInputs 3
-    procrustes SetInput 0 [sphere GetOutput]
-    procrustes SetInput 1 [transformer1 GetOutput]
-    procrustes SetInput 2 [transformer2 GetOutput]
+    procrustes SetInputConnection [group GetOutputPort]
     [procrustes GetLandmarkTransform] SetModeToRigidBody
+    procrustes Update
 
 vtkPolyDataMapper map2a
-    map2a SetInput [procrustes GetOutput 0]
+    map2a SetInputData [[procrustes GetOutput] GetBlock 0]
 vtkActor Actor2a
     Actor2a SetMapper map2a
     [Actor2a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map2b
-    map2b SetInput [procrustes GetOutput 1]
+    map2b SetInputData [[procrustes GetOutput] GetBlock 1]
 vtkActor Actor2b
     Actor2b SetMapper map2b
     [Actor2b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map2c
-    map2c SetInput [procrustes GetOutput 2]
+    map2c SetInputData [[procrustes GetOutput] GetBlock 2]
 vtkActor Actor2c
     Actor2c SetMapper map2c
     [Actor2c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
@@ -84,10 +90,7 @@ vtkActor Actor2c
 # pass the output of Procrustes to vtkPCAAnalysisFilter
 #------------------------------------------------------------------
 vtkPCAAnalysisFilter pca
-    pca SetNumberOfInputs 3
-    pca SetInput 0 [procrustes GetOutput 0]
-    pca SetInput 1 [procrustes GetOutput 1]
-    pca SetInput 2 [procrustes GetOutput 2]
+    pca SetInputConnection [procrustes GetOutputPort]
 
 pca Update
 # we need to call Update because GetParameterisedShape is not
@@ -106,7 +109,7 @@ vtkPolyData shapea
   shapea DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params shapea
 vtkPolyDataNormals normalsa
-  normalsa SetInput shapea
+  normalsa SetInputData shapea
 vtkPolyDataMapper map3a
     map3a SetInputConnection [normalsa GetOutputPort]
 vtkActor Actor3a
@@ -118,7 +121,7 @@ vtkPolyData shapeb
   shapeb DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params shapeb
 vtkPolyDataNormals normalsb
-  normalsb SetInput shapeb
+  normalsb SetInputData shapeb
 vtkPolyDataMapper map3b
     map3b SetInputConnection [normalsb GetOutputPort]
 vtkActor Actor3b
@@ -130,7 +133,7 @@ vtkPolyData shapec
   shapec DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params shapec
 vtkPolyDataNormals normalsc
-  normalsc SetInput shapec
+  normalsc SetInputData shapec
 vtkPolyDataMapper map3c
     map3c SetInputConnection [normalsc GetOutputPort]
 vtkActor Actor3c
@@ -149,7 +152,7 @@ vtkPolyData shape4a
   shape4a DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params4 shape4a
 vtkPolyDataNormals normals4a
-  normals4a SetInput shape4a
+  normals4a SetInputData shape4a
 vtkPolyDataMapper map4a
     map4a SetInputConnection [normals4a GetOutputPort]
 vtkActor Actor4a
@@ -161,7 +164,7 @@ vtkPolyData shape4b
   shape4b DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params4 shape4b
 vtkPolyDataNormals normals4b
-  normals4b SetInput shape4b
+  normals4b SetInputData shape4b
 vtkPolyDataMapper map4b
     map4b SetInputConnection [normals4b GetOutputPort]
 vtkActor Actor4b
@@ -173,7 +176,7 @@ vtkPolyData shape4c
   shape4c DeepCopy [sphere GetOutput]
 pca GetParameterisedShape params4 shape4c
 vtkPolyDataNormals normals4c
-  normals4c SetInput shape4c
+  normals4c SetInputData shape4c
 vtkPolyDataMapper map4c
     map4c SetInputConnection [normals4c GetOutputPort]
 vtkActor Actor4c
@@ -257,5 +260,3 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-

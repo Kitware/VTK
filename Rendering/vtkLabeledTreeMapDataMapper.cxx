@@ -334,7 +334,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  input->Update();
+  this->GetInputAlgorithm()->Update();
 
   // Input might have changed
   input = this->GetInputTree();

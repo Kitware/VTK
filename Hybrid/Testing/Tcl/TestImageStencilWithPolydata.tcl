@@ -28,7 +28,7 @@ dataToStencil SetOutputOrigin 0.0 0.0 0.0
 
 vtkImageStencil stencil
 stencil SetInputConnection [reader GetOutputPort]
-stencil SetStencil [dataToStencil GetOutput]
+stencil SetStencilConnection [dataToStencil GetOutputPort]
 stencil ReverseStencilOn
 stencil SetBackgroundValue 500
 
@@ -56,7 +56,7 @@ dataToStencil2 SetOutputOrigin 0.0 0.0 0.0
 
 vtkImageStencil stencil2
 stencil2 SetInputConnection [reader2 GetOutputPort]
-stencil2 SetStencil [dataToStencil2 GetOutput]
+stencil2 SetStencilConnection [dataToStencil2 GetOutputPort]
 stencil2 SetBackgroundValue 500
 
 vtkImageAppend imageAppend

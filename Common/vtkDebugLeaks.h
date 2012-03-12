@@ -55,12 +55,6 @@ public:
   static int PrintCurrentLeaks();
 
   // Description:
-  // @deprecated Turn prompt at exit on/off (this setting is deprecated 
-  // and will be ignored).
-  VTK_LEGACY(static void PromptUserOn());
-  VTK_LEGACY(static void PromptUserOff());
-
-  // Description:
   // Get/Set flag for exiting with an error when leaks are present.
   // Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
   static int GetExitError();

@@ -38,8 +38,10 @@ public:
   // int GetNumberOfStreamDivisions();
   vtkSetMacro(NumberOfStreamDivisions,int);
   vtkGetMacro(NumberOfStreamDivisions,int);
+ 
+  virtual void Update() { this->Superclass::Update(); };
+  virtual void Update(int port) { this->vtkAlgorithm::Update(port);};
   
-  virtual void Update() { this->vtkAlgorithm::Update();};  
   virtual void UpdateWholeExtent() { 
     this->vtkAlgorithm::UpdateWholeExtent();};  
   
