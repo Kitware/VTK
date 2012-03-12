@@ -43,6 +43,7 @@ vtkUniformGridPartitioner::~vtkUniformGridPartitioner()
 void vtkUniformGridPartitioner::PrintSelf(std::ostream &oss, vtkIndent indent)
 {
   this->Superclass::PrintSelf( oss, indent );
+  oss << "Number of Partitions" << this->NumberOfPartitions << std::endl;
 }
 
 //------------------------------------------------------------------------------

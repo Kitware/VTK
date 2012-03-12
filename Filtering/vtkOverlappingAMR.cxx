@@ -804,6 +804,16 @@ vtkAMRBox vtkOverlappingAMR::GetAMRBox(vtkCompositeDataIterator* iter)
 void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "PadCellVisibility: ";
+  if( this->PadCellVisibility )
+    {
+    os << "ON(";
+    }
+  else
+    {
+    os << "OFF(";
+    }
+  os << this->PadCellVisibility << ")\n";
 }
 
 //----------------------------------------------------------------------------
