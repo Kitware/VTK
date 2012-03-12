@@ -20,6 +20,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -59,7 +60,9 @@ void vtkPUniformGridGhostDataGenerator::RegisterGrids(vtkMultiBlockDataSet *in)
   this->GridConnectivity->SetController( this->Controller );
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
   this->GridConnectivity->SetNumberOfGhostLayers(0);
-  this->GridConnectivity->SetWholeExtent( in->GetWholeExtent() );
+  this->GridConnectivity->SetWholeExtent(
+      in->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   this->GridConnectivity->Initialize();
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
@@ -139,7 +142,11 @@ void vtkPUniformGridGhostDataGenerator::CreateGhostedDataSet(
   assert( "pre: output multi-block is NULL" && (out != NULL) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks( ) );
-  out->SetWholeExtent( in->GetWholeExtent() );
+  int wholeExt[6];
+  in->GetInformation()->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  out->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt,6);
 
   int ghostedExtent[6];
   double origin[3];

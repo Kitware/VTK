@@ -52,7 +52,7 @@ void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
   std::ostringstream oss;
   oss << prefix << "." << imgWriter->GetDefaultFileExtension();
   imgWriter->SetFileName( oss.str().c_str() );
-  imgWriter->SetInput( g );
+  imgWriter->SetInputData( g );
   imgWriter->Write();
 
   imgWriter->Delete();
@@ -74,7 +74,7 @@ void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
    oss << prefix << "." << myAMRWriter->GetDefaultFileExtension();
 
    myAMRWriter->SetFileName( oss.str().c_str() );
-   myAMRWriter->SetInput( amrData );
+   myAMRWriter->SetInputData( amrData );
    myAMRWriter->Write();
    myAMRWriter->Delete();
 }
@@ -121,7 +121,7 @@ void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, std::string prefix )
   oss.str(""); oss.clear();
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str( ).c_str( ) );
-  writer->SetInput( mbds );
+  writer->SetInputData( mbds );
   writer->Write();
   writer->Delete();
 }

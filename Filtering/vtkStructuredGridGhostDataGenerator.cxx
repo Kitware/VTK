@@ -20,6 +20,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+#include "vtkStreamingDemandDrivenPipeline.h"
+
 vtkStandardNewMacro(vtkStructuredGridGhostDataGenerator);
 
 //------------------------------------------------------------------------------
@@ -51,7 +53,8 @@ void vtkStructuredGridGhostDataGenerator::RegisterGrids(
 
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
   this->GridConnectivity->SetNumberOfGhostLayers( 0 );
-  this->GridConnectivity->SetWholeExtent( in->GetWholeExtent( ) );
+  this->GridConnectivity->SetWholeExtent(
+   in->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
     {
@@ -83,7 +86,11 @@ void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
          (this->GridConnectivity != NULL) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks() );
-  out->SetWholeExtent( in->GetWholeExtent() );
+  int wholeExt[6];
+  in->GetInformation()->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt );
+  vtkInformation *outInfo = out->GetInformation();
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt,6);
 
   int ghostedExtent[6];
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )

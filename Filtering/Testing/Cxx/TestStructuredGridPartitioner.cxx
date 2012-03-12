@@ -40,7 +40,7 @@ void WriteMultiBlock(std::string file, vtkMultiBlockDataSet *mbds)
 
   oss << file << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput( mbds );
+  writer->SetInputData( mbds );
   writer->Update();
   writer->Delete();
 }
@@ -80,7 +80,7 @@ int main( int argc, char **argv )
 
   vtkStructuredGridPartitioner *gridPartitioner =
       vtkStructuredGridPartitioner::New();
-  gridPartitioner->SetInput(grid);
+  gridPartitioner->SetInputData(grid);
   gridPartitioner->SetNumberOfPartitions( NumPartitions );
   gridPartitioner->Update();
 

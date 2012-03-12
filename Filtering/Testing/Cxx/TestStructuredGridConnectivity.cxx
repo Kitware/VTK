@@ -65,7 +65,7 @@ void WriteGrid( vtkUniformGrid *grid, std::string prefix )
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput( grid );
+  writer->SetInputData( grid );
   writer->Write();
 
   writer->Delete();
@@ -319,7 +319,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // partition the grid, the grid partitioner will generate the whole extent and
   // node extent information.
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInput( wholeGrid  );
+  gridPartitioner->SetInputData( wholeGrid  );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->SetNumberOfGhostLayers( numGhosts );
   gridPartitioner->Update();
@@ -448,7 +448,7 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   oss << prefix << mbds->GetNumberOfBlocks() << "."
       << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput( mbds );
+  writer->SetInputData( mbds );
   writer->Write();
 
   writer->Delete();
@@ -596,7 +596,10 @@ int TestStructuredGridConnectivity( int argc, char *argv[] )
           vtkStructuredGridConnectivity::New();
       gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
       gridConnectivity->SetNumberOfGhostLayers( numGhostLayers[j] );
-      gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+      int ext[6];
+      mbds->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
+      gridConnectivity->SetWholeExtent( ext );
       std::cout << "[DONE]\n";
       std::cout.flush();
 
@@ -822,7 +825,11 @@ int SimpleTest( int argc, char **argv )
       vtkStructuredGridConnectivity::New();
   gridConnectivity->SetNumberOfGhostLayers( ng );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+
+  int wholeExt[6];
+  mbds->GetInformation()->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt);
+  gridConnectivity->SetWholeExtent(wholeExt);
 
   RegisterGrids( mbds, gridConnectivity );
 

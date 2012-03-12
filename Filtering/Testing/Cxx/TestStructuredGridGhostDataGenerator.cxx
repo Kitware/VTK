@@ -59,7 +59,7 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   oss << prefix << mbds->GetNumberOfBlocks() << "."
       << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput( mbds );
+  writer->SetInputData( mbds );
   writer->Write();
 
   writer->Delete();
@@ -297,7 +297,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // STEP 2: Conver to structured grid
   vtkImageToStructuredGrid *img2sgrid = vtkImageToStructuredGrid::New();
   assert("pre:" && (img2sgrid != NULL));
-  img2sgrid->SetInput( wholeGrid );
+  img2sgrid->SetInputData( wholeGrid );
   img2sgrid->Update();
   vtkStructuredGrid *wholeStructuredGrid = vtkStructuredGrid::New();
   wholeStructuredGrid->DeepCopy( img2sgrid->GetOutput() );
@@ -307,7 +307,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // STEP 3: Partition the structured grid domain
   vtkStructuredGridPartitioner *gridPartitioner =
       vtkStructuredGridPartitioner::New();
-  gridPartitioner->SetInput( wholeStructuredGrid );
+  gridPartitioner->SetInputData( wholeStructuredGrid );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->SetNumberOfGhostLayers( numGhosts );
   gridPartitioner->Update();
@@ -355,7 +355,7 @@ int Test2D(
   vtkStructuredGridGhostDataGenerator *ghostDataGenerator =
       vtkStructuredGridGhostDataGenerator::New();
 
-  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetInputData( mbds );
   ghostDataGenerator->SetNumberOfGhostLayers( 1 );
   ghostDataGenerator->Update();
 
@@ -386,7 +386,7 @@ int Test3D(
 
   vtkStructuredGridGhostDataGenerator *ghostDataGenerator =
       vtkStructuredGridGhostDataGenerator::New();
-  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetInputData( mbds );
   ghostDataGenerator->SetNumberOfGhostLayers( 1 );
   ghostDataGenerator->Update();
 

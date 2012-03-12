@@ -35,11 +35,11 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     // Description:
     // Set/Get the number of requested partitions
     void SetNumberOfPartitions( const int N )
-    {
+      {
       assert( "pre: Number of partitions requested must be > 0" && (N >= 0) );
       this->Reset();
       this->NumberOfPartitions = N;
-    }
+      }
 
     // Description:
     // Set/Get the global extent array to be partitioned.
@@ -48,17 +48,17 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     void SetGlobalExtent(int imin,int imax,int jmin,int jmax,int kmin,int kmax)
       {
       this->Reset();
-      this->GlobalExtent[0]     = imin;
-      this->GlobalExtent[1]     = imax;
-      this->GlobalExtent[2]     = jmin;
-      this->GlobalExtent[3]     = jmax;
-      this->GlobalExtent[4]     = kmin;
-      this->GlobalExtent[5]     = kmax;
+      this->GlobalExtent[0] = imin;
+      this->GlobalExtent[1] = imax;
+      this->GlobalExtent[2] = jmin;
+      this->GlobalExtent[3] = jmax;
+      this->GlobalExtent[4] = kmin;
+      this->GlobalExtent[5] = kmax;
       }
     void SetGlobalExtent( int ext[6] )
-    {
+      {
       this->SetGlobalExtent( ext[0], ext[1], ext[2], ext[3], ext[4], ext[5] );
-    }
+      }
 
     // Description:
     // Set/Get macro for the number of ghost layers.
@@ -86,9 +86,9 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
     // extents are cleared.
     void Reset()
      {
-      this->PartitionExtents.clear();
-      this->NumExtents          = 0;
-      this->ExtentIsPartitioned = false;
+     this->PartitionExtents.clear();
+     this->NumExtents          = 0;
+     this->ExtentIsPartitioned = false;
      }
 
     // Description:
@@ -166,7 +166,7 @@ class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
      bool ExtentIsPartitioned;
 
      // BTX
-     std::vector<int> pextents;
+     std::vector<int> PartitionExtents;
      // ETX
 
   private:

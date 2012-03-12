@@ -117,7 +117,7 @@ void WriteAMRData( vtkHierarchicalBoxDataSet *amrData, std::string prefix )
   oss << prefix << ".vthb";
 
   myAMRWriter->SetFileName( oss.str().c_str() );
-  myAMRWriter->SetInput( amrData );
+  myAMRWriter->SetInputData( amrData );
   myAMRWriter->Write();
   myAMRWriter->Delete();
 }

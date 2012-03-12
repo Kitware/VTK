@@ -23,6 +23,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 
@@ -138,7 +139,8 @@ int vtkStructuredGridPartitioner::RequestData(
   multiblock->SetNumberOfBlocks( extentPartitioner->GetNumExtents() );
 
   // Set the whole extent of the grid
-  multiblock->SetWholeExtent( extent );
+  multiblock->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
 
   int subext[6];
   unsigned int blockIdx = 0;

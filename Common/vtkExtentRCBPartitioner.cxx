@@ -135,7 +135,7 @@ void vtkExtentRCBPartitioner::GetExtent( const int idx, int ext[6] )
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentRCBPartitioner::AddExtent( const int vtkNotUsed(idx), int ext[6] )
+void vtkExtentRCBPartitioner::AddExtent( int ext[6] )
 {
   for( int i=0; i < 6; ++i )
     {

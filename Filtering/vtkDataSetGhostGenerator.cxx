@@ -55,7 +55,7 @@ int vtkDataSetGhostGenerator::FillOutputPortInformation(
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
 
-info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
   return 1;
 }
 

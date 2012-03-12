@@ -180,7 +180,7 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   oss << prefix << mbds->GetNumberOfBlocks() << "."
       << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput( mbds );
+  writer->SetInputData( mbds );
   writer->Write();
 
   writer->Delete();
@@ -288,7 +288,7 @@ vtkMultiBlockDataSet* GetDataSet(
 
   // STEP 2: Partition the whole grid
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInput( wholeGrid );
+  gridPartitioner->SetInputData( wholeGrid );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->SetNumberOfGhostLayers( numGhosts );
   gridPartitioner->Update();
@@ -336,7 +336,7 @@ int Test2D(
   vtkUniformGridGhostDataGenerator *ghostDataGenerator =
       vtkUniformGridGhostDataGenerator::New();
 
-  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetInputData( mbds );
   ghostDataGenerator->SetNumberOfGhostLayers( 1 );
   ghostDataGenerator->Update();
 
@@ -369,7 +369,7 @@ int Test3D(
   vtkUniformGridGhostDataGenerator *ghostDataGenerator =
       vtkUniformGridGhostDataGenerator::New();
 
-  ghostDataGenerator->SetInput( mbds );
+  ghostDataGenerator->SetInputData( mbds );
   ghostDataGenerator->SetNumberOfGhostLayers( 1 );
   ghostDataGenerator->Update();
 

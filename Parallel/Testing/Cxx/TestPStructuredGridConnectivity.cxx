@@ -44,6 +44,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
@@ -60,7 +61,7 @@ void WriteDistributedDataSet(
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput(dataset);
+  writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
     {
     writer->SetWriteMetaFile(1);
@@ -147,7 +148,7 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   // partition the grid, the grid partitioner will generate the whole extent and
   // node extent information.
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInput( wholeGrid  );
+  gridPartitioner->SetInputData( wholeGrid  );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->Update();
   vtkMultiBlockDataSet *partitionedGrid =
@@ -159,7 +160,12 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   // some other process
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   mbds->SetNumberOfBlocks( numPartitions );
-  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
+  mbds->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+      partitionedGrid->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+          6 );
+//  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
 
   // Populate blocks for this process
   unsigned int block=0;
@@ -255,7 +261,9 @@ int TestPStructuredGridConnectivity( const int factor )
       vtkPStructuredGridConnectivity::New();
   gridConnectivity->SetController( Controller );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->SetWholeExtent(
+      mbds->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
@@ -369,7 +377,9 @@ int TestAverage( const int factor )
       vtkPStructuredGridConnectivity::New();
   gridConnectivity->SetController( Controller );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->SetWholeExtent(
+      mbds->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids
@@ -453,7 +463,9 @@ int TestGhostLayerCreation( int factor, int ng )
       vtkPStructuredGridConnectivity::New();
   gridConnectivity->SetController( Controller );
   gridConnectivity->SetNumberOfGrids( mbds->GetNumberOfBlocks() );
-  gridConnectivity->SetWholeExtent( mbds->GetWholeExtent() );
+  gridConnectivity->SetWholeExtent(
+      mbds->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   gridConnectivity->Initialize();
 
   // STEP 3: Register the grids

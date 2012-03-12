@@ -43,6 +43,7 @@
 #include "vtkImageToStructuredGrid.h"
 #include "vtkStructuredGridPartitioner.h"
 #include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
@@ -84,7 +85,7 @@ void WriteDistributedDataSet(
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput(dataset);
+  writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
     {
     writer->SetWriteMetaFile(1);
@@ -323,7 +324,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // STEP 2: Conver to structured grid
   vtkImageToStructuredGrid *img2sgrid = vtkImageToStructuredGrid::New();
   assert("pre:" && (img2sgrid != NULL));
-  img2sgrid->SetInput( wholeGrid );
+  img2sgrid->SetInputData( wholeGrid );
   img2sgrid->Update();
   vtkStructuredGrid *wholeStructuredGrid = vtkStructuredGrid::New();
   wholeStructuredGrid->DeepCopy( img2sgrid->GetOutput() );
@@ -333,7 +334,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // STEP 3: Partition the structured grid domain
   vtkStructuredGridPartitioner *gridPartitioner =
       vtkStructuredGridPartitioner::New();
-  gridPartitioner->SetInput( wholeStructuredGrid );
+  gridPartitioner->SetInputData( wholeStructuredGrid );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->SetNumberOfGhostLayers( 0 );
   gridPartitioner->Update();
@@ -346,7 +347,11 @@ vtkMultiBlockDataSet* GetDataSet(
   // some other process
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   mbds->SetNumberOfBlocks( numPartitions );
-  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
+  int wholeExt[6];
+  partitionedGrid->GetInformation()->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt);
+  mbds->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt,6);
 
   unsigned int block =0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
@@ -408,7 +413,7 @@ int Test2D(
   vtkPStructuredGridGhostDataGenerator *ghostGenerator =
       vtkPStructuredGridGhostDataGenerator::New();
 
-  ghostGenerator->SetInput( mbds );
+  ghostGenerator->SetInputData( mbds );
   ghostGenerator->SetNumberOfGhostLayers( NG );
   ghostGenerator->SetController( Controller );
   ghostGenerator->Initialize();
@@ -450,7 +455,7 @@ int Test3D(
   vtkPStructuredGridGhostDataGenerator *ghostGenerator =
       vtkPStructuredGridGhostDataGenerator::New();
 
-  ghostGenerator->SetInput( mbds );
+  ghostGenerator->SetInputData( mbds );
   ghostGenerator->SetNumberOfGhostLayers( NG );
   ghostGenerator->SetController( Controller );
   ghostGenerator->Initialize();

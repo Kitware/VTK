@@ -39,6 +39,7 @@
 #include "vtkXMLPMultiBlockDataWriter.h"
 #include "vtkPUniformGridGhostDataGenerator.h"
 #include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
@@ -300,7 +301,7 @@ vtkMultiBlockDataSet* GetDataSet(
   // partition the grid, the grid partitioner will generate the whole extent and
   // node extent information.
   vtkUniformGridPartitioner *gridPartitioner = vtkUniformGridPartitioner::New();
-  gridPartitioner->SetInput( wholeGrid  );
+  gridPartitioner->SetInputData( wholeGrid  );
   gridPartitioner->SetNumberOfPartitions( numPartitions );
   gridPartitioner->Update();
   vtkMultiBlockDataSet *partitionedGrid =
@@ -312,7 +313,10 @@ vtkMultiBlockDataSet* GetDataSet(
   // some other process
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   mbds->SetNumberOfBlocks( numPartitions );
-  mbds->SetWholeExtent( partitionedGrid->GetWholeExtent( ) );
+  mbds->GetInformation()->Set(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+      partitionedGrid->GetInformation()->Get(
+          vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
 
   // Populate blocks for this process
   unsigned int block=0;
@@ -361,7 +365,7 @@ void WriteDistributedDataSet(
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
-  writer->SetInput(dataset);
+  writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
     {
     writer->SetWriteMetaFile(1);
@@ -397,7 +401,7 @@ int Test2D(
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
 
-  ghostGenerator->SetInput( mbds );
+  ghostGenerator->SetInputData( mbds );
   ghostGenerator->SetNumberOfGhostLayers( NG );
   ghostGenerator->SetController( Controller );
   ghostGenerator->Initialize();
@@ -439,7 +443,7 @@ int Test3D(
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
 
-  ghostGenerator->SetInput( mbds );
+  ghostGenerator->SetInputData( mbds );
   ghostGenerator->SetNumberOfGhostLayers( NG );
   ghostGenerator->SetController( Controller );
   ghostGenerator->Initialize();
