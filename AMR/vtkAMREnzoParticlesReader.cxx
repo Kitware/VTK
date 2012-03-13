@@ -275,7 +275,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   assert( "Coordinate arrays must have the same size: " &&
            (ycoords.size()==zcoords.size() ) );
 
-  int TotalNumberOfParticles = xcoords.size();
+  int TotalNumberOfParticles = static_cast<int>(xcoords.size());
   positions->SetNumberOfPoints( TotalNumberOfParticles );
 
   vtkIdList *ids = vtkIdList::New();
@@ -369,7 +369,8 @@ void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 {
   assert( "pre: Intenal reader is NULL" && (this->Internal != NULL) );
 
-  unsigned int N = this->Internal->ParticleAttributeNames.size();
+  unsigned int N =
+    static_cast<unsigned int>( this->Internal->ParticleAttributeNames.size() );
   for( unsigned int i=0; i < N; ++i )
     {
 
