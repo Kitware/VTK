@@ -28,7 +28,7 @@
 // ExecuteData and ExecuteInformation.  For new algorithms you should
 // implement RequestData( request, inputVec, outputVec) but for older filters
 // there is a default implementation that calls the old ExecuteData(output)
-// signature, for even older filters that don;t implement ExecuteData the
+// signature, for even older filters that don't implement ExecuteData the
 // default implementation calls the even older Execute() signature.
 
 #ifndef __vtkDataObjectAlgorithm_h

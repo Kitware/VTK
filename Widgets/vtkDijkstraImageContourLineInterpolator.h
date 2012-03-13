@@ -17,7 +17,7 @@
 // .SECTION Description 
 // vtkDijkstraImageContourLineInterpolator interpolates and places
 // contour points on images. The class interpolates nodes by
-// computing a graph lying on the image data. By graph, we mean 
+// computing a graph laying on the image data. By graph, we mean 
 // that the line interpolating the two end points traverses along 
 // pixels so as to form a shortest path. A Dijkstra algorithm is 
 // used to compute the path.

@@ -134,7 +134,7 @@ vtkCell * vtkQuadraticLinearWedge::GetFace (int faceId)
   faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId));
 
   // load point id's and coordinates
-  // be careful with the last two one:
+  // be careful with the last two:
   if (faceId < 2)
     {
     for (int i = 0; i < 6; i++)

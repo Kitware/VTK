@@ -900,7 +900,7 @@ int vtkGreedyTerrainDecimation::RequestData(
 }
 
 /*----------------------------------------------------------------------
-  "Scan conversion" routines to update all points lying in a triangle.
+  "Scan conversion" routines to update all points laying in a triangle.
  
   Divide a triangle into two subtriangles as shown.
       
@@ -935,7 +935,7 @@ int vtkGreedyTerrainDecimation::RequestData(
 #define VTK_DEGENERATE      3 //should never happen in this application
 
 //---------------------------------------------------------------------------
-// Update all points lying in the given triangle. This means indicating the triangle
+// Update all points laying in the given triangle. This means indicating the triangle
 // that the point is in, plus computing the error in the height field.
 //
 void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int ij2[2], int ij3[2],

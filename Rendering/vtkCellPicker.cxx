@@ -338,7 +338,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   // keep track of the cell with the best pick based on parametric
   // coordinate (pick the minimum, maximum parametric distance). This 
   // breaks ties in a reasonable way when cells are the same distance 
-  // from the eye (like cells lying on a 2D plane).
+  // from the eye (like cells laying on a 2D plane).
 
   vtkDataSet *data = mapper->GetInput();
   double tMin = VTK_DOUBLE_MAX;
