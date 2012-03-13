@@ -156,7 +156,7 @@ protected:
   vtkBoundedPlanePointPlacer();
   ~vtkBoundedPlanePointPlacer();
 
-  // Indicates the projection normal as lying along the
+  // Indicates the projection normal as laying along the
   // XAxis, YAxis, ZAxis, or Oblique. For X, Y, and Z axes,
   // the projection normal is assumed to be anchored at
   // (0,0,0)

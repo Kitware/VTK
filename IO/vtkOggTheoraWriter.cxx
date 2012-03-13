@@ -177,7 +177,7 @@ int vtkOggTheoraWriterInternal::Start()
       }
     // the stride is in bytes
     this->thImage[i].stride = this->thImage[i].width*sizeof(unsigned char);
-    // make sure there's nothing left lying around...
+    // make sure there's nothing left laying around...
     if (this->thImage[i].data)
       delete[] this->thImage[i].data;
     // allocate the image plane
@@ -437,7 +437,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
            */
 #if 0
           // interpolate surrounding rgb (subsampling)
-          // use double in order to not loose too much precision...
+          // use double in order to not lose too much precision...
           double irgb[3];
           for (size_t i = 0; i < 3; ++i)
             {

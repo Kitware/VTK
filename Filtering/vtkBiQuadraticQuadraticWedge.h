@@ -24,7 +24,7 @@
 // nine midedge nodes (6-15) and 3 center-face nodes. Note that these midedge
 // nodes correspond lie
 // on the edges defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3),
-// (1,4), (2,5), and the center-face nodes are lying in quads 16-(0,1,4,3),
+// (1,4), (2,5), and the center-face nodes are laying in quads 16-(0,1,4,3),
 // 17-(1,2,5,4) and (2,0,3,5).
 //
 // .SECTION See Also

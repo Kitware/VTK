@@ -457,7 +457,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
             e.tNeg = (flip ? (1-t) : t);
             }
           }
-        } //if lying on image
+        } //if laying on image
       } //for all x-intersection points
     } //if x-intersections
 
@@ -506,7 +506,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
             e.tNeg = (flip ? (1-t) : t);
             }
           }
-        } //if lying on image
+        } //if laying on image
       } //for all x-intersection points
     } //if x-intersections
 

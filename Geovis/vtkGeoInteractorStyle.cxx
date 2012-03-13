@@ -768,7 +768,7 @@ void vtkGeoInteractorStyleRenderCallback(vtkObject *caller,
 }
 
 //-----------------------------------------------------------------------------
-// If anything causes a render we will loose the rubber band rectangle.
+// If anything causes a render we will lose the rubber band rectangle.
 // The method gets a new background image and redraws the rectangle.
 void vtkGeoInteractorStyle::RedrawRectangle()
 {
@@ -895,7 +895,7 @@ void vtkGeoInteractorStyle::DrawRectangle()
 }
 
 //-----------------------------------------------------------------------------
-// If anything causes a render we will loose the rubber band rectangle.
+// If anything causes a render we will lose the rubber band rectangle.
 // The callback will draw it again.
 void vtkGeoInteractorStyle::EnableRubberBandRedraw()
 {

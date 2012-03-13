@@ -102,7 +102,7 @@ void vtkFixedSizeHandleRepresentation3D::BuildRepresentation()
   this->WorldToDisplay(w_c, d_c);
 
   // Compute current display size of the handle. To do this, we convert
-  // a point lying at (<current_center> + {radius \times <view_up_vector>})
+  // a point laying at (<current_center> + {radius \times <view_up_vector>})
   // to display coords and see how far it is from the current display position
   // of the handle.
 

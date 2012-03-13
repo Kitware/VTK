@@ -3,7 +3,7 @@
 # In this example we show the use of the
 # vtkBandedPolyDataContourFilter.  This filter creates separate,
 # constant colored bands for a range of scalar values. Each band is
-# bounded by two scalar values, and the cell data lying within the
+# bounded by two scalar values, and the cell data laying within the
 # value has the same cell scalar value.
 
 import vtk

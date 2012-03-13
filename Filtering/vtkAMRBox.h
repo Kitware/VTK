@@ -200,7 +200,7 @@ public:
   // Description:
   // Set/Get world space origin of the data set, The origin
   // is the location of the low corner cell's low corner node
-  // of the data set. Which is not necessarilly the origin of
+  // of the data set. Which is not necessarily the origin of
   // this box! For that use GetBoxOrigin().
   const double *GetDataSetOrigin() const { return this->X0; }
   void GetDataSetOrigin(double X0[3]) const;

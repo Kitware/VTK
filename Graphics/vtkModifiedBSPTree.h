@@ -49,7 +49,7 @@
 // a third child node to store objects which straddle split planes. I've not
 // seen this published (Yes! - see below), but thought it worth trying. This
 // implementation of the BSP tree creates a third child node for storing cells
-// lying across split planes, the third cell may overlap the other two, but the
+// laying across split planes, the third cell may overlap the other two, but the
 // two 'proper' nodes otherwise conform to usual BSP rules.
 //
 // The advantage of this implementation is cells only ever lie in one node

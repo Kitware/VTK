@@ -585,7 +585,7 @@ private:
   vtkIdType PointId[3+3];
   int SubdivisionLevel;
   
-  // bit i (0 to 3) tells if point p (0 to 5) is lying on original edge i.
+  // bit i (0 to 3) tells if point p (0 to 5) is laying on original edge i.
   unsigned char ClassificationState[6];
 };
 //-----------------------------------------------------------------------------
@@ -950,8 +950,8 @@ private:
   vtkIdType PointId[4+6];
   int SubdivisionLevel;
   
-  // bit i (0 to 5) tells if point p (0 to 9) is lying on original edge i.
-  // bit j (6 to 9) tells if point p (0 to 9) is lying on original face j.
+  // bit i (0 to 5) tells if point p (0 to 9) is laying on original edge i.
+  // bit j (6 to 9) tells if point p (0 to 9) is laying on original face j.
   unsigned short ClassificationState[4+6];
   
   int *EdgeIds;

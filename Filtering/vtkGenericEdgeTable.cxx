@@ -195,7 +195,7 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
   
   // The whole problem is here to find the proper size for a descent hash table
   // Since we do not allow check our size as we go the hash table
-  // Should be big enough from the beginning otherwise we'll loose the
+  // Should be big enough from the beginning otherwise we'll lose the
   // constant time access
   // But on the other hand we do not want it to be too big for mem consumption
   // A compromise of 4093 was found fo be working in a lot of case
