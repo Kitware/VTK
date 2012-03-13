@@ -114,13 +114,6 @@ public:
   // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
   static vtkInformationIntegerVectorKey* COMPOSITE_INDICES();
 
-  // Description:
-  // COMPOSITE_INDEX() is added to the leaf nodes of the meta-data composite
-  // dataset (COMPOSITE_DATA_META_DATA) during REQUEST_INFORMATION(). Filters
-  // downstream can use this index to request specific datasets when
-  // creating UPDATE_COMPOSITE_INDICES().
-  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
-  static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
 protected:
   vtkCompositeDataPipeline();

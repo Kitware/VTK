@@ -30,7 +30,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkIdList.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkMath.h"
 #include "vtkType.h"
 
@@ -351,7 +350,7 @@ void vtkOverlappingAMR::SetCompositeIndex(
   p.first  = level;
   p.second = index;
   this->CompositeIndex2LevelIdPair[ idx ] = p;
-  metadata->Set( vtkCompositeDataPipeline::COMPOSITE_INDEX(), idx );
+  metadata->Set( vtkCompositeDataSet::COMPOSITE_INDEX(), idx );
 }
 
 
@@ -369,9 +368,9 @@ int vtkOverlappingAMR::GetCompositeIndex(
   assert( "pre: metadata object is NULL" && (metadata != NULL) );
 
   int idx = -1;
-  if( metadata->Has( vtkCompositeDataPipeline::COMPOSITE_INDEX() ) )
+  if( metadata->Has( vtkCompositeDataSet::COMPOSITE_INDEX() ) )
     {
-    idx = metadata->Get( vtkCompositeDataPipeline::COMPOSITE_INDEX() );
+    idx = metadata->Get( vtkCompositeDataSet::COMPOSITE_INDEX() );
     }
 
   return( idx );
