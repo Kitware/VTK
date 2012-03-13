@@ -49,7 +49,7 @@ class vtkScatterPlotMatrix::PIMPL
 {
 public:
   PIMPL() : VisibleColumnsModified(true), BigChart(NULL), TimerId(0),
-    TimerCallbackInitialized(false), AnimationCallbackInitialized(false)
+    AnimationCallbackInitialized(false), TimerCallbackInitialized(false)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
     scatterplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
@@ -704,23 +704,20 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     }
 }
 
-void vtkScatterPlotMatrix::ProcessEvents(vtkObject *caller, unsigned long event,
+void vtkScatterPlotMatrix::ProcessEvents(vtkObject *, unsigned long event,
                                          void *clientData, void *callerData)
 {
   vtkScatterPlotMatrix *self =
       reinterpret_cast<vtkScatterPlotMatrix *>(clientData);
-  vtkRenderWindowInteractor *interactor =
-      reinterpret_cast<vtkRenderWindowInteractor *>(caller);
   switch (event)
     {
     case vtkCommand::TimerEvent:
       {
       // We must filter the events to ensure we actually get the timer event we
       // created. I would love signals and slots...
-      unsigned long int id = interactor->GetTimerEventId(); // broken???
       int timerId = *reinterpret_cast<int *>(callerData);   // Seems to work.
       if (self->Private->TimerCallbackInitialized &&
-          timerId == self->Private->TimerId)
+          timerId == static_cast<int>(self->Private->TimerId))
         {
         self->AdvanceAnimation();
         }
