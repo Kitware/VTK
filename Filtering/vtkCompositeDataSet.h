@@ -119,6 +119,14 @@ public:
   // Key used to put node name in the meta-data associated with a node.
   static vtkInformationStringKey* NAME();
 
+  // Description:
+  // COMPOSITE_INDEX() is added to the leaf nodes of the meta-data composite
+  // dataset (COMPOSITE_DATA_META_DATA) during REQUEST_INFORMATION(). Filters
+  // downstream can use this index to request specific datasets when
+  // creating UPDATE_COMPOSITE_INDICES().
+  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+  static vtkInformationIntegerKey* COMPOSITE_INDEX();
+
 //BTX
 protected:
   vtkCompositeDataSet();
