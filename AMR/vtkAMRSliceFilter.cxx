@@ -611,7 +611,7 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
     // Send upstream request for higher resolution
     inInfo->Set(
      vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-     &this->blocksToLoad[0], this->blocksToLoad.size() );
+     &this->blocksToLoad[0], static_cast<int>(this->blocksToLoad.size()));
     }
 
   return 1;

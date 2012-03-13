@@ -1503,6 +1503,15 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+  os << indent << "FreezeFocalPoint: ";
+  if( this->FreezeFocalPoint )
+    {
+    os << this->FreezeFocalPoint << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
   os << indent << "ViewPlaneNormal: (" << this->ViewPlaneNormal[0]
      << ", " << this->ViewPlaneNormal[1]
      << ", " << this->ViewPlaneNormal[2] << ")\n";

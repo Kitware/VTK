@@ -79,21 +79,22 @@ vtkAMRVolumeMapper::~vtkAMRVolumeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetInput(vtkDataSet *genericInput)
+void vtkAMRVolumeMapper::SetInputData(vtkImageData* vtkNotUsed(genericInput))
+{
+  vtkErrorMacro("Mapper expects a hierarchical dataset as input" );
+  this->Resampler->SetInputConnection(0, 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkAMRVolumeMapper::SetInputData(vtkDataSet* vtkNotUsed(genericInput))
 {
   vtkErrorMacro("Mapper expects a hierarchical dataset as input" );
   this->Resampler->SetInputConnection(0, 0);
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetInput(vtkOverlappingAMR *hdata)
+void vtkAMRVolumeMapper::SetInputData(vtkOverlappingAMR *hdata)
 {
-  if (!hdata)
-    {
-    vtkErrorMacro("Mapper expects a hierarchical dataset as input" );
-    this->Resampler->SetInputConnection(0, 0);
-    return;
-    }
-  this->SetInputConnection(0, hdata->GetProducerPort());
+  this->SetInputDataInternal(0,hdata);
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input)
@@ -299,7 +300,7 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
       return;
       }
 
-    this->InternalMapper->SetInput(this->Grid);
+    this->InternalMapper->SetInputData(this->Grid);
     }
   // Enable threading for the internal volume renderer and the reset the
   // original value when done - need when running inside of ParaView
@@ -346,7 +347,7 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
           }
         else
           {
-          int oops = 1;
+//          int oops = 1;
           }
         }
       }
@@ -617,5 +618,17 @@ void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "ArrayName: " << this->ArrayName << endl;
       }
     }
+  os << indent << "UseDefaultThreading:" << this->UseDefaultThreading << "\n";
+  os << indent << "ResampledUpdateTolerance: " <<
+        this->ResamplerUpdateTolerance << "\n";
+  os << indent << "NumberOfSamples: ";
+  for( int i=0; i < 3; ++i )
+    {
+    os << this->NumberOfSamples[ i ] << " ";
+    }
+  os << std::endl;
+  os << indent << "RequestedResamplingMode: " <<
+        this->RequestedResamplingMode << "\n";
+  os << indent << "FreezeFocalPoint: " << this->FreezeFocalPoint << "\n";
 }
 //----------------------------------------------------------------------------

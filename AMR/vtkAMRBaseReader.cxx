@@ -397,8 +397,8 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
     return( gridPtr );
     }
 
-  assert( "Code should never reach here!" && (false) );
-  return NULL;
+//  assert( "Code should never reach here!" && (false) );
+//  return NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -466,6 +466,7 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
   assert( "pre: NumLevels in output should be <= to NumLevels in metadata" &&
            output->GetNumberOfLevels() <= this->Metadata->GetNumberOfLevels() );
 
+#ifndef NDEBUG
   unsigned int levelIdx = 0;
   for( ; levelIdx < output->GetNumberOfLevels(); ++levelIdx )
     {
@@ -474,6 +475,7 @@ void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
     assert( "pre: NumData at level must correspond to the metadata" &&
         N <= Nexpected );
     }
+#endif
 
 }
 
