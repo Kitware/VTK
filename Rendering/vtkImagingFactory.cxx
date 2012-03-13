@@ -24,12 +24,6 @@
 #include "vtkOpenGLFreeTypeTextMapper.h"
 #endif
 
-#if defined(VTK_USE_MANGLED_MESA)
-#include "vtkMesaImageMapper.h"
-#include "vtkMesaPolyDataMapper2D.h"
-#include "vtkMesaFreeTypeTextMapper.h"
-#endif
-
 #ifdef _WIN32
 #include "vtkOpenGLImageMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
@@ -129,32 +123,14 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkImagingFactory::UseMesaClasses )
-        {
-        return vtkMesaFreeTypeTextMapper::New();
-        }
-#endif
       return vtkOpenGLFreeTypeTextMapper::New();
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkImagingFactory::UseMesaClasses )
-        {
-        return vtkMesaImageMapper::New();
-        }
-#endif
       return vtkOpenGLImageMapper::New();
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkImagingFactory::UseMesaClasses )
-        {
-        return vtkMesaPolyDataMapper2D::New();
-        }
-#endif
       return vtkOpenGLPolyDataMapper2D::New();
       }
     }

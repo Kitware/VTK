@@ -39,7 +39,6 @@
 /* Rendering Configuration                                                  */
 
 #cmakedefine VTK_USE_X
-#cmakedefine VTK_USE_MANGLED_MESA
 #cmakedefine VTK_USE_OPENGL_LIBRARY
 #cmakedefine VTK_OPENGL_HAS_OSMESA
 #cmakedefine VTK_USE_OFFSCREEN
@@ -139,7 +138,7 @@
 #if ((defined(VTK_USE_OPENGL_LIBRARY) && defined(VTK_USE_X) && \
       !defined(_WIN32)) ||                                     \
      (defined(VTK_USE_X) && defined(_WIN32)) || \
-     (defined(VTK_USE_MANGLED_MESA) && !defined(_WIN32))) && \
+     !defined(_WIN32)) && \
      !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
 # define VTK_USE_OGLR
 #endif

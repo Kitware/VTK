@@ -72,21 +72,6 @@ IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
 ENDIF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
 
 #
-# Support Mangle Mesa
-#
-IF (VTK_USE_MANGLED_MESA)
-  SET (FTGL_SUPPORT_MANGLE_MESA 1)
-  IF (FTGL_SUPPORT_MANGLE_MESA)
-    SET (FTGL_SRCS ${FTGL_SRCS}
-      src/FTBitmapGlyphRenderMesa.cpp
-      src/FTGLBitmapFontRenderMesa.cpp
-      src/FTGLPixmapFontRenderMesa.cpp
-      src/FTPixmapGlyphRenderMesa.cpp
-    )
-  ENDIF (FTGL_SUPPORT_MANGLE_MESA)
-ENDIF (VTK_USE_MANGLED_MESA)
-
-#
 # Shared/static lib settings)
 #
 IF (BUILD_SHARED_LIBS)
