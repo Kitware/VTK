@@ -40,7 +40,7 @@
 class vtkMultiProcessController;
 class vtkMPIController;
 class vtkMultiProcessStream;
-class vtkMPICommunicator::Request;
+//class vtkMPICommunicator::Request;
 
 class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
   public vtkStructuredGridConnectivity

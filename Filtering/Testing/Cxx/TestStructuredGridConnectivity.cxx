@@ -57,7 +57,7 @@
 void WriteGrid( vtkUniformGrid *grid, std::string prefix )
 {
 
-#ifdef ENABLE_IO
+
   assert( "pre: input grid is NULL" && (grid != NULL) );
 
   vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
@@ -66,11 +66,10 @@ void WriteGrid( vtkUniformGrid *grid, std::string prefix )
   oss << prefix << "." << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData( grid );
+#ifdef ENABLE_IO
   writer->Write();
-
-  writer->Delete();
 #endif
-
+  writer->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -437,7 +436,7 @@ void RegisterGrids(
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
 {
 
-#ifdef ENABLE_IO
+
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
 
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
@@ -449,11 +448,10 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
       << writer->GetDefaultFileExtension();
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData( mbds );
+#ifdef ENABLE_IO
   writer->Write();
-
-  writer->Delete();
 #endif
-
+  writer->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -791,6 +789,9 @@ bool CompareFields( vtkMultiBlockDataSet *mbds )
 int SimpleTest( int argc, char **argv )
 {
   assert( "pre: argument counter must equal 4" && (argc==5) );
+
+  // Doing a void cast here to resolve warnings on unused vars
+  static_cast<void>(argc);
 
   int dim = atoi( argv[1] ); // The dimension of the data
   int np  = atoi( argv[2] ); // The number of partitions to create
