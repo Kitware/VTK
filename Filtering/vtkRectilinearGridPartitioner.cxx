@@ -48,6 +48,8 @@ void vtkRectilinearGridPartitioner::PrintSelf(
     std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
+  oss << "NumberOfPartitions: " << this->NumberOfPartitions << std::endl;
+  oss << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
 
 //------------------------------------------------------------------------------

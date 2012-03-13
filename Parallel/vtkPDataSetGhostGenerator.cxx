@@ -34,6 +34,7 @@ vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator()
 void vtkPDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << "Controller: " << this->Controller << std::endl;
 }
 
 //------------------------------------------------------------------------------

@@ -38,6 +38,7 @@ vtkDataSetGhostGenerator::~vtkDataSetGhostGenerator()
 void vtkDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
 
 //------------------------------------------------------------------------------

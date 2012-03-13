@@ -32,4 +32,6 @@ vtkAbstractGridConnectivity::~vtkAbstractGridConnectivity()
 void vtkAbstractGridConnectivity::PrintSelf(std::ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << "NumberOfGrids: " << this->NumberOfGrids << std::endl;
+  os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }
