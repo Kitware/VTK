@@ -71,6 +71,13 @@ vtkCellLocator::vtkCellLocator()
   this->H[0] = this->H[1] = this->H[2] = 1.0;
 
   this->Buckets = new vtkNeighborCells(10, 10);
+  this->NumberOfOctants = 0;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
+  this->OctantBounds[0] = this->OctantBounds[2] =
+    this->OctantBounds[4] = VTK_DOUBLE_MAX;
+  this->OctantBounds[1] = this->OctantBounds[3] =
+    this->OctantBounds[5] = VTK_DOUBLE_MIN;
 }
 
 //----------------------------------------------------------------------------
