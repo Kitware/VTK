@@ -62,6 +62,14 @@ vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkUnstructuredGridVolumeZSweepMapper.cxx
 )
 
+IF(VTK_USE_PARALLEL)
+ set(Kit_SRCS ${Kit_SRCS} vtkAMRVolumeMapper.cxx)
+ set(KIT_INTERFACE_LIBRARIES ${KIT_INTERFACE_LIBRARIES} vtkAMR)
+ set(KIT_TCL_LIBS ${KIT_TCL_LIBS} vtkAMRTCL)
+ set(KIT_PYTHON_LIBS ${KIT_PYTHON_LIBS} vtkAMRPythonD)
+ set(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} vtkAMRJava) 
+ENDIF(VTK_USE_PARALLEL)
+
 SET( KitOpenGL_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLHAVSVolumeMapper.cxx   
