@@ -666,9 +666,6 @@ QPaintEngine* QVTKWidget::paintEngine() const
 #if defined(VTK_USE_OPENGL_LIBRARY)
 #include "vtkXOpenGLRenderWindow.h"
 #endif
-#ifdef VTK_USE_MANGLED_MESA
-#include "vtkXMesaRenderWindow.h"
-#endif
 #endif
 
 #ifdef VTK_USE_TDX
@@ -719,17 +716,6 @@ void QVTKWidget::x11_setup_window()
     {
     vi = ogl_win->GetDesiredVisualInfo();
     cmap = ogl_win->GetDesiredColormap();
-    }
-#endif
-#ifdef VTK_USE_MANGLED_MESA
-  if(!vi)
-    {
-    vtkXMesaRenderWindow* mgl_win = vtkXMesaRenderWindow::SafeDownCast(mRenWin);
-    if(mgl_win)
-      {
-      vi = mgl_win->GetDesiredVisualInfo();
-      cmap = mgl_win->GetDesiredColormap();
-      }
     }
 #endif
 

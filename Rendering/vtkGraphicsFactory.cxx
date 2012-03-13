@@ -76,25 +76,6 @@
 //# define VTK_DISPLAY_X11_OGL
 #endif
 
-#if defined(VTK_USE_MANGLED_MESA)
-#include "vtkMesaActor.h"
-#include "vtkMesaCamera.h"
-#include "vtkMesaClipPlanesPainter.h"
-#include "vtkMesaCoincidentTopologyResolutionPainter.h"
-#include "vtkMesaDisplayListPainter.h"
-#include "vtkMesaImageSliceMapper.h"
-#include "vtkMesaLight.h"
-#include "vtkMesaLightingPainter.h"
-#include "vtkMesaPainterDeviceAdapter.h"
-#include "vtkMesaProperty.h"
-#include "vtkMesaPolyDataMapper.h"
-#include "vtkMesaRenderer.h"
-#include "vtkMesaRepresentationPainter.h"
-#include "vtkMesaScalarsToColorsPainter.h"
-#include "vtkMesaTexture.h"
-#include "vtkXMesaRenderWindow.h"
-#endif
-
 #include "vtkDummyGPUInfoList.h"
 #ifdef VTK_USE_DIRECTX // Windows
 # include "vtkDirectXGPUInfoList.h"
@@ -190,12 +171,6 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkXMesaRenderWindow::New();
-        }
-#endif
       return vtkXOpenGLRenderWindow::New();
       }
     }
@@ -285,52 +260,22 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaActor::New();
-        }
-#endif
       return vtkOpenGLActor::New();
       }
     if(strcmp(vtkclassname, "vtkCamera") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaCamera::New();
-        }
-#endif
       return vtkOpenGLCamera::New();
       }
     if(strcmp(vtkclassname, "vtkImageSliceMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaImageSliceMapper::New();
-        }
-#endif
       return vtkOpenGLImageSliceMapper::New();
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaLight::New();
-        }
-#endif
       return vtkOpenGLLight::New();
       }
     if(strcmp(vtkclassname, "vtkProperty") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaProperty::New();
-        }
-#endif
       return vtkOpenGLProperty::New();
       }
     if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
@@ -339,102 +284,42 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       }
     if (strcmp(vtkclassname, "vtkPainterDeviceAdapter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaPainterDeviceAdapter::New();
-        }
-#endif
       return vtkOpenGLPainterDeviceAdapter::New();
       }
     if (strcmp(vtkclassname, "vtkScalarsToColorsPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaScalarsToColorsPainter::New();
-        }
-#endif
       return vtkOpenGLScalarsToColorsPainter::New();
       }
     if (strcmp(vtkclassname, "vtkClipPlanesPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaClipPlanesPainter::New();
-        }
-#endif
       return vtkOpenGLClipPlanesPainter::New();
       }
     if (strcmp(vtkclassname, "vtkCoincidentTopologyResolutionPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaCoincidentTopologyResolutionPainter::New();
-        }
-#endif
       return vtkOpenGLCoincidentTopologyResolutionPainter::New();
       }
     if (strcmp(vtkclassname, "vtkDisplayListPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaDisplayListPainter::New();
-        }
-#endif
       return vtkOpenGLDisplayListPainter::New();
       }
     if (strcmp(vtkclassname, "vtkLightingPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaLightingPainter::New();
-        }
-#endif
       return vtkOpenGLLightingPainter::New();
       }
     if (strcmp(vtkclassname, "vtkRepresentationPainter") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaRepresentationPainter::New();
-        }
-#endif
       return vtkOpenGLRepresentationPainter::New();
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaRenderer::New();
-        }
-#endif
       return vtkOpenGLRenderer::New();
       }
     if(strcmp(vtkclassname, "vtkTexture") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return vtkMesaTexture::New();
-        }
-#endif
       return vtkOpenGLTexture::New();
       }
     if(strcmp(vtkclassname, "vtkGlyph3DMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::UseMesaClasses )
-        {
-        return NULL;
-        }
-#endif
       return vtkOpenGLGlyph3DMapper::New();
       }
     }
