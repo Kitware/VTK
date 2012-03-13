@@ -31,7 +31,7 @@ namespace
 {
 static double angle = 0;
 
-void ProcessEvents(vtkObject *caller, unsigned long event,
+void ProcessEvents(vtkObject *caller, unsigned long,
                    void *clientData, void *callerData)
 {
   vtkChartXYZ *chart = reinterpret_cast<vtkChartXYZ *>(clientData);

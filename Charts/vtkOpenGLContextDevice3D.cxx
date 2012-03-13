@@ -135,6 +135,7 @@ vtkStandardNewMacro(vtkOpenGLContextDevice3D)
 
 vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {
+  this->InRender = false;
 }
 
 vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()

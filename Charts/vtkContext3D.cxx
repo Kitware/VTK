@@ -25,7 +25,17 @@ vtkStandardNewMacro(vtkContext3D)
 
 void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
 {
-
+  Superclass::PrintSelf(os, indent);
+  os << indent << "Context Device: ";
+  if (this->Device)
+    {
+    os << endl;
+    this->Device->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 bool vtkContext3D::Begin(vtkContextDevice3D *device)

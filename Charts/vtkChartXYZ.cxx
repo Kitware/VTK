@@ -313,7 +313,7 @@ void vtkChartXYZ::RecalculateBounds()
     }
 }
 
-void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
+void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *)
 {
   // Copy the row numbers so that we can do the highlight...
 }
