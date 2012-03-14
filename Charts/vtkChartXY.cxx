@@ -1078,6 +1078,30 @@ vtkChartLegend* vtkChartXY::GetLegend()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::SetTooltip(vtkTooltipItem *tooltip)
+{
+  if(tooltip == this->Tooltip)
+    {
+    // nothing to change
+    return;
+    }
+
+  if(this->Tooltip)
+    {
+    // remove current tooltip from scene
+    this->RemoveItem(this->Tooltip);
+    }
+
+  this->Tooltip = tooltip;
+
+  if(this->Tooltip)
+    {
+    // add new tooltip to scene
+    this->AddItem(this->Tooltip);
+    }
+}
+
+//-----------------------------------------------------------------------------
 vtkTooltipItem* vtkChartXY::GetTooltip()
 {
   return this->Tooltip;

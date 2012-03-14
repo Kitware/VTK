@@ -103,6 +103,10 @@ public:
   virtual vtkChartLegend* GetLegend();
 
   // Description:
+  // Set the vtkTooltipItem object that will be displayed by the chart.
+  virtual void SetTooltip(vtkTooltipItem *tooltip);
+
+  // Description:
   // Get the vtkTooltipItem object that will be displayed by the chart.
   virtual vtkTooltipItem* GetTooltip();
 
