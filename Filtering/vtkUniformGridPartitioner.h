@@ -19,6 +19,9 @@
 //  functionality for partitioning a uniform grid. The partitioning method
 //  that is used is Recursive Coordinate Bisection (RCB) where each time
 //  the longest dimension is split.
+//
+// .SECTION See Also
+// vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
 
 #ifndef VTKUNIFORMGRIDPARTITIONER_H_
 #define VTKUNIFORMGRIDPARTITIONER_H_
@@ -35,12 +38,17 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
   public:
       static vtkUniformGridPartitioner *New();
       vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf( std::ostream &oss, vtkIndent indent );
+      void PrintSelf(ostream &oss, vtkIndent indent );
 
       // Description:
       // Set/Get macro for the number of subdivisions.
       vtkGetMacro(NumberOfPartitions,int);
       vtkSetMacro(NumberOfPartitions,int);
+
+      // Description:
+      // Set/Get macro for the number of ghost layers.
+      vtkGetMacro(NumberOfGhostLayers,int);
+      vtkSetMacro(NumberOfGhostLayers,int);
 
   protected:
     vtkUniformGridPartitioner();
@@ -53,6 +61,7 @@ class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
     virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
     int NumberOfPartitions;
+    int NumberOfGhostLayers;
   private:
     vtkUniformGridPartitioner(const vtkUniformGridPartitioner &); // Not implemented
     void operator=(const vtkUniformGridPartitioner &); // Not implemented

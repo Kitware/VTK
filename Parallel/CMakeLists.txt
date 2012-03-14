@@ -54,6 +54,7 @@ vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
 vtkPCosmoHaloFinder.cxx
 vtkPCosmoReader.cxx
+vtkPDataSetGhostGenerator.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
@@ -132,6 +133,7 @@ vtkAMRUtilities
 vtkCommunicator 
 vtkMultiProcessController
 vtkMultiProcessStream
+vtkPDataSetGhostGenerator
 vtkPStreamTracer
 vtkProcess
 ABSTRACT
@@ -161,6 +163,9 @@ IF (VTK_USE_MPI)
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkPNetCDFPOPReader.cxx
+    vtkPStructuredGridConnectivity.cxx
+    vtkPUniformGridGhostDataGenerator.cxx
+    vtkPStructuredGridGhostDataGenerator.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

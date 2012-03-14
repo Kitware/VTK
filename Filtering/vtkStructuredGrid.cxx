@@ -574,6 +574,8 @@ void vtkStructuredGrid::SetPointVisibilityArray(vtkUnsignedCharArray *ptVis)
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkStructuredGrid::GetPointVisibilityArray()
 {
+  this->PointVisibility->Initialize(this->Dimensions);
+  this->PointVisibility->Allocate();
   return this->PointVisibility->GetVisibilityById();
 }
 
@@ -581,7 +583,9 @@ vtkUnsignedCharArray* vtkStructuredGrid::GetPointVisibilityArray()
 // Turn off a particular data cell.
 void vtkStructuredGrid::BlankCell(vtkIdType cellId)
 {
-  this->CellVisibility->Initialize(this->Dimensions);
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims );
   this->CellVisibility->Blank(cellId);
 }
 
@@ -589,7 +593,9 @@ void vtkStructuredGrid::BlankCell(vtkIdType cellId)
 // Turn on a particular data cell.
 void vtkStructuredGrid::UnBlankCell(vtkIdType cellId)
 {
-  this->CellVisibility->Initialize(this->Dimensions);
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims );
   this->CellVisibility->UnBlank(cellId);
 }
 
@@ -602,6 +608,10 @@ void vtkStructuredGrid::SetCellVisibilityArray(vtkUnsignedCharArray *cellVis)
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkStructuredGrid::GetCellVisibilityArray()
 {
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims );
+  this->CellVisibility->Allocate();
   return this->CellVisibility->GetVisibilityById();
 }
 
@@ -609,6 +619,15 @@ vtkUnsignedCharArray* vtkStructuredGrid::GetCellVisibilityArray()
 unsigned char vtkStructuredGrid::IsPointVisible(vtkIdType pointId)
 {
   return this->PointVisibility->IsVisible(pointId);
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetCellDims( int cellDims[3] )
+{
+  for( int i=0; i < 3; ++i )
+    {
+    cellDims[i] = ( (this->Dimensions[i]-1) < 1)? 1 : this->Dimensions[i]-1;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1214,7 +1233,8 @@ vtkStructuredGrid* vtkStructuredGrid::GetData(vtkInformationVector* v, int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::GetPoint(int i, int j, int k, double p[3], bool adjustForExtent)
+void vtkStructuredGrid::GetPoint(
+    int i,int j,int k,double p[3],bool adjustForExtent)
 {
   int extent[6];
   this->GetExtent(extent);  
@@ -1223,6 +1243,7 @@ void vtkStructuredGrid::GetPoint(int i, int j, int k, double p[3], bool adjustFo
      j < extent[2] || j > extent[3] || 
      k < extent[4] || k > extent[5])
     {
+    vtkErrorMacro("ERROR: IJK coordinates are outside of grid extent!");
     return; // out of bounds!
     }
   

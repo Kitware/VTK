@@ -11,6 +11,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestArrayLookup.cxx
   TestConditionVariable.cxx
   TestGarbageCollector.cxx
+  TestGhostArray.cxx
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
   TestDirectory.cxx

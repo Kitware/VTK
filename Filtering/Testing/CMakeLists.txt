@@ -38,5 +38,6 @@ IF(PYTHON_EXECUTABLE)
     vtkMarchingSquaresCases.h
     vtkMarchingSquaresLineCases.h
     vtkStructuredPoints.h
+    vtkStructuredNeighbor.h
     )
 ENDIF(PYTHON_EXECUTABLE)

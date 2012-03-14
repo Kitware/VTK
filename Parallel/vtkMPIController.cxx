@@ -15,11 +15,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkIntArray.h"
 #include "vtkOutputWindow.h"
 
 #include "vtkMPI.h"
 
 #include "vtkSmartPointer.h"
+
+#include <cassert>
+
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -340,4 +344,96 @@ vtkMPIController *vtkMPIController::PartitionController(int localColor,
   vtkMPIController *controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);
   return controller;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMPIController::WaitSome(
+  const int count, vtkMPICommunicator::Request rqsts[], vtkIntArray *completed)
+{
+  assert( "pre: completed array is NULL!" && (completed != NULL) );
+
+  // Allocate set of completed requests
+  completed->SetNumberOfComponents(1);
+  completed->SetNumberOfTuples( count );
+
+  // Downcast to MPI communicator
+  vtkMPICommunicator *myMPICommunicator =
+      (vtkMPICommunicator*)this->Communicator;
+
+  // Delegate to MPI communicator
+  int N = 0;
+  int rc = myMPICommunicator->WaitSome(count,rqsts,N,completed->GetPointer(0));
+  assert("post: Number of completed requests must N > 0" &&
+         (N > 0) && (N < (count-1) ) );
+  completed->Resize( N );
+
+  return( rc );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMPIController::TestAll(
+    const int count, vtkMPICommunicator::Request requests[] )
+{
+  int flag = 0;
+
+  // Downcast to MPI communicator
+  vtkMPICommunicator *myMPICommunicator =
+     (vtkMPICommunicator*)this->Communicator;
+
+  myMPICommunicator->TestAll( count, requests, flag );
+  if( flag )
+    {
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMPIController::TestAny(
+    const int count, vtkMPICommunicator::Request requests[], int &idx )
+{
+  int flag = 0;
+
+  // Downcast to MPI communicator
+  vtkMPICommunicator *myMPICommunicator =
+     (vtkMPICommunicator*)this->Communicator;
+
+  myMPICommunicator->TestAny( count, requests, idx, flag );
+  if( flag )
+    {
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMPIController::TestSome(
+    const int count, vtkMPICommunicator::Request requests[],
+    vtkIntArray *completed )
+{
+  assert("pre: completed array is NULL" && (completed != NULL) );
+
+  // Allocate set of completed requests
+  completed->SetNumberOfComponents(1);
+  completed->SetNumberOfTuples(count);
+
+  // Downcast to MPI communicator
+  vtkMPICommunicator *myMPICommunicator =
+      (vtkMPICommunicator*)this->Communicator;
+
+  int N = 0;
+  myMPICommunicator->TestSome(count,requests,N,completed->GetPointer(0));
+  assert("post: Number of completed requests must N > 0" &&
+         (N > 0) && (N < (count-1) ) );
+
+  if( N > 0 )
+    {
+    completed->Resize( N );
+    return true;
+    }
+  else
+    {
+    completed->Resize( 0 );
+    return false;
+    }
 }

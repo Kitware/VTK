@@ -35,7 +35,7 @@ class VTK_FILTERING_EXPORT vtkImageToStructuredGrid:
   public:
     static vtkImageToStructuredGrid* New();
     vtkTypeMacro(vtkImageToStructuredGrid,vtkStructuredGridAlgorithm);
-    void PrintSelf( std::ostream &oss, vtkIndent indent );
+    void PrintSelf(ostream &oss, vtkIndent indent );
 
   protected:
     vtkImageToStructuredGrid();

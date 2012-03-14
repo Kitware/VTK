@@ -71,6 +71,7 @@ vtkGarbageCollector.cxx
 vtkGarbageCollectorManager.cxx
 vtkGaussianRandomSequence.cxx
 vtkGeneralTransform.cxx
+vtkGhostArray.cxx
 vtkHeap.cxx
 vtkHomogeneousTransform.cxx
 vtkIOStream.cxx

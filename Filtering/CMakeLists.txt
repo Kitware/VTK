@@ -8,6 +8,7 @@ SET(KIT_INTERFACE_LIBRARIES vtkCommon)
 SET( Kit_SRCS
 vtkImageToStructuredGrid.cxx
 vtkAbstractCellLocator.cxx
+vtkAbstractGridConnectivity.cxx
 vtkAbstractImageInterpolator.cxx
 vtkAbstractInterpolatedVelocityField.cxx
 vtkAbstractMapper.cxx
@@ -60,6 +61,7 @@ vtkDataSetAlgorithm.cxx
 vtkDataSetAttributes.cxx
 vtkDataSetCollection.cxx
 vtkDataSet.cxx
+vtkDataSetGhostGenerator.cxx
 vtkDemandDrivenPipeline.cxx
 vtkDirectedAcyclicGraph.cxx
 vtkDirectedGraphAlgorithm.cxx
@@ -190,6 +192,7 @@ vtkQuadraticTriangle.cxx
 vtkQuadraticWedge.cxx
 vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGrid.cxx
+vtkRectilinearGridPartitioner.cxx
 vtkReebGraph.cxx
 vtkReebGraphSimplificationMetric.cxx
 vtkScalarTree.cxx
@@ -205,6 +208,10 @@ vtkSpline.cxx
 vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGridAlgorithm.cxx
 vtkStructuredGrid.cxx
+vtkStructuredGridConnectivity.cxx
+vtkStructuredGridGhostDataGenerator.cxx
+vtkStructuredGridPartitioner.cxx
+vtkStructuredNeighbor.cxx
 vtkStructuredPointsCollection.cxx
 vtkStructuredPoints.cxx
 vtkSuperquadric.cxx
@@ -227,6 +234,8 @@ vtkTrivialProducer.cxx
 vtkUndirectedGraphAlgorithm.cxx
 vtkUndirectedGraph.cxx
 vtkUniformGrid.cxx
+vtkUniformGridGhostDataGenerator.cxx
+vtkUniformGridPartitioner.cxx
 vtkUnstructuredGridAlgorithm.cxx
 vtkUniformGridAMR.cxx
 vtkUniformGridAMRAlgorithm.cxx
@@ -243,6 +252,7 @@ vtkWedge.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractCellLocator
+vtkAbstractGridConnectivity
 vtkAbstractImageInterpolator
 vtkAbstractInterpolatedVelocityField
 vtkAbstractMapper
@@ -252,6 +262,13 @@ vtkCell3D
 vtkCompositeDataIterator
 vtkCompositeDataSet
 vtkDataSet
+vtkDataSetGhostGenerator
+vtkDataSetToDataSetFilter
+vtkDataSetToImageFilter
+vtkDataSetToPolyDataFilter
+vtkDataSetToStructuredGridFilter
+vtkDataSetToStructuredPointsFilter
+vtkDataSetToUnstructuredGridFilter
 vtkDistributedGraphHelper
 vtkExecutive
 vtkExplicitCell
@@ -300,6 +317,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkImageProgressIterator.cxx
   vtkMarchingSquaresLineCases.cxx
   vtkMarchingCubesTriangleCases.cxx
+  vtkStructuredNeighbor.cxx
   WRAP_EXCLUDE
 )
 

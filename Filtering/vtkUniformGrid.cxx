@@ -782,6 +782,7 @@ void vtkUniformGrid::ComputeScalarRange()
 void vtkUniformGrid::BlankPoint(vtkIdType ptId)
 {
   this->PointVisibility->Initialize(this->GetDimensions());
+  this->PointVisibility->Allocate();
   this->PointVisibility->Blank(ptId);
 }
 
@@ -799,6 +800,7 @@ void vtkUniformGrid::BlankPoint( const int i, const int j, const int k )
 void vtkUniformGrid::UnBlankPoint(vtkIdType ptId)
 {
   this->PointVisibility->Initialize(this->GetDimensions());
+  this->PointVisibility->Allocate();
   this->PointVisibility->UnBlank(ptId);
 }
 
@@ -820,6 +822,8 @@ void vtkUniformGrid::SetPointVisibilityArray(vtkUnsignedCharArray *ptVis)
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkUniformGrid::GetPointVisibilityArray()
 {
+  this->PointVisibility->Initialize(this->GetDimensions());
+  this->PointVisibility->Allocate();
   return this->PointVisibility->GetVisibilityById();
 }
 
@@ -827,13 +831,10 @@ vtkUnsignedCharArray* vtkUniformGrid::GetPointVisibilityArray()
 // Turn off a particular data cell.
 void vtkUniformGrid::BlankCell(vtkIdType cellId)
 {
-  int dims[3];
-  this->GetDimensions( dims );;
-  dims[0]--;dims[1]--;dims[2]--;
-  dims[0] = ( dims[0] < 1 )? 1 : dims[0];
-  dims[1] = ( dims[1] < 1 )? 1 : dims[1];
-  dims[2] = ( dims[2] < 1 )? 1 : dims[2];
-  this->CellVisibility->Initialize( dims );
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims  );
+  this->CellVisibility->Allocate();
   this->CellVisibility->Blank(cellId);
 }
 
@@ -852,13 +853,10 @@ void vtkUniformGrid::BlankCell( const int i, const int j, const int k )
 // Turn on a particular data cell.
 void vtkUniformGrid::UnBlankCell(vtkIdType cellId)
 {
-  int dims[3];
-  this->GetDimensions( dims );
-  dims[0]--;dims[1]--;dims[2]--;
-  dims[0] = ( dims[0] < 1 )? 1 : dims[0];
-  dims[1] = ( dims[1] < 1 )? 1 : dims[1];
-  dims[2] = ( dims[2] < 1 )? 1 : dims[2];
-  this->CellVisibility->Initialize( dims );
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims  );
+  this->CellVisibility->Allocate();
   this->CellVisibility->UnBlank(cellId);
 }
 
@@ -930,6 +928,10 @@ void vtkUniformGrid::SetCellVisibilityArray(vtkUnsignedCharArray *cellVis)
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkUniformGrid::GetCellVisibilityArray()
 {
+  int celldims[3];
+  this->GetCellDims( celldims );
+  this->CellVisibility->Initialize( celldims  );
+  this->CellVisibility->Allocate();
   return this->CellVisibility->GetVisibilityById();
 }
 
@@ -1047,6 +1049,17 @@ unsigned char vtkUniformGrid::GetCellBlanking()
 {
   return this->PointVisibility->IsConstrained() ||
     this->CellVisibility->IsConstrained();
+}
+
+//----------------------------------------------------------------------------
+void vtkUniformGrid::GetCellDims( int cellDims[3] )
+{
+  int nodeDims[3];
+  this->GetDimensions( nodeDims );
+  for( int i=0; i < 3; ++i )
+    {
+    cellDims[i] = ( (nodeDims[i]-1) < 1)? 1 : nodeDims[i]-1;
+    }
 }
 
 //----------------------------------------------------------------------------

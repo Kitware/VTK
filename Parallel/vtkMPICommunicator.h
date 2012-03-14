@@ -108,6 +108,8 @@ public:
                   int tag, Request& req);
   int NoBlockSend(const char* data, int length, int remoteProcessId, 
                   int tag, Request& req);
+  int NoBlockSend(const unsigned char* data, int length, int remoteProcessId,
+                    int tag, Request& req);
   int NoBlockSend(const float* data, int length, int remoteProcessId, 
                   int tag, Request& req);
   int NoBlockSend(const double* data, int length, int remoteProcessId, 
@@ -124,6 +126,8 @@ public:
   int NoBlockReceive(unsigned long* data, int length, 
                      int remoteProcessId, int tag, Request& req);
   int NoBlockReceive(char* data, int length, int remoteProcessId, 
+                     int tag, Request& req);
+  int NoBlockReceive(unsigned char* data, int length, int remoteProcessId,
                      int tag, Request& req);
   int NoBlockReceive(float* data, int length, int remoteProcessId, 
                      int tag, Request& req);
@@ -191,6 +195,41 @@ public:
   int Iprobe(int source, int tag, int* flag, int* actualSource,
              double* type, int* size);
 
+  // Description:
+  // Given the request objects of a set of non-blocking operations
+  // (send and/or receive) this method blocks until all requests are complete.
+  int WaitAll(const int count, Request requests[]);
+
+  // Description:
+  // Blocks until *one* of the specified requests in the given request array
+  // completes. Upon return, the index in the array of the completed request
+  // object is returned through the argument list.
+  int WaitAny(const int count, Request requests[], int& idx);
+
+  // Description:
+  // Blocks until *one or more* of the specified requests in the given request
+  // request array completes. Upon return, the list of handles that have
+  // completed is stored in the completed vtkIntArray.
+  int WaitSome(
+      const int count, Request requests[], int &NCompleted, int *completed );
+
+  // Description:
+  // Checks if the given communication request objects are complete. Upon
+  // return, flag evaluates to true iff *all* of the communication request
+  // objects are complete.
+  int TestAll( const int count, Request requests[], int& flag );
+
+  // Description:
+  // Check if at least *one* of the specified requests has completed.
+  int TestAny(const int count, Request requests[], int &idx, int &flag );
+
+  // Description:
+  // Checks the status of *all* the given request communication object handles.
+  // Upon return, NCompleted holds the count of requests that have completed
+  // and the indices of the completed requests, w.r.t. the requests array is
+  // given the by the pre-allocated completed array.
+  int TestSome(const int count,Request requests[],
+               int& NCompleted,int *completed);
 //BTX
 
   friend class vtkMPIController;

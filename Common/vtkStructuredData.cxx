@@ -16,6 +16,7 @@
 
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkStructuredExtent.h"
 #include <assert.h>
 
 
@@ -43,6 +44,103 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
     }
 }
 
+//------------------------------------------------------------------------------
+int vtkStructuredData::GetNumberOfNodes( int ext[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  int N = 0;
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent( ext,nodeDims,dataDescription );
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      N = 1;
+      break;
+    case VTK_X_LINE:
+      N = nodeDims[0];
+      break;
+    case VTK_Y_LINE:
+      N = nodeDims[1];
+      break;
+    case VTK_Z_LINE:
+      N = nodeDims[2];
+      break;
+    case VTK_XY_PLANE:
+      N = nodeDims[0]*nodeDims[1];
+      break;
+    case VTK_YZ_PLANE:
+      N = nodeDims[1]*nodeDims[2];
+      break;
+    case VTK_XZ_PLANE:
+      N = nodeDims[0]*nodeDims[2];
+      break;
+    case VTK_XYZ_GRID:
+      N = nodeDims[0]*nodeDims[1]*nodeDims[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Undefined data description!");
+    }
+
+  return( N );
+}
+
+//------------------------------------------------------------------------------
+int vtkStructuredData::GetNumberOfCells( int ext[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  int N = 0;
+  int cellDims[3];
+  vtkStructuredData::GetCellDimensionsFromExtent(ext,cellDims,dataDescription);
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      N = 0;
+      break;
+    case VTK_X_LINE:
+      N = cellDims[0];
+      break;
+    case VTK_Y_LINE:
+      N = cellDims[1];
+      break;
+    case VTK_Z_LINE:
+      N = cellDims[2];
+      break;
+    case VTK_XY_PLANE:
+      N = cellDims[0]*cellDims[1];
+      break;
+    case VTK_YZ_PLANE:
+      N = cellDims[1]*cellDims[2];
+      break;
+    case VTK_XZ_PLANE:
+      N = cellDims[0]*cellDims[2];
+      break;
+    case VTK_XYZ_GRID:
+      N = cellDims[0]*cellDims[1]*cellDims[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Undefined data description!");
+    }
+  return( N );
+}
+
+//------------------------------------------------------------------------------
+int vtkStructuredData::GetDataDimension( int ext[6] )
+{
+  int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+  return( vtkStructuredData::GetDataDimension( dataDescription ) );
+}
+
+//------------------------------------------------------------------------------
 // Returns the data description given the dimensions (eg. VTK_SINGLE_POINT,
 // VTK_X_LINE, VTK_XY_PLANE etc.)
 int vtkStructuredData::GetDataDescription(int dims[3])
@@ -57,6 +155,308 @@ int vtkStructuredData::GetDataDescription(int dims[3])
   return vtkStructuredData::SetDimensions(dims, tempDims);
 }
 
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetCellExtentFromNodeExtent(
+    int nodeExtent[6], int cellExtent[6], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription =
+        vtkStructuredData::GetDataDescriptionFromExtent( nodeExtent );
+    }
+
+  // Initialize the cell extent to be the same as the node extent
+  for( int i=0; i < 6; ++i )
+    {
+    cellExtent[ i ] = nodeExtent[ i ];
+    }
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      // Do nothing ?
+      break;
+    case VTK_X_LINE:
+      cellExtent[1]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
+      break;
+    case VTK_Y_LINE:
+      cellExtent[3]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      break;
+    case VTK_Z_LINE:
+      cellExtent[5]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[5] >= 1) );
+      break;
+    case VTK_XY_PLANE:
+      cellExtent[1]--;
+      cellExtent[3]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      break;
+    case VTK_YZ_PLANE:
+      cellExtent[3]--;
+      cellExtent[5]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[5] >= 1) );
+      break;
+    case VTK_XZ_PLANE:
+      cellExtent[1]--;
+      cellExtent[5]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[5] >= 1) );
+      break;
+    case VTK_XYZ_GRID:
+      cellExtent[1]--;
+      cellExtent[3]--;
+      cellExtent[5]--;
+      assert( "post: Cell extents must be >= 1" && (cellExtent[1] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[3] >= 1) );
+      assert( "post: Cell extents must be >= 1" && (cellExtent[5] >= 1) );
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetCellDimensionsFromExtent(
+    int ext[6], int celldims[3], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  celldims[0] = celldims[1] = celldims[2] = 0;
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      // Do nothing?
+      break;
+    case VTK_X_LINE:
+      celldims[0] = ext[1]-ext[0];
+      celldims[0] = (celldims[0] < 0)? 0 : celldims[0];
+      break;
+    case VTK_Y_LINE:
+      celldims[1] = ext[3]-ext[2];
+      celldims[1] = (celldims[1] < 0)? 0 : celldims[1];
+      break;
+    case VTK_Z_LINE:
+      celldims[2] = ext[5]-ext[4];
+      celldims[2] = (celldims[2] < 0)? 0 : celldims[2];
+      break;
+    case VTK_XY_PLANE:
+      celldims[0] = ext[1]-ext[0];
+      celldims[1] = ext[3]-ext[2];
+      celldims[0] = (celldims[0] < 0)? 0 : celldims[0];
+      celldims[1] = (celldims[1] < 0)? 0 : celldims[1];
+      break;
+    case VTK_YZ_PLANE:
+      celldims[1] = ext[3]-ext[2];
+      celldims[2] = ext[5]-ext[4];
+      celldims[1] = (celldims[1] < 0)? 0 : celldims[1];
+      celldims[2] = (celldims[2] < 0)? 0 : celldims[2];
+      break;
+    case VTK_XZ_PLANE:
+      celldims[0] = ext[1]-ext[0];
+      celldims[2] = ext[5]-ext[4];
+      celldims[0] = (celldims[0] < 0)? 0 : celldims[0];
+      celldims[2] = (celldims[2] < 0)? 0 : celldims[2];
+      break;
+    case VTK_XYZ_GRID:
+      celldims[0] = ext[1]-ext[0];
+      celldims[1] = ext[3]-ext[2];
+      celldims[2] = ext[5]-ext[4];
+      celldims[0] = (celldims[0] < 0)? 0 : celldims[0];
+      celldims[1] = (celldims[1] < 0)? 0 : celldims[1];
+      celldims[2] = (celldims[2] < 0)? 0 : celldims[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetCellDimensionsFromNodeDimensions(
+    int nodeDims[3], int cellDims[3] )
+{
+  assert( "pre: node dims must be at least 1" && nodeDims[0] >= 1);
+  assert( "pre: node dims must be at least 1" && nodeDims[1] >= 1);
+  assert( "pre: node dims must be at least 1" && nodeDims[2] >= 1);
+
+  for( int i=0; i < 3; ++i )
+    {
+    cellDims[ i ] = nodeDims[ i ]-1;
+    cellDims[ i ] = (cellDims[i] < 0 )? 0 : cellDims[ i ];
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetDimensionsFromExtent(
+    int ext[6], int dims[3], int dataDescription )
+{
+  dims[0] = dims[1] = dims[2] = 1;
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      dims[0] = dims[1] = dims[2] = 1;
+      break;
+    case VTK_X_LINE:
+      dims[0] = ext[1]-ext[0]+1;
+      break;
+    case VTK_Y_LINE:
+      dims[1] = ext[3]-ext[2]+1;
+      break;
+    case VTK_Z_LINE:
+      dims[2] = ext[5]-ext[4]+1;
+      break;
+    case VTK_XY_PLANE:
+      dims[0] = ext[1]-ext[0]+1;
+      dims[1] = ext[3]-ext[2]+1;
+      break;
+    case VTK_YZ_PLANE:
+      dims[1] = ext[3]-ext[2]+1;
+      dims[2] = ext[5]-ext[4]+1;
+      break;
+    case VTK_XZ_PLANE:
+      dims[0] = ext[1]-ext[0]+1;
+      dims[2] = ext[5]-ext[4]+1;
+      break;
+    case VTK_XYZ_GRID:
+      dims[0] = ext[1]-ext[0]+1;
+      dims[1] = ext[3]-ext[2]+1;
+      dims[2] = ext[5]-ext[4]+1;
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetLocalStructuredCoordinates(
+    int ijk[3], int ext[6], int lijk[3], int dataDescription )
+{
+  lijk[0] = lijk[1] = lijk[2] = 0;
+
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      lijk[0] = lijk[1] = lijk[2] = 0;
+      break;
+    case VTK_X_LINE:
+      lijk[0] = ijk[0]-ext[0];
+      break;
+    case VTK_Y_LINE:
+      lijk[1] = ijk[1]-ext[2];
+      break;
+    case VTK_Z_LINE:
+      lijk[2] = ijk[2]-ext[4];
+      break;
+    case VTK_XY_PLANE:
+      lijk[0] = ijk[0]-ext[0];
+      lijk[1] = ijk[1]-ext[2];
+      break;
+    case VTK_YZ_PLANE:
+      lijk[1] = ijk[1]-ext[2];
+      lijk[2] = ijk[2]-ext[4];
+      break;
+    case VTK_XZ_PLANE:
+      lijk[0] = ijk[0]-ext[0];
+      lijk[2] = ijk[2]-ext[4];
+      break;
+    case VTK_XYZ_GRID:
+      lijk[0] = ijk[0]-ext[0];
+      lijk[1] = ijk[1]-ext[2];
+      lijk[2] = ijk[2]-ext[4];
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get local structured coordinates");
+    }
+
+  assert( "post: local ijk is out-of-bounds" && lijk[0] >= 0 );
+  assert( "post: local ijk is out-of-bounds" && lijk[1] >= 0 );
+  assert( "post: local ijk is out-of-bounds" && lijk[2] >= 0 );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetGlobalStructuredCoordinates(
+    int lijk[3], int ext[6], int ijk[3], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescriptionFromExtent( ext );
+    }
+
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      ijk[0] = ext[0];
+      ijk[1] = ext[2];
+      ijk[2] = ext[4];
+      break;
+    case VTK_X_LINE:
+      ijk[0] = ext[0] + lijk[0];
+      ijk[1] = ext[2];
+      ijk[2] = ext[4];
+      break;
+    case VTK_Y_LINE:
+      ijk[0] = ext[0];
+      ijk[1] = ext[2] + lijk[1];
+      ijk[2] = ext[4];
+      break;
+    case VTK_Z_LINE:
+      ijk[0] = ext[0];
+      ijk[1] = ext[2];
+      ijk[2] = ext[4] + lijk[2];
+      break;
+    case VTK_XY_PLANE:
+      ijk[0] = ext[0] + lijk[0];
+      ijk[1] = ext[2] + lijk[1];
+      ijk[2] = ext[4];
+      break;
+    case VTK_YZ_PLANE:
+      ijk[0] = ext[0];
+      ijk[1] = ext[2] + lijk[1];
+      ijk[2] = ext[4] + lijk[2];
+      break;
+    case VTK_XZ_PLANE:
+      ijk[0] = ext[0] + lijk[0];
+      ijk[1] = ext[2];
+      ijk[2] = ext[4] + lijk[2];
+      break;
+    case VTK_XYZ_GRID:
+      ijk[0] = ext[0] + lijk[0];
+      ijk[1] = ext[2] + lijk[1];
+      ijk[2] = ext[4] + lijk[2];
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get global structured coordinates");
+    }
+}
+
+//------------------------------------------------------------------------------
+// Given the extent, returns the data description given the dimensions
+// (eg. VTK_SINGLE_POINT,VTK_X_LINE, VTK_XY_PLANE etc.)
+int vtkStructuredData::GetDataDescriptionFromExtent(int ext[6] )
+{
+  int dims[3];
+  vtkStructuredExtent::GetDimensions( ext, dims );
+  return( vtkStructuredData::GetDataDescription( dims ) );
+}
+
+//------------------------------------------------------------------------------
 // Specify the dimensions of a regular, rectangular dataset. The input is
 // the new dimensions (inDim) and the current dimensions (dim). The function
 // returns the dimension of the dataset (0-3D). If the dimensions are
@@ -126,6 +526,7 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
   return dataDescription;
 }
 
+//------------------------------------------------------------------------------
 // Specify the extent of a regular, rectangular dataset. The input is
 // the new extent (inExt) and the current extent (ext). The function
 // returns the dimension of the dataset (0-3D). If the extents are
@@ -201,6 +602,7 @@ int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
   return dataDescription;
 }
 
+//------------------------------------------------------------------------------
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
                                       int dataDescription, int dim[3])
@@ -284,6 +686,7 @@ void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
     }
 }
 
+//------------------------------------------------------------------------------
 // Get the cells using a point. (See vtkDataSet for more info.)
 void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
                                       int dim[3])
@@ -336,6 +739,7 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   return;
 }
 
+//------------------------------------------------------------------------------
 void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                         vtkIdList *cellIds, int dim[3])
 {
@@ -463,4 +867,357 @@ void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
     }
 }
 
+//------------------------------------------------------------------------------
+vtkIdType vtkStructuredData::ComputePointIdForExtent(
+    int extent[6], int ijk[3], int dataDescription )
+{
+  vtkIdType idx = -1;
 
+  // Get the grid dimensions for the given extent
+  int dims[3];
+  vtkStructuredData::GetDimensionsFromExtent( extent, dims );
+
+  // Get the local ijk
+  int lijk[3];
+  vtkStructuredData::GetLocalStructuredCoordinates( ijk, extent, lijk );
+
+  idx = vtkStructuredData::ComputePointId( dims, lijk, dataDescription );
+  return( idx );
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkStructuredData::ComputePointId(
+    int dims[3], int ijk[3], int dataDescription)
+{
+  vtkIdType idx = -1;
+
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescription( dims );
+    }
+
+  int i,j,k,N1,N2;
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      idx = 0;
+      break;
+    case VTK_X_LINE:
+      i   = ijk[0];
+      j   = 0;
+      k   = 0;
+      N1  = dims[0];
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_Y_LINE:
+      i   = ijk[1];
+      j   = 0;
+      k   = 0;
+      N1  = dims[1];
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_Z_LINE:
+      i   = ijk[2];
+      j   = 0;
+      k   = 0;
+      N1  = dims[2];
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XY_PLANE:
+      i   = ijk[0];
+      j   = ijk[1];
+      k   = 0;
+      N1  = dims[0];
+      N2  = dims[1];
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_YZ_PLANE:
+      i   = ijk[1];
+      j   = ijk[2];
+      k   = 0;
+      N1  = dims[1];
+      N2  = dims[2];
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XZ_PLANE:
+      i   = ijk[0];
+      j   = ijk[2];
+      k   = 0;
+      N1  = dims[0];
+      N2  = dims[2];
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XYZ_GRID:
+      i   = ijk[0];
+      j   = ijk[1];
+      k   = ijk[2];
+      N1  = dims[0];
+      N2  = dims[1];
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+
+  return( idx );
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkStructuredData::ComputeCellIdForExtent(
+    int extent[6], int ijk[3], int dataDescription )
+{
+  vtkIdType idx = -1;
+
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent( extent, nodeDims );
+
+  int lijk[3];
+  vtkStructuredData::GetLocalStructuredCoordinates( ijk, extent, lijk );
+
+  idx = vtkStructuredData::ComputeCellId( nodeDims, lijk, dataDescription );
+  return( idx );
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkStructuredData::ComputeCellId(
+    int dims[3], int ijk[3], int dataDescription )
+{
+  vtkIdType idx = -1;
+
+  if( dataDescription == VTK_EMPTY )
+  {
+  dataDescription = vtkStructuredData::GetDataDescription( dims );
+  }
+
+  int i,j,k,N1,N2;
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      idx = 0;
+      break;
+    case VTK_X_LINE:
+      i   = ijk[0];
+      j   = 0;
+      k   = 0;
+      N1  = dims[0]-1;
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_Y_LINE:
+      i   = ijk[1];
+      j   = 0;
+      k   = 0;
+      N1  = dims[1]-1;
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_Z_LINE:
+      i   = ijk[2];
+      j   = 0;
+      k   = 0;
+      N1  = dims[2]-1;
+      N2  = 1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XY_PLANE:
+      i   = ijk[0];
+      j   = ijk[1];
+      k   = 0;
+      N1  = dims[0]-1;
+      N2  = dims[1]-1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_YZ_PLANE:
+      i   = ijk[1];
+      j   = ijk[2];
+      k   = 0;
+      N1  = dims[1]-1;
+      N2  = dims[2]-1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XZ_PLANE:
+      i   = ijk[0];
+      j   = ijk[2];
+      k   = 0;
+      N1  = dims[0]-1;
+      N2  = dims[2]-1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    case VTK_XYZ_GRID:
+      i   = ijk[0];
+      j   = ijk[1];
+      k   = ijk[2];
+      N1  = dims[0]-1;
+      N2  = dims[1]-1;
+      idx = vtkStructuredData::GetLinearIndex( i,j,k,N1,N2 );
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+  return( idx );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::ComputeCellStructuredCoordsForExtent(
+    const vtkIdType cellIdx, int ext[6], int ijk[3], int dataDescription )
+{
+  // STEP 0: Get the node dimensions
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent( ext, nodeDims );
+
+  // STEP 1: Compute the local ijk of the cell corresponding to the
+  // given cellIdx
+  int lijk[3];
+  vtkStructuredData::ComputeCellStructuredCoords(
+      cellIdx, nodeDims, lijk, dataDescription );
+
+  // STEP 2: Convert the local ijk to global ijk w.r.t. the given extent
+  vtkStructuredData::GetGlobalStructuredCoordinates( lijk, ext, ijk );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::ComputeCellStructuredCoords(
+    const vtkIdType cellIdx, int dim[3], int ijk[3], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescription( dim );
+    }
+
+  int N1,N2;
+  ijk[0] = ijk[1] = ijk[2] = 0;
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      // Do nothing
+      break;
+    case VTK_X_LINE:
+      N1 = dim[0]-1;
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    case VTK_Y_LINE:
+      N1 = dim[1]-1;
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[1],ijk[0],ijk[2] );
+      break;
+    case VTK_Z_LINE:
+      N1 = dim[2]-1;
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[2],ijk[0],ijk[1] );
+      break;
+    case VTK_XY_PLANE:
+      N1 = dim[0]-1;
+      N2 = dim[1]-1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    case VTK_YZ_PLANE:
+      N1 = dim[1]-1;
+      N2 = dim[2]-1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[1],ijk[2],ijk[0] );
+      break;
+    case VTK_XZ_PLANE:
+      N1 = dim[0]-1;
+      N2 = dim[2]-1;
+      vtkStructuredData::GetStructuredCoordinates(
+          cellIdx,N1,N2,ijk[0],ijk[2],ijk[1] );
+      break;
+    case VTK_XYZ_GRID:
+      N1 = dim[0]-1;
+      N2 = dim[1]-1;
+      vtkStructuredData::GetStructuredCoordinates(
+         cellIdx,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::ComputePointStructuredCoordsForExtent(
+    const vtkIdType ptId, int ext[6], int ijk[3], int dataDescription )
+{
+  // STEP 0: Get the node dimensions
+  int nodeDims[3];
+  vtkStructuredData::GetDimensionsFromExtent( ext, nodeDims );
+
+  // STEP 1: Compute the local ijk of the cell corresponding to the
+  // given cellIdx
+  int lijk[3];
+  vtkStructuredData::ComputePointStructuredCoords(
+      ptId, nodeDims, lijk, dataDescription );
+
+  // STEP 2: Convert the local ijk to global ijk w.r.t. the given extent
+  vtkStructuredData::GetGlobalStructuredCoordinates( lijk, ext, ijk );
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::ComputePointStructuredCoords(
+    const vtkIdType ptId, int dim[3], int ijk[3], int dataDescription )
+{
+  if( dataDescription == VTK_EMPTY )
+    {
+    dataDescription = vtkStructuredData::GetDataDescription( dim );
+    }
+
+  int N1,N2;
+  ijk[0] = ijk[1] = ijk[2] = 0;
+  switch( dataDescription )
+    {
+    case VTK_SINGLE_POINT:
+      // Do nothing
+      break;
+    case VTK_X_LINE:
+      N1 = dim[0];
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    case VTK_Y_LINE:
+      N1 = dim[1];
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[1],ijk[0],ijk[2] );
+      break;
+    case VTK_Z_LINE:
+      N1 = dim[2];
+      N2 = 1;
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[2],ijk[0],ijk[1] );
+      break;
+    case VTK_XY_PLANE:
+      N1 = dim[0];
+      N2 = dim[1];
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    case VTK_YZ_PLANE:
+      N1 = dim[1];
+      N2 = dim[2];
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[1],ijk[2],ijk[0] );
+      break;
+    case VTK_XZ_PLANE:
+      N1 = dim[0];
+      N2 = dim[2];
+      vtkStructuredData::GetStructuredCoordinates(
+          ptId,N1,N2,ijk[0],ijk[2],ijk[1] );
+      break;
+    case VTK_XYZ_GRID:
+      N1 = dim[0];
+      N2 = dim[1];
+      vtkStructuredData::GetStructuredCoordinates(
+         ptId,N1,N2,ijk[0],ijk[1],ijk[2] );
+      break;
+    default:
+      vtkGenericWarningMacro("Could not get dimensions for extent!");
+    }
+}

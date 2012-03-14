@@ -63,6 +63,11 @@ public:
   void Initialize(int dims[3]);
 
   // Description:
+  // Allocates the internal visibility data-structure iff the object has
+  // been initialized.
+  void Allocate();
+
+  // Description:
   // Set/Get the array used to store the visibility flags.
   void SetVisibilityById(vtkUnsignedCharArray* vis);
   vtkGetObjectMacro(VisibilityById, vtkUnsignedCharArray);
@@ -102,6 +107,19 @@ private:
 //----------------------------------------------------------------------------
 // These methods are inline for efficiency.
 
+//----------------------------------------------------------------------------
+inline void vtkStructuredVisibilityConstraint::Allocate()
+{
+  if( !this->VisibilityById )
+    {
+    this->VisibilityById = vtkUnsignedCharArray::New();
+    this->VisibilityById->SetNumberOfTuples( this->NumberOfIds );
+    for( int i=0; i < this->NumberOfIds; ++i )
+      {
+      this->VisibilityById->SetValue( i, 1 );
+      }
+    }
+}
 //----------------------------------------------------------------------------
 inline unsigned char vtkStructuredVisibilityConstraint::IsVisible(
   vtkIdType id)
