@@ -15,21 +15,105 @@
 #include "vtkContextActor.h"
 
 #include "vtkContext2D.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGL2ContextDevice2D.h"
 #include "vtkContextScene.h"
-#include "vtkTransform2D.h"
-
-#include "vtkViewport.h"
-#include "vtkWindow.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGL2ContextDevice2D.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGLExtensionManager.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
+#include "vtkTransform2D.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
-#include "vtkObjectFactory.h"
+#include <algorithm>
+
+
+namespace
+{
+  // vtkViewportSpecification is a helper class that makes it easier to do some
+  // of the arithmetic for dealing with tiled displays (in VTK, for saving large
+  // images and in ParaView for actual tiled display).
+  template <class T>
+    class vtkViewportSpecification
+      {
+    public:
+      vtkViewportSpecification(const T* data)
+        {
+        this->Data[0] = data[0];
+        this->Data[1] = data[1];
+        this->Data[2] = data[2];
+        this->Data[3] = data[3];
+        }
+
+      vtkViewportSpecification(const vtkViewportSpecification<T> &other)
+        {
+        this->Data[0] = other.Data[0];
+        this->Data[1] = other.Data[1];
+        this->Data[2] = other.Data[2];
+        this->Data[3] = other.Data[3];
+        }
+
+      // returns false is intersection results in an empty box, otherwise returns true.
+      // here we assume that typename T handles signed values correctly.
+      bool intersect(const vtkViewportSpecification<T> &other)
+        {
+        vtkViewportSpecification<T> clone(*this);
+
+        this->Data[0] = std::max(other.x(), clone.x());
+        this->Data[1] = std::max(other.y(), clone.y());
+
+        T _width = std::min(clone.x() + clone.width(),
+          other.x() + other.width()) - this->Data[0];
+
+        T _height = std::min(clone.y() + clone.height(),
+          other.y() + other.height()) - this->Data[1];
+
+        _width = std::max(0, _width);
+        _height = std::max(0, _height);
+
+        this->Data[2] = this->x() + _width;
+        this->Data[3] = this->y() + _height;
+        return (_width !=0 && _height != 0);
+        }
+
+      const T* data() const { return this->Data; }
+      const T& x() const { return this->Data[0]; }
+      const T& y() const { return this->Data[1]; }
+      T width() const { return this->Data[2] - this->Data[0]; }
+      T height() const { return this->Data[3] - this->Data[1]; }
+
+    private:
+      T Data[4];
+      };
+
+  template <class T>
+    ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
+      {
+      str << other.data()[0] << ", "
+        << other.data()[1] << ", "
+        << other.data()[2] << ", "
+        << other.data()[3];
+      return str;
+      }
+
+  // use this method to convert from normalized-to-display space i.e. [0.0, 1.0]
+  // to screen pixels.
+  vtkViewportSpecification<int> convert(
+    const vtkViewportSpecification<double>& other,
+    int width, int height)
+    {
+    int value[4];
+    value[0] = static_cast<int>(other.data()[0] * width);
+    value[1] = static_cast<int>(other.data()[1] * height);
+    value[2] = static_cast<int>(other.data()[2] * width);
+    value[3] = static_cast<int>(other.data()[3] * height);
+
+    return vtkViewportSpecification<int>(value);
+    }
+}
 
 vtkStandardNewMacro(vtkContextActor);
-
 vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
 vtkCxxSetObjectMacro(vtkContextActor, Scene, vtkContextScene);
 
@@ -87,46 +171,54 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     return 0;
     }
 
-  // Need to figure out how big the window is, taking into account tiling...
-  vtkWindow *window = viewport->GetVTKWindow();
-  int scale[2];
-  window->GetTileScale(scale);
-  int size[2];
-  size[0] = window->GetSize()[0];
-  size[1] = window->GetSize()[1];
+  // view_viewport is a normalized viewport specification for this view in a
+  // large "single" window where 0.0 is min and 1.0 is max. For multi-tile
+  // views, the range (0-1) will span across multiple tiles.
+  vtkViewportSpecification<double> view_viewport(
+    viewport->GetViewport());
 
-  int viewportInfo[4];
-  viewport->GetTiledSizeAndOrigin( &viewportInfo[0], &viewportInfo[1],
-    &viewportInfo[2], &viewportInfo[3] );
+  // tileviewport is a normalized viewport specification for this "window"
+  // mapping where in a multi-tile display, does the current window correspond.
+  vtkViewportSpecification<double> tile_viewport(
+    viewport->GetVTKWindow()->GetTileViewport());
 
-  // The viewport is in normalized coordinates, and is the visible section of
-  // the scene.
+  // this size is already scaled using TileScale.
+  const int *tile_size = viewport->GetVTKWindow()->GetSize();
+
+  // convert both to pixel space before we start doing our arithmetic.
+  vtkViewportSpecification<int> tile_viewport_pixels =
+    convert(tile_viewport, tile_size[0], tile_size[1]);
+  vtkViewportSpecification<int> view_viewport_pixels=
+    convert(view_viewport, tile_size[0], tile_size[1]);
+
+  // interacted space.
+  vtkViewportSpecification<int> actual_viewport_pixels(view_viewport_pixels);
+  if (!actual_viewport_pixels.intersect(tile_viewport_pixels))
+    {
+    return 1;
+    }
+
   vtkTransform2D* transform = this->Scene->GetTransform();
   transform->Identity();
-  if (scale[0] > 1 || scale[1] > 1)
-    {
-    // Tiled display - work out the transform required
-    double *b = window->GetTileViewport();
-    int box[] = { vtkContext2D::FloatToInt(b[0] * size[0]),
-                  vtkContext2D::FloatToInt(b[1] * size[1]),
-                  vtkContext2D::FloatToInt(b[2] * size[0]),
-                  vtkContext2D::FloatToInt(b[3] * size[1]) };
-    transform->Translate(-box[0], -box[1]);
-    if (this->Scene->GetScaleTiles())
-      {
-      transform->Scale(scale[0], scale[1]);
-      }
-    }
-  else if (viewportInfo[0] != size[0] || viewportInfo[1] != size[1] )
-    {
-    size[0]=viewportInfo[0];
-    size[1]=viewportInfo[1];
-    }
+  transform->Translate(
+    view_viewport_pixels.x() - actual_viewport_pixels.x(),
+    view_viewport_pixels.y() - actual_viewport_pixels.y());
 
   if (!this->Initialized)
     {
     this->Initialize(viewport);
     }
+
+  if (this->Scene->GetScaleTiles())
+    {
+    int scale[2];
+    viewport->GetVTKWindow()->GetTileScale(scale);
+    transform->Scale(scale[0], scale[1]);
+    }
+
+  int size[2];
+  size[0] = view_viewport_pixels.width();
+  size[1] = view_viewport_pixels.height();
 
   // This is the entry point for all 2D rendering.
   // First initialize the drawing device.
@@ -134,7 +226,6 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   this->Scene->SetGeometry(size);
   this->Scene->Paint(this->Context);
   this->Context->GetDevice()->End();
-
   return 1;
 }
 
