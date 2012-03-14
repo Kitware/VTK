@@ -30,7 +30,6 @@
 #include "vtkLocator.h"
 #include "vtkPointLocator.h"
 #include "vtkPolyData.h"
-#include "vtkContourValues.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
@@ -42,6 +41,7 @@
 
 #include <cassert>
 #include <algorithm>
+using std::endl;
 
 vtkStandardNewMacro(vtkAMRCutPlane);
 
@@ -60,21 +60,12 @@ vtkAMRCutPlane::vtkAMRCutPlane()
   this->Controller       = vtkMultiProcessController::GetGlobalController();
   this->Plane            = NULL;
   this->UseNativeCutter  = 1;
-  this->contourValues    = vtkContourValues::New();
 }
 
 //------------------------------------------------------------------------------
 vtkAMRCutPlane::~vtkAMRCutPlane()
 {
-
   this->blocksToLoad.clear();
-
-  if( this->contourValues != NULL )
-    {
-    this->contourValues->Delete();
-    }
-  this->contourValues = NULL;
-
   if( this->Plane != NULL )
     {
     this->Plane->Delete();
@@ -87,23 +78,23 @@ void vtkAMRCutPlane::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
   oss << indent << "LevelOfResolution: "
-      << this->LevelOfResolution << std::endl;
+      << this->LevelOfResolution << endl;
   oss << indent << "UseNativeCutter: "
-      << this->UseNativeCutter << std::endl;
+      << this->UseNativeCutter << endl;
   oss << indent << "Controller: "
-      << this->Controller << std::endl;
+      << this->Controller << endl;
   oss << indent << "Center: ";
   for( int i=0; i < 3; ++i )
     {
     oss << this->Center[i ] << " ";
     }
-  oss << std::endl;
+  oss << endl;
   oss << indent << "Normal: ";
   for( int i=0; i < 3; ++i )
     {
     oss << this->Normal[i] << " ";
     }
-  oss << std::endl;
+  oss << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -224,7 +215,15 @@ int vtkAMRCutPlane::RequestData(
         }
       else
         {
-        this->CutAMRBlock( grid, mbds );
+        if( grid != NULL )
+          {
+          this->CutAMRBlock( grid, mbds );
+          }
+        else
+          {
+          mbds->SetBlock(blockIdx,NULL);
+          ++blockIdx;
+          }
         }
       } // END for all data
     } // END for all levels

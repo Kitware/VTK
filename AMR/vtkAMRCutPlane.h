@@ -143,7 +143,6 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     bool UseNativeCutter;
     vtkMultiProcessController *Controller;
     vtkPlane *Plane;
-    vtkContourValues *contourValues;
 
 // BTX
     std::vector<int> blocksToLoad;
