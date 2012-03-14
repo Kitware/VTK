@@ -25,7 +25,7 @@
 #include <vector> // For STL vector
 
 class vtkMultiBlockDataSet;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkInformation;
 class vtkInformationVector;
@@ -99,7 +99,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Returns the cut-plane defined by a vtkCutPlane instance based on the
     // user-supplied center and normal.
-    vtkPlane* GetCutPlane( vtkHierarchicalBoxDataSet *metadata );
+    vtkPlane* GetCutPlane( vtkOverlappingAMR *metadata );
 
     // Description:
     // Extracts cell
@@ -113,7 +113,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // blocks need to be loaded. The corresponding block IDs are stored in
     // the internal STL vector, blocksToLoad, which is then propagated upstream
     // in the RequestUpdateExtent.
-    void ComputeAMRBlocksToLoad( vtkPlane* p, vtkHierarchicalBoxDataSet* m);
+    void ComputeAMRBlocksToLoad( vtkPlane* p, vtkOverlappingAMR* m);
 
     // Descriription:
     // Initializes the cut-plane center given the min/max bounds.
@@ -130,7 +130,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // A utility function that checks if the input AMR data is 2-D.
-    bool IsAMRData2D( vtkHierarchicalBoxDataSet *input );
+    bool IsAMRData2D( vtkOverlappingAMR *input );
 
     // Description:
     // Applies cutting to an AMR block

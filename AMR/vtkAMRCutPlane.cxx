@@ -17,7 +17,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkMultiProcessController.h"
 #include "vtkInformation.h"
@@ -39,6 +38,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
+#include "vtkOverlappingAMR.h"
 
 #include <cassert>
 #include <algorithm>
@@ -70,11 +70,15 @@ vtkAMRCutPlane::~vtkAMRCutPlane()
   this->blocksToLoad.clear();
 
   if( this->contourValues != NULL )
+    {
     this->contourValues->Delete();
+    }
   this->contourValues = NULL;
 
   if( this->Plane != NULL )
+    {
     this->Plane->Delete();
+    }
   this->Plane = NULL;
 }
 
@@ -82,6 +86,24 @@ vtkAMRCutPlane::~vtkAMRCutPlane()
 void vtkAMRCutPlane::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
+  oss << indent << "LevelOfResolution: "
+      << this->LevelOfResolution << std::endl;
+  oss << indent << "UseNativeCutter: "
+      << this->UseNativeCutter << std::endl;
+  oss << indent << "Controller: "
+      << this->Controller << std::endl;
+  oss << indent << "Center: ";
+  for( int i=0; i < 3; ++i )
+    {
+    oss << this->Center[i ] << " ";
+    }
+  oss << std::endl;
+  oss << indent << "Normal: ";
+  for( int i=0; i < 3; ++i )
+    {
+    oss << this->Normal[i] << " ";
+    }
+  oss << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -89,9 +111,7 @@ int vtkAMRCutPlane::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
-  info->Set(
-      vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
-      "vtkHierarchicalBoxDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkOverlappingAMR");
   return 1;
 }
 
@@ -100,8 +120,7 @@ int vtkAMRCutPlane::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
   assert( "pre: information object is NULL!" && (info != NULL) );
-  info->Set(
-      vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet" );
   return 1;
 }
 
@@ -113,22 +132,23 @@ int vtkAMRCutPlane::RequestInformation(
   this->blocksToLoad.clear();
 
   if( this->Plane != NULL )
+    {
     this->Plane->Delete();
+    }
 
   vtkInformation *input = inputVector[0]->GetInformationObject(0);
   assert( "pre: input information object is NULL" && (input != NULL) );
 
   if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
     {
-      vtkHierarchicalBoxDataSet *metadata =
-          vtkHierarchicalBoxDataSet::SafeDownCast(
-              input->Get(
-                  vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) );
+    vtkOverlappingAMR *metadata =
+        vtkOverlappingAMR::SafeDownCast(
+          input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
 
-      this->Plane = this->GetCutPlane( metadata );
-      assert( "Cut plane is NULL" && (this->Plane != NULL) );
+    this->Plane = this->GetCutPlane( metadata );
+    assert( "Cut plane is NULL" && (this->Plane != NULL) );
 
-      this->ComputeAMRBlocksToLoad( this->Plane, metadata );
+    this->ComputeAMRBlocksToLoad( this->Plane, metadata );
     }
 
   this->Modified();
@@ -157,8 +177,8 @@ int vtkAMRCutPlane::RequestData(
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   assert( "pre: input information object is NULL" && (input != NULL)  );
-  vtkHierarchicalBoxDataSet *inputAMR=
-      vtkHierarchicalBoxDataSet::SafeDownCast(
+  vtkOverlappingAMR *inputAMR=
+      vtkOverlappingAMR::SafeDownCast(
           input->Get( vtkDataObject::DATA_OBJECT() ) );
   assert( "pre: input AMR dataset is NULL!" && (inputAMR != NULL) );
 
@@ -172,41 +192,41 @@ int vtkAMRCutPlane::RequestData(
 
   if( this->IsAMRData2D( inputAMR ) )
     {
-      // TODO: implemment this
+    // Return an empty multi-block, we cannot cut a 2-D dataset
+    return 1;
     }
+
   unsigned int blockIdx = 0;
   unsigned int level    = 0;
   for( ; level < inputAMR->GetNumberOfLevels(); ++level )
     {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < inputAMR->GetNumberOfDataSets( level ); ++dataIdx )
+    unsigned int dataIdx = 0;
+    for( ; dataIdx < inputAMR->GetNumberOfDataSets( level ); ++dataIdx )
+      {
+      vtkUniformGrid *grid = inputAMR->GetDataSet( level, dataIdx );
+      if( this->UseNativeCutter == 1 )
         {
-
-          vtkUniformGrid *grid = inputAMR->GetDataSet( level, dataIdx );
-          if( this->UseNativeCutter == 1 )
-            {
-
-              if( grid != NULL )
-                {
-                  vtkCutter *myCutter = vtkCutter::New();
-                  myCutter->SetInputData( grid );
-                  myCutter->SetCutFunction( this->Plane );
-                  myCutter->Update();
-                  mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );
-                  ++blockIdx;
-                  myCutter->Delete();
-                }
-              else
-                {
-                  // TODO: handle the case where the dataset is distributed
-                }
-            }
-          else
-            {
-              this->CutAMRBlock( grid, mbds );
-            }
-
-        } // END for all data
+        if( grid != NULL )
+          {
+          vtkCutter *myCutter = vtkCutter::New();
+          myCutter->SetInputData( grid );
+          myCutter->SetCutFunction( this->Plane );
+          myCutter->Update();
+          mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );
+          ++blockIdx;
+          myCutter->Delete();
+          }
+        else
+          {
+          mbds->SetBlock(blockIdx,NULL);
+          ++blockIdx;
+          }
+        }
+      else
+        {
+        this->CutAMRBlock( grid, mbds );
+        }
+      } // END for all data
     } // END for all levels
 
   this->Modified();
@@ -214,35 +234,9 @@ int vtkAMRCutPlane::RequestData(
 }
 
 //------------------------------------------------------------------------------
-//void vtkAMRCutPlane::CutAMRBlock(
-//    vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
-//{
-//  if( grid == NULL )
-//    return NULL;
-
-//  vtkPointLocator *myLocator = vtkPointLocator::New();
-//  vtkPolyData *slice = vtkPolyData::New();
-//
-//  vtkDoubleArray *cutScalars = vtkDoubleArray::New();
-//  cutScalars->SetName( "Fx");
-//  cutScalars->SetNumberOfTuples( grid->GetNumberOfPoints() );
-//  cutScalars->SetNumberOfComponents( 1 );
-//  vtkIdType ptIdx = 0;
-//  for( ; ptIdx < grid->GetNumberOfPoints(); ++ptIdx )
-//    {
-//     double val = this->Plane->EvaluateFunction( grid->GetPoint(ptIdx) );
-//     cutScalars->SetComponent( ptIdx, 0, val );
-//    } // END for all cells
-//  grid->GetPointData()->AddArray( cutScalars );
-//  unsigned int blockIdx = output->GetNumberOfBlocks( );
-//  output->SetBlock( blockIdx, grid );
-//}
-
-//------------------------------------------------------------------------------
 void vtkAMRCutPlane::CutAMRBlock(
     vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
 {
-
   // Locator, used for detecting duplicate points
   vtkPointLocator *locator = vtkPointLocator::New();
 
@@ -255,14 +249,12 @@ void vtkAMRCutPlane::CutAMRBlock(
   vtkIdType cellIdx = 0;
   for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
     {
-
-      if( grid->IsCellVisible( cellIdx ) &&
-          this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
-        {
-          this->ExtractCellFromGrid(
-              grid,grid->GetCell(cellIdx),locator,meshPts,cells );
-        } // END if
-
+    if( grid->IsCellVisible( cellIdx ) &&
+        this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
+      {
+      this->ExtractCellFromGrid(
+          grid,grid->GetCell(cellIdx),locator,meshPts,cells );
+      } // END if
     } // END for all cells
 
   locator->Delete();
@@ -291,7 +283,7 @@ void vtkAMRCutPlane::ExtractCellFromGrid(
 }
 
 //------------------------------------------------------------------------------
-vtkPlane* vtkAMRCutPlane::GetCutPlane( vtkHierarchicalBoxDataSet *metadata )
+vtkPlane* vtkAMRCutPlane::GetCutPlane( vtkOverlappingAMR *metadata )
 {
   assert( "pre: metadata is NULL" && (metadata != NULL) );
 
@@ -314,7 +306,7 @@ vtkPlane* vtkAMRCutPlane::GetCutPlane( vtkHierarchicalBoxDataSet *metadata )
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
-      vtkPlane* p, vtkHierarchicalBoxDataSet *m)
+      vtkPlane* p, vtkOverlappingAMR *m)
 {
   assert( "pre: Plane object is NULL" && (p != NULL) );
   assert( "pre: metadata is NULL" && (m != NULL) );
@@ -338,25 +330,24 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
   unsigned int level = 0;
   for( ; level <= static_cast<unsigned int>(maxLevelToLoad); ++level )
     {
-      unsigned int dataIdx = 0;
-      for( ; dataIdx < m->GetNumberOfDataSets( level ); ++dataIdx )
-        {
-          vtkAMRBox box;
-          m->GetMetaData( level, dataIdx, box  );
-          bounds[0] = box.GetMinX();
-          bounds[1] = box.GetMaxX();
-          bounds[2] = box.GetMinY();
-          bounds[3] = box.GetMaxY();
-          bounds[4] = box.GetMinZ();
-          bounds[5] = box.GetMaxZ();
+    unsigned int dataIdx = 0;
+    for( ; dataIdx < m->GetNumberOfDataSets( level ); ++dataIdx )
+      {
+      vtkAMRBox box;
+      m->GetMetaData( level, dataIdx, box  );
+      bounds[0] = box.GetMinX();
+      bounds[1] = box.GetMaxX();
+      bounds[2] = box.GetMinY();
+      bounds[3] = box.GetMaxY();
+      bounds[4] = box.GetMinZ();
+      bounds[5] = box.GetMaxZ();
 
-          if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-            {
-              unsigned int amrGridIdx =
-                  m->GetCompositeIndex(level,dataIdx);
-              this->blocksToLoad.push_back( amrGridIdx );
-            }
-        } // END for all data
+      if( this->PlaneIntersectsAMRBox( plane, bounds ) )
+        {
+        unsigned int amrGridIdx = m->GetCompositeIndex(level,dataIdx);
+        this->blocksToLoad.push_back( amrGridIdx );
+        }
+      } // END for all data
     } // END for all levels
 
     std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
@@ -403,31 +394,39 @@ bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double plane[4], double bounds[6] )
 
   for( int i=0; i < 8; ++i )
     {
-      // Get box coordinates
-      double x = ( i&1 ? bounds[1] : bounds[0] );
-      double y = ( i&2 ? bounds[3] : bounds[2] );
-      double z = ( i&3 ? bounds[5] : bounds[4] );
+    // Get box coordinates
+    double x = ( i&1 ? bounds[1] : bounds[0] );
+    double y = ( i&2 ? bounds[3] : bounds[2] );
+    double z = ( i&3 ? bounds[5] : bounds[4] );
 
-      // Plug-in coordinates to the plane equation
-      double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;
+    // Plug-in coordinates to the plane equation
+    double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;
 
-      if( v == 0.0 ) // Point is on a plane
-        return true;
+    if( v == 0.0 ) // Point is on a plane
+      {
+      return true;
+      }
 
-      if( v < 0.0 )
-        lowPnt = true;
-      else
-        highPnt = true;
+    if( v < 0.0 )
+      {
+      lowPnt = true;
+      }
+    else
+      {
+      highPnt = true;
+      }
 
-      if( lowPnt && highPnt )
-        return true;
+    if( lowPnt && highPnt )
+      {
+      return true;
+      }
     }
 
-    return false;
+  return false;
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRCutPlane::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
+bool vtkAMRCutPlane::IsAMRData2D( vtkOverlappingAMR *input )
 {
   assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
 
@@ -435,7 +434,9 @@ bool vtkAMRCutPlane::IsAMRData2D( vtkHierarchicalBoxDataSet *input )
   input->GetMetaData( 0, 0, box );
 
   if( box.GetDimensionality() == 2 )
-   return true;
+    {
+    return true;
+    }
 
  return false;
 }
