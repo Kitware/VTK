@@ -316,7 +316,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
 
 //----------------------------------------------------------------------------
-// This is writen as a 1D execute method, but is called several times.
+// This is written as a 1D execute method, but is called several times.
 int vtkImageSeparableConvolution::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,

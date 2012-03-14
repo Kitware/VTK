@@ -43,7 +43,7 @@ public class vtkJavaTesting {
                 && vtkJavaTesting.LoadLib(libname, verbose) != 1
                 && vtkJavaTesting.LoadLib(releaselibname, verbose) != 1
                 && vtkJavaTesting.LoadLib(debuglibname, verbose) != 1) {
-            System.out.println("Problem loading apropriate library");
+            System.out.println("Problem loading appropriate library");
         }
     }
 

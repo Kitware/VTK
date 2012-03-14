@@ -60,7 +60,7 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Read the material file refered to in FileName.
+  // Read the material file referred to in FileName.
   // If the Reader hasn't changed since the last ReadMaterial(),
   // it does not read the file again.
   void ReadMaterial();

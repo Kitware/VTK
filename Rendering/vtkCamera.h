@@ -583,7 +583,7 @@ protected:
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
-  int FreezeFocalPoint;
+  bool FreezeFocalPoint;
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
   void operator=(const vtkCamera&);  // Not implemented.

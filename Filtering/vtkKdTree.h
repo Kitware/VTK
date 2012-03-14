@@ -109,7 +109,7 @@ public:
   //  Some algorithms on k-d trees require a value that is a very
   //  small distance relative to the diameter of the entire space
   //  divided by the k-d tree.  This factor is the maximum axis-aligned
-  //  width of the space multipled by 10e-6.
+  //  width of the space multiplied by 10e-6.
 
   vtkGetMacro(FudgeFactor, double);
   vtkSetMacro(FudgeFactor, double);
@@ -194,7 +194,7 @@ public:
   vtkDataSet *GetDataSet(int n);
 
   // Description:
-  // Return the 0'th data set.  For compatability with the superclass'
+  // Return the 0'th data set.  For compatibility with the superclass'
   // interface.
   vtkDataSet *GetDataSet(){ return this->GetDataSet(0); }
 
@@ -359,17 +359,6 @@ public:
 
   int MinimalNumberOfConvexSubRegions(vtkIntArray *regionIdList,
                                       double **convexRegionBounds);
-
-  // Description:
-  // DO NOT CALL.  Depricated in VTK 5.2.  Use ViewOrderAllRegionsInDirection
-  // or ViewOrderAllRegionsFromPosition.
-  VTK_LEGACY(int DepthOrderAllRegions(double *dop, vtkIntArray *orderedList));
-
-  // Description:
-  // DO NOT CALL.  Depricated in VTK 5.2.  Use ViewOrderRegionsInDirection
-  // or ViewOrderRegionsFromPosition.
-  VTK_LEGACY(int DepthOrderRegions(vtkIntArray *regionIds, double *dop,
-                                   vtkIntArray *orderedList));
 
   // Description:
   // Given a direction of projection (typically obtained with

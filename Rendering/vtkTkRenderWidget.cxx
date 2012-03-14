@@ -76,7 +76,7 @@ static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
 };
 
 
-// Foward prototypes
+// Forward prototypes
 extern "C"
 {
   void vtkTkRenderWidget_EventProc(ClientData clientData, 

@@ -27,28 +27,29 @@ ADD_EXECUTABLE(HierarchicalBoxPipeline HierarchicalBoxPipeline.cxx)
 TARGET_LINK_LIBRARIES(HierarchicalBoxPipeline vtkRendering vtkIO)
                       
              
-## Add Generate3DAMRDataSetWithPulse executable
-ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
-TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
-                       vtkGraphics
-                       vtkFiltering
-                       vtkRendering
-                       vtkIO
-                       vtkAMR
-                       vtkParallel
-                       ${MPI_LIBRARIES} 
-                       ${VTK_HDF5_LIBRARIES}
-                       )
-                       
-## Add Generate3DAMRDataSetWithPulse executable                        
-ADD_EXECUTABLE( Generate2DAMRDataSetWithPulse Generate2DAMRDataSetWithPulse.cxx)
-TARGET_LINK_LIBRARIES( Generate2DAMRDataSetWithPulse
-                       vtkGraphics
-                       vtkFiltering
-                       vtkRendering
-                       vtkIO
-                       vtkAMR
-                       vtkParallel
-                       ${MPI_LIBRARIES} 
-                       ${VTK_HDF5_LIBRARIES}
-                       )
+## Add AMR examples 
+IF (VTK_USE_PARALLEL AND VTK_USE_MPI )
+  ADD_EXECUTABLE( Generate3DAMRDataSetWithPulse Generate3DAMRDataSetWithPulse.cxx)
+  TARGET_LINK_LIBRARIES( Generate3DAMRDataSetWithPulse
+                         vtkGraphics
+                         vtkFiltering
+                         vtkRendering
+                         vtkIO
+                         vtkAMR
+                         vtkParallel
+                         ${MPI_LIBRARIES} 
+                         ${VTK_HDF5_LIBRARIES}
+                         )
+                                                
+  ADD_EXECUTABLE( Generate2DAMRDataSetWithPulse Generate2DAMRDataSetWithPulse.cxx)
+  TARGET_LINK_LIBRARIES( Generate2DAMRDataSetWithPulse
+                         vtkGraphics
+                         vtkFiltering
+                         vtkRendering
+                         vtkIO
+                         vtkAMR
+                         vtkParallel
+                         ${MPI_LIBRARIES} 
+                         ${VTK_HDF5_LIBRARIES}
+                         )
+ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)

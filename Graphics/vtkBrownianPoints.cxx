@@ -68,7 +68,7 @@ int vtkBrownianPoints::RequestData(
   newVectors->SetNumberOfTuples(numPts);
   newVectors->SetName("BrownianVectors");
 
-  // Check consistency of minumum and maximum speed
+  // Check consistency of minimum and maximum speed
   //  
   if ( this->MinimumSpeed > this->MaximumSpeed )
     {

@@ -84,7 +84,7 @@ void vtkVisibilitySort::ReportReferences(vtkGarbageCollector *collector)
 
 void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4 *mat)
 {
-  // Less efficent than vtkMatrix4x4::DeepCopy, but only sets Modified if
+  // Less efficient than vtkMatrix4x4::DeepCopy, but only sets Modified if
   // there is a real change.
   for (int i = 0; i < 4; i++)
     {

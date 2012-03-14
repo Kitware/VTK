@@ -174,7 +174,7 @@ public:
   // standard color transfer function when the mask is true. This is relevant
   // only for the label map mask.
   //   0.0 means only standard color transfer function.
-  //   1.0 means only mask color tranfer function.
+  //   1.0 means only mask color transfer function.
   // The default value is 1.0.
   vtkSetClampMacro(MaskBlendFactor,float,0.0f,1.0f);
   vtkGetMacro(MaskBlendFactor,float);

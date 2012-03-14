@@ -642,7 +642,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     1,                              /* version */
     dwFlags         ,               /* support double-buffering */
     PFD_TYPE_RGBA,                  /* color type */
-    bpp,                             /* prefered color depth */
+    bpp,                             /* preferred color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
     this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
@@ -869,7 +869,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
 
 void vtkWin32OpenGLRenderWindow::InitializeApplication()
 {
-  // get the applicaiton instance if we don't have one already
+  // get the application instance if we don't have one already
   if (!this->ApplicationInstance)
     {
     // if we have a parent window get the app instance from it

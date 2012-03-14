@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-#include "math.h"
+#include <math.h>
 
 vtkStandardNewMacro(vtkGridTransform);
 
@@ -711,6 +711,7 @@ vtkGridTransform::vtkGridTransform()
   this->InterpolationFunction = &vtkTrilinearInterpolation;
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
+  this->GridPointer = 0;
   // the grid warp has a fairly large tolerance
   this->InverseTolerance = 0.01;
 
@@ -786,7 +787,7 @@ void vtkGridTransform::SetInterpolationMode(int mode)
 void vtkGridTransform::ForwardTransformPoint(const double inPoint[3], 
                                              double outPoint[3])
 {
-  if (this->GetDisplacementGrid() == NULL)
+  if (!this->GridPointer)
     {
     outPoint[0] = inPoint[0]; 
     outPoint[1] = inPoint[1]; 
@@ -846,7 +847,7 @@ void vtkGridTransform::ForwardTransformDerivative(const double inPoint[3],
                                                   double outPoint[3],
                                                   double derivative[3][3])
 {
-  if (this->GetDisplacementGrid() == NULL)
+  if (!this->GridPointer)
     {
     outPoint[0] = inPoint[0]; 
     outPoint[1] = inPoint[1]; 
@@ -923,7 +924,7 @@ void vtkGridTransform::InverseTransformDerivative(const double inPoint[3],
                                                   double outPoint[3],
                                                   double derivative[3][3])
 {
-  if (this->GetDisplacementGrid() == NULL)
+  if (!this->GridPointer)
     {
     outPoint[0] = inPoint[0]; 
     outPoint[1] = inPoint[1]; 
@@ -1165,6 +1166,7 @@ void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 void vtkGridTransform::InternalUpdate()
 {
   vtkImageData *grid = this->GetDisplacementGrid();
+  this->GridPointer = 0;
 
   if (grid == 0)
     {

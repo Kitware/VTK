@@ -1479,7 +1479,7 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
         }
       break; //range computed in for loop above
     default:
-      vtkErrorMacro(<< "Unkown X-Value option.");
+      vtkErrorMacro(<< "Unknown X-Value option.");
       return;
     }
 }

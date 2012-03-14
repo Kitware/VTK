@@ -21,8 +21,8 @@
 #ifndef AMRCOMMON_H_
 #define AMRCOMMON_H_
 
-#include <cassert>
-#include <sstream>
+#include <cassert> // For C++ assert
+#include <sstream> // For C++ string streams
 
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMultiBlockDataSet.h"

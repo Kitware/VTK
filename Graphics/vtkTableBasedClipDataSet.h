@@ -109,7 +109,7 @@ public:
   static vtkTableBasedClipDataSet * New();
   
   // Description:
-  // Get the MTime for which the point locator and clip function are consdiered.
+  // Get the MTime for which the point locator and clip function are considered.
   unsigned long GetMTime();
   
   // Description:

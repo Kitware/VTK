@@ -402,7 +402,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       inPtrY = inPtrZ;
       for (j = yMin; j <= yMax; j++)
         {
-        // Should not impact perfomance here/
+        // Should not impact performance here/
         edgePtId = (j-inExt[2])*yInc + (k-inExt[4])*zInc;
         // Increments are different for cells.  Since the cells are not
         // contoured until the second row of templates, subtract 1 from

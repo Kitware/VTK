@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkBreakPoint - Utility function to debug with gdb and MPI.
 // .SECTION Description
-// Whereever you need to set a break point inside a piece of code run by MPI,
+// Wherever you need to set a break point inside a piece of code run by MPI,
 //
 // Step 1: call vtkBreakPoint::Break() in the code.
 // Step 2: start MPI, each process will display its PID and sleep.

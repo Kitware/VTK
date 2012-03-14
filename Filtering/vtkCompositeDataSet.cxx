@@ -19,10 +19,13 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
+vtkInformationKeyMacro(vtkCompositeDataSet, COMPOSITE_INDEX, Integer);
+
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
 {

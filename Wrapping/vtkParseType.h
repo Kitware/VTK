@@ -82,7 +82,7 @@
  * Pointers on the left, arrays on the right,
  * and optionally a set of parentheses and a ref.
  *
- * The 'type' may be preceeded or followed by const,
+ * The 'type' may be preceded or followed by const,
  * which is handled by the VTK_PARSE_CONST flag.
  *
  * The array dimensionality and sizes is stored
@@ -94,7 +94,7 @@
  * these two types are identical in C and C++.
  *
  * Any pointer can be followed by const, and any pointer
- * can be preceeded by a parenthesis. However, you will
+ * can be preceded by a parenthesis. However, you will
  * never see a parenthesis anywhere except for just before
  * the leftmost pointer.
  *

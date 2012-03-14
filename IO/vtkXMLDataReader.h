@@ -83,7 +83,7 @@ protected:
 
   // Read an Array values starting at the given index and up to numValues.
   // This method assumes that the array is of correct size to 
-  // accomodate all numValues values. arrayIndex is the value index at which the read
+  // accommodate all numValues values. arrayIndex is the value index at which the read
   // values will be put in the array.
   int ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
     vtkIdType startIndex, vtkIdType numValues);

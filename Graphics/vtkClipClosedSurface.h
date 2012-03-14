@@ -153,12 +153,6 @@ public:
   vtkBooleanMacro(TriangulationErrorDisplay, int);
   vtkGetMacro(TriangulationErrorDisplay, int);
 
-  // Legacy methods, do not use.
-  VTK_LEGACY(void SetGenerateColorScalars(int));
-  VTK_LEGACY(int GetGenerateColorScalars());
-  VTK_LEGACY(void GenerateColorScalarsOn());
-  VTK_LEGACY(void GenerateColorScalarsOff());
-
 protected:
   vtkClipClosedSurface();
   ~vtkClipClosedSurface();

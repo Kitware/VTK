@@ -194,7 +194,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
               vtkMath::Normalize(vec2); 
               if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
                 {
-                // pased phi - phi test does the forward neighbor
+                // passed phi - phi test does the forward neighbor
                 // pass the link test
                 if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >= 
                     linkThresh)
@@ -242,7 +242,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
                 vtkMath::Normalize(vec2); 
                 if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
                   {
-                  // pased phi - phi test does the forward neighbor
+                  // passed phi - phi test does the forward neighbor
                   // pass the link test
                   if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >= 
                       linkThresh)

@@ -37,12 +37,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
-#include "vtkRenderPass.h"
-#include "vtkRenderState.h"
 #include "vtkTexture.h"
 
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
-vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 
 //----------------------------------------------------------------------------
@@ -119,7 +116,6 @@ vtkRenderer::vtkRenderer()
 
   this->Selector = 0;
   this->Delegate=0;
-  this->Pass=0;
 
   this->TexturedBackground = false;
   this->BackgroundTexture = NULL;
@@ -158,10 +154,6 @@ vtkRenderer::~vtkRenderer()
   if(this->Delegate!=0)
     {
     this->Delegate->UnRegister(this);
-    }
-  if(this->Pass!=0)
-    {
-    this->Pass->UnRegister(this);
     }
 
   if(this->BackgroundTexture != NULL)
@@ -306,17 +298,7 @@ void vtkRenderer::Render(void)
     }
 
   // do the render library specific stuff
-  if(this->Pass!=0)
-    {
-    vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray,this->PropArrayCount);
-    s.SetFrameBuffer(0);
-    this->Pass->Render(&s);
-    }
-  else
-    {
-    this->DeviceRender();
-    }
+  this->DeviceRender();
 
   // If we aborted, restore old estimated times
   // Setting the allocated render time to zero also sets the
@@ -360,7 +342,7 @@ void vtkRenderer::Render(void)
 
 
   // If we aborted, do not record the last render time.
-  // Lets play around with determining the acuracy of the
+  // Lets play around with determining the accuracy of the
   // EstimatedRenderTimes.  We can try to adjust for bad
   // estimates with the TimeFactor.
   if ( ! this->RenderWindow->GetAbortRender() )
@@ -1227,10 +1209,7 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // what about lights?
     // what about cullers?
 
-    if(this->Pass!=0 && this->RenderWindow!=0)
-      {
-      this->Pass->ReleaseGraphicsResources(this->RenderWindow);
-      }
+    this->ReleaseGraphicsResources(this->RenderWindow);
 
     if(this->BackgroundTexture != 0 && this->RenderWindow!=0)
       {
@@ -1418,16 +1397,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
       os << "null" << endl;
     }
   os << indent << "Selector: " << this->Selector << endl;
-
-  os << indent << "Pass:";
-  if(this->Pass!=0)
-    {
-      os << "exists" << endl;
-    }
-  else
-    {
-      os << "null" << endl;
-    }
 
   os << indent << "TexturedBackground: "
     << (this->TexturedBackground ? "On" : "Off") << "\n";

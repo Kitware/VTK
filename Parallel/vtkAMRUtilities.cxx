@@ -17,7 +17,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkCommunicator.h"
 #include "vtkMath.h"
 
@@ -234,7 +233,7 @@ void vtkAMRUtilities::SerializeMetaData(
     } // END for all levels
 
   // STEP 1: Compute & Allocate buffer size
-  int N    = boxList.size( );
+  int N    = static_cast<int>( boxList.size( ) );
   numBytes = sizeof( int ) + vtkAMRBox::GetBytesize()*N;
   buffer   = new unsigned char[ numBytes ];
 
@@ -260,12 +259,11 @@ void vtkAMRUtilities::SerializeMetaData(
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::DeserializeMetaData(
     unsigned char *buffer,
-    const vtkIdType numBytes,
+    const vtkIdType vtkNotUsed(numBytes),
     std::vector< vtkAMRBox > &boxList )
 {
   // Sanity check
   assert( "Buffer to deserialize is NULL" && (buffer != NULL) );
-  assert( "Expected numBytes > 0" && (numBytes > 0) );
 
   unsigned char *ptr = buffer;
   int N              = 0;

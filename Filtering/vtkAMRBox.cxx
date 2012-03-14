@@ -60,14 +60,13 @@ vtkAMRBox::vtkAMRBox(const int *lo, const int *hi)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const int *lo, const int *hi)
+vtkAMRBox::vtkAMRBox(int vtkNotUsed(dim), const int *lo, const int *hi)
 {
+
   assert( "pre: lo corner buffer is NULL" && (lo != NULL) );
   assert( "pre: hi corner buffer is NULL" && (hi != NULL) );
 
   this->BuildAMRBox( lo[0], lo[1], lo[2], hi[0], hi[1], hi[2] );
-  assert( "post: AMR box dimension does not match expected dimension" &&
-           (dim==this->GetDimensionality() ) );
   assert( "post: Dimension expected to be 2 or 3" &&
       ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
 }
@@ -82,14 +81,11 @@ vtkAMRBox::vtkAMRBox(const int *dims)
 }
 
 //-----------------------------------------------------------------------------
-vtkAMRBox::vtkAMRBox(int dim, const int *dims)
+vtkAMRBox::vtkAMRBox(int vtkNotUsed(dim), const int *dims)
 {
   this->BuildAMRBox( dims[0], dims[2],dims[4], dims[1],dims[3],dims[5] );
   assert( "post: Dimension expected to be 2 or 3" &&
       ( (this->GetDimensionality()==2) || (this->GetDimensionality()==3) ) );
-//  this->BuildAMRBox( dims[0],dims[1],dims[2],dims[3],dims[4],dims[5] );
-  assert( "post: AMR box dimension does not match expected dimension" &&
-          (dim==this->GetDimensionality() ) );
 }
 
 
@@ -136,7 +132,7 @@ int vtkAMRBox::GetCellLinearIndex( const int i, const int j, const int k )
   ijk[1]=j-this->LoCorner[1];
   ijk[2]=k-this->LoCorner[2];
 
-  int N1,N2,idx;
+  int N1=0,N2=0,idx=0;
   switch( this->Dimension )
     {
     case 1:
@@ -1673,10 +1669,10 @@ void vtkAMRBox::Serialize( unsigned char*& buffer, vtkIdType& bytesize)
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRBox::Deserialize( unsigned char* buffer, const vtkIdType &bytesize )
+void vtkAMRBox::Deserialize(
+    unsigned char* buffer, const vtkIdType& vtkNotUsed(bytesize) )
 {
   assert( "pre: input buffer is NULL" && (buffer != NULL) );
-  assert( "pre: buffer bytesize is 0" && (bytesize >0) );
 
   // STEP 0: set pointer to traverse the buffer
   unsigned char *ptr = buffer;
@@ -1981,33 +1977,3 @@ void vtkAMRBox::WriteBox(
 
   ofs.close( );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// TODO delete these
-// These are legacy methods going away, do not use!
-#ifndef VTK_LEGACY_REMOVE
-int vtkAMRBox::DoesContainCell(int i, int j, int k)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainCell, "VTK 5.4",
-                           vtkAMRBox::Contains);
-  return this->Contains(i,j,k);
-}
-
-int vtkAMRBox::DoesContainBox(vtkAMRBox const & box) const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAMRBox::DoesContainBox, "VTK 5.4",
-                           vtkAMRBox::Contains);
-  return this->Contains(box);
-}
-#endif // #ifndef VTK_LEGACY_REMOVE

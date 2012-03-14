@@ -26,6 +26,6 @@ void vtkFunctionSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Number of functions: " << this->NumFuncs
      << "\n";
-  os << indent << "Number of independant variables: " << this->NumIndepVars
+  os << indent << "Number of independent variables: " << this->NumIndepVars
      << "\n";
 }

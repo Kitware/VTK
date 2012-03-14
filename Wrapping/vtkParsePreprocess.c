@@ -137,7 +137,7 @@ static void preproc_skip_comment(const char **cpp)
   *cpp = cp;
 }
 
-/** Skip over whitespace, but not newlines unless preceeded by backlash. */
+/** Skip over whitespace, but not newlines unless preceded by backlash. */
 static void preproc_skip_whitespace(const char **cpp)
 {
   const char *cp = *cpp;
@@ -1443,7 +1443,7 @@ static int preproc_evaluate_if(
     {
     if (info->ConditionalDepth == 0)
       {
-      /* preceeding clause was not skipped, so must skip this one */
+      /* preceding clause was not skipped, so must skip this one */
       info->ConditionalDepth = 1;
       }
     else if (info->ConditionalDepth == 1 &&

@@ -3310,7 +3310,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         {
         // switch to scalarList
         // LabelListPtr and ScalarListPtr are packed into a single union so
-        // we need a temprary pointer
+        // we need a temporary pointer
         vtkFloatArray* slPtr = vtkFloatArray::New();
         const int size = this->Superclass::LabelListPtr->GetNumberOfTuples();
         slPtr->SetNumberOfValues(size + 1);
@@ -5463,7 +5463,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       internalMesh->InsertNextCell(cellType, nPoints, cellPoints->GetPointer(0));
       }
 
-    // erronous cells
+    // erroneous cells
     else if (cellType == VTK_EMPTY_CELL)
       {
       vtkWarningMacro("Warning: No points in cellId " << cellId);

@@ -705,7 +705,7 @@ PyObject *vtkPythonOverload::CallMethod(
           }
         }
 
-      // Initialize the helper for ths signature
+      // Initialize the helper for this signature
       helperArray[sig].initialize(selfIsClass, methods[sig].ml_doc);
       }
 

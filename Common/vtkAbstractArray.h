@@ -87,7 +87,7 @@ public:
   virtual int GetElementComponentSize() = 0;
 
   // Description:
-  // Set/Get the dimention (n) of the components. Must be >= 1. Make sure that
+  // Set/Get the dimension (n) of the components. Must be >= 1. Make sure that
   // this is set before allocation.
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_LARGE_INTEGER);
   int GetNumberOfComponents() { return this->NumberOfComponents; }
@@ -350,7 +350,7 @@ public:
 protected:
   // Description:
   // Set an information object that can be used to annotate the array.
-  // Use this with caution as array instances depend on persistance of
+  // Use this with caution as array instances depend on persistence of
   // information keys. See CopyInformation.
   virtual void SetInformation( vtkInformation* );
 

@@ -130,13 +130,13 @@ int TestBSplineWarp(int argc, char *argv[])
   vtkSmartPointer<vtkImageBSplineCoefficients> grid =
     vtkSmartPointer<vtkImageBSplineCoefficients>::New();
   grid->SetInputConnection(transformToGrid->GetOutputPort());
-  grid->Update();
+  grid->UpdateWholeExtent();
 
   // create the B-spline transform, scale the deformation by
   // half to demonstrate how deformation scaling works
   vtkSmartPointer<vtkBSplineTransform> transform =
     vtkSmartPointer<vtkBSplineTransform>::New();
-  transform->SetCoefficients(grid->GetOutput());
+  transform->SetCoefficientData(grid->GetOutput());
   transform->SetDisplacementScale(0.5);
   transform->SetBorderModeToZero();
 

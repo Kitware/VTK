@@ -46,6 +46,8 @@ vtkContextInteractorStyle::vtkContextInteractorStyle()
 //--------------------------------------------------------------------------
 vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
+  // to remove observers.
+  this->SetScene(0);
 }
 
 //--------------------------------------------------------------------------

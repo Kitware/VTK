@@ -235,40 +235,6 @@ public:
   // Return the Z value for the last picked Prop.
   virtual double GetPickedZ() = 0;
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define RemovePropA RemoveProp
-# define RemovePropW RemoveProp
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkViewport::RemoveViewProp() as of VTK 5.0.
-  VTK_LEGACY(void RemoveProp(vtkProp*));
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef RemovePropA
-# undef RemovePropW
-  //BTX
-  VTK_LEGACY(void RemovePropA(vtkProp*));
-  VTK_LEGACY(void RemovePropW(vtkProp*));
-  //ETX
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkViewport::AddViewProp() as of VTK 5.0.
-  VTK_LEGACY(void AddProp(vtkProp *));
-
-  // Description:
-  // @deprecated Replaced by vtkViewport::GetViewProps() as of VTK 5.0.
-  VTK_LEGACY(vtkPropCollection *GetProps());
-
-  // Description:
-  // @deprecated Replaced by vtkViewport::HasViewProp() as of VTK 5.0.
-  VTK_LEGACY(int HasProp(vtkProp *));
-
-  // Description:
-  // @deprecated Replaced by vtkViewport::RemoveAllViewProps() as of VTK 5.0.
-  VTK_LEGACY(void RemoveAllProps());
-
 protected:
   // Create a vtkViewport with a black background, a white ambient light,
   // two-sided lighting turned on, a viewport of (0,0,1,1), and back face

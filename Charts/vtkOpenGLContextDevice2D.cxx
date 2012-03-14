@@ -54,7 +54,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLContextDevice2D);
+vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
@@ -92,7 +92,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   float offset = 0.5;
   glOrtho(offset, vp[2]+offset-1.0,
           offset, vp[3]+offset-1.0,
-          -1, 1);
+          -2000, 2000);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -318,7 +318,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     // Four 2D points on the quad.
     float p[4 * 2] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-    // This will be the same everytime
+    // This will be the same every time
     float texCoord[] = { 0.0, 0.0,
                          1.0, 0.0,
                          1.0, 1.0,

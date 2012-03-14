@@ -10,7 +10,6 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     # add tests that require data
     SET(MyTests ${MyTests}
       PrmMagnify.cxx
-      #TestExodusTime.cxx
       TestTemporalFractal.cxx
       )
 

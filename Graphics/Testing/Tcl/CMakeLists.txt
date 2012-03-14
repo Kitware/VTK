@@ -4,16 +4,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   #
   IF (VTK_DATA_ROOT)
 
-    IF (VTK_USE_MANGLED_MESA)
-      ADD_TEST(MesaCone-image ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-        ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
-        -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
-        -V Baseline/Graphics/MesaCone.png
-        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-    ENDIF (VTK_USE_MANGLED_MESA)
-
     FOREACH ( tfile
       AutomaticPlaneGeneration
       Canny

@@ -51,14 +51,15 @@ public:
   vtkGetStringMacro(ConnectivityFileName);
 
   // Description:
-  // Set whether or not to read a single level.  A non-zero
-  // value indicates that only a single level will be read in.
+  // Set whether or not to read a single level.  A
+  // value of one indicates that only a single level will be read in.
   // The NetCDF variables loaded will then be ones with dimensions
   // of (time, ncols).  This will result in a surface grid. Otherwise
   // a volumetric grid will be created (if lev > 1) and the variables
   // with dimensions of (time, lev, ncols) will be read in.
   // By default, SingleLevel = 0.
-  vtkSetMacro(SingleLevel, int);
+  vtkBooleanMacro(SingleLevel,int);
+  vtkSetClampMacro(SingleLevel, int, 0, 1);
   vtkGetMacro(SingleLevel, int);
 
   // Description:
@@ -72,14 +73,22 @@ protected:
   vtkNetCDFCAMReader();
   ~vtkNetCDFCAMReader();
 
-int RequestInformation(vtkInformation*, vtkInformationVector**,
-                       vtkInformationVector*);
+  int RequestInformation(vtkInformation*, vtkInformationVector**,
+                         vtkInformationVector*);
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
+
+  // Description:
+  // Returns true for success.  Based on the piece, number of pieces,
+  // number of levels of cells, and the number of cells per level, gives
+  // a partitioned space of levels and cells.
+  bool GetPartitioning(
+    int piece, int numPieces,int numCellLevels, int numCellsPerLevel,
+    int & beginCellLevel, int & endCellLevel, int & beginCell, int & endCell);
 
 private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&);  // Not implemented.

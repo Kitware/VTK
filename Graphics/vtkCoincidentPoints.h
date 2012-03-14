@@ -58,7 +58,7 @@ public:
   vtkIdList * GetNextCoincidentPointIds();
 
   // Description
-  // Initialize iteration to the begining of the coincident point map.
+  // Initialize iteration to the beginning of the coincident point map.
   void InitTraversal();
 
   // Description

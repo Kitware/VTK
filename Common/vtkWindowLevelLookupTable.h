@@ -87,22 +87,6 @@ public:
   vtkSetVector4Macro(MaximumTableValue,double);
   vtkGetVector4Macro(MaximumTableValue,double);
 
-  // Description:
-  // @deprecated For backwards compatibility: specify the color using 
-  // integers in the range [0,255].  
-  VTK_LEGACY(void SetMinimumColor(int r, int g, int b, int a));
-  VTK_LEGACY(void SetMinimumColor(const unsigned char rgba[4]));
-  VTK_LEGACY(void GetMinimumColor(unsigned char rgba[4]));
-  VTK_LEGACY(unsigned char *GetMinimumColor());
-
-  // Description:
-  // @deprecated For backwards compatibility: specify the color using 
-  // integers in the range [0,255].  
-  VTK_LEGACY(void SetMaximumColor(int r, int g, int b, int a));
-  VTK_LEGACY(void SetMaximumColor(const unsigned char rgba[4]));
-  VTK_LEGACY(void GetMaximumColor(unsigned char rgba[4]));
-  VTK_LEGACY(unsigned char *GetMaximumColor());
-
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   ~vtkWindowLevelLookupTable() {};
@@ -118,5 +102,3 @@ private:
 };
 
 #endif
-
-

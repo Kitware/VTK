@@ -36,9 +36,6 @@
 #define __vtkMath_h
 
 #include "vtkObject.h"
-#ifndef VTK_LEGACY_REMOVE
-# include "vtkPolynomialSolversUnivariate.h" // For backwards compatibility of old solvers
-#endif
 
 #include <assert.h> // assert() in inline implementations.
 
@@ -54,8 +51,6 @@
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
 #include "vtkMathConfigure.h" // For VTK_HAS_ISINF and VTK_HAS_ISNAN
-
-#include <assert.h> // assert() in inline implementations.
 
 #ifndef VTK_DBL_EPSILON
 #  ifndef DBL_EPSILON
@@ -687,83 +682,6 @@ public:
   static int JacobiN(double **a, int n, double *w, double **v);
 
   // Description:
-  // Solves a cubic equation c0*t^3 + c1*t^2 + c2*t + c3 = 0 when c0, c1, c2,
-  // and c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
-  // Ed.  Return array contains number of (real) roots (counting multiple
-  // roots as one) followed by roots themselves. The value in roots[4] is a
-  // integer giving further information about the roots (see return codes for
-  // int SolveCubic() ).
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveCubic() as of
-  // VTK 5.8.
-  VTK_LEGACY(static double* SolveCubic(double c0, double c1, double c2, double c3));
-
-  // Description:
-  // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and c3
-  // are REAL.  Solution is motivated by Numerical Recipes In C 2nd Ed.
-  // Return array contains number of (real) roots (counting multiple roots as
-  // one) followed by roots themselves. Note that roots[3] contains a return
-  // code further describing solution - see documentation for SolveCubic()
-  // for meaning of return codes.
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
-  // of VTK 5.8.
-  VTK_LEGACY(static double* SolveQuadratic(double c0, double c1, double c2));
-
-  // Description:
-  // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
-  // Solution is motivated by Numerical Recipes In C 2nd Ed.
-  // Return array contains number of roots followed by roots themselves.
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveLinear() as of
-  // VTK 5.8.
-  VTK_LEGACY(static double* SolveLinear(double c0, double c1));
-
-  // Description:
-  // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
-  // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
-  // real roots are stored in user provided variables r1, r2, r3, and
-  // num_roots. Note that the function can return the following integer
-  // values describing the roots: (0)-no solution; (-1)-infinite number
-  // of solutions; (1)-one distinct real root of multiplicity 3 (stored
-  // in r1); (2)-two distinct real roots, one of multiplicity 2 (stored
-  // in r1 & r2); (3)-three distinct real roots; (-2)-quadratic equation
-  // with complex conjugate solution (real part of root returned in r1,
-  // imaginary in r2); (-3)-one real root and a complex conjugate pair
-  // (real root in r1 and real part of pair in r2 and imaginary in r3).
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveCubic() as of
-  // VTK 5.8.
-  VTK_LEGACY(static int SolveCubic(double c0, double c1, double c2, double c3,
-                        double *r1, double *r2, double *r3, int *num_roots));
-
-  // Description:
-  // Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when
-  // c1, c2, and c3 are REAL.
-  // Solution is motivated by Numerical Recipes In C 2nd Ed.
-  // Roots and number of roots are stored in user provided variables
-  // r1, r2, num_roots
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
-  // of VTK 5.8.
-  VTK_LEGACY(static int SolveQuadratic(double c0, double c1, double c2,
-                            double *r1, double *r2, int *num_roots));
-
-  // Description:
-  // Algebraically extracts REAL roots of the quadratic polynomial with
-  // REAL coefficients c[0] X^2 + c[1] X + c[2]
-  // and stores them (when they exist) and their respective multiplicities
-  // in the \a r and \a m arrays.
-  // Returns either the number of roots, or -1 if ininite number of roots.
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveQuadratic() as
-  // of VTK 5.8.
-  VTK_LEGACY(static int SolveQuadratic( double* c, double* r, int* m ));
-
-  // Description:
-  // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
-  // Solution is motivated by Numerical Recipes In C 2nd Ed.
-  // Root and number of (real) roots are stored in user provided variables
-  // r2 and num_roots.
-  // @deprecated Replaced by vtkPolynomialSolversUnivariate::SolveLinear() as
-  // of VTK 5.8.
-  VTK_LEGACY(static int SolveLinear(double c0, double c1, double *r1, int *num_roots));
-
-  // Description:
   // Solves for the least squares best fit matrix for the homogeneous equation X'M' = 0'.
   // Uses the method described on pages 40-41 of Computer Vision by
   // Forsyth and Ponce, which is that the solution is the eigenvector
@@ -1199,66 +1117,6 @@ inline double vtkMath::Determinant3x3(double A[3][3])
 {
   return vtkDeterminant3x3( A );
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-inline double* vtkMath::SolveCubic(double c0, double c1, double c2, double c3)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveCubic, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveCubic);
-  return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3 );
-}
-
-//----------------------------------------------------------------------------
-inline double* vtkMath::SolveQuadratic(double c0, double c1, double c2)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveQuadratic);
-  return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2 );
-}
-
-//----------------------------------------------------------------------------
-inline double* vtkMath::SolveLinear(double c0, double c1)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveLinear, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveLinear);
-  return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1 );
-}
-
-//----------------------------------------------------------------------------
-inline int vtkMath::SolveCubic(double c0, double c1, double c2, double c3,
-                               double *r1, double *r2, double *r3, int *num_roots)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveCubic, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveCubic);
-  return vtkPolynomialSolversUnivariate::SolveCubic( c0, c1, c2, c3, r1, r2, r3, num_roots );
-}
-
-//----------------------------------------------------------------------------
-inline int vtkMath::SolveQuadratic(double c0, double c1, double c2,
-                                   double *r1, double *r2, int *num_roots)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveQuadratic);
-  return vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2, r1, r2, num_roots );
-}
-
-//----------------------------------------------------------------------------
-inline int vtkMath::SolveQuadratic( double* c, double* r, int* m )
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveQuadratic, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveQuadratic);
-  return vtkPolynomialSolversUnivariate::SolveQuadratic( c, r, m );
-}
-
-//----------------------------------------------------------------------------
-inline int vtkMath::SolveLinear(double c0, double c1, double *r1, int *num_roots)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::SolveLinear, "VTK 5.8",
-                           vtkPolynomialSolversUnivariate::SolveLinear);
-  return vtkPolynomialSolversUnivariate::SolveLinear( c0, c1, r1, num_roots );
-}
-#endif
 
 //----------------------------------------------------------------------------
 inline void vtkMath::ClampValue(double *value, const double range[2])

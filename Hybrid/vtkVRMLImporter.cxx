@@ -5398,7 +5398,7 @@ int vtkVRMLImporter::ImportBegin ()
 
   // Not sure why I have to do this but its not working when
   // When I use the FileFD file pointer...
-  // File existance already checked.
+  // File existence already checked.
   yyin = fopen(this->FileName, "r");
 
   // reset the lex input routine

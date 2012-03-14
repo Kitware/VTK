@@ -583,7 +583,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     if (!PyTuple_Check(bases) || PyTuple_Size(bases) != 1)
       {
       PyErr_SetString(PyExc_ValueError,
-                      "multiple inheritence is not allowed with VTK classes");
+                      "multiple inheritance is not allowed with VTK classes");
       return NULL;
       }
 

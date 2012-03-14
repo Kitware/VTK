@@ -59,7 +59,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
     }
 
   // The rest of the test requires that VTK_DEBUG_LEAKS is enabled.
-  // The begining of this test is still useful to ensure that the widget
+  // The beginning of this test is still useful to ensure that the widget
   // opens without crashing when debug leaks is disabled.
   #ifdef VTK_DEBUG_LEAKS
 

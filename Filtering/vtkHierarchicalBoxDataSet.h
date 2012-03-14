@@ -36,6 +36,10 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Return a new iterator (the iterator has to be deleted by user).
+  virtual vtkCompositeDataIterator* NewIterator();
+
+  // Description:
   // Return class name of data type (see vtkType.h for definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 

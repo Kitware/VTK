@@ -841,7 +841,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       idxLists[2]->Reset();
       if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
         {
-        // each ( maxDist2[i] * 0.3 ) has been guranteed to be > 
+        // each ( maxDist2[i] * 0.3 ) has been guaranteed to be > 
         // INC_OCT_PNT_LOC_TESTS_ZERO
         octLocat->FindPointsWithinSquaredRadius
                   ( maxDist2[i] * 0.3, pLocPnts + j, idxLists[0] );
@@ -1054,7 +1054,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   // =========================================================================  
   // NOTE: do *NOT* turn on this segment of code as the points resulting from
   //       the following random generator would change the points disk file!!!
-  //       The points generated below are used to challege point location.
+  //       The points generated below are used to challenge point location.
   //       In case this segment is executed, it needs to be turned off and
   //       re-run the test with _BRUTE_FORCE_VERIFICATION_ on to create new
   //       disk files.

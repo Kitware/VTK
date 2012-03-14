@@ -416,7 +416,7 @@ public:
     } bounds;
     std::vector<bounds> CachedBounds[2];
 
-    // utility funtion we use to test if a point is inside any of our local datasets
+    // utility function we use to test if a point is inside any of our local datasets
     bool InsideBounds(double point[]);
 
 //ETX

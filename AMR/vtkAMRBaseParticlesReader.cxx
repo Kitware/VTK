@@ -254,5 +254,3 @@ int vtkAMRBaseParticlesReader::RequestData(
 
   return 1;
 }
-
-

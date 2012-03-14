@@ -88,7 +88,7 @@ static inline double forceRepulse(double x, double k)
 
 // In the future this method should setup data
 // structures, etc... so that Layout doesn't have to
-// do that everytime it's called
+// do that every time it's called
 void vtkForceDirectedLayoutStrategy::Initialize() 
 {
   vtkPoints* pts = this->Graph->GetPoints();

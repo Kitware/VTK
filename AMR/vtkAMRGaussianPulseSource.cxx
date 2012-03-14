@@ -325,4 +325,3 @@ int vtkAMRGaussianPulseSource::RequestData(
   vtkAMRUtilities::GenerateMetaData( output, NULL );
   return 1;
 }
-

@@ -40,6 +40,7 @@
 #include "vtkTimerLog.h"
 
 #include <cassert>
+#include <cmath>
 #include <sstream>
 #include <cmath>
 #include <algorithm>
@@ -131,7 +132,7 @@ int vtkAMRResampleFilter::RequestUpdateExtent(
     // Tell reader which blocks this process requires
     info->Set(
         vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),
-        &this->BlocksToLoad[0], this->BlocksToLoad.size() );
+        &this->BlocksToLoad[0], static_cast<int>(this->BlocksToLoad.size()));
     }
   return 1;
 }
@@ -857,11 +858,10 @@ void vtkAMRResampleFilter::TransferSolution(
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::ExtractRegion(
     vtkOverlappingAMR *amrds, vtkMultiBlockDataSet *mbds,
-    vtkOverlappingAMR *metadata )
+    vtkOverlappingAMR * vtkNotUsed(metadata) )
 {
 
   assert( "pre: input AMR data-structure is NULL" && (amrds != NULL) );
-  assert( "pre: metatadata is NULL" && (metadata != NULL) );
   assert( "pre: resampled grid should not be NULL" && (mbds != NULL) );
 
 //  std::cout << "NumBlocks: " << this->ROI->GetNumberOfBlocks() << std::endl;
@@ -1079,15 +1079,15 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
 
     if (bdir == 0)
       {
-      N[0] = fmin(N[0], fmax(N[1], N[2]));
+      N[0] = std::min(N[0], std::max(N[1], N[2]));
       }
     else if (bdir == 1)
       {
-      N[1] = fmin(N[1], fmax(N[0], N[2]));
+      N[1] = std::min(N[1], std::max(N[0], N[2]));
       }
     else
       {
-      N[2] = fmin(N[2], fmax(N[0], N[1]));
+      N[2] = std::min(N[2], std::max(N[0], N[1]));
       }
     std::cerr << "Adjusted Grid Dim: " << N[0] << ", "  << N[1] << ", "  << N[2] << "\n";
     }

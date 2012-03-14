@@ -1216,6 +1216,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     this->RecalculatePlotTransforms();
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
+
+    this->InvokeEvent(vtkCommand::InteractionEvent);
     }
   else if (mouse.GetButton() == this->Actions.Zoom() ||
            mouse.GetButton() == this->Actions.Select())
@@ -1673,6 +1675,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->DrawBox = false;
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
+    this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
     }
   return false;
@@ -1743,6 +1746,8 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
 
   return true;
 }

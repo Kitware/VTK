@@ -129,7 +129,7 @@ vtkCell *vtkQuadraticPyramid::GetFace(int faceId)
   faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId ));
 
   // load point id's and coordinates
-  // be carefull with the first one:
+  // be careful with the first one:
   if(faceId > 0)
     {
     for (int i=0; i<6; i++)

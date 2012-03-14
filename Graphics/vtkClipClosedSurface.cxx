@@ -150,34 +150,6 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-int vtkClipClosedSurface::GetGenerateColorScalars()
-{
-  VTK_LEGACY_BODY(GetGenerateColorScalars, "5.7");
-  return (this->GetScalarMode() != 0);
-}
-
-void vtkClipClosedSurface::SetGenerateColorScalars(int val)
-{
-  VTK_LEGACY_BODY(SetGenerateColorScalars, "5.7");
-  if (val) { this->SetScalarModeToColors(); }
-  else { this->SetScalarModeToNone(); }
-}
-
-void vtkClipClosedSurface::GenerateColorScalarsOn()
-{
-  VTK_LEGACY_BODY(GenerateColorScalarsOn, "5.7");
-  this->SetScalarModeToColors();
-}
-
-void vtkClipClosedSurface::GenerateColorScalarsOff()
-{
-  VTK_LEGACY_BODY(GenerateColorScalarsOff, "5.7");
-  this->SetScalarModeToNone();
-}
-#endif
-
-//----------------------------------------------------------------------------
 int vtkClipClosedSurface::ComputePipelineMTime(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),

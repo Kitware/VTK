@@ -100,7 +100,7 @@ def get_libs():
     if vtk_has_configuration_types:
         dir = os.path.join(dir, vtk_build_type)
 
-    # Enumerate ths list of module files.
+    # Enumerate the list of module files.
     for kit in vtk_kit_names:
         libs.append(os.path.abspath(os.path.join(dir, prefix+kit+'Python'+suffix)))
         if vtk_use_sip:
@@ -132,7 +132,7 @@ def get_scripts():
     if vtk_has_configuration_types:
         dir = os.path.join(dir, vtk_build_type)
 
-    # Enumerate ths list of executable files.
+    # Enumerate the list of executable files.
     for exe in vtk_exe_names:
         scripts.append(os.path.abspath(os.path.join(dir, exe+suffix)))
 

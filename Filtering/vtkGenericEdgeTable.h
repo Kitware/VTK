@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkGenericEdgeTable - keep track of edges (defined by pair of integer id's)
 // .SECTION Description
-// vtkGenericEdgeTable is used to indicate the existance of and hold
+// vtkGenericEdgeTable is used to indicate the existence of and hold
 // information about edges. Similar to vtkEdgeTable, this class is
 // more sophisticated in that it uses reference counting to keep track
 // of when information about an edge should be deleted.

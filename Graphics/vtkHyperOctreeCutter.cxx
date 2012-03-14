@@ -767,7 +767,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           // has sibling with children that have children, that have children
           // on my face, until I reach the root...
         
-          // list the 3 faces of the parent, the current node is lying on.
+          // list the 3 faces of the parent, the current node is laying on.
           int faces[3];
             
           int child=cursor->GetChildIndex();
@@ -905,7 +905,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
           
-          // list the 2 edges of the parent, the current node is lying on.
+          // list the 2 edges of the parent, the current node is laying on.
           edges[0]=(child&1)==1; // false: -x, true: +x
           edges[1]=(child&2)==2; // false: -y, true: +y
           }

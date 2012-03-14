@@ -105,7 +105,7 @@ public:
     { this->SetPosition(pos[0], pos[1]);};
 
   // Description:
-  // Internal. Excecute events observed by internal observer
+  // Internal. Execute events observed by internal observer
   void ExecuteTextPropertyModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
   void ExecuteTextActorModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
   

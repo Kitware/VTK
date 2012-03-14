@@ -17,7 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkGraphicsFactory.h"
-#include "vtkInteractorStyleSwitch.h"
+#include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
@@ -64,8 +64,12 @@ vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
   this->RenderWindow    = NULL;
+  // Here we are using base, and relying on the graphics factory or standard
+  // object factory logic to create the correct instance, which should be the
+  // vtkInteractorStyleSwitch when linked to the interactor styles, or
+  // vtkInteractorStyleSwitchBase if the style module is not linked.
   this->InteractorStyle = NULL;
-  this->SetInteractorStyle(vtkInteractorStyleSwitch::New()); 
+  this->SetInteractorStyle(vtkInteractorStyleSwitchBase::New());
   this->InteractorStyle->Delete();
   
   this->LightFollowCamera = 1;

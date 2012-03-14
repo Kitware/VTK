@@ -585,7 +585,7 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
 
           if(this->ParentId && this->RootWindow && !this->WindowId)
             {
-            // backwards compatiblity with Tk and who else?
+            // backwards compatibility with Tk and who else?
             UpdateGLRegion();
             }
           else if(this->OwnWindow || !this->WindowId)
@@ -625,7 +625,7 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
         
         if(this->ParentId && this->RootWindow && !this->WindowId)
           {
-          // backwards compatiblity with Tk and who else?
+          // backwards compatibility with Tk and who else?
           UpdateGLRegion();
           }
         else if(this->OwnWindow || !this->WindowId)

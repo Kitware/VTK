@@ -31,6 +31,7 @@ class vtkAMRResampleFilter;
 class vtkOverlappingAMR;
 class vtkSmartVolumeMapper;
 class vtkUniformGrid;
+class vtkImageData;
 
 class VTK_VOLUMERENDERING_EXPORT vtkAMRVolumeMapper : public vtkVolumeMapper
 {
@@ -41,8 +42,9 @@ public:
 
   // Description:
   // Set the input data
-  virtual void SetInput( vtkDataSet * );
-  virtual void SetInput( vtkOverlappingAMR * );
+  virtual void SetInputData( vtkImageData* );
+  virtual void SetInputData( vtkDataSet* );
+  virtual void SetInputData( vtkOverlappingAMR* );
   virtual void SetInputConnection (int port, vtkAlgorithmOutput *input);   
   virtual void SetInputConnection (vtkAlgorithmOutput *input)
   {this->SetInputConnection(0, input);}
@@ -106,6 +108,10 @@ public:
   // considered.
   virtual void SetCroppingRegionPlanes(double arg1, double arg2, double arg3, 
                                        double arg4, double arg5, double arg6);
+  virtual void SetCroppingRegionPlanes(double *planes)
+    {this->SetCroppingRegionPlanes(
+        planes[0],planes[1],planes[2],
+        planes[3],planes[4],planes[5]);}
   virtual void GetCroppingRegionPlanes(double *planes);
   virtual double *GetCroppingRegionPlanes();
   // Description:

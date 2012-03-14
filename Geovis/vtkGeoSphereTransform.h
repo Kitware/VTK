@@ -64,7 +64,7 @@ public:
   // Description:
   // If on, this transform converts (long,lat,alt) triples to (x,y,z) as an offset
   // from the center of the earth. Alt, x, y, and z are all be in meters.
-  // If off, the tranform works in the reverse direction.
+  // If off, the transform works in the reverse direction.
   // Initial value is on.
   vtkSetMacro(ToRectangular, bool);
   vtkGetMacro(ToRectangular, bool);

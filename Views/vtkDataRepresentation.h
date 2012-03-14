@@ -99,7 +99,7 @@ public:
   void Select(vtkView* view, vtkSelection* selection, bool extend);
 
   // Description:
-  // Analagous to Select(). The view calls this method when it needs to
+  // Analogous to Select(). The view calls this method when it needs to
   // change the underlying annotations (some views might perform the
   // creation of annotations). The representation takes the annotations
   // and converts them into a selection on its data by calling ConvertAnnotations,

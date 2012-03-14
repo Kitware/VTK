@@ -101,7 +101,7 @@ protected:
 
   void ConvertCells(vtkCellArray* cells);
 
-  // For polyhedron support, convertion results are stored in Faces and FaceOffsets
+  // For polyhedron support, conversion results are stored in Faces and FaceOffsets
   void ConvertFaces(vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets);
   
   // Get the number of points/cells.  Valid after Update has been

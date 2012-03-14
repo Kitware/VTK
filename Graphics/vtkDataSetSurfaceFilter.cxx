@@ -755,7 +755,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
         }
       }
     else
-      { // Faster to justto dupicate the inner most loop.
+      { // Faster to justto duplicate the inner most loop.
       for (ib = ext[bA2]; ib <= ext[bA2+1]; ++ib)
         {
         stripArray[stripArrayIdx++] = outPtId;
@@ -1966,7 +1966,7 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
     {
     end = &(quad->Next);
     // a has to match in this bin.
-    // c should be independant of point order.
+    // c should be independent of point order.
     if (quad->numPts == 4 && c == quad->ptArray[2])
       { 
       // Check boh orders for b and d.
@@ -2163,7 +2163,7 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(vtkIdType numberOfCells
     {
     this->FastGeomQuadArrays[idx] = NULL;
     }
-  // Set pointer to the begining.
+  // Set pointer to the beginning.
   this->NextArrayIndex = 0;
   this->NextQuadIndex = 0;
 

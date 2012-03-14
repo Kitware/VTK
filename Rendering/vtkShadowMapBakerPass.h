@@ -91,7 +91,7 @@ public:
   virtual void SetOpaquePass(vtkRenderPass *opaquePass);
 
   // Description:
-  // Delegate for compositing of the shadow maps accross processors.
+  // Delegate for compositing of the shadow maps across processors.
   // If it is NULL, there is no z compositing.
   // It is usually set to a vtkCompositeZPass (Parallel package).
   // Initial value is a NULL pointer.

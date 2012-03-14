@@ -745,18 +745,26 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   window_size[0] = ren->GetVTKWindow()->GetActualSize()[0];
   window_size[1] = ren->GetVTKWindow()->GetActualSize()[1];
 
+  int viewport_in_pixels[4];
+  viewport_in_pixels[0] = static_cast<int>(window_size[0] * viewport[0]);
+  viewport_in_pixels[1] = static_cast<int>(window_size[1] * viewport[1]);
+  viewport_in_pixels[2] = static_cast<int>(window_size[0] * viewport[2])-1;
+  viewport_in_pixels[3] = static_cast<int>(window_size[1] * viewport[3])-1;
+
+  // we need to ensure that the size computation is always done in pixels,
+  // otherwise we end up with rounding issues. In short, avoid doing
+  // additions/subtractions using normalized viewport coordinates. Those are
+  // better done in pixels.
   int image_size[2];
-  image_size[0] = static_cast<int>(window_size[0] * (viewport[2]-viewport[0]));
-  image_size[1] = static_cast<int>(window_size[1] * (viewport[3]-viewport[1]));
+  image_size[0] = viewport_in_pixels[2] - viewport_in_pixels[0] + 1;
+  image_size[1] = viewport_in_pixels[3] - viewport_in_pixels[1] + 1;
 
   // using RGBA always?
   this->Resize(image_size[0], image_size[1], 4);
 
   ren->GetRenderWindow()->GetRGBACharPixelData(
-    static_cast<int>(window_size[0] * viewport[0]),
-    static_cast<int>(window_size[1] * viewport[1]),
-    static_cast<int>(window_size[0] * viewport[2])-1,
-    static_cast<int>(window_size[1] * viewport[3])-1,
+    viewport_in_pixels[0], viewport_in_pixels[1],
+    viewport_in_pixels[2], viewport_in_pixels[3],
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr());
   this->MarkValid();

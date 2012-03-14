@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <iostream>
+#include <string>
+
 #include "vtkAMRFlashReader.h"
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"

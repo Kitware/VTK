@@ -139,7 +139,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
   GLint stackDepth, maxStackDepth;
   glGetIntegerv(GL_PROJECTION_STACK_DEPTH, &stackDepth);
   glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, &maxStackDepth);
-  // We need to push the projection matrix on the stack.  Unfortunatly, the
+  // We need to push the projection matrix on the stack.  Unfortunately, the
   // projection matrix stack can be small, so we check to make sure that we
   // can do it.
   if (stackDepth < maxStackDepth)

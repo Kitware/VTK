@@ -258,7 +258,7 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char*argv[])
   // Now pd is the "Polydata" on which we want our distance widget to be
   // constrained.
 
-  // First create teh mapper for pd.
+  // First create the mapper for pd.
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

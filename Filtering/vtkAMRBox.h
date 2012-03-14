@@ -200,7 +200,7 @@ public:
   // Description:
   // Set/Get world space origin of the data set, The origin
   // is the location of the low corner cell's low corner node
-  // of the data set. Which is not necessarilly the origin of
+  // of the data set. Which is not necessarily the origin of
   // this box! For that use GetBoxOrigin().
   const double *GetDataSetOrigin() const { return this->X0; }
   void GetDataSetOrigin(double X0[3]) const;
@@ -210,7 +210,7 @@ public:
   // Description:
   // Get the world space origin of this box. The origin is the
   // location of the lower corner cell's lower corner node,
-  // which is not necessarilly the orgin of the data set! For
+  // which is not necessarilly the origin of the data set! For
   // that use GetDataSetOrigin(). The value is computed each time,
   // so that operations on the box are are appropriately reflected.
   void GetBoxOrigin(double x0[3]) const;
@@ -336,15 +336,6 @@ public:
   // Writes the AMR box in a VTK file.
   // Note: This method is used for debugging purposes.
   void WriteBox();
-
-  //BTX
-  // @deprecated Replaced by Contains() as of VTK 5.4.
-  // Do not use! See Contains().
-  VTK_LEGACY(int DoesContainCell(int i, int j, int k));
-  // @deprecated Replaced by Contains() as of VTK 5.4.
-  // Do not use! See Contains().
-  VTK_LEGACY(int DoesContainBox(vtkAMRBox const & box) const);
-  //ETX
 
 public:
 

@@ -2288,7 +2288,7 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
 
   /* 
    * then, check upper link's simply connectedness.
-   * BOTH need to be checked if the 2-manifold has bondary components.
+   * BOTH need to be checked if the 2-manifold has boundary components.
    */
   stackBottom = 0;
   visitedPointNb = 0;

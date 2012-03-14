@@ -333,7 +333,7 @@ public:
   // Description:
   // Given how many pixel are required on a side for bounrary conditions (in
   // bnds), the target extent to traverse, compute the internal extent (the
-  // extent for this ImageData that does nto suffer from any boundary
+  // extent for this ImageData that does not suffer from any boundary
   // conditions) and place it in intExt
   void ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds);
 

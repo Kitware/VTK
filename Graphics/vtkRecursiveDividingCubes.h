@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRecursiveDividingCubes - create points lying on isosurface (using recursive approach)
+// .NAME vtkRecursiveDividingCubes - create points laying on isosurface (using recursive approach)
 // .SECTION Description
-// vtkRecursiveDividingCubes is a filter that generates points lying on a 
+// vtkRecursiveDividingCubes is a filter that generates points laying on a 
 // surface of constant scalar value (i.e., an isosurface). Dense point 
 // clouds (i.e., at screen resolution) will appear as a surface. Less dense 
 // clouds can be used as a source to generate streamlines or to generate 

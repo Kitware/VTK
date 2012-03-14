@@ -221,7 +221,7 @@ int vtkCleanPolyData::RequestData(
   // Celldata needs to be copied correctly. If a poly is converted to
   // a line, or a line to a point, then using a CellCounter will not
   // do, as the cells should be ordered verts, lines, polys,
-  // strips. We need to maintain seperate cell data lists so we can
+  // strips. We need to maintain separate cell data lists so we can
   // copy them all correctly. Tedious but easy to implement. We can
   // use outputCD for vertex cell data, then add the rest at the end.
   vtkCellData  *outLineData = NULL;

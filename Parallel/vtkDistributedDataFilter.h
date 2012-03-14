@@ -66,7 +66,7 @@
 //    it unset, D3 will search the input data set for certain
 //    common names of global node ID arrays.  If none is found,
 //    and ghost cells have been requested, D3 will create a
-//    temporary global node ID array before aquiring ghost cells.
+//    temporary global node ID array before acquiring ghost cells.
 //   It is also desirable to have global element IDs.  However,
 //   if they don't exist D3 can create them relatively quickly.
 //   Set the name of the global element ID array if you have it.

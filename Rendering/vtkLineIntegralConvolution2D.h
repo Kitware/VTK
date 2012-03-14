@@ -144,7 +144,7 @@ public:
   // field is defined. This class performs LIC in the normalized image space
   // and hence generally it needs to transform the input vector field (given 
   // in physical space) to the normalized image space. The Spacing is needed
-  // to determine the tranform. Default is (1.0, 1.0). It is possible to 
+  // to determine the transform. Default is (1.0, 1.0). It is possible to 
   // disable vector transformation by setting TransformVectors to 0.
   vtkSetVector2Macro( GridSpacings, double );
   vtkGetVector2Macro( GridSpacings, double );
@@ -153,7 +153,7 @@ public:
   // This class performs LIC in the normalized image space. Hence, by default
   // it transforms the input vectors to the normalized image space (using the
   // GridSpacings and input vector field dimensions). Set this to 0 to disable
-  // tranformation if the vectors are already tranformed.
+  // tranformation if the vectors are already transformed.
   vtkSetClampMacro( TransformVectors, int, 0, 1 );
   vtkBooleanMacro( TransformVectors, int );
   vtkGetMacro( TransformVectors, int );

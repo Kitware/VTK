@@ -30,9 +30,6 @@ ENDIF(VTK_USE_VIEWS)
 
 # If Qt is enabled include the EasyView example
 IF(VTK_USE_QVTK)
-  IF(VTK_USE_QTCHARTS)
-    ADD_SUBDIRECTORY(ChartView)
-  ENDIF()
   ADD_SUBDIRECTORY(EasyView)
   ADD_SUBDIRECTORY(CustomLinkView)
   ADD_SUBDIRECTORY(StatsView)

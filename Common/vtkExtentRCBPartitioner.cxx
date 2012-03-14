@@ -50,6 +50,14 @@ vtkExtentRCBPartitioner::~vtkExtentRCBPartitioner()
 void vtkExtentRCBPartitioner::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
+  oss << "Number of partitions: " << this->NumberOfPartitions << std::endl;
+  oss << "Number of extents: " << this->NumExtents << std::endl;
+  oss << "Global Extent: ";
+  for( int i=0; i < 6; ++i )
+    {
+    oss << this->GlobalExtent[ i ] << " ";
+    }
+  oss << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -367,6 +375,7 @@ int vtkExtentRCBPartitioner::GetLongestDimensionLength( int ext[6] )
     {
     return klength;
     }
+
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }
@@ -390,6 +399,7 @@ int vtkExtentRCBPartitioner::GetLongestDimension( int ext[6] )
     {
     return 3;
     }
+
   assert( "pre: could not find longest dimension" && false );
   return 0;
 }

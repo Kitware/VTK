@@ -34,7 +34,7 @@
 //
 // Note that normalized vectors are adopted in streamline integration,
 // which achieves high numerical accuracy/smoothness of flow lines that is
-// particularly guranteed for Runge-Kutta45 with adaptive step size and
+// particularly guaranteed for Runge-Kutta45 with adaptive step size and
 // error control). In support of this feature, the underlying step size is
 // ALWAYS in arc length unit (LENGTH_UNIT) while the 'real' time interval
 // (virtual for steady flows) that a particle actually takes to trave in a
@@ -130,7 +130,7 @@ public:
   // step is obtained by dividing the arc length by the LOCAL speed. The
   // overall elapsed time (i.e., the life span) of the particle is the sum
   // of those individual step-wise time intervals. The arc-length-to-time
-  // convertion only occurs for vorticity computation and for generating a
+  // conversion only occurs for vorticity computation and for generating a
   // point data array named 'IntegrationTime'.
   enum Units
   {

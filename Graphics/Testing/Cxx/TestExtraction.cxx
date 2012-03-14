@@ -389,7 +389,7 @@ int TestExtraction(int argc, char *argv[])
   pointIds = vtkIdTypeArray::New();
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
-  pointIds->SetTuple1(0,  9);  //jsut before first -miss
+  pointIds->SetTuple1(0,  9);  //just before first -miss
   pointIds->SetTuple1(1,  10); //first
   pointIds->SetTuple1(2,  11); //second
   pointIds->SetTuple1(3,  73); //last

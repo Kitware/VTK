@@ -112,24 +112,6 @@ IF(VTK_HAS_EXODUS)
   ENDIF(VTK_USE_PARALLEL)
 ENDIF(VTK_HAS_EXODUS)
 
-
-IF (NOT VTK_LEGACY_REMOVE AND VTK_HAS_EXODUS)
-  SET(Kit_Deprecated_SRCS
-    vtkExodusReader.cxx
-    )
-  IF (VTK_USE_PARALLEL)
-    SET(Kit_Deprecated_SRCS ${Kit_Deprecated_SRCS}
-      vtkPExodusReader.cxx
-      )
-  ENDIF (VTK_USE_PARALLEL)
-  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
-  IF (CMAKE_COMPILER_IS_GNUCXX)
-    SET_SOURCE_FILES_PROPERTIES(${Kit_Deprecated_SRCS}
-      PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations
-      )
-  ENDIF (CMAKE_COMPILER_IS_GNUCXX)
-ENDIF (NOT VTK_LEGACY_REMOVE AND VTK_HAS_EXODUS)
-
 IF (WIN32)
   IF (VTK_VFW_SUPPORTS_CAPTURE)
     SET (Kit_SRCS ${Kit_SRCS} vtkWin32VideoSource.cxx)

@@ -145,7 +145,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
           // Center pixel has to be on.
           if (*inPtr0)
             {
-            // neighbors independant of boundaries
+            // neighbors independent of boundaries
             n[0] = (idx0>wholeMin0) ? static_cast<float>(*(inPtr0-inInc0)) : 0;
             n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
               ? static_cast<float>(*(inPtr0-inInc0-inInc1)) : 0;

@@ -152,7 +152,7 @@ public:
   // second method is intended for rendering all translucent polygonal
   // geometry. The third one is intended for rendering all translucent
   // volumetric geometry. Most of the volume rendering mappers draw their
-  // results during this thrid method.
+  // results during this third method.
   // The last method is to render any 2D annotation or overlays.
   // Each of these methods return an integer value indicating
   // whether or not this render method was applied to this data. 

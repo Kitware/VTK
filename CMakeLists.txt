@@ -746,25 +746,15 @@ OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
 OPTION(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
 
-VTK_DEPENDENT_OPTION(VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL." OFF
-                     "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
 
 
-# Off-Screen MESA cannot be used with Mangled MESA.
-IF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
-  MESSAGE(FATAL_ERROR
-    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
-    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
-ENDIF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
-
-
 SET(VTK_CAN_DO_OFF_SCREEN)
-IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
+IF(VTK_OPENGL_HAS_OSMESA OR WIN32)
   SET(VTK_CAN_DO_OFF_SCREEN 1)
-ENDIF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
+ENDIF(VTK_OPENGL_HAS_OSMESA OR WIN32)
 
 VTK_DEPENDENT_OPTION(VTK_USE_OFFSCREEN
                      "Use off screen calls by default." OFF
@@ -812,7 +802,6 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_OFFSCREEN
                  VTK_USE_TK
                  VTK_USE_GL2PS
-                 VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
                  VTK_USE_MPI
                  VTK_USE_PARALLEL_BGL)
@@ -878,17 +867,6 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 
 VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
-
-#-----------------------------------------------------------------------------
-# Configure Mangled MESA support.
-IF(VTK_USE_MANGLED_MESA)
-  FIND_PACKAGE(MangledMesa)
-
-  IF(MANGLED_MESA_INCLUDE_DIR)
-    USE_MANGLED_MESA(${MANGLED_MESA_INCLUDE_DIR}/GL
-                     ${VTK_BINARY_DIR}/MangleMesaInclude)
-  ENDIF(MANGLED_MESA_INCLUDE_DIR)
-ENDIF(VTK_USE_MANGLED_MESA)
 
 #-----------------------------------------------------------------------------
 # Configure Off-Screen MESA support.

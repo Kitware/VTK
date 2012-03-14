@@ -2781,7 +2781,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     // blend mode changed and need max value buffer.
 
     // create and bind second color buffer (we use only the red component
-    // to store the max scalar). We cant use a one component color buffer
+    // to store the max scalar). We can't use a one component color buffer
     // because all color buffer have to have the same format.
 
     // max scalar frame buffer

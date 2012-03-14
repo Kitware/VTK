@@ -37,7 +37,7 @@
 // be closed by repositioning the first and last points over one another.
 // 6) ctrl key + right button down on any handle will erase it: existing
 // snap drawn line segments are updated accordingly.  If the line was formed by
-// continous tracing, the line is deleted leaving one handle.
+// continuous tracing, the line is deleted leaving one handle.
 // 7) shift key + right button down on any snap drawn line segment will insert
 // a handle at the cursor position.  The line segment is split accordingly.
 

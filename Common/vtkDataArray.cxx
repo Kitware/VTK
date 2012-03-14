@@ -743,7 +743,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
 {
   vtkIdType numPrims;
   double size;
-  // The allocated array may be larger than the number of primatives used.
+  // The allocated array may be larger than the number of primitives used.
   //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
   numPrims = this->GetSize();
 

@@ -184,7 +184,7 @@ protected:
   // Description:
   // Given a dimension already determined to be a time dimension (via a call to
   // IsTimeDimension) returns an array with time values.  The default
-  // implementation just uses the tiem index for the time value.  Subclasses
+  // implementation just uses the time index for the time value.  Subclasses
   // should override this function if there is a convention that identifies time
   // values.  This method returns 0 on error, 1 otherwise.
   virtual vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId);

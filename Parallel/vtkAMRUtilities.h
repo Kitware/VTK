@@ -25,13 +25,11 @@
 #define VTKAMRUTILITIES_H_
 
 #include "vtkObject.h"
-
-#include <vector>
+#include <vector> // For C++ vector
 
 // Forward declarations
 class vtkAMRBox;
 class vtkOverlappingAMR;
-class vtkMPIController;
 class vtkMultiProcessController;
 class vtkUniformGrid;
 
@@ -41,7 +39,7 @@ class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
 
     // Standard Routines
     vtkTypeMacro(vtkAMRUtilities,vtkObject);
-    void PrintSelf( std::ostream& os, vtkIndent indent );
+    void PrintSelf(ostream& os, vtkIndent indent );
 
     // Description:
     // Generates all the metadata required for the given AMR dataset.

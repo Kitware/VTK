@@ -267,7 +267,7 @@ void vtkTDxMacDevice::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 // Description:
 // Convert a C string to a Pascal String. Allocation happens with new[].
-// It is the responsability of the user to call delete[].
+// It is the responsibility of the user to call delete[].
 //
 // Apple specific. String literal starting with \p are pascal strings: it is
 // an unsigned char array starting with the length and terminated by \0. The

@@ -123,7 +123,7 @@ protected:
   static void ProcessInteractorEvents(vtkObject* object, unsigned long event,
                                       void* clientdata, void* calldata);
 
-  void RenderNow();
+  virtual void RenderNow();
 
   // Description:
   // Inform the interactor style that an event is being processed.

@@ -22,9 +22,6 @@
 #include "vtkObjectFactory.h"
 #include <assert.h>
 
-//-----------------------------------------------------------------------------
-//vtkStandardNewMacro(vtkContextDevice2D);
-
 vtkContextDevice2D::vtkContextDevice2D()
 {
   this->Geometry[0] = 0;

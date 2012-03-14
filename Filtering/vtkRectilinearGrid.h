@@ -212,9 +212,6 @@ protected:
 private:
   void Cleanup();
 
-  // Description:
-  // For legacy compatibility. Do not use.
-  VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
 private:
   vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
   void operator=(const vtkRectilinearGrid&);  // Not implemented.
@@ -264,14 +261,5 @@ inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
 {
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-inline void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, 
-  vtkIdList& ptIds, vtkIdList& cellIds)
-{
-  this->GetCellNeighbors(cellId, &ptIds, &cellIds);
-}
-#endif
 
 #endif

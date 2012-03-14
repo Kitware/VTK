@@ -208,7 +208,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
       this->Internal, this->Internal->NumberOfParticles );
 
   // Sub-sample particles
-  int TotalNumberOfParticles        = xcoords.size();
+  int TotalNumberOfParticles        = static_cast<int>(xcoords.size());
   vtkIdList *ids                    = vtkIdList::New();
   ids->SetNumberOfIds( TotalNumberOfParticles );
 
@@ -356,7 +356,8 @@ void vtkAMRFlashParticlesReader::SetupParticleDataSelections()
 {
   assert( "pre: Internal reader is NULL" && (this->Internal != NULL) );
 
-  unsigned int N = this->Internal->ParticleAttributeNames.size();
+  unsigned int N =
+      static_cast<unsigned int>(this->Internal->ParticleAttributeNames.size());
   for( unsigned int i=0; i < N; ++i )
     {
        this->ParticleDataArraySelection->AddArray(

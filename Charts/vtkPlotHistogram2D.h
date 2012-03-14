@@ -61,7 +61,7 @@ public:
   vtkImageData * GetInputImageData();
 
   // Description:
-  // Set the color transfer funtion that will be used to generate the 2D
+  // Set the color transfer function that will be used to generate the 2D
   // histogram.
   void SetTransferFunction(vtkScalarsToColors *transfer);
 

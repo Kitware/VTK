@@ -96,6 +96,7 @@ SET( Kit_SRCS
   vtkInteractorStyleRubberBand3D.cxx
   vtkInteractorStyleRubberBandPick.cxx
   vtkInteractorStyleRubberBandZoom.cxx
+  vtkInteractorStyleSwitchBase.cxx
   vtkInteractorStyleSwitch.cxx
   vtkInteractorStyleTerrain.cxx
   vtkInteractorStyleTrackballActor.cxx
@@ -696,43 +697,10 @@ if(VTK_USE_NVCONTROL)
  include_directories(${NVCtrlLib_INCLUDE_DIR})
 endif(VTK_USE_NVCONTROL)
 
-IF (VTK_USE_MANGLED_MESA)
-  IF (MANGLED_MESA_LIBRARY)
-    SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                 vtkMesaActor.cxx
-                 vtkMesaCamera.cxx
-                 vtkMesaClipPlanesPainter.cxx
-                 vtkMesaCoincidentTopologyResolutionPainter.cxx
-                 vtkMesaDisplayListPainter.cxx
-                 vtkMesaImageMapper.cxx
-                 vtkMesaImageSliceMapper.cxx
-                 vtkMesaLight.cxx
-                 vtkMesaLightingPainter.cxx
-                 vtkMesaPainterDeviceAdapter.cxx
-                 vtkMesaPolyDataMapper.cxx
-                 vtkMesaPolyDataMapper2D.cxx
-                 vtkMesaProperty.cxx
-                 vtkMesaRenderWindow.cxx
-                 vtkMesaRenderer.cxx
-                 vtkMesaRepresentationPainter.cxx
-                 vtkMesaScalarsToColorsPainter.cxx
-                 vtkMesaTexture.cxx
-                 vtkXMesaRenderWindow.cxx
-                )
-    SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
-      vtkMesaFreeTypeTextMapper.cxx
-    )
-    SET_SOURCE_FILES_PROPERTIES(vtkMesaRenderWindow ABSTRACT)
-    SET (KIT_LIBS ${KIT_LIBS} ${MANGLED_MESA_LIBRARY})
-    IF(MANGLED_OSMESA_LIBRARY)
-      SET( KIT_LIBS ${KIT_LIBS} ${MANGLED_OSMESA_LIBRARY} )
-    ENDIF(MANGLED_OSMESA_LIBRARY)
-  ENDIF (MANGLED_MESA_LIBRARY)
-ELSE (VTK_USE_MANGLED_MESA)
-  IF(VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
-    SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
-  ENDIF(VTK_OPENGL_HAS_OSMESA  AND  OSMESA_LIBRARY)
-ENDIF(VTK_USE_MANGLED_MESA)
+IF(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+  SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
+ENDIF(VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
+
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
 SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${Kit_FT_SRCS})
 

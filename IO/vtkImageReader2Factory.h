@@ -65,7 +65,7 @@ protected:
   vtkImageReader2Factory();
   ~vtkImageReader2Factory();
 
-  // Description: Initialize availiable readers list.
+  // Description: Initialize available readers list.
   static void InitializeReaders();
 
 private:

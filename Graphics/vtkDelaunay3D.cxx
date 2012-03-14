@@ -454,7 +454,7 @@ int vtkDelaunay3D::RequestData(
   Mesh = this->InitPointInsertion(center, this->Offset*tol,
                                   numPoints, points);
 
-  // Insert each point into triangulation. Points lying "inside"
+  // Insert each point into triangulation. Points laying "inside"
   // of tetra cause tetra to be deleted, leaving a void with bounding
   // faces. Combination of point and each face is used to form new 
   // tetrahedra.

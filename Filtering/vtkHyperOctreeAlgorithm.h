@@ -17,7 +17,7 @@
 
 // vtkOctreeAlgorithm is a convenience class to make writing algorithms
 // easier. It is also designed to help transition old algorithms to the new
-// pipeline architecture. Ther are some assumptions and defaults made by this
+// pipeline architecture. There are some assumptions and defaults made by this
 // class you should be aware of. This class defaults such that your filter
 // will have one input port and one output port. If that is not the case
 // simply change it with SetNumberOfInputPorts etc. See this classes

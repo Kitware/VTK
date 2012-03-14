@@ -378,7 +378,7 @@ void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
   //shape functions are normaly formulated between (-1,1). But because we need
   //to derivate these functions in x and y direction, we are formulating the
   //shape functions in parametric coordinates. Normaly these coordinates are
-  //named r and s, but i choosed x and y, because you can easily mark and
+  //named r and s, but I chose x and y, because you can easily mark and
   //paste these functions to the gnuplot splot function. :D
   double x = pcoords[0];
   double y = pcoords[1];
