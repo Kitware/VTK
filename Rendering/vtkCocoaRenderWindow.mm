@@ -172,11 +172,7 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
     {
     NSString* winTitleStr;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
     winTitleStr = [NSString stringWithCString:_arg encoding:NSASCIIStringEncoding];
-#else
-    winTitleStr = [NSString stringWithCString:_arg];
-#endif
 
     [(NSWindow*)this->GetRootWindow() setTitle:winTitleStr];
     }
@@ -529,13 +525,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
   
   // Get the screen's scale factor.
   // It will be used to create the window if not created yet.
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   NSScreen *screen = [NSScreen mainScreen];
   if (screen)
     {
     this->ScaleFactor = [screen userSpaceScaleFactor];
     }
-#endif
 
   // As vtk is both crossplatform and a library, we don't know if it is being
   // used in a 'regular Cocoa application' or as a 'pure vtk application'.
@@ -570,9 +564,9 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[[vtkCocoaFullScreenWindow alloc]
                     initWithContentRect:ctRect
-                    styleMask:NSBorderlessWindowMask
-                    backing:NSBackingStoreBuffered
-                    defer:NO] autorelease];
+                              styleMask:NSBorderlessWindowMask
+                                backing:NSBackingStoreBuffered
+                                  defer:NO] autorelease];
 
       // This will hide the menu and the dock
       [theWindow setLevel:NSMainMenuWindowLevel+1];
@@ -624,12 +618,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
   
   // Always use the scaling factor from the window once it is created.
   // The screen and the window might possibly have different scaling factors, though unlikely.
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   if (this->GetRootWindow())
     {
     this->ScaleFactor = [(NSWindow*)this->GetRootWindow() userSpaceScaleFactor];
     }
-#endif
 
   // create a view if one has not been specified
   if (!this->GetWindowId())
@@ -682,23 +674,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
   this->CreateGLContext();
 
-  // Set the window title *after* CreateGLContext. We cannot do it earlier
-  // because of a bug in Panther's java library (OSX 10.3.9, Java 1.4.2_09)
-  //
-  // Details on Apple bug:
-  // http://lists.apple.com/archives/Quartz-dev/2005/Apr/msg00043.html
-  // Appears to be fixed in Mac OS X 10.4, but we workaround it here anyhow
-  // so that we can still work on 10.3...
-  //
-  // Additionally, only change the window title if it was created by vtk
+  // Change the window title, but only if it was created by vtk
   if (this->WindowCreated)
     {
     NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%u", count++];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
     this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
-#else
-    this->SetWindowName([winName cString]);
-#endif
     }
   
   // the error "invalid drawable" in the console from this call can appear
@@ -858,13 +838,8 @@ int *vtkCocoaRenderWindow::GetScreenSize()
   NSRect screenRect = [screen frame];
   
   // VTK measures in pixels, but NSWindow/NSView measure in points; convert.
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1040
   this->Size[0] = (int)round(NSWidth(screenRect) * [screen userSpaceScaleFactor]);
   this->Size[1] = (int)round(NSHeight(screenRect) * [screen userSpaceScaleFactor]);
-#else
-  this->Size[0] = (int)NSWidth(screenRect);
-  this->Size[1] = (int)NSHeight(screenRect);
-#endif
   
   return this->Size;
 }

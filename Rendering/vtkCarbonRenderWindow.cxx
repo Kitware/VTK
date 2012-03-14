@@ -32,23 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
-#include <AvailabilityMacros.h>
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1030
-enum
-{
-  kEventControlVisibilityChanged = 157
-};
-#endif
-
-//----------------------------------------------------------------------------
-// At runtime, AGL_MULTISAMPLE is available on Mac OS X 10.3 and later,
-// however the #define was not added until the 10.3.9 SDK, so we define it
-// here if it isn't already defined
-#ifndef AGL_MULTISAMPLE
-  #define AGL_MULTISAMPLE 59
-#endif
-
-//----------------------------------------------------------------------------
 // Dump agl errors to string, return error code
 OSStatus aglReportError ()
 {
@@ -1184,13 +1167,11 @@ WindowPtr vtkCarbonRenderWindow::GetRootWindow()
   // take into account whether the user set the root window or not.
   // if not, then WindowId is set and we're using HIViews.
   // Instead of storing the RootWindow, we ask for it in case of a dynamic 
-  // GUI where the root window can change
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
+  // GUI where the root window can change.
   if(HIViewGetWindow != NULL && !this->RootWindow)
     {
     return HIViewGetWindow(this->WindowId);
     }
-#endif
   return this->RootWindow;
 }
 
