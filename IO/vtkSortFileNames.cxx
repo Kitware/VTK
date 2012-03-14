@@ -349,7 +349,7 @@ bool vtkCompareFileNamesNumeric(const std::string& s1,
     char c1 = s1[i1++];
     char c2 = s2[i2++];
 
-    if (0 && (c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
+    if ((c1 >= '0' && c1 <= '9') && (c2 >= '0' && c2 <= '9'))
       {
       // convert decimal numeric sequence into an integer
       unsigned int j1 = 0;
