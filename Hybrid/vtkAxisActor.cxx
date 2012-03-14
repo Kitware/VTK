@@ -1119,7 +1119,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
 
-  os << indent << "Usé2DMode: " << this->Use2DMode << endl;
+  os << indent << "Use2DMode: " << this->Use2DMode << endl;
   os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
   os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
   os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
