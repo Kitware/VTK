@@ -27,7 +27,6 @@
 #include "vtkAMRUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkCutter.h"
-#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkPolyData.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
@@ -37,6 +36,8 @@
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
 #include <cassert>
 #include <algorithm>
@@ -138,7 +139,7 @@ int vtkAMRCutPlane::RequestInformation(
     this->Plane = this->GetCutPlane( metadata );
     assert( "Cut plane is NULL" && (this->Plane != NULL) );
 
-    this->ComputeAMRBlocksToLoad( this->Plane, metadata );
+    this->ComputeAMRBlocksToLoad(this->Plane, metadata);
     }
 
   this->Modified();
@@ -236,17 +237,18 @@ int vtkAMRCutPlane::RequestData(
 void vtkAMRCutPlane::CutAMRBlock(
     unsigned int blockIdx, vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
 {
-  // Locator, used for detecting duplicate points
-  vtkIncrementalOctreePointLocator *locator = vtkIncrementalOctreePointLocator::New();
-
+  assert("pre: multiblock output object is NULL!" && (output != NULL));
+  assert("pre: grid is NULL" && (grid != NULL) );
 
   vtkPolyData *mesh       = vtkPolyData::New();
   vtkPoints *meshPts      = vtkPoints::New();
+  meshPts->SetDataTypeToDouble();
   vtkCellArray *meshVerts = vtkCellArray::New();
   vtkCellArray *cells     = vtkCellArray::New();
 
-  // STEP 0: Initialize locator
-  locator->InitPointInsertion(meshPts,grid->GetBounds());
+  // Maps points from the input grid to the output grid
+  std::map< vtkIdType, vtkIdType > grdPntMapping;
+  std::vector< vtkIdType > extractedCells;
 
   vtkIdType cellIdx = 0;
   for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
@@ -254,10 +256,17 @@ void vtkAMRCutPlane::CutAMRBlock(
     if( grid->IsCellVisible( cellIdx ) &&
         this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
       {
+      extractedCells.push_back( cellIdx );
       this->ExtractCellFromGrid(
-          grid,grid->GetCell(cellIdx),locator,cells );
+          grid,grid->GetCell(cellIdx),grdPntMapping,meshPts,cells );
       } // END if
     } // END for all cells
+
+  // Sanity checks
+  assert("post: Number of mesh points should match map size!" &&
+       (static_cast<int>(grdPntMapping.size())==meshPts->GetNumberOfPoints()));
+  assert("post: Number of cells mismatch"&&
+       (cells->GetNumberOfCells()==static_cast<int>(extractedCells.size())));
 
   // Insert the points
   mesh->SetPoints( meshPts );
@@ -277,47 +286,144 @@ void vtkAMRCutPlane::CutAMRBlock(
   mesh->SetPolys( cells );
   cells->Delete();
 
-  locator->Delete();
+  // Extract fields
+  this->ExtractPointDataFromGrid(
+      grid,grdPntMapping,mesh->GetNumberOfPoints(),mesh->GetPointData());
+  this->ExtractCellDataFromGrid(
+      grid,extractedCells,mesh->GetCellData());
+
   output->SetBlock( blockIdx, mesh );
   mesh->Delete();
+  grdPntMapping.clear();
+  extractedCells.clear();
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::ExtractCellFromGrid(
             vtkUniformGrid *grid,
-            vtkCell* cell, vtkIncrementalOctreePointLocator *loc,
+            vtkCell* cell, std::map< vtkIdType, vtkIdType >& grdPntMapping,
+            vtkPoints *nodes,
             vtkCellArray *cells)
 {
   assert( "pre: grid is NULL"  && (grid != NULL)  );
   assert( "pre: cell is NULL"  && (cell != NULL)  );
-  assert( "pre: loc is NULL"   && (loc != NULL)   );
   assert( "pre: cells is NULL" && (cells != NULL) );
 
-  switch( cell->GetCellType() )
-    {
-    case VTK_PIXEL:
-    case VTK_QUAD:
-      cells->InsertNextCell(4);
-      break;
-    case VTK_VOXEL:
-    case VTK_HEXAHEDRON:
-      cells->InsertNextCell(8);
-      break;
-    default:
-      vtkErrorMacro("Cell type must be either a quad(pixel) or a hex(voxel)!");
-    }
-
+  cells->InsertNextCell( cell->GetNumberOfPoints() );
   vtkIdType nodeIdx = 0;
   for( ; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx )
     {
+    // Get the point ID w.r.t. the grid
     vtkIdType meshPntIdx = cell->GetPointId( nodeIdx );
     assert( "pre: mesh point ID should within grid range point ID" &&
             (meshPntIdx < grid->GetNumberOfPoints()));
 
-    vtkIdType targetMeshPntIdx =
-        loc->InsertNextPoint( grid->GetPoint(meshPntIdx) );
-    cells->InsertCellPoint( targetMeshPntIdx );
+    if( grdPntMapping.find( meshPntIdx ) != grdPntMapping.end() )
+      {
+      // Point already exists in nodes
+      cells->InsertCellPoint( grdPntMapping[meshPntIdx] );
+      }
+    else
+      {
+      // Push point to the end of the list
+      vtkIdType nidx = nodes->GetNumberOfPoints();
+      nodes->InsertPoint( nidx, grid->GetPoint(meshPntIdx) );
+      assert("post: number of points should be increased by 1" &&
+             (nodes->GetNumberOfPoints()==(nidx+1)));
+      grdPntMapping[ meshPntIdx ] = nidx;
+      }
     } // END for all nodes
+
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRCutPlane::ExtractPointDataFromGrid(
+    vtkUniformGrid *grid,
+    std::map<vtkIdType,vtkIdType>& gridPntMapping,
+    vtkIdType NumNodes,
+    vtkPointData *PD)
+{
+  assert("pre: grid is NULL!" && (grid != NULL) );
+  assert("pre: target point data is NULL!" && (PD != NULL) );
+
+  if( (grid->GetPointData()->GetNumberOfArrays()==0) ||
+      (gridPntMapping.size() == 0))
+    {
+    // Nothing to extract short-circuit here
+    return;
+    }
+
+  vtkPointData *GPD = grid->GetPointData();
+  for( int fieldArray=0; fieldArray < GPD->GetNumberOfArrays(); ++fieldArray)
+    {
+    vtkDataArray *sourceArray = GPD->GetArray(fieldArray);
+    int dataType = sourceArray->GetDataType();
+    vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
+    assert( "pre: failed to create array!" && (array != NULL) );
+
+    array->SetName(sourceArray->GetName());
+    array->SetNumberOfComponents(sourceArray->GetNumberOfComponents());
+    array->SetNumberOfTuples(NumNodes);
+
+    // Copy tuples from source array
+    std::map<vtkIdType,vtkIdType>::iterator iter = gridPntMapping.begin();
+    for( ; iter != gridPntMapping.end(); ++iter )
+      {
+      vtkIdType srcIdx    = iter->first;
+      vtkIdType targetIdx = iter->second;
+      assert( "pre: source node index is out-of-bounds" &&
+              (srcIdx >= 0) && (srcIdx < grid->GetNumberOfPoints()) );
+      assert( "pre: target node index is out-of-bounds" &&
+              (targetIdx >=0) && (targetIdx < NumNodes)  );
+      array->SetTuple( targetIdx, srcIdx, sourceArray );
+      } // END for all extracted nodes
+
+    PD->AddArray( array );
+    array->Delete();
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRCutPlane::ExtractCellDataFromGrid(
+    vtkUniformGrid *grid,
+    std::vector<vtkIdType>& cellIdxList,
+    vtkCellData *CD)
+{
+  assert("pre: grid is NULL!" && (grid != NULL) );
+  assert("pre: target cell data is NULL!" && (CD != NULL) );
+
+  if( (grid->GetCellData()->GetNumberOfArrays()==0) ||
+      (cellIdxList.size()==0) )
+    {
+    // Nothing to extract short-circuit here
+    return;
+    }
+
+  int NumCells = static_cast<int>(cellIdxList.size());
+  vtkCellData *GCD = grid->GetCellData();
+  for( int fieldArray=0; fieldArray < GCD->GetNumberOfArrays(); ++fieldArray)
+  {
+  vtkDataArray *sourceArray = GCD->GetArray(fieldArray);
+  int dataType = sourceArray->GetDataType();
+  vtkDataArray *array = vtkDataArray::CreateDataArray(dataType);
+  assert( "pre: failed to create array!" && (array != NULL) );
+
+  array->SetName(sourceArray->GetName());
+  array->SetNumberOfComponents(sourceArray->GetNumberOfComponents());
+  array->SetNumberOfTuples(NumCells);
+
+  // Copy tuples from source array
+  for( int i=0; i < NumCells; ++i )
+    {
+    vtkIdType cellIdx = cellIdxList[ i ];
+    assert( "pre: cell index is out-of-bounds!" &&
+          (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()) );
+    array->SetTuple(i,cellIdx,sourceArray);
+    } // END for all extracted cells
+
+  CD->AddArray( array );
+  array->Delete();
+  } // END for all arrays
 
 }
 
@@ -415,6 +521,8 @@ bool vtkAMRCutPlane::PlaneIntersectsCell( vtkCell *cell )
 //------------------------------------------------------------------------------
 bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double bounds[6] )
 {
+  assert( "pre: plane is NULL" && (this->Plane != NULL) );
+
   // Store A,B,C,D from the plane equation
   double plane[4];
   plane[0] = this->Plane->GetNormal()[0];

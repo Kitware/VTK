@@ -15,7 +15,9 @@
 // .NAME vtkAMRCutPlane.h -- Cuts an AMR dataset
 //
 // .SECTION Description
-//  TODO: Enter documentation here!
+//  A concrete instance of vtkMultiBlockDataSet that provides functionality for
+// cutting an AMR dataset (an instance of vtkOverlappingAMR) with user supplied
+// implicit plane function defined by a normal and center.
 
 #ifndef VTKAMRCUTPLANE_H_
 #define VTKAMRCUTPLANE_H_
@@ -23,6 +25,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 #include <vector> // For STL vector
+#include <map> // For STL map
 
 class vtkMultiBlockDataSet;
 class vtkOverlappingAMR;
@@ -31,13 +34,12 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
 class vtkPlane;
-class vtkPointLocator;
-class vtkContourValues;
 class vtkUniformGrid;
 class vtkCell;
 class vtkPoints;
-class vtkIncrementalOctreePointLocator;
 class vtkCellArray;
+class vtkPointData;
+class vtkCellData;
 
 class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 {
@@ -66,10 +68,10 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     vtkBooleanMacro(UseNativeCutter,int);
 
     // Description:
-    // Set/Get a multiprocess controller for paralle processing.
+    // Set/Get a multiprocess controller for parallel processing.
     // By default this parameter is set to NULL by the constructor.
-    vtkSetMacro( Controller, vtkMultiProcessController* );
-    vtkGetMacro( Controller, vtkMultiProcessController* );
+    vtkSetMacro(Controller, vtkMultiProcessController*);
+    vtkGetMacro(Controller, vtkMultiProcessController*);
 
     // Standard pipeline routines
 
@@ -104,9 +106,27 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Extracts cell
     void ExtractCellFromGrid(
-        vtkUniformGrid *grid,
-        vtkCell* cell, vtkIncrementalOctreePointLocator *loc,
+        vtkUniformGrid *grid, vtkCell* cell,
+        std::map<vtkIdType,vtkIdType>& gridPntMapping,
+        vtkPoints *nodes,
         vtkCellArray *cells );
+
+    // Description:
+    // Given the grid and a subset ID pair, grid IDs mapping to the extracted
+    // grid IDs, extract the point data.
+    void ExtractPointDataFromGrid(
+        vtkUniformGrid *grid,
+        std::map<vtkIdType,vtkIdType>& gridPntMapping,
+        vtkIdType NumNodes,
+        vtkPointData *PD );
+
+    // Description:
+    // Given the grid and the list of cells that are extracted, extract the
+    // corresponding cell data.
+    void ExtractCellDataFromGrid(
+        vtkUniformGrid *grid,
+        std::vector<vtkIdType>& cellIdxList,
+        vtkCellData *CD);
 
     // Description:
     // Given a cut-plane, p, and the metadata, m, this method computes which
