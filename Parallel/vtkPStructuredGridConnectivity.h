@@ -71,7 +71,8 @@ class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
     // Description:
     // Returns the number of local grids registers by the process that owns
     // the current vtkPStructuredGridConnectivity instance
-    int GetNumberOfLocalGrids() { return this->GridIds.size(); };
+    int GetNumberOfLocalGrids()
+      { return static_cast<int>(this->GridIds.size()); };
 
     // Description:
     // Returns the rank of the given gridID. A nominal value of -1 for the
