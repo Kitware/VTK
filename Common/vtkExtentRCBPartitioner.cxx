@@ -50,14 +50,15 @@ vtkExtentRCBPartitioner::~vtkExtentRCBPartitioner()
 void vtkExtentRCBPartitioner::PrintSelf( std::ostream &oss, vtkIndent indent )
 {
   this->Superclass::PrintSelf( oss, indent );
-  oss << "Number of partitions: " << this->NumberOfPartitions << std::endl;
-  oss << "Number of extents: " << this->NumExtents << std::endl;
+  oss << "Number of partitions: " << this->NumberOfPartitions << endl;
+  oss << "Number of extents: " << this->NumExtents << endl;
+  oss << "Number of ghost layers: " << this->NumberOfGhostLayers << endl;
   oss << "Global Extent: ";
   for( int i=0; i < 6; ++i )
     {
     oss << this->GlobalExtent[ i ] << " ";
     }
-  oss << std::endl;
+  oss << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -414,11 +415,11 @@ void vtkExtentRCBPartitioner::AcquireDataDescription()
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::PrintExtent( std::string name, int ext[6] )
 {
-  std::cout << name << ": [";
+  cout << name << ": [";
   for( int i=0; i < 6; ++i  )
     {
-    std::cout << ext[i] << " ";
+    cout << ext[i] << " ";
     }
-  std::cout << "]\n";
-  std::cout.flush();
+  cout << "]\n";
+  cout.flush();
 }
