@@ -27,8 +27,7 @@
 #include "vtkAMRUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkCutter.h"
-#include "vtkLocator.h"
-#include "vtkPointLocator.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkPolyData.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
@@ -41,7 +40,7 @@
 
 #include <cassert>
 #include <algorithm>
-using std::endl;
+
 
 vtkStandardNewMacro(vtkAMRCutPlane);
 
@@ -217,7 +216,8 @@ int vtkAMRCutPlane::RequestData(
         {
         if( grid != NULL )
           {
-          this->CutAMRBlock( grid, mbds );
+          this->CutAMRBlock( blockIdx, grid, mbds );
+          ++blockIdx;
           }
         else
           {
@@ -234,16 +234,19 @@ int vtkAMRCutPlane::RequestData(
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::CutAMRBlock(
-    vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
+    unsigned int blockIdx, vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
 {
   // Locator, used for detecting duplicate points
-  vtkPointLocator *locator = vtkPointLocator::New();
+  vtkIncrementalOctreePointLocator *locator = vtkIncrementalOctreePointLocator::New();
 
 
-  vtkPolyData *mesh   = vtkPolyData::New();
-  vtkPoints *meshPts  = vtkPoints::New();
-  vtkCellArray *cells = vtkCellArray::New();
+  vtkPolyData *mesh       = vtkPolyData::New();
+  vtkPoints *meshPts      = vtkPoints::New();
+  vtkCellArray *meshVerts = vtkCellArray::New();
+  vtkCellArray *cells     = vtkCellArray::New();
 
+  // STEP 0: Initialize locator
+  locator->InitPointInsertion(meshPts,grid->GetBounds());
 
   vtkIdType cellIdx = 0;
   for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
@@ -252,31 +255,68 @@ void vtkAMRCutPlane::CutAMRBlock(
         this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
       {
       this->ExtractCellFromGrid(
-          grid,grid->GetCell(cellIdx),locator,meshPts,cells );
+          grid,grid->GetCell(cellIdx),locator,cells );
       } // END if
     } // END for all cells
 
+  // Insert the points
+  mesh->SetPoints( meshPts );
+  meshPts->Delete();
+
+  // Insert mesh vertices
+  vtkIdType idx = 0;
+  for( ;idx < meshPts->GetNumberOfPoints(); ++idx )
+    {
+    meshVerts->InsertNextCell(1);
+    meshVerts->InsertCellPoint(idx);
+    } // END for all points
+  mesh->SetVerts( meshVerts );
+  meshVerts->Delete();
+
+  // Insert the cells
+  mesh->SetPolys( cells );
+  cells->Delete();
+
   locator->Delete();
-  unsigned int blockIdx = output->GetNumberOfBlocks();
   output->SetBlock( blockIdx, mesh );
+  mesh->Delete();
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::ExtractCellFromGrid(
             vtkUniformGrid *grid,
-            vtkCell* cell, vtkLocator *loc,
-            vtkPoints *pts, vtkCellArray *cells)
+            vtkCell* cell, vtkIncrementalOctreePointLocator *loc,
+            vtkCellArray *cells)
 {
   assert( "pre: grid is NULL"  && (grid != NULL)  );
   assert( "pre: cell is NULL"  && (cell != NULL)  );
   assert( "pre: loc is NULL"   && (loc != NULL)   );
-  assert( "pre: pts is NULL"   && (pts != NULL)   );
   assert( "pre: cells is NULL" && (cells != NULL) );
+
+  switch( cell->GetCellType() )
+    {
+    case VTK_PIXEL:
+    case VTK_QUAD:
+      cells->InsertNextCell(4);
+      break;
+    case VTK_VOXEL:
+    case VTK_HEXAHEDRON:
+      cells->InsertNextCell(8);
+      break;
+    default:
+      vtkErrorMacro("Cell type must be either a quad(pixel) or a hex(voxel)!");
+    }
 
   vtkIdType nodeIdx = 0;
   for( ; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx )
     {
+    vtkIdType meshPntIdx = cell->GetPointId( nodeIdx );
+    assert( "pre: mesh point ID should within grid range point ID" &&
+            (meshPntIdx < grid->GetNumberOfPoints()));
 
+    vtkIdType targetMeshPntIdx =
+        loc->InsertNextPoint( grid->GetPoint(meshPntIdx) );
+    cells->InsertCellPoint( targetMeshPntIdx );
     } // END for all nodes
 
 }
@@ -349,14 +389,16 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
       } // END for all data
     } // END for all levels
 
-    std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
+  std::sort( this->blocksToLoad.begin(), this->blocksToLoad.end() );
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::InitializeCenter( double min[3], double max[3] )
 {
   if( !this->initialRequest )
+    {
     return;
+    }
 
   this->Center[0] = 0.5*( max[0]-min[0] );
   this->Center[1] = 0.5*( max[1]-min[1] );

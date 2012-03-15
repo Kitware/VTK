@@ -36,7 +36,7 @@ class vtkContourValues;
 class vtkUniformGrid;
 class vtkCell;
 class vtkPoints;
-class vtkLocator;
+class vtkIncrementalOctreePointLocator;
 class vtkCellArray;
 
 class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
@@ -105,8 +105,8 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // Extracts cell
     void ExtractCellFromGrid(
         vtkUniformGrid *grid,
-        vtkCell* cell, vtkLocator *loc,
-        vtkPoints *pts, vtkCellArray *cells );
+        vtkCell* cell, vtkIncrementalOctreePointLocator *loc,
+        vtkCellArray *cells );
 
     // Description:
     // Given a cut-plane, p, and the metadata, m, this method computes which
@@ -134,7 +134,9 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Applies cutting to an AMR block
-    void CutAMRBlock( vtkUniformGrid *grid, vtkMultiBlockDataSet *dataSet );
+    void CutAMRBlock(
+        unsigned int blockIdx,
+        vtkUniformGrid *grid, vtkMultiBlockDataSet *dataSet );
 
     int    LevelOfResolution;
     double Center[3];
