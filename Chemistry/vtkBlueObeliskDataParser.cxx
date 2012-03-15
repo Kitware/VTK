@@ -394,18 +394,11 @@ void vtkBlueObeliskDataParser::CharacterDataHandler(const char *data,
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBlueObeliskDataParser::SetCurrentValue(const char *data,
-                                                      int length)
+void vtkBlueObeliskDataParser::SetCurrentValue(const char *data, int length)
 {
-  char str[length + 1];
-  str[length] = 0;
+  std::string str(data, data+length);
 
-  for (int i = 0; i < length; ++i)
-    {
-    str[i] = data[i];
-    }
-
-  this->SetCurrentValue(str);
+  this->SetCurrentValue(str.c_str());
 }
 
 //----------------------------------------------------------------------------
@@ -477,9 +470,8 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char *data)
 }
 
 //----------------------------------------------------------------------------
-inline void
-vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray *arr,
-                                              vtkIdType ind)
+void  vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray *arr,
+                                                    vtkIdType ind)
 {
   if (ind >= arr->GetNumberOfTuples())
     {
@@ -488,28 +480,27 @@ vtkBlueObeliskDataParser::ResizeArrayIfNeeded(vtkAbstractArray *arr,
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBlueObeliskDataParser::ResizeAndSetValue(vtkStdString *val,
-                                                        vtkStringArray *arr,
-                                                        vtkIdType ind)
+void vtkBlueObeliskDataParser::ResizeAndSetValue(vtkStdString *val,
+                                                 vtkStringArray *arr,
+                                                 vtkIdType ind)
 {
   vtkBlueObeliskDataParser::ResizeArrayIfNeeded(arr, ind);
   arr->SetValue(ind, val->c_str());
 }
 
 //----------------------------------------------------------------------------
-inline void vtkBlueObeliskDataParser::ResizeAndSetValue(float val,
-                                                        vtkFloatArray *arr,
-                                                        vtkIdType ind)
+void vtkBlueObeliskDataParser::ResizeAndSetValue(float val,
+                                                 vtkFloatArray *arr,
+                                                 vtkIdType ind)
 {
   vtkBlueObeliskDataParser::ResizeArrayIfNeeded(arr, ind);
   arr->SetValue(ind, val);
 }
 
 //----------------------------------------------------------------------------
-inline void
-vtkBlueObeliskDataParser::ResizeAndSetValue(unsigned short val,
-                                            vtkUnsignedShortArray *arr,
-                                            vtkIdType ind)
+void vtkBlueObeliskDataParser::ResizeAndSetValue(unsigned short val,
+                                                 vtkUnsignedShortArray *arr,
+                                                 vtkIdType ind)
 {
   vtkBlueObeliskDataParser::ResizeArrayIfNeeded(arr, ind);
   arr->SetValue(ind, val);
