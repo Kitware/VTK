@@ -1228,10 +1228,6 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
           {
           // Get the pipeline information for this input connection.
           vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
-          inInfo->CopyEntry(outInfo, UPDATE_TIME_STEPS());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_ID());
-          inInfo->CopyEntry(outInfo, FAST_PATH_ID_TYPE());
-          inInfo->CopyEntry(outInfo, FAST_PATH_OBJECT_TYPE());
           inInfo->CopyEntry(outInfo, UPDATE_COMPOSITE_INDICES());
           inInfo->CopyEntry(outInfo, LOAD_REQUESTED_BLOCKS());
           }
