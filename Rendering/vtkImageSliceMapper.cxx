@@ -117,16 +117,22 @@ int vtkImageSliceMapper::ProcessRequest(
   // compute display extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
+    int wholeExtent[6];
     int *extent = this->DataWholeExtent;
     double *spacing = this->DataSpacing;
     double *origin = this->DataOrigin;
 
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
     inInfo->Get(vtkDataObject::SPACING(), spacing);
     inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
     vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();
+
+    for (int k = 0; k < 6; k++)
+      {
+      extent[k] = wholeExtent[k];
+      }
 
     if (this->Cropping)
       {
@@ -166,16 +172,16 @@ int vtkImageSliceMapper::ProcessRequest(
 
     int orientation = this->Orientation % 3;
 
-    this->SliceNumberMinValue = extent[2*orientation];
-    this->SliceNumberMaxValue = extent[2*orientation + 1];
+    this->SliceNumberMinValue = wholeExtent[2*orientation];
+    this->SliceNumberMaxValue = wholeExtent[2*orientation + 1];
 
-    if (this->SliceNumber < this->SliceNumberMinValue)
+    if (this->SliceNumber < extent[2*orientation])
       {
-      this->SliceNumber = this->SliceNumberMinValue;
+      this->SliceNumber = extent[2*orientation];
       }
-    if (this->SliceNumber > this->SliceNumberMaxValue)
+    if (this->SliceNumber > extent[2*orientation + 1])
       {
-      this->SliceNumber = this->SliceNumberMaxValue;
+      this->SliceNumber = extent[2*orientation + 1];
       }
 
     extent[2*orientation] = this->SliceNumber;
