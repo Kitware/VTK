@@ -49,7 +49,10 @@ int TestGhostArray(int,char *[])
   for( int i=0; i < 8; ++i )
     {
     if( vtkGhostArray::IsPropertySet( propertyField, i) )
+      {
+      std::cerr << "bit " << i << " appears to be set!\n";
       ++rc;
+      }
     } // END for
 
   // Try setting/unsetting some node properties
@@ -68,7 +71,10 @@ int TestGhostArray(int,char *[])
   for( int i=0; i < 8; ++i )
     {
     if( vtkGhostArray::IsPropertySet( propertyField, i) )
+      {
+      std::cerr << "bit " << i << " appears to be set!\n";
       ++rc;
+      }
     } // END for
   return( rc );
 }
