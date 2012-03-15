@@ -177,13 +177,14 @@ int vtkMoleculeToBondStickFilter::RequestData(
       cylPolys->InitTraversal();
       while (cylPolys->GetNextCell(numCellPoints, cellPoints) != 0)
         {
-        vtkIdType newCellPoints[numCellPoints];
+        vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
         for (vtkIdType i = 0; i < numCellPoints; ++i)
           {
           // The new point ids should be offset by the pointOffset above
           newCellPoints[i] = cellPoints[i] + pointOffset;
           }
         polys->InsertNextCell(numCellPoints, newCellPoints);
+        delete [] newCellPoints;
         }
 
       // Setup for the next cylinder in a multi-bond
