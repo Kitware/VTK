@@ -22,8 +22,6 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-using std::cout;
-using std::endl;
 
 vtkStandardNewMacro( vtkExtentRCBPartitioner );
 
