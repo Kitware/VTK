@@ -9,8 +9,9 @@ ENDIF (VTK_DATA_ROOT)
 
 IF (VTK_USE_PARALLEL)
   SET(AMRTests 
+      TestAMRIterator.cxx
       TestAMRBlanking.cxx)
-  SET(EXTRALIBS vtkParallel)
+  SET(EXTRALIBS vtkAMR vtkParallel)
 ENDIF(VTK_USE_PARALLEL)
 
 #
