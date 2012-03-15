@@ -33,7 +33,7 @@ vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter() :
   vtkPolyDataAlgorithm()
 {
   this->Tolerance = 1e-6;
-  this->Operation = UNION;
+  this->Operation = VTK_UNION;
   this->ReorientDifferenceCells = 1;
 
   this->SetNumberOfInputPorts(2);
@@ -155,12 +155,12 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   outputSurface->GetPointData()->CopyAllocate(pointFields);
   outputSurface->GetCellData()->CopyAllocate(cellFields);
 
-  if ( this->Operation == UNION || this->Operation == DIFFERENCE )
+  if ( this->Operation == VTK_UNION || this->Operation == VTK_DIFFERENCE )
     {
     this->CopyCells(pd0, outputSurface, 0, pointFields, cellFields, unionList,
                     false);
     }
-  else if ( this->Operation == INTERSECTION )
+  else if ( this->Operation == VTK_INTERSECTION )
     {
     this->CopyCells(pd0, outputSurface, 0, pointFields, cellFields, interList,
                     false);
@@ -192,16 +192,16 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
 
   this->SortPolyData(pd1, interList, unionList);
 
-  if ( this->Operation == UNION )
+  if ( this->Operation == VTK_UNION )
     {
     this->CopyCells(pd1, outputSurface, 1, pointFields, cellFields, unionList,
                     false);
     }
-  else if ( this->Operation == INTERSECTION || this->Operation == DIFFERENCE )
+  else if ( this->Operation == VTK_INTERSECTION || this->Operation == VTK_DIFFERENCE )
     {
     this->CopyCells(pd1, outputSurface, 1, pointFields, cellFields, interList,
                     (this->ReorientDifferenceCells == 1 &&
-                     this->Operation == DIFFERENCE));
+                     this->Operation == VTK_DIFFERENCE));
     }
 
   vtkIdType i;
@@ -238,15 +238,15 @@ void vtkBooleanOperationPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Operation: ";
   switch ( this->Operation )
     {
-    case UNION:
+    case VTK_UNION:
       os << "UNION";
       break;
 
-    case INTERSECTION:
+    case VTK_INTERSECTION:
       os << "INTERSECTION";
       break;
 
-    case DIFFERENCE:
+    case VTK_DIFFERENCE:
       os << "DIFFERENCE";
       break;
     }
