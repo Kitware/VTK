@@ -44,6 +44,7 @@ int TestGhostArray(int,char *[])
 {
   int rc = 0;
   unsigned char propertyField;
+  vtkGhostArray::Reset( propertyField );
 
   // Ensure all bits are set to 0
   for( int i=0; i < 8; ++i )
