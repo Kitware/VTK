@@ -61,15 +61,52 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3], 
                                  double& dist2, double *weights)
 {
+  int i, j;
+  subId = 0;
+  // There are problems searching for the apex point so we check if
+  // we are there first before doing the full parametric inversion.
+  vtkPoints* points = this->GetPoints();
+  double apexPoint[3];
+  points->GetPoint(4, apexPoint);
+  dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
+  double baseMidpoint[3];
+  points->GetPoint(0, baseMidpoint);
+  for(i=1;i<4;i++)
+    {
+    double tmp[3];
+    points->GetPoint(i, tmp);
+    for(j=0;j<3;j++)
+      {
+      baseMidpoint[j] += tmp[j];
+      }
+    }
+  for(i=0;i<3;i++)
+    {
+    baseMidpoint[i] /= 4.;
+    }
+
+  double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
+  // we use .001 as the relative tolerance here since that is the same
+  // that is used for the interior cell check below.
+  if(dist2 == 0. || ( length2 != 0. && dist2/length2 > .001) )
+    {
+    pcoords[0] = pcoords[1] = .5;
+    pcoords[2] = 1;
+    this->InterpolationFunctions(pcoords, weights);
+    if(closestPoint)
+      {
+      memcpy(closestPoint, x, 3*sizeof(double));
+      }
+    return 1;
+    }
+
   int iteration, converged;
   double  params[3];
   double  fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
   double  d, pt[3];
   double derivs[15];
 
   //  set initial position for Newton's method
-  subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   params[0] = params[1] = params[2] = 0.3333333;
 
@@ -596,13 +633,35 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
 }
 
 //----------------------------------------------------------------------------
-void vtkPyramid::Derivatives(int vtkNotUsed(subId), double pcoords[3],
+void vtkPyramid::Derivatives(int subId, double pcoords[3],
                              double *values, int dim, double *derivs)
 {
-  double *jI[3], j0[3], j1[3], j2[3];
+  if(pcoords[2] > .999)
+    {
+    // If we are at the apex of the pyramid we need to do something special.
+    // As we approach the apex, the derivatives of the parametric shape
+    // functions in x and y go to 0 while the inverse of the Jacobian
+    // also goes to 0.  This results in 0/0 but using l'Hopital's rule
+    // we could actually compute the value of the limit, if we had a
+    // functional expression to compute the gradient.  We're on a computer
+    // so we don't but we can cheat and do a linear extrapolation of the
+    // derivatives which really ends up as the same thing.
+    double pcoords1[3] = {.5, .5, 2.*.998-pcoords[2]};
+    std::vector<double> derivs1(3*dim);
+    this->Derivatives(subId, pcoords1, values, dim, &(derivs1[0]));
+    double pcoords2[3] = {.5, .5, .998};
+    std::vector<double> derivs2(3*dim);
+    this->Derivatives(subId, pcoords2, values, dim, &(derivs2[0]));
+    for(int i=0;i<dim*3;i++)
+      {
+      derivs[i] = 2.*derivs2[i] - derivs1[i];
+      }
+    return;
+    }
+
   double functionDerivs[15], sum[3], value;
   int i, j, k;
-
+  double *jI[3], j0[3], j1[3], j2[3];
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0; jI[1] = j1; jI[2] = j2;
   this->JacobianInverse(pcoords, jI, functionDerivs);
