@@ -27,7 +27,7 @@
 
 class vtkRenderWindowInteractor;
 
-class vtkContextKeyEvent
+class VTK_CHARTS_EXPORT vtkContextKeyEvent
 {
 public:
   vtkContextKeyEvent();

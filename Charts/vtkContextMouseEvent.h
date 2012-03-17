@@ -26,7 +26,7 @@
 
 class vtkRenderWindowInteractor;
 
-class vtkContextMouseEvent
+class VTK_CHARTS_EXPORT vtkContextMouseEvent
 {
 public:
   // Description:
