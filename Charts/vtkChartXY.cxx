@@ -1254,7 +1254,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
-    this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
+
+    if(this->Tooltip)
+      {
+      this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
+      }
     }
 
   return true;
@@ -1356,6 +1360,11 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
+  if(!this->Tooltip)
+    {
+    return;
+    }
+
   // Have the plot generate its tooltip label
   vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex,
                                                     segmentIndex);
@@ -1370,14 +1379,23 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->DrawNearestPoint = false;
-  this->Tooltip->SetVisible(false);
+
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
-  this->Tooltip->SetVisible(false);
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   // Iterate through each corner, and check for a nearby point
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
@@ -1743,7 +1761,11 @@ void vtkChartXY::ZoomInAxes(vtkAxis *x, vtkAxis *y, float *origin, float *max)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 {
-  this->Tooltip->SetVisible(false);
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   // Get the bounds of each plot.
   for (int i = 0; i < 4; ++i)
     {
