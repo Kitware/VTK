@@ -137,8 +137,7 @@
 /* OGLR is for GLX. It can be on Unix, Mac or Windows */
 #if ((defined(VTK_USE_OPENGL_LIBRARY) && defined(VTK_USE_X) && \
       !defined(_WIN32)) ||                                     \
-     (defined(VTK_USE_X) && defined(_WIN32)) || \
-     !defined(_WIN32)) && \
+     (defined(VTK_USE_X) && defined(_WIN32))) && \
      !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
 # define VTK_USE_OGLR
 #endif
