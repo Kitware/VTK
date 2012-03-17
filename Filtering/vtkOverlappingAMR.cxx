@@ -767,6 +767,10 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
 //----------------------------------------------------------------------------
 vtkAMRBox vtkOverlappingAMR::GetAMRBox(vtkCompositeDataIterator* iter)
 {
+  vtkUniformGridAMRDataIterator *amrIter =
+      vtkUniformGridAMRDataIterator::SafeDownCast( iter );
+  assert( "pre: Cannot downcast to an AMR iterator" && (amrIter != NULL) );
+
   vtkAMRBox box;
   if (this->HasMetaData(iter))
     {
@@ -786,9 +790,7 @@ vtkAMRBox vtkOverlappingAMR::GetAMRBox(vtkCompositeDataIterator* iter)
     box.SetProcessId( info->Get( RANK() ) );
     box.SetBlockId( info->Get( BLOCK_ID() ) );
     box.SetRealExtent( info->Get( REAL_EXTENT() ) );
-// TODO: How can we determine the level from an iterator? One possibility is
-// to store that information in the vtkInformation object, but, that requires
-// more storage and hashing.
+    box.SetLevel( amrIter->GetCurrentLevel() );
     double *spacing = info->Get( SPACING() );
     box.SetGridSpacing( spacing );
     }
