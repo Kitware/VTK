@@ -34,6 +34,7 @@ class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
 class vtkTextProperty;
+class vtkTooltipItem;
 class vtkRenderWindowInteractor;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
@@ -224,6 +225,22 @@ public:
   void SetTooltipPrecision(int plotType, int precision);
   int GetTooltipNotation(int plotType);
   int GetTooltipPrecision(int plotType);
+
+  // Description:
+  // Set the vtkTooltipItem object that will be displayed by the active chart.
+  void SetTooltip(vtkTooltipItem *tooltip);
+
+  // Description:
+  // Get the vtkTooltipItem object that will be displayed by the active chart.
+  vtkTooltipItem* GetTooltip() const;
+
+  // Description:
+  // Set indexed labels array.
+  void SetIndexedLabels(vtkStringArray *labels);
+
+  // Description:
+  // Get the indexed labels array.
+  vtkStringArray* GetIndexedLabels() const;
 
   // Description:
   // Set the scatter plot selected row/column charts' background color.

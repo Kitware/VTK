@@ -37,6 +37,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCallbackCommand.h"
 #include "vtkVectorOperators.h"
+#include "vtkTooltipItem.h"
 
 #include "vtkChartXYZ.h"
 
@@ -65,6 +66,7 @@ public:
     activeplotSettings->MarkerSize = 8.0;
     this->SelectedChartBGBrush->SetColor(0, 204, 0, 102);
     this->SelectedRowColumnBGBrush->SetColor(204, 0, 0, 102);
+    this->TooltipItem = vtkSmartPointer<vtkTooltipItem>::New();
   }
 
   ~PIMPL()
@@ -193,6 +195,8 @@ public:
 
   vtkNew<vtkChartXYZ> BigChart3D;
   vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/numer of ticks
+  vtkSmartPointer<vtkTooltipItem> TooltipItem;
+  vtkSmartPointer<vtkStringArray> IndexedLabelsArray;
 };
 
 namespace
@@ -446,6 +450,13 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
           xy->GetAxis(vtkAxis::LEFT)->SetGridVisible(false);
           xy->GetAxis(vtkAxis::LEFT)->SetTicksVisible(false);
           xy->GetAxis(vtkAxis::LEFT)->SetVisible(true);
+
+          // set labels array
+          if(this->Private->IndexedLabelsArray)
+            {
+              plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
+              plot->SetTooltipLabelFormat("%i");
+            }
           }
         if (xy && active)
           {
@@ -1294,6 +1305,14 @@ void vtkScatterPlotMatrix::UpdateLayout()
           vtkCommand::SelectionChangedEvent, this,
           &vtkScatterPlotMatrix::BigChartSelectionCallback);
 
+        // set tooltip item
+        vtkChartXY *chartXY =
+          vtkChartXY::SafeDownCast(this->Private->BigChart.GetPointer());
+        if(chartXY)
+          {
+          chartXY->SetTooltip(this->Private->TooltipItem);
+          }
+
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         this->SetActivePlot(vtkVector2i(0, n - 2));
         }
@@ -1671,6 +1690,56 @@ int vtkScatterPlotMatrix::GetTooltipPrecision(int plotType)
 {
   assert(plotType != NOPLOT);
   return this->Private->ChartSettings[plotType]->TooltipPrecision;
+}
+
+//----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetTooltip(vtkTooltipItem *tooltip)
+{
+  if(tooltip != this->Private->TooltipItem)
+    {
+    this->Private->TooltipItem = tooltip;
+    this->Modified();
+
+    vtkChartXY *chartXY =
+      vtkChartXY::SafeDownCast(this->Private->BigChart.GetPointer());
+
+    if(chartXY)
+      {
+      chartXY->SetTooltip(tooltip);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkTooltipItem* vtkScatterPlotMatrix::GetTooltip() const
+{
+  return this->Private->TooltipItem;
+}
+
+//----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetIndexedLabels(vtkStringArray *labels)
+{
+  if(labels != this->Private->IndexedLabelsArray)
+    {
+    this->Private->IndexedLabelsArray = labels;
+    this->Modified();
+
+    if(this->Private->BigChart)
+      {
+      vtkPlot *plot = this->Private->BigChart->GetPlot(0);
+
+      if(plot)
+        {
+        plot->SetIndexedLabels(labels);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkStringArray* vtkScatterPlotMatrix::GetIndexedLabels() const
+{
+  return this->Private->IndexedLabelsArray;
 }
 
 //----------------------------------------------------------------------------
