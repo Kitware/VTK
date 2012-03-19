@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkHyperTree - A dataset structured as a tree where each node has
-// exactly 2^n or 3^n children.
+// exactly 2^n children.
 // .SECTION Description
 // An hyperoctree is a dataset where each node has either exactly 2^n children
 // or no child at all if the node is a leaf. `n' is the dimension of the
@@ -112,9 +112,6 @@
 
 // .SECTION See Also
 // vtkHyperTreeAlgorithm
-
-// .SECTION Thanks
-// Thanks to Charles Law for writing this class
 
 #ifndef __vtkHyperTree_h
 #define __vtkHyperTree_h
