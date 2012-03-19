@@ -140,7 +140,6 @@ vtkHyperOctreeToUniformGridFilter.cxx
 vtkHyperStreamline.cxx
 vtkHyperTree.cxx
 vtkHyperTreeCursor.cxx
-vtkHyperTreeCursor.cxx
 vtkHyperTreePointsGrabber.cxx
 vtkIconGlyphFilter.cxx
 vtkIdFilter.cxx
