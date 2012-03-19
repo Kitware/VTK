@@ -104,6 +104,9 @@ vtkHyperOctreeAlgorithm.cxx
 vtkHyperOctreeCursor.cxx
 vtkHyperOctree.cxx
 vtkHyperOctreePointsGrabber.cxx
+vtkHyperTree.cxx
+vtkHyperTreeCursor.cxx
+vtkHyperTreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
 vtkImageBSplineInternals.cxx
 vtkImageBSplineInterpolator.cxx
@@ -285,6 +288,8 @@ vtkGraphWeightFilter
 vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor
 vtkHyperOctreePointsGrabber
+vtkHyperTreeCursor
+vtkHyperTreePointsGrabber
 vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
