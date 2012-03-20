@@ -210,7 +210,7 @@ public:
   // of the uniform grid. 
   // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
   // \post definition: result==(2^(GetNumberOfLevels()-level-1)+1)^GetDimension()
-  vtkIdType GetMaxNumberOfPoints(int level);
+  vtkIdType GetMaxNumberOfPoints(int level){return 0;};
   
   // Description:
   // Do we really need these methods?
@@ -224,7 +224,7 @@ public:
   // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
   // \post min_result: result>=GetMaxNumberOfPoints(this->GetNumberOfLevels()-1)
   // \post max_result: result<=GetMaxNumberOfPoints(level)
-  vtkIdType GetMaxNumberOfPointsOnBoundary(int level);
+  vtkIdType GetMaxNumberOfPointsOnBoundary(int level){return 0;};
  
   // Description:
   // Do we really need these methods?
@@ -232,7 +232,7 @@ public:
   // of level `level' where all the leaves at at the last level. 
   // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
   // \post positive_result: result>=0
-  vtkIdType GetMaxNumberOfCellsOnBoundary(int level);
+  vtkIdType GetMaxNumberOfCellsOnBoundary(int level){return 0;};
   
   // Description:
   // Return the number of levels.
