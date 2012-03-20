@@ -137,6 +137,7 @@ vtkHyperOctreeLimiter.cxx
 vtkHyperOctreeSampleFunction.cxx
 vtkHyperOctreeSurfaceFilter.cxx
 vtkHyperOctreeToUniformGridFilter.cxx
+vtkHyperTreeFractalSource.cxx
 vtkHyperStreamline.cxx
 vtkIconGlyphFilter.cxx
 vtkIdFilter.cxx
