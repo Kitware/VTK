@@ -63,17 +63,17 @@ int TestBooleanOperationPolyDataFilter(int, char *[])
   renWinInteractor->SetRenderWindow( renWin );
 
   vtkActor *unionActor =
-    GetBooleanOperationActor( -2.0, vtkBooleanOperationPolyDataFilter::UNION );
+    GetBooleanOperationActor( -2.0, vtkBooleanOperationPolyDataFilter::VTK_UNION );
   renderer->AddActor( unionActor );
   unionActor->Delete();
 
   vtkActor *intersectionActor =
-    GetBooleanOperationActor(  0.0, vtkBooleanOperationPolyDataFilter::INTERSECTION );
+    GetBooleanOperationActor(  0.0, vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION );
   renderer->AddActor( intersectionActor );
   intersectionActor->Delete();
 
   vtkActor *differenceActor =
-    GetBooleanOperationActor(  2.0, vtkBooleanOperationPolyDataFilter::DIFFERENCE );
+    GetBooleanOperationActor(  2.0, vtkBooleanOperationPolyDataFilter::VTK_DIFFERENCE );
   renderer->AddActor( differenceActor );
   differenceActor->Delete();
 
