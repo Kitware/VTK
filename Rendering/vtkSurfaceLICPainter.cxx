@@ -628,15 +628,15 @@ void vtkSurfaceLICPainter::RenderInternal
 
   renWin->MakeCurrent();
 
-  int licSize[2] = {
+  unsigned int licSize[2] = {
     this->Internals->ViewportExtent[1]-this->Internals->ViewportExtent[0]+1,
     this->Internals->ViewportExtent[3]-this->Internals->ViewportExtent[2]+1 };
 
   // vtkLineIntegralConvolution2D needs step size in normalized image space, so we
   // convert this->StepSize to normalized space.
   // (assuming 1 pixel is a unit square):
-  double stepsize = this->StepSize * sqrt(2.0) / 
-                    sqrt(  static_cast< double > ( licSize[0] * licSize[0] + 
+  double stepsize = this->StepSize * sqrt(2.0) /
+                    sqrt(  static_cast< double > ( licSize[0] * licSize[0] +
                                                    licSize[1] * licSize[1] 
                                                  )
                         );

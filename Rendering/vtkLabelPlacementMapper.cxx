@@ -746,7 +746,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     // Special case: if there are bounded sizes, try to render every one we encounter.
     if ( this->RenderStrategy->SupportsBoundedSize() && inIter->GetHierarchy()->GetBoundedSizes() )
       {
-      double p[3] = { origin[0], origin[1], 0.0 };
+      double p[3] = { static_cast<double>(origin[0]), static_cast<double>(origin[1]), 0.0 };
       double boundedSize[2];
       inIter->GetBoundedSize( boundedSize );
 
@@ -754,7 +754,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       double xWidth[3] = {x[0] + boundedSize[0], x[1], x[2]};
       this->AnchorTransform->SetValue( xWidth );
       int* origin2 = this->AnchorTransform->GetComputedDisplayValue( ren );
-      double pWidth[3] = { origin2[0], origin2[1], 0.0 };
+      double pWidth[3] = { static_cast<double>(origin2[0]), static_cast<double>(origin2[1]), 0.0 };
       int width = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pWidth)));
       if ( width < 20 )
         {
@@ -765,7 +765,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       double xHeight[3] = {x[0], x[1] + boundedSize[1], x[2]};
       this->AnchorTransform->SetValue( xHeight );
       origin2 = this->AnchorTransform->GetComputedDisplayValue( ren );
-      double pHeight[3] = { origin2[0], origin2[1], 0.0 };
+      double pHeight[3] = { static_cast<double>(origin2[0]), static_cast<double>(origin2[1]), 0.0 };
       int height = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pHeight)));
       if ( height < bds[3] - bds[2] )
         {

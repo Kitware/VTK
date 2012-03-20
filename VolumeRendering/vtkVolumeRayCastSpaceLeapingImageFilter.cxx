@@ -1148,13 +1148,18 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
 unsigned long vtkVolumeRayCastSpaceLeapingImageFilter
 ::ComputeOffset( int ext[6], int wholeExt[6], int nComponents )
 {
-  const unsigned int wDim[3] = { wholeExt[1]-wholeExt[0]+1,
-                                 wholeExt[3]-wholeExt[2]+1,
-                                 wholeExt[5]-wholeExt[4]+1 };
-  unsigned long offset = (wDim[1]*wDim[0]*(ext[4]-wholeExt[4]) +
-                                  wDim[0]*(ext[2]-wholeExt[2]) +
-                                          (ext[0]-wholeExt[0]))
-                                                     * nComponents;
+  int wDim[3] = { wholeExt[1]-wholeExt[0]+1,
+                  wholeExt[3]-wholeExt[2]+1,
+                  wholeExt[5]-wholeExt[4]+1 };
+
+  // computation is done in parts to ensure promotion to "unsigned long"
+  unsigned long offset = ext[4]-wholeExt[4];
+  offset *= wDim[1];
+  offset += ext[2]-wholeExt[2];
+  offset *= wDim[0];
+  offset += ext[0]-wholeExt[0];
+  offset *= nComponents;
+
   return offset;
 }
 

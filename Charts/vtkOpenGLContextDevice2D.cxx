@@ -730,7 +730,7 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
-  float p[] = { floor(point[0]), floor(point[1]) };
+  float p[] = { std::floor(point[0]), std::floor(point[1]) };
 
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
@@ -760,10 +760,10 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                      p[0] + width, p[1] + height,
                      p[0]        , p[1] + height };
 
-  float texCoord[] = { 0.0, 0.0,
-                       xw,  0.0,
-                       xw,  xh,
-                       0.0, xh };
+  float texCoord[] = { 0.0f, 0.0f,
+                       xw,   0.0f,
+                       xw,   xh,
+                       0.0f, xh };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -823,15 +823,15 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
-  float points[] = { p[0]                    , p[1],
-                     p[0]+scale*extent[1]+1.0, p[1],
-                     p[0]+scale*extent[1]+1.0, p[1]+scale*extent[3]+1.0,
-                     p[0]                    , p[1]+scale*extent[3]+1.0 };
+  float points[] = { p[0]                     , p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1]+scale*extent[3]+1.0f,
+                     p[0]                     , p[1]+scale*extent[3]+1.0f };
 
-  float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+  float texCoord[] = { 0.0f, 0.0f,
+                       1.0f, 0.0f,
+                       1.0f, 1.0f,
+                       0.0f, 1.0f };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);

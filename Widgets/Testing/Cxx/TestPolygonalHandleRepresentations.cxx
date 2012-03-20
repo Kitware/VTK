@@ -101,13 +101,13 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     VTK_CREATE( vtkPolygonalSurfacePointPlacer, pointPlacer );
     pointPlacer->AddProp(demActor);
     pointPlacer->GetPolys()->AddItem( demPolys );
-    pointPlacer->SetDistanceOffset( heightOffsetAboveSurface );    
-    rep->SetPointPlacer(pointPlacer);    
+    pointPlacer->SetDistanceOffset( heightOffsetAboveSurface );
+    rep->SetPointPlacer(pointPlacer);
 
     // Let the surface constrained point-placer be the sole constraint dictating 
     // the placement of handles. Lets not over-constrain it allowing axis 
     // constrained interactions.
-    widget->EnableAxisConstraintOff();    
+    widget->EnableAxisConstraintOff();
     }
 
   double xyz[3] = {x, y, z};
@@ -116,17 +116,17 @@ CreateWidget( vtkRenderWindowInteractor * iren,
   widget->SetRepresentation( rep );
 
   // Set some defaults on the handle widget
-  double color[3] = { ((double)(shape%4))/3.0, 
+  double color[3] = { ((double)(shape%4))/3.0,
                       ((double)((shape+3)%7))/6.0,
-                      shape%2 };
+                      (double)(shape%2) };
   double selectedColor[3] = { 1.0, 0.0, 0.0 };
-                      
-  if (vtkAbstractPolygonalHandleRepresentation3D *arep = 
+
+  if (vtkAbstractPolygonalHandleRepresentation3D *arep =
       vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(rep))
     {
     arep->GetProperty()->SetColor( color );
     arep->GetProperty()->SetLineWidth(1.0);
-    arep->GetSelectedProperty()->SetColor( selectedColor );  
+    arep->GetSelectedProperty()->SetColor( selectedColor );
 
     if (label)
       {
@@ -140,7 +140,7 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     {
     prep->GetProperty()->SetColor( color );
     prep->GetProperty()->SetLineWidth(1.0);
-    prep->GetSelectedProperty()->SetColor( selectedColor );  
+    prep->GetSelectedProperty()->SetColor( selectedColor );
     }
   
 
