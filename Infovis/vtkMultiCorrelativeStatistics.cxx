@@ -61,7 +61,7 @@ void vtkMultiCorrelativeInvertCholesky( vtksys_stl::vector<double*>& chol, vtksy
         vtkIdType rsk = ( k * ( k + 1 ) ) / 2;
         inv[rsi + j] -= chol[k][i] * inv[rsk + j];
         }
-      inv[rsi + j] *= inv[rsi + i]; 
+      inv[rsi + j] *= inv[rsi + i];
       }
     }
   // The result, stored in \a inv as a lower-triangular, row-major matrix, is
@@ -137,10 +137,10 @@ void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vt
 void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
                                                vtkMultiBlockDataSet* outMeta )
 {
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
+  if ( ! outMeta )
+    {
+    return;
+    }
 
   // Get hold of the first model (data object) in the collection
   vtkCollectionSimpleIterator it;
@@ -149,9 +149,9 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 
   // Verify that the first input model is indeed contained in a multiblock data set
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta ) 
-    { 
-    return; 
+  if ( ! inMeta )
+    {
+    return;
     }
 
   // Verify that the first covariance matrix is indeed contained in a table
@@ -177,11 +177,11 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
     {
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-    if ( ! inMeta ) 
+    if ( ! inMeta )
       {
       outCov->Delete();
 
-      return; 
+      return;
       }
 
     // Verify that the current covariance matrix is indeed contained in a table
@@ -253,7 +253,7 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
         }
       }
     }
-  
+
   // Replace covariance block of output model with updated one
   outMeta->SetBlock( 0, outCov );
 
@@ -262,7 +262,7 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData, 
+void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
                                            vtkTable* vtkNotUsed( inParameters ),
                                            vtkMultiBlockDataSet* outMeta )
 {
@@ -402,7 +402,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
       // cpIt->first is a pair of indices into colPtrs used to specify (u,v) or (s,t)
       // cpIt->first.first is the index of u or s
       // cpIt->first.second is the index of v or t
-      *x += 
+      *x +=
         ( v[cpIt->first.first] - rv[cpIt->first.first] ) * // \delta_{u,2,1} = s - \mu_{u,1}
         ( v[cpIt->first.second] - rv[cpIt->first.second] ) * // \delta_{v,2,1} = t - \mu_{v,1}
         i / ( i + 1. ); // \frac{n_1 n_2}{n_1 + n_2} = \frac{n_1}{n_1 + 1}
@@ -587,8 +587,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData, 
-                                            vtkMultiBlockDataSet* inMeta, 
+void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
+                                            vtkMultiBlockDataSet* inMeta,
                                             vtkTable* outData )
 {
   if ( ! inData )
@@ -618,15 +618,15 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
       continue;
       }
 
-    this->SelectAssessFunctor( inData, 
-                               reqModel, 
-                               0, 
+    this->SelectAssessFunctor( inData,
+                               reqModel,
+                               0,
                                dfunc );
     vtkMultiCorrelativeAssessFunctor* mcfunc = static_cast<vtkMultiCorrelativeAssessFunctor*>( dfunc );
     if ( ! mcfunc )
       {
-      vtkWarningMacro( "Request " 
-                       << req - 1 
+      vtkWarningMacro( "Request "
+                       << req - 1
                        << " could not be accommodated. Skipping." );
       if ( dfunc )
         {
@@ -671,7 +671,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
         outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
         }
       }
-    
+
     assessResult->Delete();
 
     delete dfunc;
@@ -686,8 +686,8 @@ vtkMultiCorrelativeAssessFunctor* vtkMultiCorrelativeAssessFunctor::New()
 }
 
 // ----------------------------------------------------------------------
-bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData, 
-                                                   vtkTable* reqModel, 
+bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
+                                                   vtkTable* reqModel,
                                                    bool cholesky )
 {
   vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
@@ -738,7 +738,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
   if ( cholesky )
     {
     // Store the inverse of chol in this->Factor, F
-    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); 
+    vtkMultiCorrelativeInvertCholesky( chol, this->Factor );
     // transpose F to make it easier to use in the () operator
     vtkMultiCorrelativeTransposeTriangular( this->Factor, m );
     }
@@ -766,9 +766,9 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData, 
+void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
                                                          vtkDataObject* inMetaDO,
-                                                         vtkStringArray* vtkNotUsed(rowNames), 
+                                                         vtkStringArray* vtkNotUsed(rowNames),
                                                          AssessFunctor*& dfunc )
 {
   dfunc = 0;
@@ -785,4 +785,3 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
     }
   dfunc = mcfunc;
 }
-
