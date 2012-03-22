@@ -612,7 +612,9 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
     {
     vtkTable* reqModel = vtkTable::SafeDownCast( inMeta->GetBlock( req ) );
     if ( ! reqModel )
-      { // silently skip invalid entries. Note we leave assessValues column in output data even when it's empty.
+      {
+      // Silently skip invalid entries
+      // NB: The assessValues column is left in output data even when empty
       continue;
       }
 
@@ -701,8 +703,12 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
     return false;
     }
 
-  vtksys_stl::vector<vtkDataArray*> cols; // input data columns
-  vtksys_stl::vector<double*> chol; // Cholesky matrix columns. Only the lower triangle is significant.
+  // Storage for input data columns
+  vtksys_stl::vector<vtkDataArray*> cols;
+
+  // Storage for Cholesky matrix columns
+  // NB: Only the lower triangle is significant
+  vtksys_stl::vector<double*> chol;
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
   vtkIdType i;
   for ( i = 0; i < m ; ++ i )
@@ -731,11 +737,13 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
   this->EmptyTuple = vtksys_stl::vector<double>( m, 0. );
   if ( cholesky )
     {
-    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); // store the inverse of chol in this->Factor, F
-    vtkMultiCorrelativeTransposeTriangular( this->Factor, m ); // transposing F makes it easier to use in the () operator.
+    // Store the inverse of chol in this->Factor, F
+    vtkMultiCorrelativeInvertCholesky( chol, this->Factor ); 
+    // transpose F to make it easier to use in the () operator
+    vtkMultiCorrelativeTransposeTriangular( this->Factor, m );
     }
 #if 0
-  // Compute the normalization factor to turn X * F * F' * X' into a cumulance.
+  // Compute the normalization factor to turn X * F * F' * X' into a cumulance
   if ( m % 2 == 0 )
     {
     this->Normalization = 1.0;
