@@ -46,7 +46,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 
-  // Descrpition:
+  // Description:
   // This world point will be shifted to 0,0,0.
   // Used to avoid picking bug caused by rendering errors with large offsets.
   vtkSetVector3Macro(Origin, double);
