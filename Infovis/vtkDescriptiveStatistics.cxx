@@ -752,7 +752,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
       
-      // For descriptive statistics, type must be convertible to DataArray (e.g., StringArrays do not fit here).
+      // For descriptive statistics, type must be convertible to DataArray 
+      // E.g., StringArrays do not fit here
       vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
       if ( ! vals )
         {
