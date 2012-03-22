@@ -5,6 +5,7 @@ IF (VTK_PYTHON_EXE)
   FOREACH ( tfile
       PythonSmoke
       TestArrayArguments
+      TestCommand
       TestGhost
       TestMutable
       TestSubClass
