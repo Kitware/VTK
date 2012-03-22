@@ -45,7 +45,7 @@ const char *vtkCommand::GetStringFromEventId(unsigned long event)
 #define _vtk_add_event(Enum)\
   case Enum: return #Enum;
 
-  VTK_EVENT_TYPES
+  vtkAllEventsMacro()
 
 #undef _vtk_add_event
 
@@ -68,7 +68,7 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
     {
 #define _vtk_add_event(Enum)\
     if (strcmp(event, #Enum) == 0) {return Enum;}
-    VTK_EVENT_TYPES
+    vtkAllEventsMacro()
 #undef _vtk_add_event
 
     if (strcmp("UserEvent",event) == 0)
