@@ -203,38 +203,6 @@ public:
   vtkIdType GetNumberOfPoints();
 
   // Description:
-  // Do we really need these methods?
-  // Return the number of points corresponding to an hyperoctree starting at
-  // level `level' where all the leaves at at the last level. In this case, the
-  // hyperoctree is like a uniform grid. So this number is the number of points
-  // of the uniform grid. 
-  // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
-  // \post definition: result==(2^(GetNumberOfLevels()-level-1)+1)^GetDimension()
-  vtkIdType GetMaxNumberOfPoints(int level){return 0;};
-  
-  // Description:
-  // Do we really need these methods?
-  // Return the number of points corresponding to the boundary of an
-  // hyperoctree starting at level `level' where all the leaves at at the last
-  // level. In this case, the hyperoctree is like a uniform grid. So this
-  // number is the number of points of on the boundary of the uniform grid.
-  // For an octree, the boundary are the faces. For a quadtree, the boundary
-  // are the edges.
-  // \pre 2d_or_3d: this->GetDimension()==2 || this->GetDimension()==3
-  // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
-  // \post min_result: result>=GetMaxNumberOfPoints(this->GetNumberOfLevels()-1)
-  // \post max_result: result<=GetMaxNumberOfPoints(level)
-  vtkIdType GetMaxNumberOfPointsOnBoundary(int level){return 0;};
- 
-  // Description:
-  // Do we really need these methods?
-  // Return the number of cells corresponding to the boundary of a cell
-  // of level `level' where all the leaves at at the last level. 
-  // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
-  // \post positive_result: result>=0
-  vtkIdType GetMaxNumberOfCellsOnBoundary(int level){return 0;};
-  
-  // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
   vtkIdType GetNumberOfLevels();
