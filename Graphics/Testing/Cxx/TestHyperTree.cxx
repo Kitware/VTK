@@ -50,7 +50,7 @@ int TestHyperTree(int argc, char** argv)
   writer->SetInputConnection(cut->GetOutputPort());
   writer->Write();
   writer->Delete();
-  
+
   vtkNew<vtkContourFilter> contour;
   contour->SetInputData( tree );
   contour->SetNumberOfContours( 2 );
@@ -88,7 +88,7 @@ int TestHyperTree(int argc, char** argv)
   renWin->AddRenderer( ren1.GetPointer() );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
-  
+
   // Create interactor
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow( renWin.GetPointer() );
