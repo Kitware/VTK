@@ -381,11 +381,11 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
     int lineNum = 0;
     vtkIdType* pts = 0;
     vtkIdType  npts = 0;
-    double p[3] = {x,y,0.0};
+    double p[3] = {static_cast<double>(x),static_cast<double>(y),0.0};
     p[0] /= size[0];
     p[1] /= size[1];
 
-    if (p[0] < this->Xs[0] || 
+    if (p[0] < this->Xs[0] ||
         p[0] > this->Xs[this->NumberOfAxes-1] ||
         p[1] < this->YMin ||
         p[1] > this->YMax)

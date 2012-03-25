@@ -201,7 +201,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
     this->GetBoundingAreaForItem(id,sinfo);
     }
 
-  double loc[2] = {x, y};
+  double loc[2] = {static_cast<double>(x), static_cast<double>(y)};
   this->Balloon->EndWidgetInteraction(loc);
 
   if (this->Layout && this->Layout->GetOutput())
