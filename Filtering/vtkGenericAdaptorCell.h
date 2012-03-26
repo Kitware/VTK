@@ -579,7 +579,7 @@ protected:
   // Internal locator when tessellating on a cell basis, this is different
   // from the main locator used in contour/clip filter, this locator is used for
   // points for
-  // Be carefull the use of a vtkLocator in conjuction with the table fast
+  // Be careful the use of a vtkLocator in conjunction with the table fast
   // tessellator is very sensitive, we need to keep all the points we used
   vtkDoubleArray  *InternalPoints;
   vtkCellArray    *InternalCellArray;

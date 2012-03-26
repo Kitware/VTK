@@ -24,8 +24,8 @@ warp.SetScaleFactor(-0.1)
 # Use vtkMergeFilter to combine the original image with the warped
 # geometry.
 merge = vtk.vtkMergeFilter()
-merge.SetGeometry(warp.GetOutput())
-merge.SetScalars(reader.GetOutput())
+merge.SetGeometryConnection(warp.GetOutputPort())
+merge.SetScalarsConnection(reader.GetOutputPort())
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(merge.GetOutputPort())
 mapper.SetScalarRange(0, 255)

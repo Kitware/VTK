@@ -199,7 +199,7 @@ int vtkCgShader::Compile()
     }
 
   // If we already have a compiled program, grab the
-  // correct context and profilæ and return control.
+  // correct context and profile and return control.
   if( cgIsProgram(this->Internals->Program) == GL_TRUE )
     {
     if( cgGLIsProgramLoaded(this->Internals->Program) == GL_TRUE )
@@ -270,7 +270,7 @@ int vtkCgShader::Compile()
     }
   if (this->Internals->LastError != CG_NO_ERROR)
     {
-    vtkErrorMacro("Error occured during Shader compile.");
+    vtkErrorMacro("Error occurred during Shader compile.");
     return 0;
     }
   return 1;

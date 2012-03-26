@@ -79,7 +79,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
+void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data, int wExt[6])
 {
   int dims[3];
   int width, height;
@@ -89,7 +89,10 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   double resolution = -1;
   uint32 rowsperstrip = (uint32) -1;
 
-  int min0, min1, max0, max1, min2, max2;
+  int min0 = wExt[0],
+    max0 = wExt[1],
+    min1 = wExt[2],
+    max1 = wExt[3];
 
   int bps;
   switch (stype)
@@ -116,7 +119,6 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   ostream* ost = file;
 
   // Find the length of the rows to write.
-  data->GetWholeExtent(min0, max0, min1, max1, min2, max2);
   width = (max0 - min0 + 1);
   height = (max1 - min1 + 1);
 
@@ -211,7 +213,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
 
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
-  int extent[6])
+                              int extent[6], int*)
 {
   int idx1, idx2;
   void *ptr;

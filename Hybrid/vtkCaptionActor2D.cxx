@@ -30,12 +30,26 @@
 #include "vtkProperty2D.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkCaptionActor2D);
 
-vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
 vtkCxxSetObjectMacro(vtkCaptionActor2D,CaptionTextProperty,vtkTextProperty);
+
+class vtkCaptionActor2DConnection : public vtkAlgorithm
+{
+public:
+  static vtkCaptionActor2DConnection *New();
+  vtkTypeMacro(vtkCaptionActor2DConnection,vtkAlgorithm);
+
+  vtkCaptionActor2DConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkCaptionActor2DConnection);
 
 //----------------------------------------------------------------------------
 vtkCaptionActor2D::vtkCaptionActor2D()
@@ -61,7 +75,8 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->ThreeDimensionalLeader = 1;
   this->LeaderGlyphSize = 0.025;
   this->MaximumLeaderGlyphSize = 20;
-  this->LeaderGlyph = NULL;
+
+  this->LeaderGlyphConnectionHolder = vtkCaptionActor2DConnection::New();
 
   // Control font properties
   this->Padding = 3;
@@ -99,7 +114,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   border->Delete();
 
   this->BorderMapper = vtkPolyDataMapper2D::New();
-  this->BorderMapper->SetInput(this->BorderPolyData);
+  this->BorderMapper->SetInputData(this->BorderPolyData);
   this->BorderActor = vtkActor2D::New();
   this->BorderActor->SetMapper(this->BorderMapper);
 
@@ -137,16 +152,14 @@ vtkCaptionActor2D::vtkCaptionActor2D()
 
   // Used to generate the glyph on the leader head
   this->HeadGlyph = vtkGlyph3D::New();
-  this->HeadGlyph->SetInput(this->HeadPolyData);
+  this->HeadGlyph->SetInputData(this->HeadPolyData);
   this->HeadGlyph->SetScaleModeToDataScalingOff();
   this->HeadGlyph->SetScaleFactor(0.1);
 
   // Appends the leader and the glyph head
   this->AppendLeader = vtkAppendPolyData::New();
-  this->AppendLeader->UserManagedInputsOn();
-  this->AppendLeader->SetNumberOfInputs(2);
-  this->AppendLeader->SetInputByNumber(0,this->LeaderPolyData);
-  this->AppendLeader->SetInputByNumber(1,this->HeadGlyph->GetOutput());
+  this->AppendLeader->AddInputData(this->LeaderPolyData);
+  this->AppendLeader->AddInputConnection(this->HeadGlyph->GetOutputPort());
 
   // Used to transform from world to other coordinate systems
   this->MapperCoordinate2D = vtkCoordinate::New();
@@ -171,10 +184,8 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
 
   this->TextActor->Delete();
 
-  if ( this->LeaderGlyph )
-    {
-    this->LeaderGlyph->Delete();
-    }
+  this->LeaderGlyphConnectionHolder->Delete();
+  this->LeaderGlyphConnectionHolder = 0;
 
   this->BorderPolyData->Delete();
   this->BorderMapper->Delete();
@@ -194,6 +205,28 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->LeaderActor3D->Delete();
 
   this->SetCaptionTextProperty(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkCaptionActor2D::SetLeaderGlyphConnection(vtkAlgorithmOutput* ao)
+{
+  this->LeaderGlyphConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtkCaptionActor2D::SetLeaderGlyphData(vtkPolyData* leader)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(leader);
+  this->SetLeaderGlyphConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
+{
+  return vtkPolyData::SafeDownCast(
+    this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -393,11 +426,12 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     this->HeadPolyData->Modified();
     }
 
-  if ( this->LeaderGlyph )
+  if ( this->GetLeaderGlyph() )
     {
+    this->LeaderGlyphConnectionHolder->GetInputAlgorithm()->Update();
+
     // compute the scale
-    this->LeaderGlyph->Update();
-    double length = this->LeaderGlyph->GetLength();
+    double length = this->GetLeaderGlyph()->GetLength();
     int *sze = viewport->GetSize();
     int   numPixels = static_cast<int> (this->LeaderGlyphSize *
       sqrt(static_cast<double>(sze[0]*sze[0] + sze[1]*sze[1])));
@@ -422,18 +456,19 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkDebugMacro(<<"Scale factor: " << sf);
 
-    this->HeadGlyph->SetSource(this->LeaderGlyph);
+    this->HeadGlyph->SetSourceData(this->GetLeaderGlyph());
     this->HeadGlyph->SetScaleFactor(sf);
 
-    this->LeaderMapper2D->SetInput(this->AppendLeader->GetOutput());
-    this->LeaderMapper3D->SetInput(this->AppendLeader->GetOutput());
+    this->LeaderMapper2D->SetInputConnection(
+      this->AppendLeader->GetOutputPort());
+    this->LeaderMapper3D->SetInputConnection(
+      this->AppendLeader->GetOutputPort());
     this->AppendLeader->Update();
     }
   else
     {
-    this->LeaderMapper2D->SetInput(this->LeaderPolyData);
-    this->LeaderMapper3D->SetInput(this->LeaderPolyData);
-    this->LeaderPolyData->Update();
+    this->LeaderMapper2D->SetInputData(this->LeaderPolyData);
+    this->LeaderMapper3D->SetInputData(this->LeaderPolyData);
     }
 
   // assign properties
@@ -508,13 +543,13 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << this->LeaderGlyphSize << "\n";
   os << indent << "MaximumLeader Glyph Size: "
      << this->MaximumLeaderGlyphSize << "\n";
-  if ( ! this->LeaderGlyph )
+  if ( ! this->GetLeaderGlyph() )
     {
     os << indent << "Leader Glyph: (none)\n";
     }
   else
     {
-    os << indent << "Leader Glyph: (" << this->LeaderGlyph << ")\n";
+    os << indent << "Leader Glyph: (" << this->GetLeaderGlyph() << ")\n";
     }
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
@@ -532,7 +567,8 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
     this->SetBorder(a->GetBorder());
     this->SetLeader(a->GetLeader());
     this->SetThreeDimensionalLeader(a->GetThreeDimensionalLeader());
-    this->SetLeaderGlyph(a->GetLeaderGlyph());
+    this->SetLeaderGlyphConnection(
+      a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
     this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetMaximumLeaderGlyphSize(a->GetMaximumLeaderGlyphSize());
     this->SetPadding(a->GetPadding());

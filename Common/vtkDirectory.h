@@ -20,8 +20,6 @@
 // .SECTION Caveats
 // vtkDirectory works with windows and unix only.
 
-
-
 #ifndef __vtkDirectory_h
 #define __vtkDirectory_h
 
@@ -84,24 +82,6 @@ public:
   // Description:
   // Rename a file or directory.
   static int Rename(const char* oldname, const char* newname);
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define CreateDirectoryA CreateDirectory
-# define CreateDirectoryW CreateDirectory
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkDirectory::MakeDirectory() as of VTK 5.0.
-  VTK_LEGACY(static int CreateDirectory(const char* dir));
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef CreateDirectoryW
-# undef CreateDirectoryA
-  //BTX
-  VTK_LEGACY(static int CreateDirectoryA(const char* dir));
-  VTK_LEGACY(static int CreateDirectoryW(const char* dir));
-  //ETX
-#endif
 
 protected:
   // delete the Files and Path ivars and set

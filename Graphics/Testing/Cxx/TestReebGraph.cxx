@@ -4366,7 +4366,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   windowInteractor->SetRenderWindow(renderWindow);
 
   vtkPolyDataMapper *surfaceMapper = vtkPolyDataMapper::New();
-  surfaceMapper->SetInput(surfaceMesh);
+  surfaceMapper->SetInputData(surfaceMesh);
 
   vtkActor *surfaceActor = vtkActor::New();
   surfaceActor->SetMapper(surfaceMapper);
@@ -4437,7 +4437,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   skeletonSamples->Delete();
 
   vtkPolyDataMapper *lineMapper = vtkPolyDataMapper::New();
-  lineMapper->SetInput(embeddedSkeleton);
+  lineMapper->SetInputData(embeddedSkeleton);
   vtkActor          *skeletonActor = vtkActor::New();
 
   skeletonActor->SetMapper(lineMapper);
@@ -4560,7 +4560,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
   skeletonSamples->Delete();
 
   vtkPolyDataMapper *lineMapper = vtkPolyDataMapper::New();
-  lineMapper->SetInput(embeddedSkeleton);
+  lineMapper->SetInputData(embeddedSkeleton);
   vtkActor          *skeletonActor = vtkActor::New();
 
   skeletonActor->SetMapper(lineMapper);
@@ -4631,7 +4631,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 2D.1 Reeb graph computation... " << endl;
   vtkPolyDataToReebGraphFilter *surfaceReebGraphFilter =
     vtkPolyDataToReebGraphFilter::New();
-  surfaceReebGraphFilter->SetInput(surfaceMesh);
+  surfaceReebGraphFilter->SetInputData(surfaceMesh);
   surfaceReebGraphFilter->Update();
   vtkReebGraph *surfaceReebGraph = surfaceReebGraphFilter->GetOutput();
   cout << "      Test 2D.1 ";
@@ -4660,7 +4660,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   metric->SetUpperBound(globalArea);
   surfaceSimplification->SetSimplificationMetric(metric);
 
-  surfaceSimplification->SetInput(surfaceReebGraph);
+  surfaceSimplification->SetInputData(surfaceReebGraph);
   surfaceSimplification->SetSimplificationThreshold(0.01);
   surfaceSimplification->Update();
   vtkReebGraph *simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
@@ -4689,8 +4689,8 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 2D.4 Reeb graph based surface skeleton... " << endl;
   vtkReebGraphSurfaceSkeletonFilter *surfaceSkeletonFilter =
     vtkReebGraphSurfaceSkeletonFilter::New();
-  surfaceSkeletonFilter->SetInput(0, surfaceMesh);
-  surfaceSkeletonFilter->SetInput(1, simplifiedSurfaceReebGraph);
+  surfaceSkeletonFilter->SetInputData(0, surfaceMesh);
+  surfaceSkeletonFilter->SetInputConnection(1, surfaceSimplification->GetOutputPort());
   surfaceSkeletonFilter->SetNumberOfSamples(5);
   surfaceSkeletonFilter->Update();
   vtkTable *surfaceSkeleton = surfaceSkeletonFilter->GetOutput();
@@ -4707,8 +4707,8 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 2D.5 Area contour spectrum..." << endl;
   vtkAreaContourSpectrumFilter *areaSpectrumFilter =
     vtkAreaContourSpectrumFilter::New();
-  areaSpectrumFilter->SetInput(0, surfaceMesh);
-  areaSpectrumFilter->SetInput(1, simplifiedSurfaceReebGraph);
+  areaSpectrumFilter->SetInputData(0, surfaceMesh);
+  areaSpectrumFilter->SetInputConnection(1, surfaceSimplification->GetOutputPort());
   areaSpectrumFilter->SetArcId(0);
   areaSpectrumFilter->Update();
   vtkTable *areaSpectrum = areaSpectrumFilter->GetOutput();
@@ -4771,7 +4771,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 3D.1 Reeb graph computation... " << endl;
   vtkUnstructuredGridToReebGraphFilter *volumeReebGraphFilter =
     vtkUnstructuredGridToReebGraphFilter::New();
-  volumeReebGraphFilter->SetInput(volumeMesh);
+  volumeReebGraphFilter->SetInputData(volumeMesh);
   volumeReebGraphFilter->Update();
   vtkReebGraph *volumeReebGraph = volumeReebGraphFilter->GetOutput();
   cout << "      Test 3D.1 ";
@@ -4788,7 +4788,7 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   // the default one (persistence).
   vtkReebGraphSimplificationFilter *volumeSimplification =
     vtkReebGraphSimplificationFilter::New();
-  volumeSimplification->SetInput(volumeReebGraph);
+  volumeSimplification->SetInputData(volumeReebGraph);
   volumeSimplification->SetSimplificationThreshold(0.05);
   volumeSimplification->Update();
   vtkReebGraph *simplifiedVolumeReebGraph = volumeSimplification->GetOutput();
@@ -4815,8 +4815,8 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 3D.4 Reeb graph based volume skeleton... " << endl;
   vtkReebGraphVolumeSkeletonFilter *volumeSkeletonFilter =
     vtkReebGraphVolumeSkeletonFilter::New();
-  volumeSkeletonFilter->SetInput(0, volumeMesh);
-  volumeSkeletonFilter->SetInput(1, simplifiedVolumeReebGraph);
+  volumeSkeletonFilter->SetInputData(0, volumeMesh);
+  volumeSkeletonFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSkeletonFilter->Update();
   vtkTable *volumeSkeleton = volumeSkeletonFilter->GetOutput();
   errorCode = DisplayVolumeSkeleton(volumeMesh, volumeSkeleton);
@@ -4833,8 +4833,8 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
   cout << "   Test 3D.5 Volume contour spectrum..." << endl;
   vtkVolumeContourSpectrumFilter *volumeSpectrumFilter =
     vtkVolumeContourSpectrumFilter::New();
-  volumeSpectrumFilter->SetInput(0, volumeMesh);
-  volumeSpectrumFilter->SetInput(1, simplifiedVolumeReebGraph);
+  volumeSpectrumFilter->SetInputData(0, volumeMesh);
+  volumeSpectrumFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSpectrumFilter->SetArcId(0);
   volumeSpectrumFilter->Update();
   vtkTable *volumeSpectrum = volumeSpectrumFilter->GetOutput();

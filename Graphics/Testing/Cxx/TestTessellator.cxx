@@ -3136,7 +3136,7 @@ public:
     this->RenderWindow->Render();
 
     pw->SetFileName( this->FileName );
-    pw->SetInput( wif->GetOutput() );
+    pw->SetInputConnection( wif->GetOutputPort() );
     pw->Write();
 
     pw->Delete();
@@ -3239,16 +3239,16 @@ int TestTessellator( int argc, char* argv[] )
 #endif // FOR_PAPER
     r->AddActor( a );
     a->SetMapper( m );
-    sf->SetInput( ug );
+    sf->SetInputData( ug );
 #ifdef ONLY_WIRE
     sf->SetShrinkFactor( 1. );
 #endif // ONLY_WIRE
-    m->SetInput( sf->GetOutput() );
+    m->SetInputConnection( sf->GetOutputPort() );
     // Add some visual pizazz
     startTet = vtkUnstructuredGrid::New();
     startTetWireMapper = vtkDataSetMapper::New();
     startTetWireActor = vtkActor::New();
-    startTetWireMapper->SetInput( startTet );
+    startTetWireMapper->SetInputData( startTet );
     startTetWireMapper->ScalarVisibilityOff();
     startTetWireActor->SetMapper( startTetWireMapper );
     startTetWireActor->GetProperty()->SetRepresentationToWireframe();
@@ -3268,7 +3268,7 @@ int TestTessellator( int argc, char* argv[] )
 
     startTetLabelMapper = vtkLabeledDataMapper::New();
     startTetLabelActor = vtkActor2D::New();
-    startTetLabelMapper->SetInput( startTet );
+    startTetLabelMapper->SetInputData( startTet );
     startTetLabelMapper->SetLabelModeToLabelScalars();
     startTetLabelMapper->SetLabelFormat( "  %2d" );
     //startTetLabelMapper->SetLabelModeToLabelIds();
@@ -3291,12 +3291,12 @@ int TestTessellator( int argc, char* argv[] )
     vertMarkers = vtkGlyph3D::New();
     vertMarkerMapper = vtkPolyDataMapper::New();
     vertMarkerActor = vtkActor::New();
-    vertMarkerMapper->SetInput( vertMarkers->GetOutput() );
+    vertMarkerMapper->SetInputConnection( vertMarkers->GetOutputPort() );
     vertMarkerMapper->ScalarVisibilityOff();
     vertMarkerActor->SetMapper( vertMarkerMapper );
     vertMarkerActor->GetProperty()->SetColor( 0.6, 0.2, 0.2 );
-    vertMarkers->SetInput( startTet );
-    vertMarkers->SetSource( sphere->GetOutput() );
+    vertMarkers->SetInputData( startTet );
+    vertMarkers->SetSourceConnection( sphere->GetOutputPort() );
     vertMarkers->SetScaleModeToDataScalingOff();
     vertMarkers->SetScaleFactor(0.125);
     r->AddActor( vertMarkerActor );
@@ -3649,7 +3649,7 @@ int TestTessellator( int argc, char* argv[] )
     rdr->Update();
 
     vtkTessellatorFilter* tf = vtkTessellatorFilter::New();
-    tf->SetInput( rdr->GetOutput() );
+    tf->SetInputConnection( rdr->GetOutputPort() );
     tf->MergePointsOn();
     tf->Update();
 

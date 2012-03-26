@@ -398,7 +398,7 @@ int vtkArrayCalculator::RequestData(
     dsOutput->CopyStructure(dsInput);
     dsOutput->CopyAttributes(dsInput);
     // Error occurred in vtkFunctionParser.
-    vtkWarningMacro("An error occured when parsing the calculator's function.  See previous errors.");
+    vtkWarningMacro("An error occurred when parsing the calculator's function.  See previous errors.");
     return 1;
     }
   

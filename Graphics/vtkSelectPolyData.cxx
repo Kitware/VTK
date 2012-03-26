@@ -146,7 +146,7 @@ int vtkSelectPolyData::RequestData(
   // Okay, now we build unstructured representation. Make sure we're
   // working with triangles.
   vtkTriangleFilter *tf=vtkTriangleFilter::New();
-  tf->SetInput(input);
+  tf->SetInputData(input);
   tf->PassLinesOff();
   tf->PassVertsOff();
   tf->Update();
@@ -352,7 +352,7 @@ int vtkSelectPolyData::RequestData(
     } //while still advancing
 
   // Okay, now one of the regions is filled with negative values. This fill
-  // operation assumes that everthing is connected.
+  // operation assumes that everything is connected.
   if ( this->SelectionMode == VTK_INSIDE_CLOSEST_POINT_REGION )
     {// find closest point and use as a seed
     for (closestDist2=VTK_DOUBLE_MAX, j=0; j < numPts; j++)

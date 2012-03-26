@@ -82,7 +82,7 @@ int vtkTransmitImageDataPiece::RequestInformation(
         inInfo->Get(vtkDataObject::DATA_OBJECT()));
       input->GetDimensions(dims);
       input->GetSpacing(spacing);
-      input->GetSpacing(origin);
+      input->GetOrigin(origin);
 
       int numProcs = this->Controller->GetNumberOfProcesses();
       for (int i = 1; i < numProcs; ++i)
@@ -193,7 +193,16 @@ int vtkTransmitImageDataPiece::RequestData(
   int ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   if (ghostLevel > 0 && this->CreateGhostCells)
     {
-    output->GenerateGhostLevelArray();
+    int updatePiece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    int updateNumPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    int* wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    vtkExtentTranslator* et = vtkStreamingDemandDrivenPipeline::GetExtentTranslator(inInfo);
+    output->GenerateGhostLevelArray(updatePiece,
+                                    updateNumPieces,
+                                    ghostLevel,
+                                    wholeExt,
+                                    et);
     }
 
   return 1;
@@ -201,8 +210,8 @@ int vtkTransmitImageDataPiece::RequestData(
 
 //----------------------------------------------------------------------------
 void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
-                                                   vtkImageData *output,
-                                                   vtkInformation *outInfo)
+                                            vtkImageData *output,
+                                            vtkInformation *outInfo)
 {
   vtkImageData *tmp = vtkImageData::New();
   vtkImageClip *extract = vtkImageClip::New();
@@ -219,15 +228,14 @@ void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
 
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
-  tmp->SetReleaseDataFlag(0);
-  extract->SetInput(tmp);
+  extract->SetInputData(tmp);
   extractExecutive->UpdateDataObject();
 
   vtkInformation *extractOutInfo = extractExecutive->GetOutputInformation(0);
 
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
     6);
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
@@ -282,7 +290,7 @@ void vtkTransmitImageDataPiece::SatelliteExecute(
   int wExtent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
 
-  //recieve root's response
+  //receive root's response
   this->Controller->Receive(tmp, 0, 22342);
 
   //recover structure

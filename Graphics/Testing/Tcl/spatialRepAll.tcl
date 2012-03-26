@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
 vtkSTLReader asource
   asource SetFileName "$VTK_DATA_ROOT/Data/42400-IDGH.stl"
 vtkPolyDataMapper dataMapper
-  dataMapper SetInput [asource GetOutput]
+  dataMapper SetInputConnection [asource GetOutputPort]
 vtkActor model
   model SetMapper dataMapper
   [model GetProperty] SetColor 1 0 0
@@ -24,10 +24,13 @@ $locator locator$i
   locator$i AutomaticOff
   locator$i SetMaxLevel 3
 vtkSpatialRepresentationFilter boxes$i
-  boxes$i SetInput [asource GetOutput]
+  boxes$i SetInputConnection [asource GetOutputPort]
   boxes$i SetSpatialRepresentation locator$i
+  boxes$i SetGenerateLeaves 1
+  boxes$i Update
+  set output [[boxes$i GetOutput] GetBlock [expr [boxes$i GetMaximumLevel] + 1]]
 vtkPolyDataMapper boxMapper$i
-  boxMapper$i SetInput [boxes$i GetOutput]
+  boxMapper$i SetInputData $output
 vtkActor boxActor$i
   boxActor$i SetMapper boxMapper$i
   boxActor$i AddPosition [expr $i * 15] 0 0

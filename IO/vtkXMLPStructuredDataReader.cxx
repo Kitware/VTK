@@ -290,9 +290,10 @@ int vtkXMLPStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 int vtkXMLPStructuredDataReader::ReadPieceData()
 {  
   // Use the internal reader to read the piece.
-  vtkDataSet* input = this->GetPieceInputAsDataSet(this->Piece);
-  input->SetUpdateExtent(this->SubExtent);
-  input->Update();
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    this->PieceReaders[this->Piece]->GetOutputInformation(0),
+    this->SubExtent);
+  this->PieceReaders[this->Piece]->Update();
   
   // Skip rest of read if aborting.
   if(this->AbortExecute)

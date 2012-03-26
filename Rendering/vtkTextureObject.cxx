@@ -1361,7 +1361,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
 
   unsigned int size = this->Width* this->Height* this->Depth;
 
-  // doesnt matter which Upload*D method we use since we are not really
+  // doesn't matter which Upload*D method we use since we are not really
   // uploading any data, simply allocating GPU space.
   if (!pbo->Upload1D(vtktype, NULL, size, this->Components, 0))
     {

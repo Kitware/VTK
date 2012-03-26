@@ -63,7 +63,8 @@ int vtkImageInPlaceFilter::RequestData(
   outSize = outSize * (outExt[3] - outExt[2] + 1);
   outSize = outSize * (outExt[5] - outExt[4] + 1);
   if (inSize == outSize &&
-      this->GetInput()->ShouldIReleaseData())
+      (vtkDataObject::GetGlobalReleaseDataFlag() ||
+       inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
     {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
@@ -72,17 +73,17 @@ int vtkImageInPlaceFilter::RequestData(
   else
     {
     output->SetExtent(outExt);
-    output->AllocateScalars();
-    this->CopyData(input,output);
+    output->AllocateScalars(outInfo);
+    this->CopyData(input,output,outExt);
     }
 
   return 1;
 }
 
 void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
-                                     vtkImageData *outData)
+                                     vtkImageData *outData,
+                                     int* outExt)
 {
-  int *outExt = this->GetOutput()->GetUpdateExtent();
   char *inPtr = static_cast<char *>(inData->GetScalarPointerForExtent(outExt));
   char *outPtr =
     static_cast<char *>(outData->GetScalarPointerForExtent(outExt));

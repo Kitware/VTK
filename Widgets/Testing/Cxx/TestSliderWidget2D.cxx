@@ -526,8 +526,8 @@ int TestSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
-  glyph->SetInput(sphereSource->GetOutput());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetInputConnection(sphereSource->GetOutputPort());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
@@ -536,12 +536,12 @@ int TestSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // This just makes things simpler to manage.
   vtkSmartPointer<vtkAppendPolyData> apd =
     vtkSmartPointer<vtkAppendPolyData>::New();
-  apd->AddInput(glyph->GetOutput());
-  apd->AddInput(sphereSource->GetOutput());
+  apd->AddInputConnection(glyph->GetOutputPort());
+  apd->AddInputConnection(sphereSource->GetOutputPort());
 
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  maceMapper->SetInput(apd->GetOutput());
+  maceMapper->SetInputConnection(apd->GetOutputPort());
 
   vtkSmartPointer<vtkLODActor> maceActor =
     vtkSmartPointer<vtkLODActor>::New();

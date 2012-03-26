@@ -42,10 +42,10 @@
 class vtkCell;
 class vtkCellData;
 class vtkCellTypes;
+class vtkExtentTranslator;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
-class vtkSourceToDataSetFriendship;
 
 class VTK_FILTERING_EXPORT vtkDataSet : public vtkDataObject
 {
@@ -327,7 +327,11 @@ public:
   // Description:
   // Normally called by pipeline executives or algoritgms only. This method
   // computes the ghost arrays for a given dataset.
-  virtual void GenerateGhostLevelArray();
+  virtual void GenerateGhostLevelArray(int update_piece,
+                                       int update_num_pieces,
+                                       int update_ghost_level,
+                                       int* whole_extent,
+                                       vtkExtentTranslator* translator);
 
   //BTX
   // Description:
@@ -372,7 +376,6 @@ protected:
 private:
   void InternalDataSetCopy(vtkDataSet *src);
   //BTX
-  friend class vtkSourceToDataSetFriendship;
   friend class vtkImageAlgorithmToDataSetFriendship;
   //ETX
 private:

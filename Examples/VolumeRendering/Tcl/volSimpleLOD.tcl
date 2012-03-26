@@ -87,13 +87,13 @@ foreach type $types {
 	
 	vtkProbeFilter probe${i}_${type}
 	probe${i}_${type} SetInputConnection [transpd${i}_${type} GetOutputPort]
-	probe${i}_${type} SetSource [reader GetOutput]
+	probe${i}_${type} SetSourceConnection [reader GetOutputPort]
 	
 	vtkCastToConcrete cast${i}_${type}
 	cast${i}_${type} SetInputConnection [probe${i}_${type} GetOutputPort]
 	
 	vtkTriangleFilter tf${i}_${type}
-	tf${i}_${type} SetInput [cast${i}_${type} GetPolyDataOutput]
+	tf${i}_${type} SetInputConnection [cast${i}_${type} GetOutputPort]
 	
 	vtkStripper strip${i}_${type}
 	strip${i}_${type} SetInputConnection [tf${i}_${type} GetOutputPort]
@@ -109,9 +109,9 @@ foreach type $types {
     transform2_${type} Scale  66.0 66.0 66.0
 
     vtkAppendPolyData apd_${type}
-    apd_${type} AddInput [tf0_${type} GetOutput]
-    apd_${type} AddInput [tf1_${type} GetOutput]
-    apd_${type} AddInput [tf2_${type} GetOutput]
+    apd_${type} AddInputConnection [tf0_${type} GetOutputPort]
+    apd_${type} AddInputConnection [tf1_${type} GetOutputPort]
+    apd_${type} AddInputConnection [tf2_${type} GetOutputPort]
     
     vtkPolyDataMapper probeMapper_${type}
     probeMapper_${type} SetInputConnection [apd_${type} GetOutputPort]

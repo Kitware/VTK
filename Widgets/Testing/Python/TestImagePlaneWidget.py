@@ -28,7 +28,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         v16.SetDataSpacing(3.2, 3.2, 1.5)
         v16.Update()
 
-        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetOutput().GetWholeExtent()
+        xMin, xMax, yMin, yMax, zMin, zMax = v16.GetExecutive().GetWholeExtent(v16.GetOutputInformation(0))
         img_data = v16.GetOutput()
 
         # **************************************************
@@ -37,14 +37,13 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # Lets create this data using the data from the reader.
         my_img_data = vtk.vtkImageData()
         my_img_data.SetDimensions(img_data.GetDimensions())
-        my_img_data.SetWholeExtent(img_data.GetWholeExtent())
+#        my_img_data.SetWholeExtent(img_data.GetWholeExtent())
         my_img_data.SetExtent(img_data.GetExtent())
-        my_img_data.SetUpdateExtent(img_data.GetUpdateExtent())
+#        my_img_data.SetUpdateExtent(img_data.GetUpdateExtent())
         my_img_data.SetSpacing(img_data.GetSpacing())
         my_img_data.SetOrigin(img_data.GetOrigin())
-        my_img_data.SetScalarType(img_data.GetScalarType())
+        my_img_data.SetScalarType(img_data.GetScalarType(), my_img_data.GetInformation())
         my_img_data.GetPointData().SetScalars(img_data.GetPointData().GetScalars())
-        my_img_data.Update()
         # hang on to original image data.
         orig_img_data = img_data
 
@@ -61,7 +60,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
 
         # An outline is shown for context.
         outline = vtk.vtkOutlineFilter()
-        outline.SetInput(img_data)
+        outline.SetInputData(img_data)
 
         outlineMapper = vtk.vtkPolyDataMapper()
         outlineMapper.SetInputConnection(outline.GetOutputPort())
@@ -77,7 +76,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # The 3 image plane widgets are used to probe the dataset.
         planeWidgetX = vtk.vtkImagePlaneWidget()
         planeWidgetX.DisplayTextOn()
-        planeWidgetX.SetInput(img_data)
+        planeWidgetX.SetInputData(img_data)
         planeWidgetX.SetPlaneOrientationToXAxes()
         planeWidgetX.SetSliceIndex(32)
         planeWidgetX.SetPicker(picker)
@@ -87,7 +86,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
 
         planeWidgetY = vtk.vtkImagePlaneWidget()
         planeWidgetY.DisplayTextOn()
-        planeWidgetY.SetInput(img_data)
+        planeWidgetY.SetInputData(img_data)
         planeWidgetY.SetPlaneOrientationToYAxes()
         planeWidgetY.SetSliceIndex(32)
         planeWidgetY.SetPicker(picker)
@@ -101,7 +100,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # cross-hair cursor snapping to pixel centers
         planeWidgetZ = vtk.vtkImagePlaneWidget()
         planeWidgetZ.DisplayTextOn()
-        planeWidgetZ.SetInput(img_data)
+        planeWidgetZ.SetInputData(img_data)
         planeWidgetZ.SetPlaneOrientationToZAxes()
         planeWidgetZ.SetSliceIndex(46)
         planeWidgetZ.SetPicker(picker)

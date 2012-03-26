@@ -39,12 +39,11 @@ public:
   static vtkMultiBlockMergeFilter *New();
 
   // Description:
-  // Add an input of this algorithm.  Note that these methods support
-  // old-style pipeline connections.  When writing new code you should
-  // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
-  void AddInput(vtkDataObject *);
-  void AddInput(int, vtkDataObject*);
+  // Assign a data object as input. Note that this method does not
+  // establish a pipeline connection. Use AddInputConnection() to
+  // setup a pipeline connection.
+  void AddInputData(vtkDataObject *);
+  void AddInputData(int, vtkDataObject*);
 
 protected:
   vtkMultiBlockMergeFilter();

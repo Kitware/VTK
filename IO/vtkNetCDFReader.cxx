@@ -143,7 +143,7 @@ int vtkNetCDFReader::RequestDataObject(
   if (!output || !output->IsA("vtkImageData"))
     {
     output = vtkImageData::New();
-    output->SetPipelineInformation(outInfo);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
     output->Delete();   // Not really deleted.
     }
 
@@ -309,17 +309,18 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   vtkImageData *imageOutput = vtkImageData::SafeDownCast(output);
   vtkRectilinearGrid *rectOutput = vtkRectilinearGrid::SafeDownCast(output);
   vtkStructuredGrid *structOutput = vtkStructuredGrid::SafeDownCast(output);
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(outInfo, this->UpdateExtent);
   if (imageOutput)
     {
-    imageOutput->SetExtent(imageOutput->GetUpdateExtent());
+    imageOutput->SetExtent(this->UpdateExtent);
     }
   else if (rectOutput)
     {
-    rectOutput->SetExtent(rectOutput->GetUpdateExtent());
+    rectOutput->SetExtent(this->UpdateExtent);
     }
   else if (structOutput)
     {
-    structOutput->SetExtent(structOutput->GetUpdateExtent());
+    structOutput->SetExtent(this->UpdateExtent);
     }
   else
     {
@@ -615,10 +616,10 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
 }
 
 //-----------------------------------------------------------------------------
-void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *output,
+void vtkNetCDFReader::GetUpdateExtentForOutput(vtkDataSet *,
                                                int extent[6])
 {
-  output->GetUpdateExtent(extent);
+  memcpy(extent, this->UpdateExtent, 6*sizeof(int));
 }
 
 //-----------------------------------------------------------------------------

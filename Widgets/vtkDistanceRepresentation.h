@@ -109,7 +109,7 @@ public:
   // Specify the number of major ruler ticks. This overrides any subclasses
   // (e.g., vtkDistanceRepresentation2D) that have alternative methods to
   // specify the number of major ticks. Note: the number of ticks is the
-  // number inbetween the two handle endpoints. This ivar only has effect
+  // number between the two handle endpoints. This ivar only has effect
   // when the RulerMode is off.
   vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfRulerTicks,int);

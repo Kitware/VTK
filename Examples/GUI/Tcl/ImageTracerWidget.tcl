@@ -52,7 +52,7 @@ vtkImageShiftScale shifter
 # Display a y-z plane. 
 # 
 vtkImageActor imageActor
-  imageActor SetInput [shifter GetOutput]
+  [imageActor GetMapper] SetInputConnection [shifter GetOutputPort]
   imageActor VisibilityOn
   imageActor SetDisplayExtent  31 31 0 63 0 92
   imageActor InterpolateOff
@@ -95,7 +95,7 @@ vtkExtractVOI extract
   extract Update
 
 vtkImageActor imageActor2  
-  imageActor2 SetInput [extract GetOutput]
+  [imageActor2 GetMapper] SetInputConnection [extract GetOutputPort]
   imageActor2 VisibilityOn
   imageActor2 SetDisplayExtent  31 31 0 63 0 92
   imageActor2 InterpolateOff
@@ -123,7 +123,7 @@ vtkImageTracerWidget itw
   itw SetProjectionNormalToXAxes
   itw SetProjectionPosition $pos
   itw SetViewProp imageActor
-  itw SetInput [shifter GetOutput]
+  itw SetInputConnection [shifter GetOutputPort]
   itw SetInteractor iren
   itw PlaceWidget
 #
@@ -143,7 +143,7 @@ vtkImageTracerWidget itw
 vtkSplineWidget isw
   isw SetCurrentRenderer ren2
   isw SetDefaultRenderer ren2
-  isw SetInput [extract GetOutput]
+  isw SetInputConnection [extract GetOutputPort]
   isw SetInteractor iren
   set bnds [imageActor2 GetBounds] 
   isw PlaceWidget [lindex $bnds 0] [lindex $bnds 1] [lindex $bnds 2] [lindex $bnds 3] [lindex $bnds 4] [lindex $bnds 5]
@@ -169,7 +169,7 @@ vtkPolyData spoly
 # clockwise path provides the dual region of interest.
 #
 vtkLinearExtrusionFilter extrude
-  extrude SetInput spoly
+  extrude SetInputData spoly
   extrude SetScaleFactor 1 
   extrude SetExtrusionTypeToNormalExtrusion
   extrude SetVector 1 0 0
@@ -186,7 +186,7 @@ vtkTransform transform
 #
 set spc  [[extract GetOutput] GetSpacing]
 set orig [[extract GetOutput] GetOrigin]
-set wext [[extract GetOutput] GetWholeExtent]
+set wext [[extract GetExecutive] GetWholeExtent [extract GetOutputInformation 0]]
 
 vtkPolyDataToImageStencil dataToStencil
   dataToStencil SetInputConnection [filter GetOutputPort]
@@ -196,7 +196,7 @@ vtkPolyDataToImageStencil dataToStencil
 
 vtkImageStencil stencil
   stencil SetInputConnection [extract GetOutputPort]
-  stencil SetStencil [dataToStencil GetOutput]
+  stencil SetStencilConnection [dataToStencil GetOutputPort]
   stencil ReverseStencilOff
   stencil SetBackgroundValue 128
 
@@ -235,7 +235,7 @@ proc AdjustSpline { } {
     isw ClosedOn
   } else {
     isw ClosedOff
-    imageActor2 SetInput [extract GetOutput]
+    [imageActor2 GetMapper] SetInputConnection [extract GetOutputPort]
   }
 
   set npts [ itw GetNumberOfHandles ]
@@ -251,7 +251,7 @@ proc AdjustSpline { } {
   if { $closed } {
     isw GetPolyData spoly
     stencil Update
-    imageActor2 SetInput [stencil GetOutput]
+    [imageActor2 GetMapper] SetInputConnection [stencil GetOutputPort]
     }
 }
 
@@ -276,9 +276,9 @@ proc AdjustTracer { } {
     }
     isw GetPolyData spoly
     stencil Update
-    imageActor2 SetInput [stencil GetOutput]
+    [imageActor2 GetMapper] SetInputConnection [stencil GetOutputPort]
     } else {
-    imageActor2 SetInput [extract GetOutput] 
+    [imageActor2 GetMapper] SetInputConnection [extract GetOutputPort]
     }
 
   itw InitializeHandles points  

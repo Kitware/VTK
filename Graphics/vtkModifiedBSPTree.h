@@ -49,7 +49,7 @@
 // a third child node to store objects which straddle split planes. I've not
 // seen this published (Yes! - see below), but thought it worth trying. This
 // implementation of the BSP tree creates a third child node for storing cells
-// lying across split planes, the third cell may overlap the other two, but the
+// laying across split planes, the third cell may overlap the other two, but the
 // two 'proper' nodes otherwise conform to usual BSP rules.
 //
 // The advantage of this implementation is cells only ever lie in one node
@@ -69,7 +69,7 @@
 // such that it tightly fits all cells inside it, enabling further ray/box
 // rejections.
 //
-// This class is intented for persons requiring many ray tests and is optimized
+// This class is intended for persons requiring many ray tests and is optimized
 // for this purpose. As no cell ever lies in more than one leaf node, and parent
 // nodes do not maintain cell lists, the memory overhead of the sorted cell
 // lists is 6*num_cells*4 for 6 lists of ints, each num_cells in length.

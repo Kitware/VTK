@@ -1759,7 +1759,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
 
         // In InitializeFieldList(), if an array is an active attribute, its
         // information is noted only in the first "set". Now since we are
-        // marking it as not-an-attribute, we still don't want to loose the
+        // marking it as not-an-attribute, we still don't want to lose the
         // array. So we enable it in the second "set". But all DSAIndices until
         // the CurrentInput referred to this array in it's location in the
         // first "set" so we have to move those as well. That's what's

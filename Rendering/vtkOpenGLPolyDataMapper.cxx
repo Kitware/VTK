@@ -123,7 +123,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     if (!this->Static)
       {
-      input->Update();
+      this->GetInputAlgorithm()->Update();
       }
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
@@ -176,7 +176,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
       }
-    this->InternalColorTexture->SetInput(this->ColorTextureMap);
+    this->InternalColorTexture->SetInputData(this->ColorTextureMap);
     // Keep color from interacting with texture.
     float info[4];
     info[0] = info[1] = info[2] = info[3] = 1.0;
@@ -1984,7 +1984,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
-  // fixme ... make the existance of the coordinate array the signal.
+  // fixme ... make the existence of the coordinate array the signal.
   if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates &&
       ! (idx & VTK_PDM_CELL_COLORS))
     {

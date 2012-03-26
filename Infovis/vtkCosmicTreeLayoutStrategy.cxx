@@ -325,7 +325,7 @@ int vtkCosmicTreeLayoutStrategyComputeCentersWell(
         }
       if ( // both:
         ( fabs( dRe / Re ) < 1.e-4 ) && // change in radius is relatively large and ...
-        ( dRe >= 0. ) // we need to grow, not shrink (i.e., Re is smaller than neccessary, not too large).
+        ( dRe >= 0. ) // we need to grow, not shrink (i.e., Re is smaller than necessary, not too large).
       )
         { // done!
         cout << "Stopping at iter: " << iter << ". ReOld: " << ReOld << " Re: " << Re << " dRe: " << dRe << "\n";
@@ -348,7 +348,7 @@ int vtkCosmicTreeLayoutStrategyComputeCentersWell(
          ( angsum > twopi ) || // we wrap around
          ( // both:
           ( fabs( ( Re - ReOld ) / ReOld - 1. ) > 1.e-4 ) && // change in radius is relatively large and ...
-          ( dReTangent <= 0. ) // we need to grow, not shrink (i.e., Re is smaller than neccessary, not too large).
+          ( dReTangent <= 0. ) // we need to grow, not shrink (i.e., Re is smaller than necessary, not too large).
          )
         ) &&
         ( iter < 30 ) ); // we haven't taken too long
@@ -394,7 +394,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
     // Use the BFS search tree to perform the layout
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
-    bfs->SetInput( this->Graph );
+    bfs->SetInputData( this->Graph );
     bfs->Update();
     tree = vtkTree::New();
     tree->ShallowCopy( bfs->GetOutput() );

@@ -35,7 +35,7 @@ profile.SetPoints(points)
 profile.SetStrips(strips)
 
 map = vtk.vtkPolyDataMapper()
-map.SetInput(profile)
+map.SetInputData(profile)
 
 strip = vtk.vtkActor()
 strip.SetMapper(map)

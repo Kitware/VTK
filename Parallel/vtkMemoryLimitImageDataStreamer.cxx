@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformationExecutivePortKey.h"
 
 vtkStandardNewMacro(vtkMemoryLimitImageDataStreamer);
 
@@ -61,8 +62,6 @@ vtkMemoryLimitImageDataStreamer
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
       
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-      vtkImageData *input = 
-        vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
       
       vtkExtentTranslator *translator = this->GetExtentTranslator();
       translator->SetWholeExtent(outExt);
@@ -107,11 +106,12 @@ vtkMemoryLimitImageDataStreamer
           VTK_UPDATE_EXTENT_REPLACE);
         
         // then propagate it
-        vtkAlgorithm *alg = input->GetProducerPort()->GetProducer();
-        int index = input->GetProducerPort()->GetIndex();
-        vtkStreamingDemandDrivenPipeline *exec = 
-          vtkStreamingDemandDrivenPipeline::SafeDownCast(alg->GetExecutive());
-        exec->PropagateUpdateExtent(index);
+        vtkExecutive* exec = vtkExecutive::PRODUCER()->GetExecutive(
+          inInfo);
+        int index = vtkExecutive::PRODUCER()->GetPort(inInfo);
+        vtkStreamingDemandDrivenPipeline *sddp = 
+          vtkStreamingDemandDrivenPipeline::SafeDownCast(exec);
+        sddp->PropagateUpdateExtent(index);
 
         // then reset the INITIALIZED flag to the default value COMBINE
         inInfo->Set(

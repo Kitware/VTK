@@ -61,7 +61,7 @@ protected:
   ~vtkGESignaReader() {};
 
   virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);
 
 private:
   vtkGESignaReader(const vtkGESignaReader&);  // Not implemented.

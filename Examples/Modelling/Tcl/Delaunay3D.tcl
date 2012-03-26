@@ -22,7 +22,7 @@ vtkPolyData profile
 # value is output.
 #
 vtkDelaunay3D del
-    del SetInput profile
+    del SetInputData profile
     del SetTolerance 0.01
     del SetAlpha 0.2
     del BoundingTriangulationOff

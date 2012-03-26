@@ -135,7 +135,7 @@ public:
   // Description:
   // Force the line widget to be aligned with one of the x-y-z axes.
   // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the line to the axes if it is orginally
+  // This can be used to snap the line to the axes if it is originally
   // not aligned.
   vtkSetClampMacro(Align, int, XAxis, None);
   vtkGetMacro(Align, int);

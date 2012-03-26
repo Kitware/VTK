@@ -52,7 +52,7 @@ public:
   // not fail if an incorrect seed value is passed) but the value is silently
   // changed to fit in the valid range [1,2147483646].
   // 2147483646 is added to a null or negative value.
-  // 2147483647 is changed to be 1 (ie 2147483646 is substracted).
+  // 2147483647 is changed to be 1 (ie 2147483646 is subtracted).
   // Implementation note: it also performs 3 calls to Next() to avoid the
   // bad property that the first random number is proportional to the seed
   // value.
@@ -67,7 +67,7 @@ public:
   // not fail if an incorrect seed value is passed) but the value is silently
   // changed to fit in the valid range [1,2147483646].
   // 2147483646 is added to a null or negative value.
-  // 2147483647 is changed to be 1 (ie 2147483646 is substracted).
+  // 2147483647 is changed to be 1 (ie 2147483646 is subtracted).
   void SetSeedOnly(int value);
   
   // Description:

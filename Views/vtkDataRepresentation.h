@@ -55,6 +55,7 @@ class vtkAnnotationLink;
 class vtkDataObject;
 class vtkSelection;
 class vtkStringArray;
+class vtkTrivialProducer;
 class vtkView;
 class vtkViewTheme;
 
@@ -98,7 +99,7 @@ public:
   void Select(vtkView* view, vtkSelection* selection, bool extend);
 
   // Description:
-  // Analagous to Select(). The view calls this method when it needs to
+  // Analogous to Select(). The view calls this method when it needs to
   // change the underlying annotations (some views might perform the
   // creation of annotations). The representation takes the annotations
   // and converts them into a selection on its data by calling ConvertAnnotations,
@@ -265,6 +266,9 @@ protected:
   // before passing them off to vtkAnnotationLink.  If the annotations cannot
   // be applied to this representation, return NULL.
   virtual vtkAnnotationLayers* ConvertAnnotations(vtkView* view, vtkAnnotationLayers* annotations);
+
+  vtkTrivialProducer* GetInternalInput(int port, int conn);
+  void SetInternalInput(int port, int conn, vtkTrivialProducer* producer);
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.

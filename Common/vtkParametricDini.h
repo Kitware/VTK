@@ -15,7 +15,7 @@
 // .NAME vtkParametricDini - Generate Dini's surface.
 // .SECTION Description
 // vtkParametricDini generates Dini's surface.
-// Dini's surface is a surface that posesses constant negative 
+// Dini's surface is a surface that possesses constant negative
 // Gaussian curvature
 //
 // For further information about this surface, please consult the 

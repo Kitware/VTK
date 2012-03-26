@@ -99,7 +99,7 @@ void vtkParse_ExpandValues(
   ValueInfo *valinfo, int n, const char *name[], const char *val[]);
 
 /**
- * Search for all occurences of "name" and replace with the corresponding
+ * Search for all occurrences of "name" and replace with the corresponding
  * "val", return the initial string if no replacements occurred, otherwise
  * return a new string allocated with malloc.
  */

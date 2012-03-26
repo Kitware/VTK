@@ -113,13 +113,15 @@ int vtkRTAnalyticSource::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                tmpExt,6);
 
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
   outInfo->Set(vtkDataObject::SPACING(), this->SubsampleRate,
                this->SubsampleRate, this->SubsampleRate);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   return 1;
 }
 
-void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
+void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *output,
+                                                     vtkInformation *outInfo)
 {
   vtkImageData *data;
   float *outPtr;
@@ -134,7 +136,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   unsigned long count = 0;
   unsigned long target;
 
-  data = this->AllocateOutputData(output);
+  data = this->AllocateOutputData(output, outInfo);
   if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");

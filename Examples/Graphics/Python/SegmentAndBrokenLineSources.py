@@ -20,7 +20,7 @@ line2.SetResolution( 16 )
 
 # Create mappers
 mapper1 = vtkPolyDataMapper()
-mapper1.SetInput( line1.GetOutput() )
+mapper1.SetInputConnection( line1.GetOutputPort() )
 
 mapper2 = vtkPolyDataMapper()
 mapper2.SetInputConnection( line2.GetOutputPort() )

@@ -20,7 +20,7 @@
 // output of the filter is an unstructured grid dataset. Usually the
 // output is a tetrahedral mesh, but if a non-zero alpha distance
 // value is specified (called the "alpha" value), then only tetrahedra,
-// triangles, edges, and vertices lying within the alpha radius are 
+// triangles, edges, and vertices laying within the alpha radius are 
 // output. In other words, non-zero alpha values may result in arbitrary
 // combinations of tetrahedra, triangles, lines, and vertices. (The notion 
 // of alpha value is derived from Edelsbrunner's work on "alpha shapes".)

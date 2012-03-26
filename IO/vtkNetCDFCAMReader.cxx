@@ -20,6 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -218,7 +219,7 @@ int vtkNetCDFCAMReader::RequestInformation(
     return 0;
     }
   this->NumberOfTimeSteps = timeDimension->size();
-  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (this->NumberOfTimeSteps > 0)
     {
@@ -231,19 +232,22 @@ int vtkNetCDFCAMReader::RequestInformation(
     timeVar->get(this->TimeSteps, this->NumberOfTimeSteps);
 
     // Tell the pipeline what steps are available
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
               this->TimeSteps, this->NumberOfTimeSteps);
 
     // Range is required to get GUI to show things
     double tRange[2] = {this->TimeSteps[0],
                         this->TimeSteps[this->NumberOfTimeSteps - 1]};
-    info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), tRange, 2);
     }
   else
     {
-    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
     }
+
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
 
   return 1;
 }
@@ -289,12 +293,6 @@ int vtkNetCDFCAMReader::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // All of the data in the first piece.
-  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
-    return 1;
-    }
-
   vtkDebugMacro(<<"Reading NetCDF CAM file.");
   this->SetProgress(0);
   if(this->CurrentConnectivityFileName != NULL &&
@@ -330,7 +328,7 @@ int vtkNetCDFCAMReader::RequestData(
     vtkErrorMacro("Cannot find the number of levels (lev dimension).");
     return 0;
     }
-  long numLevels = levelsDimension->size();
+  long numCellLevels = levelsDimension->size() - 1;
   NcVar* levelsVar = this->PointsFile->get_var("lev");
   if(levelsVar == NULL)
     {
@@ -338,14 +336,14 @@ int vtkNetCDFCAMReader::RequestData(
     return 0;
     }
   if(levelsVar->num_dims() != 1 ||
-     levelsVar->get_dim(0)->size() != numLevels)
+     levelsVar->get_dim(0)->size() != numCellLevels+1)
     {
     vtkErrorMacro("The lev variable is not consistent.");
     return 0;
     }
   if(this->SingleLevel != 0)
     {
-    numLevels = 1;
+    numCellLevels = 1;
     }
   NcDim* dimension = this->PointsFile->get_dim("ncol");
   if(dimension == NULL)
@@ -377,7 +375,7 @@ int vtkNetCDFCAMReader::RequestData(
       }
     for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
+      points->SetPoint(i, array[i], array[i+numFilePoints], numCellLevels+1);
       }
     }
   else
@@ -395,7 +393,7 @@ int vtkNetCDFCAMReader::RequestData(
       }
     for(long i=0;i<numFilePoints;i++)
       {
-      points->SetPoint(i, array[i], array[i+numFilePoints], numLevels);
+      points->SetPoint(i, array[i], array[i+numFilePoints], numCellLevels+1);
       }
     }
   this->SetProgress(.25);  // educated guess for progress
@@ -422,18 +420,30 @@ int vtkNetCDFCAMReader::RequestData(
     vtkErrorMacro("Cannot find cell connectivity (element_corners dimension).");
     return 0;
     }
-  long numCells = dimension->size();
-  std::vector<int> cellConnectivity(4*numCells);
-  connectivity->get(&(cellConnectivity[0]), 4, numCells);
+  long numCellsPerLevel = dimension->size();
+
+
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int beginCellLevel, endCellLevel, beginCell, endCell;
+  this->GetPartitioning(piece, numPieces, numCellLevels, numCellsPerLevel,
+                        beginCellLevel, endCellLevel, beginCell, endCell);
+  // the cells/levels assigned to this piece
+  long numLocalCells = endCell-beginCell;
+  int numLocalCellLevels = endCellLevel-beginCellLevel;
+  std::vector<int> cellConnectivity(4*numLocalCells);
+  connectivity->set_cur(0, beginCell);
+  connectivity->get(&(cellConnectivity[0]), 4, numLocalCells);
+
   double leftSide = 1.;
   double rightSide = 359.;
-  for(long i=0;i<numCells;i++)
+  for(long i=0;i<numLocalCells;i++)
     {
     vtkIdType pointIds[4];
     double coords[4][3]; // assume quads here
     for(int j=0;j<4;j++)
       {
-      pointIds[j] = cellConnectivity[i+j*numCells]-1;
+      pointIds[j] = cellConnectivity[i+j*numLocalCells]-1;
       points->GetPoint(pointIds[j], coords[j]);
       }
     if(IsCellInverted(coords) == true)
@@ -446,15 +456,14 @@ int vtkNetCDFCAMReader::RequestData(
             boundaryPoints.find(pointIds[j]);
           if(otherPoint != boundaryPoints.end())
             { // already made point on the right boundary
-            cellConnectivity[i+j*numCells] = otherPoint->second + 1;
+            cellConnectivity[i+j*numLocalCells] = otherPoint->second + 1;
             }
           else
             { // need to make point on the right boundary
             vtkIdType index =
               points->InsertNextPoint(coords[j][0]+360., coords[j][1], coords[j][2]);
-            cellConnectivity[i+j*numCells] = index+1;
+            cellConnectivity[i+j*numLocalCells] = index+1;
             boundaryPoints[pointIds[j]] = index;
-            //cerr << "making a copy of point " << pointIds[j] << " to " << index << endl;
             }
           }
         else if(this->CellLayerRight == 0 && coords[j][0] > rightSide)
@@ -463,13 +472,13 @@ int vtkNetCDFCAMReader::RequestData(
             boundaryPoints.find(pointIds[j]);
           if(otherPoint != boundaryPoints.end())
             { // already made point on the right boundary
-            cellConnectivity[i+j*numCells] = otherPoint->second+1;
+            cellConnectivity[i+j*numLocalCells] = otherPoint->second+1;
             }
           else
             { // need to make point on the right boundary
             vtkIdType index =
               points->InsertNextPoint(coords[j][0]-360., coords[j][1], coords[j][2]);
-            cellConnectivity[i+j*numCells] = index+1;
+            cellConnectivity[i+j*numLocalCells] = index+1;
             boundaryPoints[pointIds[j]] = index;
             }
           }
@@ -480,21 +489,24 @@ int vtkNetCDFCAMReader::RequestData(
   // we now have all of the points at a single level.  build them up
   // for the rest of the levels before creating the cells.
   vtkIdType numPointsPerLevel = points->GetNumberOfPoints();
-  if(numLevels > 1)
+  if(!this->SingleLevel)
     {
     // a hacky way to resize the points array without resetting the data
-    points->InsertPoint(numPointsPerLevel*numLevels-1, 0, 0, 0);
+    points->InsertPoint(numPointsPerLevel*(numLocalCellLevels+1)-1, 0, 0, 0);
     for(vtkIdType pt=0;pt<numPointsPerLevel;pt++)
       {
       double point[3];
       points->GetPoint(pt, point);
-      for(long lev=1;lev<numLevels;lev++)
+      // need to start at 0 here since for multiple process the first
+      // level will need to be replaced
+      for(long lev=0;lev<numLocalCellLevels+1;lev++)
         {
-        point[2] = numLevels - lev;
+        point[2] = numCellLevels - lev - beginCellLevel;
         points->SetPoint(pt+lev*numPointsPerLevel, point);
         }
       }
     }
+
   points->Modified();
   output->SetPoints(points);
 
@@ -526,20 +538,20 @@ int vtkNetCDFCAMReader::RequestData(
   // now that we have the full set of points, read in any point
   // data with dimensions (time, lev, ncol) but read them in
   // by chunks of ncol since it will be a pretty big chunk of
-  // memory that we'll have to brea up anyways.
+  // memory that we'll have to break up anyways.
   for(int i=0;i<this->PointsFile->num_vars();i++)
     {
     NcVar* variable = this->PointsFile->get_var(i);
-    if(numLevels > 1 && (variable->num_dims() != 3 ||
-                         strcmp(variable->get_dim(0)->name(), "time") != 0 ||
-                         strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
-                         strcmp(variable->get_dim(2)->name(), "ncol") != 0) )
+    if(this->SingleLevel == 0 && (variable->num_dims() != 3 ||
+                                  strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                                  strcmp(variable->get_dim(1)->name(), "lev") != 0 ||
+                                  strcmp(variable->get_dim(2)->name(), "ncol") != 0) )
       { // not a 3D field variable
       continue;
       }
-    else if(numLevels == 1 && ((variable->num_dims() != 2 ||
-                                strcmp(variable->get_dim(0)->name(), "time") != 0 ||
-                                strcmp(variable->get_dim(1)->name(), "ncol") != 0) ) )
+    else if(this->SingleLevel == 1 && ((variable->num_dims() != 2 ||
+                                        strcmp(variable->get_dim(0)->name(), "time") != 0 ||
+                                        strcmp(variable->get_dim(1)->name(), "ncol") != 0) ) )
       { // not a 2D field variable
       continue;
       }
@@ -562,11 +574,11 @@ int vtkNetCDFCAMReader::RequestData(
       output->GetPointData()->AddArray(floatArray);
       floatArray->Delete();
       }
-    if(numLevels > 1)
+    if(this->SingleLevel == 0)
       {
-      for(long lev=0;lev<numLevels;lev++)
+      for(long lev=0;lev<numLocalCellLevels+1;lev++)
         {
-        variable->set_cur(timeStep, lev, 0);
+        variable->set_cur(timeStep, lev+beginCellLevel, 0);
         if(doubleArray)
           {
           if(!variable->get(doubleArray->GetPointer(0)+lev*numPointsPerLevel,
@@ -587,7 +599,7 @@ int vtkNetCDFCAMReader::RequestData(
           }
         }
       }
-    else if(numLevels == 1)
+    else if(this->SingleLevel == 1)
       {
       variable->set_cur(timeStep, 0);
       if(doubleArray)
@@ -608,49 +620,63 @@ int vtkNetCDFCAMReader::RequestData(
         }
       }
     }
-  // we have to copy the values from the left size to the right side
-  output->GetPointData()->CopyAllOn();
-  output->GetPointData()->CopyAllocate(output->GetPointData(),
-                                       output->GetNumberOfPoints());
+
+  // we have to copy the values from the left side to the right side
   vtkPointData* pointData = output->GetPointData();
+  pointData->CopyAllOn();
+  pointData->CopyAllocate(output->GetPointData(),
+                          output->GetNumberOfPoints());
   for(std::map<vtkIdType, vtkIdType>::const_iterator it=
         boundaryPoints.begin();it!=boundaryPoints.end();it++)
     {
-    for(long lev=0;lev<numLevels;lev++)
+    for(long lev=0;lev<numLocalCellLevels+1-this->SingleLevel;lev++)
       {
       pointData->CopyData(pointData, it->first+lev*numPointsPerLevel,
                           it->second+lev*numPointsPerLevel);
       }
     }
+
   // add in level data for each plane which corresponds to an average pressure
-  std::vector<float> levelData(numLevels);
-  levelsVar->get(&levelData[0], numLevels);
-  vtkNew<vtkFloatArray> levelPointData;
-  levelPointData->SetName(levelsVar->name());
-  levelPointData->SetNumberOfTuples(points->GetNumberOfPoints());
-  for(long j=0;j<numLevels;j++)
+  // if we are loading a volumetric grid
+  if(this->SingleLevel == 0)
     {
-    for(vtkIdType i=0;i<numPointsPerLevel;i++)
+    std::vector<float> levelData(numLocalCellLevels+1);
+    levelsVar->set_cur(beginCellLevel);
+    levelsVar->get(&levelData[0], numLocalCellLevels+1);
+    vtkNew<vtkFloatArray> levelPointData;
+    levelPointData->SetName(levelsVar->name());
+    levelPointData->SetNumberOfTuples(points->GetNumberOfPoints());
+    for(long j=0;j<numLocalCellLevels+1;j++)
       {
-      levelPointData->SetValue(j*numPointsPerLevel+i, levelData[j]);
+      for(vtkIdType i=0;i<numPointsPerLevel;i++)
+        {
+        levelPointData->SetValue(j*numPointsPerLevel+i, levelData[j]);
+        }
       }
+    output->GetPointData()->AddArray(levelPointData.GetPointer());
     }
-  output->GetPointData()->AddArray(levelPointData.GetPointer());
 
   this->SetProgress(.75);  // educated guess for progress
 
   // now we actually create the cells
-  output->Allocate(numCells*(levelData.size()-1));
-  for(long i=0;i<numCells;i++)
+  if(this->SingleLevel == 1)
+    {
+    output->Allocate(numLocalCells);
+    }
+  else
+    {
+    output->Allocate(numLocalCells*numLocalCellLevels);
+    }
+  for(long i=0;i<numLocalCells;i++)
     {
     vtkIdType pointIds[4];
     for(int j=0;j<4;j++)
       {
-      pointIds[j] = cellConnectivity[i+j*numCells]-1;
+      pointIds[j] = cellConnectivity[i+j*numLocalCells]-1;
       }
-    if(numLevels > 1)
+    if(this->SingleLevel == 0)
       { // volumetric grid
-      for(size_t lev=0;lev<levelData.size()-1;lev++)
+      for(int lev=0;lev<numLocalCellLevels;lev++)
         {
         vtkIdType hexIds[8];
         for(int j=0;j<4;j++)
@@ -661,16 +687,97 @@ int vtkNetCDFCAMReader::RequestData(
         output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
         }
       }
-    else if(numLevels == 1)
+    else if(this->SingleLevel == 1)
       { // surface grid
       output->InsertNextCell(VTK_QUAD, 4, pointIds);
       }
+    }
+
+  if(numLocalCells != numCellsPerLevel)
+    {
+    // we have extra points that are not connected to any cells
+    //vtkNew<vtkCleanUnstructuredGrid> cleanGrid;
+    //cleanGrid->SetInput(output);
     }
 
   vtkDebugMacro(<<"Read " << output->GetNumberOfPoints() <<" points,"
                 << output->GetNumberOfCells() <<" cells.\n");
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkNetCDFCAMReader::GetPartitioning(
+  int piece, int numPieces,int numLevels, int numCellsPerLevel,
+  int & beginLevel, int & endLevel, int & beginCell, int & endCell)
+{
+  // probably not the best way to partition the data but should
+  // be sufficient for development.
+  if(numPieces <= 0 || piece < 0 || piece >= numPieces)
+    {
+    vtkErrorMacro("Bad piece information for partitioning.");
+    return false;
+    }
+  if(numPieces == 1)
+    {
+    beginLevel = 0;
+    endLevel = numLevels;
+    beginCell = 0;
+    endCell = numCellsPerLevel;
+    return true;
+    }
+  if(numPieces <= numLevels)
+    {
+    beginLevel = piece*numLevels/numPieces;
+    endLevel = (piece+1)*numLevels/numPieces;
+    beginCell = 0;
+    endCell = numCellsPerLevel;
+    return true;
+    }
+
+  int levelsPerPiece = vtkMath::Ceil(numLevels/static_cast<double>(numPieces));
+  int piecesPerLevel = vtkMath::Ceil(numPieces/static_cast<double>(numLevels));
+  int numOverworkedPieces = piecesPerLevel/levelsPerPiece*numLevels - numPieces;
+  bool evenOverworked = (piecesPerLevel % 2 == 0 || numOverworkedPieces == 0);
+  if(piece < numOverworkedPieces)
+    {
+    if(evenOverworked)
+      {
+      beginLevel = 2*piece/piecesPerLevel;
+      endLevel = beginLevel + 1;
+      int remainder = piece % (piecesPerLevel/2);
+      beginCell = remainder * numCellsPerLevel * 2 / piecesPerLevel;
+      endCell = (remainder + 1)* numCellsPerLevel * 2 / piecesPerLevel;
+      }
+    else
+      {
+      beginLevel = 2*piece/(piecesPerLevel-1);
+      endLevel = beginLevel + 1;
+      int remainder = piece % ((piecesPerLevel-1)/2);
+      beginCell = remainder * numCellsPerLevel * 2 / piecesPerLevel;
+      endCell = (remainder + 1)* numCellsPerLevel * 2 / piecesPerLevel;
+      }
+    }
+  else // underworked pieces
+    {
+    if( evenOverworked == false && piece - numOverworkedPieces < 2*numOverworkedPieces/(piecesPerLevel-1) )
+      { // fillers for levels that also have overworked pieces working on them
+      beginLevel = piece - numOverworkedPieces;
+      beginCell = numCellsPerLevel*(piecesPerLevel-1)/piecesPerLevel;
+      endCell = numCellsPerLevel;
+      }
+    else
+      {
+      int fakePiece = numOverworkedPieces+piece; // take into account overworked pieces
+      beginLevel = fakePiece / piecesPerLevel;
+      int remainder = fakePiece % piecesPerLevel;
+      beginCell = remainder * numCellsPerLevel / piecesPerLevel;
+      endCell = (remainder + 1)*numCellsPerLevel / piecesPerLevel;
+      }
+    endLevel = beginLevel + 1;
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------

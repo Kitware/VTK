@@ -880,7 +880,7 @@ int vtkNetCDFCFReader::RequestDataObject(
     if (!output || !output->IsA("vtkImageData"))
       {
       output = vtkImageData::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();   // Not really deleted.
       }
     }
@@ -889,7 +889,7 @@ int vtkNetCDFCFReader::RequestDataObject(
     if (!output || !output->IsA("vtkRectilinearGrid"))
       {
       output = vtkRectilinearGrid::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();   // Not really deleted.
       }
     }
@@ -898,7 +898,7 @@ int vtkNetCDFCFReader::RequestDataObject(
     if (!output || !output->IsA("vtkStructuredGrid"))
       {
       output = vtkStructuredGrid::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();   // Not really deleted.
       }
     }
@@ -907,7 +907,7 @@ int vtkNetCDFCFReader::RequestDataObject(
     if (!output || !output->IsA("vtkUnstructuredGrid"))
       {
       output = vtkUnstructuredGrid::New();
-      output->SetPipelineInformation(outInfo);
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->Delete();   // Not really deleted.
       }
     }

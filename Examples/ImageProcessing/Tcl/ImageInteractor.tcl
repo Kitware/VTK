@@ -19,7 +19,7 @@ vtkImageShiftScale shiftScale
   shiftScale SetOutputScalarTypeToUnsignedChar
 
 vtkImageActor ia
-  ia SetInput [shiftScale GetOutput]
+  [ia GetMapper] SetInputConnection [shiftScale GetOutputPort]
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
@@ -68,7 +68,7 @@ vtkPolyData pd
   pd SetPoints pts
   pd SetLines lines
 vtkPolyDataMapper2D bboxMapper
-  bboxMapper SetInput pd
+  bboxMapper SetInputData pd
 vtkActor2D bboxActor
   bboxActor SetMapper bboxMapper
   [bboxActor GetProperty] SetColor 1 0 0

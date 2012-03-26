@@ -77,7 +77,7 @@ class TestParallelCoordinatesColors(vtk.test.Testing.vtkTest):
         lut.SetAlpha(0.25)
         lut.SetRange(-1, 1)
 
-        chart.GetPlot(0).SetInput(table)
+        chart.GetPlot(0).SetInputData(table)
         chart.GetPlot(0).SetScalarVisibility(1)
         chart.GetPlot(0).SetLookupTable(lut)
         chart.GetPlot(0).SelectColorArray("Cosine")

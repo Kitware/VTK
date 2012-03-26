@@ -17,7 +17,7 @@ vtkSampleFunction sample
   sample Update
     
 # Program a bandpass filter to clip a range of data. What we do is transform the 
-# scalars so that values lying betweeen (minRange,maxRange) are >= 0.0; all 
+# scalars so that values laying betweeen (minRange,maxRange) are >= 0.0; all
 # others are < 0.0,
 vtkImplicitDataSet dataset
   dataset SetDataSet [sample GetOutput]
@@ -48,7 +48,8 @@ vtkActor clipActor
 
 # Create outline
 vtkOutlineFilter outline
-  outline SetInput [clip GetInput]
+#  outline SetInputData [clip GetInput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]

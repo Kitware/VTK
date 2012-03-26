@@ -90,8 +90,10 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->Clip2=0;
   
   this->PolyData=0;
+  this->PolyDataProducer=0;
   this->SurfacePolyData=0;
   this->RPolyData=0;
+  this->RPolyDataProducer = 0;
   
   this->RData=0;
   this->RContour=0;
@@ -453,7 +455,7 @@ int vtkExtractCTHPart::RequestData(
         vtkWarningMacro("RectilinearGrid does not contain CellData named "
                         << arrayName);
         vtkPolyData *tmp=vtkPolyData::New();
-        tmps[idx]->AddInput(tmp);
+        tmps[idx]->AddInputData(tmp);
         tmp->Delete();
         }
       }
@@ -476,7 +478,7 @@ int vtkExtractCTHPart::RequestData(
     {
     // We need another clip for the plane.  Sneak it in.
     clip2 = vtkClipPolyData::New();
-    clip2->SetInput(clip->GetOutput());
+    clip2->SetInputConnection(clip->GetOutputPort());
     clip->Delete();
     clip2->SetClipFunction(this->ClipPlane);
     }
@@ -499,14 +501,14 @@ int vtkExtractCTHPart::RequestData(
 #else
       appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
 #endif
-      clip->SetInput(appendSurface[idx]->GetOutput());
+      clip->SetInputConnection(appendSurface[idx]->GetOutputPort());
       clip2->Update();
       }
 
 #if 1
-    tmps[idx]->AddInput(clip2->GetOutput());
+    tmps[idx]->AddInputConnection(clip2->GetOutputPort());
 #else
-    tmps[idx]->AddInput(appendSurface[idx]->GetOutput());
+    tmps[idx]->AddInputConnection(appendSurface[idx]->GetOutputPort());
 #endif
     
     output = vtkPolyData::SafeDownCast(pieces->GetBlock(processNumber));
@@ -756,7 +758,7 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
           vtkWarningMacro("Rectilinear Grid does not contain CellData named "
             << arrayName << " aborting extraction");
           vtkPolyData *tmp=vtkPolyData::New();
-          append->AddInput(tmp);
+          append->AddInputData(tmp);
           tmp->Delete();
           return;
           }
@@ -781,7 +783,7 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
             vtkWarningMacro("Uniform Grid does not contain CellData named "
               << arrayName << " aborting extraction");
             vtkPolyData *tmp=vtkPolyData::New();
-            append->AddInput(tmp);
+            append->AddInputData(tmp);
             tmp->Delete();
             return;
             }
@@ -894,7 +896,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     {
     tmp=vtkPolyData::New();
     tmp->ShallowCopy(this->SurfacePolyData);
-    appendSurface->AddInput(tmp);
+    appendSurface->AddInputData(tmp);
     tmp->Delete();
     }
   
@@ -913,7 +915,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     return;
     }
 
-  this->PolyData->Update();
+  this->PolyDataProducer->Update();
   if (reportProgress)
     {
     this->UpdateProgress(minProgress+delProgress);
@@ -921,7 +923,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   
   tmp=vtkPolyData::New();
   tmp->ShallowCopy(this->PolyData);
-  append->AddInput(tmp);
+  append->AddInputData(tmp);
   tmp->Delete();
   
   vtkTimerLog::MarkEndEvent("Execute Part");
@@ -943,7 +945,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
 #endif
 
   this->Contour=vtkContourFilter::New();
-  this->Contour->SetInput(this->Data);
+  this->Contour->SetInputData(this->Data);
   this->Contour->SetValue(0, this->VolumeFractionSurfaceValueInternal);
   
  
@@ -953,24 +955,26 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->Append2 = vtkAppendPolyData::New();
     // Clip the volume fraction iso surface.
     this->Clip1=vtkClipPolyData::New();
-    this->Clip1->SetInput(this->Contour->GetOutput());
+    this->Clip1->SetInputConnection(this->Contour->GetOutputPort());
     this->Clip1->SetClipFunction(this->ClipPlane);
-    this->Append2->AddInput(this->Clip1->GetOutput());
+    this->Append2->AddInputConnection(this->Clip1->GetOutputPort());
     
     // We need to create a capping surface.
     this->Cut = vtkCutter::New();
     this->Cut->SetCutFunction(this->ClipPlane);
     this->Cut->SetValue(0, 0.0);
-    this->Cut->SetInput(this->Data);
+    this->Cut->SetInputData(this->Data);
     this->Clip2 = vtkClipPolyData::New();
-    this->Clip2->SetInput(this->Cut->GetOutput());
+    this->Clip2->SetInputConnection(this->Cut->GetOutputPort());
     this->Clip2->SetValue(this->VolumeFractionSurfaceValueInternal);
-    this->Append2->AddInput(this->Clip2->GetOutput());
+    this->Append2->AddInputConnection(this->Clip2->GetOutputPort());
     this->PolyData = this->Append2->GetOutput();
+    this->PolyDataProducer = this->Append2;
     }
   else
     {
     this->PolyData = this->Contour->GetOutput();
+    this->PolyDataProducer = this->Contour;
     }
   
   // Rectilinear grid case pipeline
@@ -978,7 +982,7 @@ void vtkExtractCTHPart::CreateInternalPipeline()
   this->RData = vtkRectilinearGrid::New();
   
   this->RContour=vtkContourFilter::New();
-  this->RContour->SetInput(this->RData);
+  this->RContour->SetInputData(this->RData);
   this->RContour->SetValue(0,this->VolumeFractionSurfaceValueInternal);
   
   if(this->ClipPlane)
@@ -987,24 +991,26 @@ void vtkExtractCTHPart::CreateInternalPipeline()
     this->RAppend2 = vtkAppendPolyData::New();
     // Clip the volume fraction iso surface.
     this->RClip1=vtkClipPolyData::New();
-    this->RClip1->SetInput(this->RContour->GetOutput());
+    this->RClip1->SetInputConnection(this->RContour->GetOutputPort());
     this->RClip1->SetClipFunction(this->ClipPlane);
-    this->RAppend2->AddInput(this->RClip1->GetOutput());
+    this->RAppend2->AddInputConnection(this->RClip1->GetOutputPort());
     
     // We need to create a capping surface.
     this->RCut = vtkCutter::New();
-    this->RCut->SetInput(this->RData);
+    this->RCut->SetInputData(this->RData);
     this->RCut->SetCutFunction(this->ClipPlane);
     this->RCut->SetValue(0, 0.0);
     this->RClip2 = vtkClipPolyData::New();
-    this->RClip2->SetInput(this->RCut->GetOutput());
+    this->RClip2->SetInputConnection(this->RCut->GetOutputPort());
     this->RClip2->SetValue(this->VolumeFractionSurfaceValueInternal);
-    this->RAppend2->AddInput(this->RClip2->GetOutput());
+    this->RAppend2->AddInputConnection(this->RClip2->GetOutputPort());
     this->RPolyData = this->RAppend2->GetOutput();
+    this->RPolyDataProducer = this->RAppend2;
     }
   else
     {
     this->RPolyData = this->RContour->GetOutput();
+    this->RPolyDataProducer = this->RContour;
     }
 }
 
@@ -1182,7 +1188,7 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     tmp=vtkPolyData::New();
     tmp->ShallowCopy(this->SurfacePolyData);
     assert("check: valid_copy" && tmp->CheckAttributes()==0);
-    appendSurface->AddInput(tmp);
+    appendSurface->AddInputData(tmp);
     tmp->Delete();
     }
 
@@ -1206,7 +1212,7 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
     return;
     }
   
-  this->RPolyData->Update();
+  this->RPolyDataProducer->Update();
 
   if (reportProgress)
     {
@@ -1215,7 +1221,7 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
 
   tmp=vtkPolyData::New();
   tmp->ShallowCopy(this->RPolyData);
-  append->AddInput(tmp);
+  append->AddInputData(tmp);
   tmp->Delete();
   
   vtkTimerLog::MarkEndEvent("Execute Part");

@@ -64,7 +64,7 @@ vtkTextProperty tprop
     tprop ShadowOn
 
 vtkCubeAxesActor2D axes
-    axes SetInput [normals GetOutput]
+    axes SetInputConnection [normals GetOutputPort]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.1f"
     axes SetFlyModeToOuterEdges

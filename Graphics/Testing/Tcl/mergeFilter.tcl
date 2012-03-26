@@ -14,12 +14,13 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
   pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   pl3d SetScalarFunctionNumber 110
   pl3d SetVectorFunctionNumber 202
   pl3d Update
+  set output [[pl3d GetOutput] GetBlock 0]
 
 vtkLineSource probeLine
   probeLine SetPoint1 1 1 29
@@ -28,16 +29,17 @@ vtkLineSource probeLine
 
 vtkProbeFilter probe
   probe SetInputConnection [probeLine GetOutputPort]
-  probe SetSource [pl3d GetOutput]
+  probe SetSourceData $output
+  probe Update
 
 vtkTubeFilter probeTube
-  probeTube SetInput [probe GetPolyDataOutput]
+  probeTube SetInputData [probe GetPolyDataOutput]
   probeTube SetNumberOfSides 5
   probeTube SetRadius .05
 
 vtkPolyDataMapper probeMapper
   probeMapper SetInputConnection [probeTube GetOutputPort]
-  eval probeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+  eval probeMapper SetScalarRange [$output GetScalarRange]
 
 vtkActor probeActor
   probeActor SetMapper probeMapper
@@ -48,23 +50,25 @@ vtkLineSource displayLine
   displayLine SetResolution [probeLine GetResolution]
 
 vtkMergeFilter displayMerge
-  displayMerge SetGeometry [displayLine GetOutput]
-  displayMerge SetScalars [probe GetPolyDataOutput]
+  displayMerge SetGeometryConnection [displayLine GetOutputPort]
+  displayMerge SetScalarsData [probe GetPolyDataOutput]
+  displayMerge Update
 
 vtkWarpScalar displayWarp
-  displayWarp SetInput [displayMerge GetPolyDataOutput]
+  displayWarp SetInputData [displayMerge GetPolyDataOutput]
   displayWarp SetNormal 0 1 0
   displayWarp SetScaleFactor .000001
+  displayWarp Update
 
 vtkPolyDataMapper displayMapper
-  displayMapper SetInput [displayWarp GetPolyDataOutput]
-eval displayMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+  displayMapper SetInputData [displayWarp GetPolyDataOutput]
+eval displayMapper SetScalarRange [$output GetScalarRange]
 
 vtkActor displayActor
   displayActor SetMapper displayMapper
 
 vtkStructuredGridOutlineFilter outline
-  outline SetInputConnection [pl3d GetOutputPort]
+  outline SetInputData $output
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

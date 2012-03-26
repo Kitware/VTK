@@ -316,7 +316,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
 
 //----------------------------------------------------------------------------
-// This is writen as a 1D execute method, but is called several times.
+// This is written as a 1D execute method, but is called several times.
 int vtkImageSeparableConvolution::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
@@ -329,8 +329,9 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   vtkImageData *outData = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  outData->SetExtent(outData->GetWholeExtent());
-  outData->AllocateScalars();
+  outData->SetExtent(outInfo->Get(
+                       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->AllocateScalars(outInfo);
 
   if ( XKernel )
     {

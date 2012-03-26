@@ -84,7 +84,7 @@ int main()
 
   // We create a simple pipeline to display the data.
   vtkHedgeHog *hedgehog = vtkHedgeHog::New();
-      hedgehog->SetInput(sgrid);
+      hedgehog->SetInputData(sgrid);
       hedgehog->SetScaleFactor(0.1);
 
   vtkPolyDataMapper *sgridMapper = vtkPolyDataMapper::New();

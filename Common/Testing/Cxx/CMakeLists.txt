@@ -11,6 +11,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestArrayLookup.cxx
   TestConditionVariable.cxx
   TestGarbageCollector.cxx
+  TestGhostArray.cxx
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
   TestDirectory.cxx
@@ -56,7 +57,7 @@ ENDFOREACH (test)
 
 #
 # Add the TestCxxFeatures test by itself so that if it doesn't compile
-# we don't loose all the tests for common
+# we don't lose all the tests for common
 #
 ADD_EXECUTABLE(TestCxxFeatures TestCxxFeatures.cxx)
 TARGET_LINK_LIBRARIES(TestCxxFeatures vtkCommon)

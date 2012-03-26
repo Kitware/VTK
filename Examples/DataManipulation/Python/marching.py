@@ -45,7 +45,7 @@ Grid.GetPointData().SetScalars(Scalars)
 
 # Find the triangles that lie along the 0.5 contour in this cube.
 Marching = vtk.vtkContourFilter()
-Marching.SetInput(Grid)
+Marching.SetInputData(Grid)
 Marching.SetValue(0, 0.5)
 Marching.Update()
 
@@ -112,13 +112,13 @@ Sphere.SetPhiResolution(20)
 Sphere.SetThetaResolution(20)
 # Remove the part of the cube with data values below 0.5.
 ThresholdIn = vtk.vtkThresholdPoints()
-ThresholdIn.SetInput(Grid)
+ThresholdIn.SetInputData(Grid)
 ThresholdIn.ThresholdByUpper(.5)
 # Display spheres at the vertices remaining in the cube data set after
 # it was passed through vtkThresholdPoints.
 Vertices = vtk.vtkGlyph3D()
 Vertices.SetInputConnection(ThresholdIn.GetOutputPort())
-Vertices.SetSource(Sphere.GetOutput())
+Vertices.SetSourceConnection(Sphere.GetOutputPort())
 # Create a mapper and actor to display the glyphs.
 SphereMapper = vtk.vtkPolyDataMapper()
 SphereMapper.SetInputConnection(Vertices.GetOutputPort())

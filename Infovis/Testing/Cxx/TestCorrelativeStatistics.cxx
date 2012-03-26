@@ -158,7 +158,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  cs1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
+  cs1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode ) 
@@ -387,7 +387,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Set correlative statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs2 = vtkCorrelativeStatistics::New();
-  cs2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  cs2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   datasetTable2->Delete();
 
   // Select all column pairs as pairs of interest
@@ -431,7 +431,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cs0->Aggregate( doc, aggregated );
 
   // Finally, calculate the derived statistics of the aggregated model
-  cs0->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
+  cs0->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
   cs0->SetLearnOption( false );
   cs0->SetDeriveOption( true ); 
   cs0->SetAssessOption( false );
@@ -608,7 +608,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkCorrelativeStatistics* cs4 = vtkCorrelativeStatistics::New();
-  cs4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, testTable );
+  cs4->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, testTable );
   testTable->Delete();
 
   // Select Column Pairs of Interest ( Learn Mode )

@@ -19,7 +19,8 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkLineWidget2.h"
 #include "vtkLineRepresentation.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -255,13 +256,14 @@ int TestLineWidget2( int argc, char *argv[] )
 
   // Start by loading some data.
   //
-  vtkSmartPointer<vtkPLOT3DReader> pl3d =
-    vtkSmartPointer<vtkPLOT3DReader>::New();
+  vtkSmartPointer<vtkMultiBlockPLOT3DReader> pl3d =
+    vtkSmartPointer<vtkMultiBlockPLOT3DReader>::New();
   pl3d->SetXYZFileName(fname);
   pl3d->SetQFileName(fname2);
   pl3d->SetScalarFunctionNumber(100);
   pl3d->SetVectorFunctionNumber(202);
   pl3d->Update();
+  vtkDataSet* pl3d_block0 = vtkDataSet::SafeDownCast(pl3d->GetOutput()->GetBlock(0));
 
   delete [] fname;
   delete [] fname2;
@@ -275,8 +277,8 @@ int TestLineWidget2( int argc, char *argv[] )
 
   vtkSmartPointer<vtkStreamLine> streamer =
     vtkSmartPointer<vtkStreamLine>::New();
-  streamer->SetInputConnection(pl3d->GetOutputPort());
-  streamer->SetSource(seeds);
+  streamer->SetInputData(pl3d_block0);
+  streamer->SetSourceData(seeds);
   streamer->SetMaximumPropagationTime(100);
   streamer->SetIntegrationStepLength(.2);
   streamer->SetStepLength(.001);
@@ -295,7 +297,7 @@ int TestLineWidget2( int argc, char *argv[] )
     vtkSmartPointer<vtkPolyDataMapper>::New();
   streamMapper->SetInputConnection(rf->GetOutputPort());
   double tmp[2];
-  pl3d->GetOutput()->GetScalarRange(tmp);
+  pl3d_block0->GetScalarRange(tmp);
   streamMapper->SetScalarRange(tmp[0], tmp[1]);
 
   vtkSmartPointer<vtkActor> streamline =
@@ -306,7 +308,7 @@ int TestLineWidget2( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInputConnection(pl3d->GetOutputPort());
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -345,7 +347,7 @@ int TestLineWidget2( int argc, char *argv[] )
   rep->SetPoint1WorldPosition(p);
   p[0] = 0.0; p[1] =  1.0; p[2] = 0.0;
   rep->SetPoint2WorldPosition(p);
-  rep->PlaceWidget(pl3d->GetOutput()->GetBounds());
+  rep->PlaceWidget(pl3d_block0->GetBounds());
   rep->GetPolyData(seeds);
   rep->DistanceAnnotationVisibilityOn();
 

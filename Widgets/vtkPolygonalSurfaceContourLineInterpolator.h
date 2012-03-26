@@ -17,7 +17,7 @@
 // .SECTION Description 
 // vtkPolygonalSurfaceContourLineInterpolator interpolates and places
 // contour points on polygonal surfaces. The class interpolates nodes by
-// computing a \em graph \em geodesic lying on the polygonal data. By \em 
+// computing a \em graph \em geodesic laying on the polygonal data. By \em 
 // graph \em Geodesic, we mean that the line interpolating the two end
 // points traverses along on the mesh edges so as to form the shortest
 // path. A Dijkstra algorithm is used to compute the path. See

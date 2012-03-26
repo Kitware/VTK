@@ -47,8 +47,8 @@ balls.SetPhiResolution(10)
 balls.SetThetaResolution(10)
 
 glyphPoints = vtk.vtkGlyph3D()
-glyphPoints.SetInput(inputData)
-glyphPoints.SetSource(balls.GetOutput())
+glyphPoints.SetInputData(inputData)
+glyphPoints.SetSourceConnection(balls.GetOutputPort())
 
 glyphMapper = vtk.vtkPolyDataMapper()
 glyphMapper.SetInputConnection(glyphPoints.GetOutputPort())
@@ -86,7 +86,7 @@ profileData.SetLines(lines)
 # Add thickness to the resulting line.
 profileTubes = vtk.vtkTubeFilter()
 profileTubes.SetNumberOfSides(8)
-profileTubes.SetInput(profileData)
+profileTubes.SetInputData(profileData)
 profileTubes.SetRadius(.005)
 
 profileMapper = vtk.vtkPolyDataMapper()

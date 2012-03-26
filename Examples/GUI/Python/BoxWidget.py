@@ -12,7 +12,7 @@ sphere = vtk.vtkSphereSource()
 cone = vtk.vtkConeSource()
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(sphere.GetOutputPort())
-glyph.SetSource(cone.GetOutput())
+glyph.SetSourceConnection(cone.GetOutputPort())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
 glyph.SetScaleFactor(0.25)
@@ -20,8 +20,8 @@ glyph.SetScaleFactor(0.25)
 # The sphere and spikes are appended into a single polydata. This just
 # makes things simpler to manage.
 apd = vtk.vtkAppendPolyData()
-apd.AddInput(glyph.GetOutput())
-apd.AddInput(sphere.GetOutput())
+apd.AddInputConnection(glyph.GetOutputPort())
+apd.AddInputConnection(sphere.GetOutputPort())
 maceMapper = vtk.vtkPolyDataMapper()
 maceMapper.SetInputConnection(apd.GetOutputPort())
 maceActor = vtk.vtkLODActor()
@@ -73,10 +73,11 @@ def SelectPolygons(object, event):
     object.GetPlanes(planes)
     selectActor.VisibilityOn()
 
+glyph.Update()
 # Place the interactor initially. The input to a 3D widget is used to
 # initially position and scale the widget. The "EndInteractionEvent" is
 # observed which invokes the SelectPolygons callback.
-boxWidget.SetInput(glyph.GetOutput())
+boxWidget.SetInputConnection(glyph.GetOutputPort())
 boxWidget.PlaceWidget()
 boxWidget.AddObserver("EndInteractionEvent", SelectPolygons)
 

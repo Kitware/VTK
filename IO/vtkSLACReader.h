@@ -195,7 +195,7 @@ protected:
   // Only valid when FrequencyModes is true.
   double Frequency;
   // Description:
-  // The phase of the current time step.  Set at the begining of RequestData.
+  // The phase of the current time step.  Set at the beginning of RequestData.
   double Phase;
 
 //ETX

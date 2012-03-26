@@ -64,7 +64,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   // add scaler
   vtkSmartPointer<vtkElevationFilter> ele = 
     vtkSmartPointer<vtkElevationFilter>::New();
-  ele->SetInput(cube->GetOutput());
+  ele->SetInputConnection(cube->GetOutputPort());
   ele->SetLowPoint(0,0,-10);
   ele->SetHighPoint(0,0,10);
   ele->Update();
@@ -125,7 +125,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   // test writer
   vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
     vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
-  writer->SetInput(ugrid0);
+  writer->SetInputData(ugrid0);
   writer->SetFileName("test.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
@@ -143,7 +143,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
   
   // write again to help compare
-  writer->SetInput(ugrid);
+  writer->SetInputData(ugrid);
   writer->SetFileName("test1.vtu");
   writer->SetDataModeToAscii();
   writer->Update();
@@ -429,13 +429,13 @@ int TestPolyhedron0( int argc, char* argv[] )
   // shrink to show the gaps between tetrahedrons.
   vtkSmartPointer<vtkShrinkFilter> shrink = 
     vtkSmartPointer<vtkShrinkFilter>::New();
-  shrink->SetInput( tetraGrid );
+  shrink->SetInputData( tetraGrid );
   shrink->SetShrinkFactor( 0.7 );
 
   // create actors
   vtkSmartPointer<vtkDataSetMapper> mapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  mapper->SetInput(poly);
+  mapper->SetInputData(poly);
 
   vtkSmartPointer<vtkActor> actor = 
     vtkSmartPointer<vtkActor>::New();
@@ -443,7 +443,7 @@ int TestPolyhedron0( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> contourMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  contourMapper->SetInput(contourResult);
+  contourMapper->SetInputData(contourResult);
 
   vtkSmartPointer<vtkActor> contourActor = 
     vtkSmartPointer<vtkActor>::New();
@@ -451,7 +451,7 @@ int TestPolyhedron0( int argc, char* argv[] )
 
   vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = 
     vtkSmartPointer<vtkDataSetMapper>::New();
-  clipPolyhedronMapper->SetInput(clipResult);
+  clipPolyhedronMapper->SetInputData(clipResult);
 
   vtkSmartPointer<vtkActor> clipPolyhedronActor = 
     vtkSmartPointer<vtkActor>::New();

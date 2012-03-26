@@ -421,7 +421,7 @@ void vtkStandardPolyDataPainter::DrawCells(
       int numc = a->GetNumberOfComponents();
       int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
       // if siComp==-1, then all components of the array are sent,
-      // otherwise only the choosen component is sent.
+      // otherwise only the chosen component is sent.
       shaderDevice->SendAttribute(
         this->Internal->Mappings->GetAttributeName(mappingsIndex),
         (siComp>=0)? 1: numc,
@@ -439,7 +439,7 @@ void vtkStandardPolyDataPainter::DrawCells(
       int numc = a->GetNumberOfComponents();
       int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
       // if siComp==-1, then all components of the array are sent,
-      // otherwise only the choosen component is sent.
+      // otherwise only the chosen component is sent.
       shaderDevice2->SendAttribute(
         this->Internal->Mappings->GetAttributeName(mappingsIndex),
         (siComp>=0)? 1: numc,
@@ -515,7 +515,7 @@ void vtkStandardPolyDataPainter::DrawCells(
         int numc = a->GetNumberOfComponents();
         int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
         // if siComp==-1, then all components of the array are sent,
-        // otherwise only the choosen component is sent.
+        // otherwise only the chosen component is sent.
         shaderDevice->SendAttribute(
           this->Internal->Mappings->GetAttributeName(mappingsIndex),
           (siComp>=0)? 1: numc,
@@ -535,7 +535,7 @@ void vtkStandardPolyDataPainter::DrawCells(
         int numc = a->GetNumberOfComponents();
         int siComp = this->Internal->Mappings->GetComponent(mappingsIndex);
         // if siComp==-1, then all components of the array are sent,
-        // otherwise only the choosen component is sent.
+        // otherwise only the chosen component is sent.
         shaderDevice2->SendAttribute(
           this->Internal->Mappings->GetAttributeName(mappingsIndex),
           (siComp>=0)? 1: numc,

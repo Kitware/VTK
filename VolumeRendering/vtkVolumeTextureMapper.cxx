@@ -21,6 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
@@ -88,15 +89,21 @@ void vtkVolumeTextureMapper::SetGradientEstimator(
   this->Modified();
 }
 
-void vtkVolumeTextureMapper::Update()
+void vtkVolumeTextureMapper::Update(int port)
 {
   if ( this->GetInput() )
     {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
+    this->GetInputAlgorithm()->UpdateInformation();
+    this->SetUpdateExtentToWholeExtent();
+    this->GetInputAlgorithm()->Update(port);
     }
 }
+
+void vtkVolumeTextureMapper::Update()
+{
+  this->Superclass::Update();
+}
+
 
 void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
                                                vtkVolume *vol )
@@ -203,7 +210,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   
   this->Shade =  vol->GetProperty()->GetShade();  
 
-  this->GradientEstimator->SetInput( this->GetInput() );
+  this->GradientEstimator->SetInputData( this->GetInput() );
 
   if ( this->Shade )
     {

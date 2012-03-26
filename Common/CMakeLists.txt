@@ -58,6 +58,7 @@ vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkErrorCode.cxx
 vtkEventForwarderCommand.cxx
+vtkExtentRCBPartitioner.cxx
 vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
 vtkFastNumericConversion.cxx
@@ -70,6 +71,7 @@ vtkGarbageCollector.cxx
 vtkGarbageCollectorManager.cxx
 vtkGaussianRandomSequence.cxx
 vtkGeneralTransform.cxx
+vtkGhostArray.cxx
 vtkHeap.cxx
 vtkHomogeneousTransform.cxx
 vtkIOStream.cxx

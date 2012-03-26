@@ -38,7 +38,8 @@ vtkPointWidget::vtkPointWidget()
   // Represent the line
   this->Cursor3D = vtkCursor3D::New();
   this->Mapper = vtkPolyDataMapper::New();
-  this->Mapper->SetInput(this->Cursor3D->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->Cursor3D->GetOutputPort());
   this->Actor = vtkActor::New();
   this->Actor->SetMapper(this->Mapper);
 

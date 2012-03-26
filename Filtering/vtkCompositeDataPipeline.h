@@ -51,7 +51,8 @@ class vtkInformationStringKey;
 class vtkInformationDataObjectKey;
 class vtkInformationIntegerKey;
 
-class VTK_FILTERING_EXPORT vtkCompositeDataPipeline : public vtkStreamingDemandDrivenPipeline
+class VTK_FILTERING_EXPORT vtkCompositeDataPipeline :
+  public vtkStreamingDemandDrivenPipeline
 {
 public:
   static vtkCompositeDataPipeline* New();
@@ -59,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Generalized interface for asking the executive to fullfill update
+  // Generalized interface for asking the executive to fulfill update
   // requests.
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
@@ -75,6 +76,11 @@ public:
   // input port
   vtkDataObject* GetCompositeInputData(
     int port, int index, vtkInformationVector **inInfoVec);
+
+  // Description:
+  // An integer key that indicates to the source to load all requested
+  // blocks specified in UPDATE_COMPOSITE_INDICES.
+  static vtkInformationIntegerKey*  LOAD_REQUESTED_BLOCKS();
 
   // Description:
   // vtkCompositeDataPipeline specific keys
@@ -108,13 +114,6 @@ public:
   // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
   static vtkInformationIntegerVectorKey* COMPOSITE_INDICES();
 
-  // Description:
-  // COMPOSITE_INDEX() is added to the leaf nodes of the meta-data composite
-  // dataset (COMPOSITE_DATA_META_DATA) during REQUEST_INFORMATION(). Filters
-  // downstream can use this index to request specific datasets when
-  // creating UPDATE_COMPOSITE_INDICES().
-  // *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
-  static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
 protected:
   vtkCompositeDataPipeline();

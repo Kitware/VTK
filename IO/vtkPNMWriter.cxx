@@ -29,13 +29,17 @@ vtkStandardNewMacro(vtkPNMWriter);
 #undef close
 #endif
 
-void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
+void vtkPNMWriter::WriteFileHeader(ofstream *file,
+                                   vtkImageData *cache,
+                                   int wExt[6])
 {
-  int min1, max1, min2, max2, min3, max3;
+  int min1 = wExt[0],
+    max1 = wExt[1],
+    min2 = wExt[2],
+    max2 = wExt[3];
   int bpp;
   
   // Find the length of the rows to write.
-  cache->GetWholeExtent(min1, max1, min2, max2, min3, max3);
   bpp = cache->GetNumberOfScalarComponents();
   
   // spit out the pnm header
@@ -55,7 +59,7 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 
 
 void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
-                             int extent[6])
+                             int extent[6], int wExtent[6])
 {
   int idx0, idx1, idx2;
   int rowLength; // in bytes
@@ -64,7 +68,6 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
   unsigned long target;
   float progress = this->Progress;
   float area;
-  int *wExtent;
   
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
@@ -85,7 +88,6 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
     }
   rowLength *= data->GetNumberOfScalarComponents();
 
-  wExtent = this->GetInput()->GetWholeExtent();
   area = static_cast<float>(((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
                              (extent[1] - extent[0] + 1))) / 
          static_cast<float>(((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*

@@ -25,7 +25,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -63,6 +63,8 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
   vtkCameraPass *cameraP=vtkCameraPass::New();
   
   vtkSequencePass *seq=vtkSequencePass::New();
@@ -99,7 +101,7 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   vtkSobelGradientMagnitudePass *sobelP=vtkSobelGradientMagnitudePass::New();
   sobelP->SetDelegatePass(blurP);
   
-  renderer->SetPass(sobelP);
+  glrenderer->SetPass(sobelP);
   
 //  renderer->SetPass(cameraP);
   

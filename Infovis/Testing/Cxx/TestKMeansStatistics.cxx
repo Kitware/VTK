@@ -109,7 +109,7 @@ int TestKMeansStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
+  haruspex->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, inputData );
   haruspex->SetColumnStatus( inputData->GetColumnName( 0 ) , 1 );
   haruspex->SetColumnStatus( inputData->GetColumnName( 2 ) , 1 );
   haruspex->SetColumnStatus( "Testing", 1 );
@@ -164,7 +164,7 @@ int TestKMeansStatistics( int, char *[] )
     }
 
 
-  haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
+  haruspex->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
   cout << "## Testing with input table:"
            << "\n";
   
@@ -235,7 +235,7 @@ int TestKMeansStatistics( int, char *[] )
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
-  haruspex->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
+  haruspex->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables );
 
   // Test Assess option only (do not recalculate nor rederive a model)
   haruspex->SetLearnOption( false );

@@ -38,7 +38,7 @@ void vtkDataObjectWriter::WriteData()
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
 
-  this->Writer->SetInput(this->GetInput());
+  this->Writer->SetInputData(this->GetInput());
 
   if ( !(fp=this->Writer->OpenVTKFile()) || !this->Writer->WriteHeader(fp) )
     {
@@ -51,7 +51,7 @@ void vtkDataObjectWriter::WriteData()
   
   this->Writer->CloseVTKFile(fp);  
 
-  this->Writer->SetInput(NULL);
+  this->Writer->SetInputData(NULL);
 }
 
 void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)

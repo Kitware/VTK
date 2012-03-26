@@ -720,7 +720,7 @@ int vtkGenericEnSightReader::ReadNextDataLine(char result[256])
       // If there was only space characters this is a comment, thus skip it
       if( i != len )
         {
-        // The line was not empty, not begining by '#' and not composed
+        // The line was not empty, not beginning by '#' and not composed
         // of only white space, this is not a comment
         isComment = 0;
         }

@@ -149,7 +149,7 @@ public:
   { this->EnableAllSelectionArrays(this->LagrangianDataArraySelection); }
 
   // Description:
-  // Get the number of Patches (inlcuding Internal Mesh) available in the input.
+  // Get the number of Patches (including Internal Mesh) available in the input.
   int GetNumberOfPatchArrays(void)
   { return this->GetNumberOfSelectionArrays(this->PatchDataArraySelection); }
 

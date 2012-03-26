@@ -1326,7 +1326,7 @@ unsigned int add_indirection_to_array(unsigned int type)
 
 %%
 /*
- * Here is the start of the grammer
+ * Here is the start of the grammar
  */
 
 strt: | strt

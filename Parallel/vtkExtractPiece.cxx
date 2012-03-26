@@ -72,7 +72,6 @@ int vtkExtractPiece::RequestDataObject(
     if (!output || !output->IsA(input->GetClassName())) 
       {
       vtkDataObject* outData = input->NewInstance();
-      outData->SetPipelineInformation(outInfo);
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
       outData->Delete();
       }
@@ -182,7 +181,7 @@ void vtkExtractPiece::ExtractImageData(
   translate->PieceToExtent();
   translate->GetExtent(ext);
 
-  extractID->SetInput(imageData);
+  extractID->SetInputData(imageData);
   extractID->SetOutputWholeExtent(ext);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractID->GetExecutive());
@@ -211,7 +210,7 @@ void vtkExtractPiece::ExtractPolyData(
   vtkInformation *extractInfo;
   
   vtkExtractPolyDataPiece *extractPD = vtkExtractPolyDataPiece::New();
-  extractPD->SetInput(polyData);
+  extractPD->SetInputData(polyData);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractPD->GetExecutive());
   extractInfo = extractExecutive->GetOutputInformation(0);
@@ -253,7 +252,7 @@ void vtkExtractPiece::ExtractRectilinearGrid(
   translate->PieceToExtent();
   translate->GetExtent(ext);
 
-  extractRG->SetInput(rGrid);
+  extractRG->SetInputData(rGrid);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractRG->GetExecutive());
   extractInfo = extractExecutive->GetOutputInformation(0);
@@ -292,7 +291,7 @@ void vtkExtractPiece::ExtractStructuredGrid(
   translate->PieceToExtent();
   translate->GetExtent(ext);
 
-  extractSG->SetInput(sGrid);
+  extractSG->SetInputData(sGrid);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractSG->GetExecutive());
   extractInfo = extractExecutive->GetOutputInformation(0);
@@ -322,7 +321,7 @@ void vtkExtractPiece::ExtractUnstructuredGrid(
   
   vtkExtractUnstructuredGridPiece *extractUG =
     vtkExtractUnstructuredGridPiece::New();
-  extractUG->SetInput(uGrid);
+  extractUG->SetInputData(uGrid);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
     extractUG->GetExecutive());
   extractInfo = extractExecutive->GetOutputInformation(0);

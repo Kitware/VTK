@@ -41,7 +41,7 @@ vtkPolyData pd0
   pd0 DeepCopy [reader GetOutput]
   
 vtkPolyDataMapper mapper0
-  mapper0 SetInput pd0
+  mapper0 SetInputData pd0
 
 vtkActor actor0
   actor0 SetMapper mapper0

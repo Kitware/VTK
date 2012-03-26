@@ -589,7 +589,7 @@ void vtkAxesActor::UpdateProps()
       break;
     case vtkAxesActor::USER_DEFINED_SHAFT:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-        SetInputConnection( this->UserDefinedShaft->GetProducerPort() );
+        SetInputData( this->UserDefinedShaft );
     }
 
   switch ( this->TipType )
@@ -604,13 +604,13 @@ void vtkAxesActor::UpdateProps()
       break;
     case vtkAxesActor::USER_DEFINED_TIP:
       (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-        SetInputConnection( this->UserDefinedTip->GetProducerPort() );
+        SetInputData( this->UserDefinedTip );
     }
 
-  (vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper()))->
-    GetInput()->Update();
-  (vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper()))->
-    GetInput()->Update();
+  vtkPolyDataMapper::SafeDownCast(this->XAxisTip->GetMapper())->
+    GetInputAlgorithm()->Update();
+  vtkPolyDataMapper::SafeDownCast(this->XAxisShaft->GetMapper())->
+    GetInputAlgorithm()->Update();
 
   if ( this->GetUserTransform() )
     {

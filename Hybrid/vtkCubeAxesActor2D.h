@@ -49,8 +49,10 @@
 #define VTK_FLY_CLOSEST_TRIAD 1
 #define VTK_FLY_NONE 2
 
+class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
+class vtkCubeAxesActor2DConnection;
 class vtkDataSet;
 class vtkTextProperty;
 
@@ -80,8 +82,9 @@ public:
   // Use the bounding box of this input dataset to draw the cube axes. If this
   // is not specified, then the class will attempt to determine the bounds from
   // the defined Prop or Bounds.
-  virtual void SetInput(vtkDataSet*);
-  vtkGetObjectMacro(Input, vtkDataSet);
+  virtual void SetInputConnection(vtkAlgorithmOutput*);
+  virtual void SetInputData(vtkDataSet*);
+  virtual vtkDataSet* GetInput();
 
   // Description:
   // Use the bounding box of this prop to draw the cube axes. The
@@ -252,56 +255,12 @@ public:
   // Shallow copy of a CubeAxesActor2D.
   void ShallowCopy(vtkCubeAxesActor2D *actor);
 
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (push)
-# pragma warning (disable:858)
-#endif
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define SetPropA SetProp
-# define SetPropW SetProp
-# define GetPropA GetProp
-# define GetPropW GetProp
-#endif
-
-  // Description:
-  // @deprecated Replaced by vtkCubeAxesActor2D::SetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual void SetProp(vtkProp* prop));
-
-  // Description:
-  // @deprecated Replaced by vtkCubeAxesActor2D::GetViewProp() as of VTK 5.0.
-  VTK_LEGACY(virtual vtkProp* GetProp());
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetPropW
-# undef SetPropA
-# undef GetPropW
-# undef GetPropA
-  //BTX
-  VTK_LEGACY(virtual void SetPropA(vtkProp* prop));
-  VTK_LEGACY(virtual void SetPropW(vtkProp* prop));
-  VTK_LEGACY(virtual vtkProp* GetPropA());
-  VTK_LEGACY(virtual vtkProp* GetPropW());
-  //ETX
-#endif
-
-// Reset disabled warning about qualifiers on return types.
-#if defined(__INTEL_COMPILER)
-# pragma warning (pop)
-#endif
-#if defined(_COMPILER_VERSION)
-# pragma reset woff 3303
-#endif
-
 protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
 
-  vtkDataSet *Input;    //Define bounds from input data, or
+  vtkCubeAxesActor2DConnection* ConnectionHolder;
+
   vtkProp    *ViewProp;     //Define bounds from actor/assembly, or
   double      Bounds[6]; //Define bounds explicitly
   double      Ranges[6]; //Define ranges explicitly

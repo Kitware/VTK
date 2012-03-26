@@ -98,9 +98,9 @@ public:
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
-  // It is equivalent to calling SetInput( 1, params );
+  // It is equivalent to calling SetInputData( 1, params );
   virtual void SetLearnOptionParameters( vtkDataObject* params )
-    { this->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
+    { this->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, params ); }
 
   // Description:
   // A convenience method for setting the input model connection (if one is expected or allowed).
@@ -110,9 +110,9 @@ public:
 
   // Description:
   // A convenience method for setting the input model (if one is expected or allowed).
-  // It is equivalent to calling SetInput( 2, model );
+  // It is equivalent to calling SetInputData( 2, model );
   virtual void SetInputModel( vtkDataObject* model )
-    { this->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
+    { this->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model ); }
 
   // Description:
   // Set/Get the Learn operation.

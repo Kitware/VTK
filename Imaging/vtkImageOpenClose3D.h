@@ -59,7 +59,7 @@ public:
   // Pass modified message to sub filters.
   void Modified();
   
-  // Foward Source messages to filter1
+  // Forward Source messages to filter1
 
   // Description:
   // Selects the size of gaps or objects removed.

@@ -61,7 +61,7 @@ vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
 {  
   // Create the writer for the piece.
   vtkXMLUnstructuredGridWriter* pWriter = vtkXMLUnstructuredGridWriter::New();
-  pWriter->SetInput(this->GetInput());
+  pWriter->SetInputConnection(this->GetInputConnection(0, 0));
   return pWriter;
 }
 

@@ -76,8 +76,8 @@ vtkSphereSource balls
   balls SetThetaResolution 10
 
 vtkGlyph3D glyphPoints
-  glyphPoints SetInput inputData
-  glyphPoints SetSource [balls GetOutput]
+  glyphPoints SetInputData inputData
+  glyphPoints SetSourceConnection [balls GetOutputPort]
 
 vtkPolyDataMapper glyphMapper
   glyphMapper SetInputConnection [glyphPoints GetOutputPort]
@@ -128,7 +128,7 @@ profileCData SetLines lines
 
 vtkTubeFilter profileKTubes
   profileKTubes SetNumberOfSides 8
-  profileKTubes SetInput profileKData
+  profileKTubes SetInputData profileKData
   profileKTubes SetRadius .01
 
 vtkPolyDataMapper profileKMapper
@@ -144,7 +144,7 @@ ren1 AddActor profileK
 
 vtkTubeFilter profileCTubes
   profileCTubes SetNumberOfSides 8
-  profileCTubes SetInput profileCData
+  profileCTubes SetInputData profileCData
   profileCTubes SetRadius .01
 
 vtkPolyDataMapper profileCMapper

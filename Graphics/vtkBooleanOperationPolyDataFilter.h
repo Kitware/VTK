@@ -52,21 +52,21 @@ public:
 
   enum OperationType
   {
-    UNION=0,
-    INTERSECTION,
-    DIFFERENCE
+    VTK_UNION=0,
+    VTK_INTERSECTION,
+    VTK_DIFFERENCE
   };
 
   // Description:
   // Set the boolean operation to perform. Defaults to union.
-  vtkSetClampMacro( Operation, int, UNION, DIFFERENCE );
+  vtkSetClampMacro( Operation, int, VTK_UNION, VTK_DIFFERENCE );
   vtkGetMacro( Operation, int );
   void SetOperationToUnion()
-  { this->SetOperation( UNION ); }
+  { this->SetOperation( VTK_UNION ); }
   void SetOperationToIntersection()
-  { this->SetOperation( INTERSECTION ); }
+  { this->SetOperation( VTK_INTERSECTION ); }
   void SetOperationToDifference()
-  { this->SetOperation( DIFFERENCE ); }
+  { this->SetOperation( VTK_DIFFERENCE ); }
 
   // Description:
   // Turn on/off cell reorientation of the intersection portion of the
@@ -112,7 +112,8 @@ private:
   double Tolerance;
 
   // Description:
-  // Which operation to perform. Can be UNION, INTERSECTION, or DIFFERENCE.
+  // Which operation to perform.
+  // Can be VTK_UNION, VTK_INTERSECTION, or VTK_DIFFERENCE.
   int Operation;
 
   // Description:

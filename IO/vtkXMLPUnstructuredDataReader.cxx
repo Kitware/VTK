@@ -328,9 +328,12 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
 int vtkXMLPUnstructuredDataReader::ReadPieceData()
 {  
   // Use the internal reader to read the piece.
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    this->PieceReaders[this->Piece]->GetOutputInformation(0),
+    0, 1, this->UpdateGhostLevel);
+  this->PieceReaders[this->Piece]->Update();
+
   vtkPointSet* input = this->GetPieceInputAsPointSet(this->Piece);
-  input->SetUpdateExtent(0, 1, this->UpdateGhostLevel);
-  input->Update();
 
   vtkPointSet* output = vtkPointSet::SafeDownCast(this->GetCurrentOutput());
   

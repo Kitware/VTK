@@ -71,6 +71,13 @@ vtkCellLocator::vtkCellLocator()
   this->H[0] = this->H[1] = this->H[2] = 1.0;
 
   this->Buckets = new vtkNeighborCells(10, 10);
+  this->NumberOfOctants = 0;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
+  this->OctantBounds[0] = this->OctantBounds[2] =
+    this->OctantBounds[4] = VTK_DOUBLE_MAX;
+  this->OctantBounds[1] = this->OctantBounds[3] =
+    this->OctantBounds[5] = VTK_DOUBLE_MIN;
 }
 
 //----------------------------------------------------------------------------
@@ -360,7 +367,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
         }
       currDist += dist[bestDir];
       // now make the move, find the smallest distance
-      // only cross one boundry at a time
+      // only cross one boundary at a time
       pos[bestDir] = npos[bestDir];
       
       idx = leafStart + pos[0] - 1 + (pos[1]-1)*this->NumberOfDivisions + 
@@ -1320,7 +1327,7 @@ void vtkCellLocator::BuildLocatorInternal()
         }
       }
     
-    // each octant inbetween min/max point may have cell in it
+    // each octant between min/max point may have cell in it
     for ( k = ijkMin[2]; k <= ijkMax[2]; k++ )
       {
       for ( j = ijkMin[1]; j <= ijkMax[1]; j++ )
@@ -1986,7 +1993,7 @@ void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNo
         }
       currDist += dist[bestDir];
       // now make the move, find the smallest distance
-      // only cross one boundry at a time
+      // only cross one boundary at a time
       pos[bestDir] = npos[bestDir];
       
       idx = leafStart + pos[0] - 1 + (pos[1]-1)*this->NumberOfDivisions + 

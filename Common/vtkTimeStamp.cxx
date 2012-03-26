@@ -21,12 +21,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-// OSAtomic.h optimizations only used in 10.5 and later
 #if defined(__APPLE__)
-  #include <AvailabilityMacros.h>
-  #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
-    #include <libkern/OSAtomic.h>
-  #endif
+  #include <libkern/OSAtomic.h>
 #endif
 
 //-------------------------------------------------------------------------
@@ -45,7 +41,7 @@ void vtkTimeStamp::Modified()
   this->ModifiedTime = (unsigned long)InterlockedIncrement(&vtkTimeStampTime);
 
 // Mac optimization
-#elif defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 1050)
+#elif defined(__APPLE__)
  #if __LP64__
   // "ModifiedTime" is "unsigned long", a type that changess sizes
   // depending on architecture.  The atomic increment is safe, since it

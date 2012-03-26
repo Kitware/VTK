@@ -22,7 +22,7 @@
 //
 // To use this representation, you normally specify the position of the two
 // end points (either in world or display coordinates). The PlaceWidget()
-// method is also used to intially position the representation.
+// method is also used to initially position the representation.
 
 // .SECTION Caveats
 // This class, and vtkLineWidget2, are next generation VTK

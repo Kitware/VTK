@@ -30,7 +30,8 @@ vtkActor clipActor
 
 # Create outline
 vtkOutlineFilter outline
-  outline SetInput [clip GetInput]
+#  outline SetInputData [clip GetInput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]

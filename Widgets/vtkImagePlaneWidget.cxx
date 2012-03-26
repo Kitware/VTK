@@ -15,6 +15,7 @@
 #include "vtkImagePlaneWidget.h"
 
 #include "vtkActor.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
@@ -39,6 +40,8 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
@@ -1425,20 +1428,21 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 
   // This method must be called _after_ SetInput
   //
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     vtkErrorMacro(<<"SetInput() before setting plane orientation.");
     return;
     }
 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   int extent[6];
-  this->ImageData->GetWholeExtent(extent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
 
   // Prevent obscuring voxels by offsetting the plane geometry
   //
@@ -1493,17 +1497,20 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
+void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
 {
-  this->Superclass::SetInput(input);
-  this->ImageData = vtkImageData::SafeDownCast(this->GetInput());
+  this->Superclass::SetInputConnection(aout);
+
+  this->ImageData = vtkImageData::SafeDownCast(
+    aout->GetProducer()->GetOutputDataObject(
+      aout->GetIndex()));
 
   if( !this->ImageData )
     {
     // If NULL is passed, remove any reference that Reslice had
     // on the old ImageData
     //
-    this->Reslice->SetInput(NULL);
+    this->Reslice->SetInputData(NULL);
     return;
     }
 
@@ -1530,14 +1537,14 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 
   this->SetWindowLevel(this->OriginalWindow,this->OriginalLevel);
 
-  this->Reslice->SetInput(this->ImageData);
+  this->Reslice->SetInputConnection(aout);
   int interpolate = this->ResliceInterpolate;
   this->ResliceInterpolate = -1; // Force change
   this->SetResliceInterpolate(interpolate);
 
-  this->ColorMap->SetInput(this->Reslice->GetOutput());
+  this->ColorMap->SetInputConnection(this->Reslice->GetOutputPort());
 
-  this->Texture->SetInput(this->ColorMap->GetOutput());
+  this->Texture->SetInputConnection(this->ColorMap->GetOutputPort());
   this->Texture->SetInterpolate(this->TextureInterpolate);
 
   this->SetPlaneOrientation(this->PlaneOrientation);
@@ -1546,21 +1553,22 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::UpdatePlane()
 {
-  if ( !this->Reslice ||
-       !(this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput())) )
+  if ( !this->Reslice || !this->ImageData )
     {
     return;
     }
 
   // Calculate appropriate pixel spacing for the reslicing
   //
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   int extent[6];
-  this->ImageData->GetWholeExtent(extent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   int i;
 
@@ -1925,16 +1933,17 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
     {
       return;
     }
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     return;
     } 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
   double pt1[3];
@@ -1981,16 +1990,17 @@ int vtkImagePlaneWidget::GetSliceIndex()
     {
     return 0;
     }
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( ! this->ImageData )
     {
     return 0;
     } 
-  this->ImageData->UpdateInformation();
+  vtkAlgorithm* inpAlg = this->Reslice->GetInputAlgorithm();
+  inpAlg->UpdateInformation();
+  vtkInformation* outInfo = inpAlg->GetOutputInformation(0);
   double origin[3];
-  this->ImageData->GetOrigin(origin);
+  outInfo->Get(vtkDataObject::ORIGIN(), origin);
   double spacing[3];
-  this->ImageData->GetSpacing(spacing);
+  outInfo->Get(vtkDataObject::SPACING(), spacing);
   double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
@@ -2073,7 +2083,6 @@ void vtkImagePlaneWidget::ActivateText(int i)
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
 {
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
   if ( !this->ImageData )
     {
     return;
@@ -2083,7 +2092,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   // up to date already, this call doesn't cost very much.  If we don't make
   // this call and the data is not up to date, the GetScalar... call will
   // cause a segfault.
-  this->ImageData->Update();
+  this->Reslice->GetInputAlgorithm()->Update();
 
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
@@ -2716,7 +2725,7 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
   cells->Delete();
 
   vtkPolyDataMapper* planeOutlineMapper = vtkPolyDataMapper::New();
-  planeOutlineMapper->SetInput( this->PlaneOutlinePolyData );
+  planeOutlineMapper->SetInputData( this->PlaneOutlinePolyData );
   planeOutlineMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->PlaneOutlineActor->SetMapper(planeOutlineMapper);
   this->PlaneOutlineActor->PickableOff();    
@@ -2735,8 +2744,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->ColorMap->PassAlphaToOutputOn();
 
   vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
-  texturePlaneMapper->SetInput(
-    vtkPolyData::SafeDownCast(this->PlaneSource->GetOutput()));
+  texturePlaneMapper->SetInputConnection(
+    this->PlaneSource->GetOutputPort());
 
   this->Texture->SetQualityTo32Bit();
   this->Texture->MapColorScalarsThroughLookupTableOff();
@@ -2780,7 +2789,7 @@ void vtkImagePlaneWidget::GenerateMargins()
   cells->Delete();
 
   vtkPolyDataMapper* marginMapper = vtkPolyDataMapper::New();
-  marginMapper->SetInput(this->MarginPolyData);
+  marginMapper->SetInputData(this->MarginPolyData);
   marginMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->MarginActor->SetMapper(marginMapper);
   this->MarginActor->PickableOff();
@@ -2815,7 +2824,7 @@ void vtkImagePlaneWidget::GenerateCursor()
   cells->Delete();
 
   vtkPolyDataMapper* cursorMapper = vtkPolyDataMapper::New();
-  cursorMapper->SetInput(this->CursorPolyData);
+  cursorMapper->SetInputData(this->CursorPolyData);
   cursorMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->CursorActor->SetMapper(cursorMapper);
   this->CursorActor->PickableOff();

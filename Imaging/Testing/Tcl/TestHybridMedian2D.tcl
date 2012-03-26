@@ -2,8 +2,6 @@
 
 package require vtk
 
-
-
 vtkImageCanvasSource2D imageCanvas
 imageCanvas SetScalarTypeToDouble
 imageCanvas SetExtent 1 256 1 256 0 0
@@ -32,7 +30,7 @@ imageCanvas DrawSegment 110 160 160 110
 imageCanvas DrawSegment 90 140 140 90
 imageCanvas DrawSegment 120 170 170 120
 imageCanvas DrawSegment 80 130 130 80
-
+imageCanvas Update
 
 
 
@@ -51,24 +49,24 @@ shotNoiseThresh1 SetInputConnection [shotNoiseSource GetOutputPort]
 shotNoiseThresh1 ThresholdByLower [expr 1.0 - $shotNoiseFraction]
 shotNoiseThresh1 SetInValue 0
 shotNoiseThresh1 SetOutValue $shotNoiseAmplitude
+shotNoiseThresh1 Update
 
 vtkImageThreshold shotNoiseThresh2
 shotNoiseThresh2 SetInputConnection [shotNoiseSource GetOutputPort]
 shotNoiseThresh2 ThresholdByLower $shotNoiseFraction
 shotNoiseThresh2 SetInValue [expr - $shotNoiseAmplitude]
 shotNoiseThresh2 SetOutValue 0.0
+shotNoiseThresh2 Update
 
 vtkImageMathematics shotNoise
-shotNoise SetInput1 [shotNoiseThresh1 GetOutput]
-shotNoise SetInput2 [shotNoiseThresh2 GetOutput]
+shotNoise SetInput1Data [shotNoiseThresh1 GetOutput]
+shotNoise SetInput2Data [shotNoiseThresh2 GetOutput]
 shotNoise SetOperationToAdd
-
-
-
+shotNoise Update
 
 vtkImageMathematics add
-add SetInput1 [shotNoise GetOutput]
-add SetInput2 [imageCanvas GetOutput]
+add SetInput1Data [shotNoise GetOutput]
+add SetInput2Data [imageCanvas GetOutput]
 add SetOperationToAdd
 
 

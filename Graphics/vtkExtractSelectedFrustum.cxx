@@ -193,7 +193,7 @@ int vtkExtractSelectedFrustum::RequestDataObject(
     if (!output || !output->IsA("vtkUnstructuredGrid"))
       {
       vtkUnstructuredGrid* newOutput = vtkUnstructuredGrid::New();
-      newOutput->SetPipelineInformation(info);
+      info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
       newOutput->Delete();
       }
     }

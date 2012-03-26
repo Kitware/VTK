@@ -69,6 +69,10 @@ public:
   virtual void Initialize();
   virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
 
+  // Description:
+  // Returns the data description of this uniform grid instance.
+  int GetGridDescription();
+
   //BTX
   // Description:
   // Initialize with no ghost cell arrays, from the definition in
@@ -112,6 +116,8 @@ public:
   // grid are set.
   virtual void BlankPoint(vtkIdType ptId);
   virtual void UnBlankPoint(vtkIdType ptId);
+  virtual void BlankPoint( const int i, const int j, const int k );
+  virtual void UnBlankPoint( const int i, const int j, const int k );
 
   // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
@@ -120,6 +126,8 @@ public:
   // grid are set.
   virtual void BlankCell(vtkIdType ptId);
   virtual void UnBlankCell(vtkIdType ptId);
+  virtual void BlankCell( const int i, const int j, const int k );
+  virtual void UnBlankCell( const int i, const int j, const int k );
 
   // Description:
   // Get the array that defines the blanking (visibility) of each point.
@@ -140,6 +148,16 @@ public:
   // in the grid. Make sure that length of the visibility array matches
   // the number of points in the grid.
   virtual void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
+
+  // Description:
+  // Attaches the CellVisibility array to the Cell data.
+  // Used primarily for debugging.
+  virtual void AttachCellVisibilityToCellData( );
+
+  // Description:
+  // Attaches the PointVisibility arry to the Point data.
+  // Used primarily for debugging.
+  virtual void AttachPointVisibilityToPointData( );
 
   // Description:
   // Return non-zero value if specified point is visible.
@@ -176,6 +194,10 @@ protected:
   vtkUniformGrid();
   ~vtkUniformGrid();
   
+  // Description:
+  // Returns the cell dimensions for this vtkUniformGrid instance.
+  void GetCellDims( int cellDims[3] );
+
   // Description:
   // Override this method because of blanking.
   virtual void ComputeScalarRange();

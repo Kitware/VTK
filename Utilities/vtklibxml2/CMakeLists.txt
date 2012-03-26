@@ -25,15 +25,6 @@ SET(LIBXML2_PLATFORM_TEST_FILE_C platformTestsC.c)
 set(CMAKE_THREAD_PREFER_PTHREAD OFF)
 
 FIND_PACKAGE(Threads)
-IF(MINGW AND CMAKE_USE_PTHREADS AND CMAKE_USE_WIN32_THREADS)
-  MESSAGE(STATUS
-    "Forcing CMAKE_USE_PTHREADS OFF as only one threading library should be used.")
-  SET(CMAKE_USE_PTHREADS OFF CACHE BOOL
-    "Force pthreads off if WIN32 threads are enabled" FORCE)
-  SET(CMAKE_THREAD_LIBS "" CACHE STRING "Force pthreads off if WIN32 threads are enabled" FORCE)
-ELSE()
-  SET(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
-ENDIF()
 
 # This macro checks if the symbol exists in the library and if it
 # does, it appends library to the list.
@@ -215,9 +206,9 @@ ELSE(HAVE_ZLIB_H AND HAVE_LIBZ)
 ENDIF(HAVE_ZLIB_H AND HAVE_LIBZ)
 
 # not building VTK with pthreads
-IF(NOT CMAKE_USE_PTHREADS AND HAVE_PTHREAD_H)
+IF(NOT VTK_USE_PTHREADS AND HAVE_PTHREAD_H)
   SET(HAVE_PTHREAD_H 0)
-ENDIF(NOT CMAKE_USE_PTHREADS AND HAVE_PTHREAD_H)
+ENDIF()
 
 # Create the platform configuration header.
 CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/config_cmake.h.in

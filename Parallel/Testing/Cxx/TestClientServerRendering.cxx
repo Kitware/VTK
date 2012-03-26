@@ -36,7 +36,7 @@
 #include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -146,8 +146,9 @@ void MyProcess::SetupRenderPasses(vtkRenderer* renderer)
   csPass->ServerSideRenderingOn();
   csPass->SetController(this->Controller);
 
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   cameraP->SetDelegatePass(csPass);
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
 
   // setting viewport doesn't work in tile-display mode correctly yet.
   //renderer->SetViewport(0, 0, 0.75, 1);

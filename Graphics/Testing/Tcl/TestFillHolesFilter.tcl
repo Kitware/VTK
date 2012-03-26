@@ -50,7 +50,7 @@ for {set j 1} {$j <= $yRes} {incr j} {
 
 # Fill the holes
 vtkFillHolesFilter fill
-fill SetInput pd
+fill SetInputData pd
 fill SetHoleSize 20.0
 
 # Mapping and actor

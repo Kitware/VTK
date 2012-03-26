@@ -26,13 +26,13 @@ vtkUnstructuredGrid aEdgeGrid
   aEdgeGrid SetPoints edgePoints
   [aEdgeGrid GetPointData] SetScalars edgeScalars
 vtkClipDataSet edgeclips
-  edgeclips SetInput aEdgeGrid
+  edgeclips SetInputData aEdgeGrid
   edgeclips SetValue 0.5
 vtkDataSetMapper aEdgeclipMapper
   aEdgeclipMapper SetInputConnection [edgeclips GetOutputPort]
   aEdgeclipMapper ScalarVisibilityOff
 vtkDataSetMapper aEdgeMapper
-  aEdgeMapper SetInput aEdgeGrid
+  aEdgeMapper SetInputData aEdgeGrid
   aEdgeMapper ScalarVisibilityOff
 vtkActor aEdgeActor
   aEdgeActor SetMapper aEdgeMapper
@@ -73,13 +73,13 @@ vtkUnstructuredGrid aTriGrid
   aTriGrid SetPoints triPoints
   [aTriGrid GetPointData] SetScalars triScalars
 vtkClipDataSet triclips
-  triclips SetInput aTriGrid
+  triclips SetInputData aTriGrid
   triclips SetValue 0.5
 vtkDataSetMapper aTriclipMapper
   aTriclipMapper SetInputConnection [triclips GetOutputPort]
   aTriclipMapper ScalarVisibilityOff
 vtkDataSetMapper aTriMapper
-  aTriMapper SetInput aTriGrid
+  aTriMapper SetInputData aTriGrid
   aTriMapper ScalarVisibilityOff
 vtkActor aTriActor
   aTriActor SetMapper aTriMapper
@@ -126,13 +126,13 @@ vtkUnstructuredGrid aQuadGrid
   aQuadGrid SetPoints quadPoints
   [aQuadGrid GetPointData] SetScalars quadScalars
 vtkClipDataSet quadclips
-  quadclips SetInput aQuadGrid
+  quadclips SetInputData aQuadGrid
   quadclips SetValue 0.5
 vtkDataSetMapper aQuadclipMapper
   aQuadclipMapper SetInputConnection [quadclips GetOutputPort]
   aQuadclipMapper ScalarVisibilityOff
 vtkDataSetMapper aQuadMapper
-  aQuadMapper SetInput aQuadGrid
+  aQuadMapper SetInputData aQuadGrid
   aQuadMapper ScalarVisibilityOff
 vtkActor aQuadActor
   aQuadActor SetMapper aQuadMapper
@@ -183,13 +183,13 @@ vtkUnstructuredGrid BQuadGrid
   [BQuadGrid GetPointData] SetScalars BquadScalars
 
 vtkClipDataSet Bquadclips
-  Bquadclips SetInput BQuadGrid
+  Bquadclips SetInputData BQuadGrid
   Bquadclips SetValue 0.5
 vtkDataSetMapper BQuadclipMapper
   BQuadclipMapper SetInputConnection [Bquadclips GetOutputPort]
   BQuadclipMapper ScalarVisibilityOff
 vtkDataSetMapper BQuadMapper
-  BQuadMapper SetInput BQuadGrid
+  BQuadMapper SetInputData BQuadGrid
   BQuadMapper ScalarVisibilityOff
 vtkActor BQuadActor
   BQuadActor SetMapper BQuadMapper
@@ -231,13 +231,13 @@ vtkUnstructuredGrid QLQuadGrid
   [QLQuadGrid GetPointData] SetScalars QLquadScalars
 
 vtkClipDataSet QLquadclips
-  QLquadclips SetInput QLQuadGrid
+  QLquadclips SetInputData QLQuadGrid
   QLquadclips SetValue 0.5
 vtkDataSetMapper QLQuadclipMapper
   QLQuadclipMapper SetInputConnection [QLquadclips GetOutputPort]
   QLQuadclipMapper ScalarVisibilityOff
 vtkDataSetMapper QLQuadMapper
-  QLQuadMapper SetInput QLQuadGrid
+  QLQuadMapper SetInputData QLQuadGrid
   QLQuadMapper ScalarVisibilityOff
 vtkActor QLQuadActor
   QLQuadActor SetMapper QLQuadMapper
@@ -292,13 +292,13 @@ vtkUnstructuredGrid aTetGrid
   aTetGrid SetPoints tetPoints
   [aTetGrid GetPointData] SetScalars tetScalars
 vtkClipDataSet tetclips
-  tetclips SetInput aTetGrid
+  tetclips SetInputData aTetGrid
   tetclips SetValue 0.5
 vtkDataSetMapper aTetclipMapper
   aTetclipMapper SetInputConnection [tetclips GetOutputPort]
   aTetclipMapper ScalarVisibilityOff
 vtkDataSetMapper aTetMapper
-  aTetMapper SetInput aTetGrid
+  aTetMapper SetInputData aTetGrid
   aTetMapper ScalarVisibilityOff
 vtkActor aTetActor
   aTetActor SetMapper aTetMapper
@@ -380,13 +380,13 @@ vtkUnstructuredGrid aHexGrid
   aHexGrid SetPoints hexPoints
   [aHexGrid GetPointData] SetScalars hexScalars
 vtkClipDataSet hexclips
-  hexclips SetInput aHexGrid
+  hexclips SetInputData aHexGrid
   hexclips SetValue 0.5
 vtkDataSetMapper aHexclipMapper
   aHexclipMapper SetInputConnection [hexclips GetOutputPort]
   aHexclipMapper ScalarVisibilityOff
 vtkDataSetMapper aHexMapper
-  aHexMapper SetInput aHexGrid
+  aHexMapper SetInputData aHexGrid
   aHexMapper ScalarVisibilityOff
 vtkActor aHexActor
   aHexActor SetMapper aHexMapper
@@ -489,13 +489,13 @@ vtkUnstructuredGrid TQHexGrid
   TQHexGrid SetPoints TQhexPoints
   [TQHexGrid GetPointData] SetScalars TQhexScalars
 vtkClipDataSet TQhexclips
-  TQhexclips SetInput TQHexGrid
+  TQhexclips SetInputData TQHexGrid
   TQhexclips SetValue 0.5
 vtkDataSetMapper TQHexclipMapper
   TQHexclipMapper SetInputConnection [TQhexclips GetOutputPort]
   TQHexclipMapper ScalarVisibilityOff
 vtkDataSetMapper TQHexMapper
-  TQHexMapper SetInput TQHexGrid
+  TQHexMapper SetInputData TQHexGrid
   TQHexMapper ScalarVisibilityOff
 vtkActor TQHexActor
   TQHexActor SetMapper TQHexMapper
@@ -590,13 +590,13 @@ vtkUnstructuredGrid BQHexGrid
   BQHexGrid SetPoints BQhexPoints
   [BQHexGrid GetPointData] SetScalars BQhexScalars
 vtkClipDataSet BQhexclips
-  BQhexclips SetInput BQHexGrid
+  BQhexclips SetInputData BQHexGrid
   BQhexclips SetValue 0.5
 vtkDataSetMapper BQHexclipMapper
   BQHexclipMapper SetInputConnection [BQhexclips GetOutputPort]
   BQHexclipMapper ScalarVisibilityOff
 vtkDataSetMapper BQHexMapper
-  BQHexMapper SetInput BQHexGrid
+  BQHexMapper SetInputData BQHexGrid
   BQHexMapper ScalarVisibilityOff
 vtkActor BQHexActor
   BQHexActor SetMapper BQHexMapper
@@ -664,13 +664,13 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid SetPoints wedgePoints
   [aWedgeGrid GetPointData] SetScalars wedgeScalars
 vtkClipDataSet wedgeclips
-  wedgeclips SetInput aWedgeGrid
+  wedgeclips SetInputData aWedgeGrid
   wedgeclips SetValue 0.5
 vtkDataSetMapper aWedgeclipMapper
   aWedgeclipMapper SetInputConnection [wedgeclips GetOutputPort]
   aWedgeclipMapper ScalarVisibilityOff
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper SetInputData aWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
@@ -731,13 +731,13 @@ vtkUnstructuredGrid QLWedgeGrid
   [QLWedgeGrid GetPointData] SetScalars QLwedgeScalars
 
 vtkClipDataSet QLwedgeclips
-  QLwedgeclips SetInput QLWedgeGrid
+  QLwedgeclips SetInputData QLWedgeGrid
   QLwedgeclips SetValue 0.5
 vtkDataSetMapper QLWedgeclipMapper
   QLWedgeclipMapper SetInputConnection [QLwedgeclips GetOutputPort]
   QLWedgeclipMapper ScalarVisibilityOff
 vtkDataSetMapper QLWedgeMapper
-  QLWedgeMapper SetInput QLWedgeGrid
+  QLWedgeMapper SetInputData QLWedgeGrid
   aWedgeMapper ScalarVisibilityOff
 vtkActor QLWedgeActor
   QLWedgeActor SetMapper QLWedgeMapper
@@ -817,13 +817,13 @@ vtkUnstructuredGrid BQWedgeGrid
   [BQWedgeGrid GetPointData] SetScalars BQwedgeScalars
 
 vtkClipDataSet BQwedgeclips
-  BQwedgeclips SetInput BQWedgeGrid
+  BQwedgeclips SetInputData BQWedgeGrid
   BQwedgeclips SetValue 0.5
 vtkDataSetMapper BQWedgeclipMapper
   BQWedgeclipMapper SetInputConnection [BQwedgeclips GetOutputPort]
   BQWedgeclipMapper ScalarVisibilityOff
 vtkDataSetMapper BQWedgeMapper
-  BQWedgeMapper SetInput BQWedgeGrid
+  BQWedgeMapper SetInputData BQWedgeGrid
   BQWedgeMapper ScalarVisibilityOff
 vtkActor BQWedgeActor
   BQWedgeActor SetMapper BQWedgeMapper
@@ -885,13 +885,13 @@ vtkUnstructuredGrid aPyramidGrid
   aPyramidGrid SetPoints pyraPoints
   [aPyramidGrid GetPointData] SetScalars pyraScalars
 vtkClipDataSet pyraclips
-  pyraclips SetInput aPyramidGrid
+  pyraclips SetInputData aPyramidGrid
   pyraclips SetValue 0.5
 vtkDataSetMapper aPyramidclipMapper
   aPyramidclipMapper SetInputConnection [pyraclips GetOutputPort]
   aPyramidclipMapper ScalarVisibilityOff
 vtkDataSetMapper aPyramidMapper
-  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper SetInputData aPyramidGrid
   aPyramidMapper ScalarVisibilityOff
 vtkActor aPyramidActor
   aPyramidActor SetMapper aPyramidMapper

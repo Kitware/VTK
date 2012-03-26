@@ -41,6 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
@@ -1071,7 +1072,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
 
 
   // Set the update flags, telling the filter what to update...
-  this->SpaceLeapFilter->SetInput(this->GetInput());
+  this->SpaceLeapFilter->SetInputConnection(this->GetInputConnection(0, 0));
   this->SpaceLeapFilter->SetCurrentScalars(this->CurrentScalars);
   this->SpaceLeapFilter->SetIndependentComponents(
       vol->GetProperty()->GetIndependentComponents());
@@ -1106,7 +1107,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   //  "MinMaxVolumeNewComponent0.mha");
 
   // If the line below is commented out, we get reference counting loops
-  this->SpaceLeapFilter->SetInput(NULL);
+  this->SpaceLeapFilter->SetInputConnection(NULL);
 
 
   if ( needToUpdate&0x02 )
@@ -1223,9 +1224,11 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
     }
   else
     {
-    input->UpdateInformation();
-    input->SetUpdateExtentToWholeExtent();
-    input->Update();
+    vtkAlgorithm* inAlg = this->GetInputAlgorithm();
+    inAlg->UpdateInformation();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      this->GetInputInformation());
+    inAlg->Update();
     }
 
   int usingCellColors;

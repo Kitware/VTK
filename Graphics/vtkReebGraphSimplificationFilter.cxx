@@ -38,7 +38,11 @@ vtkReebGraphSimplificationFilter::~vtkReebGraphSimplificationFilter()
 void vtkReebGraphSimplificationFilter::SetSimplificationMetric(
   vtkReebGraphSimplificationMetric *simplificationMetric)
 {
-  this->SimplificationMetric = simplificationMetric;
+  if (simplificationMetric != this->SimplificationMetric)
+    {
+    this->SimplificationMetric = simplificationMetric;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -79,33 +83,15 @@ int vtkReebGraphSimplificationFilter::RequestData( vtkInformation* vtkNotUsed(re
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  if (!inInfo)
-    {
-    return 0;
-    }
   vtkReebGraph *input = vtkReebGraph::SafeDownCast(
     inInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
-  if (input)
-    {
-    vtkInformation *outInfo = outputVector->GetInformationObject(0);
-    vtkReebGraph *output = vtkReebGraph::SafeDownCast(
-      outInfo->Get(vtkReebGraph::DATA_OBJECT()));
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkReebGraph *output = vtkReebGraph::SafeDownCast(
+    outInfo->Get(vtkReebGraph::DATA_OBJECT()));
 
-    if(output){
-      output->DeepCopy(input);
-      output->Simplify(SimplificationThreshold, SimplificationMetric);
-    }
+  output->DeepCopy(input);
+  output->Simplify(this->SimplificationThreshold, this->SimplificationMetric);
 
-    if(!output){
-      output = vtkReebGraph::New();
-      output->DeepCopy(input);
-      output->Simplify(SimplificationThreshold, SimplificationMetric);
-      output->SetPipelineInformation(outInfo);
-      output->Delete();
-    }
-
-    return 1;
-    }
-  return 0;
+  return 1;
 }

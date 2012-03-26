@@ -62,7 +62,7 @@ public:
   vtkBooleanMacro(ThresholdCells,int);
 
   // Description:
-  // Set ThresholdValue to the scalar value by which to threshhold cells when extracting geometry
+  // Set ThresholdValue to the scalar value by which to threshold cells when extracting geometry
   // when ThresholdCells is true. Cells with scalar values greater than the threshold will be output.
   vtkSetMacro(ThresholdValue,double);
   vtkGetMacro(ThresholdValue,double);

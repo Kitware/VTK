@@ -89,19 +89,19 @@ static void EndPick(vtkObject *vtkNotUsed( caller ),
   MY_CREATE_NEW(vtkExtractSelectedPolyDataIds, extr);
   if (cellids)
     {
-    extr->SetInput(0, SS1->GetOutput());
+    extr->SetInputConnection(0, SS1->GetOutputPort());
     vtkSmartPointer<vtkSelection> temp=
       vtkSmartPointer<vtkSelection>::New();
     temp->AddNode(cellids);
-    extr->SetInput(1, temp);
+    extr->SetInputData(1, temp);
     extr->Update();
-    sMap->SetInput(extr->GetOutput());
+    sMap->SetInputConnection(extr->GetOutputPort());
     }
   else
     {
     cerr << "Empty color buffer selection -" << endl;
     cerr << "Check display color depth. Must be at least 24 bit." << endl;
-    sMap->SetInput(emptyPD);
+    sMap->SetInputData(emptyPD);
     }
 }
 
@@ -137,7 +137,7 @@ int TestAreaSelections(int argc, char* argv[])
   delete [] cfname;
   
   MY_CREATE_NEW(vtkDataSetMapper, map1);
-  map1->SetInput(reader->GetOutput());
+  map1->SetInputConnection(reader->GetOutputPort());
 
   MY_CREATE_NEW(vtkActor, act1);
   act1->SetMapper(map1);
@@ -151,7 +151,7 @@ int TestAreaSelections(int argc, char* argv[])
   extractor->SetFrustum(areaPicker->GetFrustum());
 
   MY_CREATE_NEW(vtkDataSetMapper, eMap);
-  eMap->SetInput(vtkDataSet::SafeDownCast(extractor->GetOutput()));
+  eMap->SetInputConnection(extractor->GetOutputPort());
 
   MY_CREATE_NEW(vtkActor, eAct);
   eAct->SetPosition(2,0,0);
@@ -169,7 +169,7 @@ int TestAreaSelections(int argc, char* argv[])
   SS1->SetRadius(0.5);
   SS1->SetCenter(0.5,-1.5,0);
   MY_CREATE_NEW(vtkPolyDataMapper, map2);
-  map2->SetInput(SS1->GetOutput());
+  map2->SetInputConnection(SS1->GetOutputPort());
   
   MY_CREATE_NEW(vtkActor, act2);
   act2->SetMapper(map2);
@@ -177,7 +177,7 @@ int TestAreaSelections(int argc, char* argv[])
   renderer->AddActor(act2);
 
   sMap = vtkSmartPointer<vtkDataSetMapper>::New();
-  sMap->SetInput(SS1->GetOutput());
+  sMap->SetInputConnection(SS1->GetOutputPort());
 
   MY_CREATE_NEW(vtkActor, sAct);
   sAct->SetMapper(sMap);

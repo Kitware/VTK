@@ -69,7 +69,7 @@ bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlotHistogram2D::SetInput(vtkImageData *data, vtkIdType)
+void vtkPlotHistogram2D::SetInputData(vtkImageData *data, vtkIdType)
 {
   // FIXME: Store the z too, for slices.
   this->Input = data;
@@ -239,9 +239,7 @@ void vtkPlotHistogram2D::GenerateHistogram()
     this->Output = vtkSmartPointer<vtkImageData>::New();
     }
   this->Output->SetExtent(this->Input->GetExtent());
-  this->Output->SetNumberOfScalarComponents(4);
-  this->Output->SetScalarTypeToUnsignedChar();
-  this->Output->AllocateScalars();
+  this->Output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
   double *input = reinterpret_cast<double *>(this->Input->GetScalarPointer());

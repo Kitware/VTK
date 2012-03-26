@@ -90,7 +90,7 @@ bool vtkGeoFileImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeN
       vtkSmartPointer<vtkImageData> dummyImageWest = vtkSmartPointer<vtkImageData>::New();
       dummyImageWest->SetOrigin(-180.0, -270.0, 0.0);
       dummyImageWest->SetSpacing(0.0, -90.0, 0.0);
-      child->GetTexture()->SetInput(dummyImageWest);
+      child->GetTexture()->SetInputData(dummyImageWest);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(-180, 0);
       }
@@ -99,7 +99,7 @@ bool vtkGeoFileImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeN
       vtkSmartPointer<vtkImageData> dummyImageEast = vtkSmartPointer<vtkImageData>::New();
       dummyImageEast->SetOrigin(0.0, -270.0, 0.0);
       dummyImageEast->SetSpacing(180.0, -90.0, 0.0);
-      child->GetTexture()->SetInput(dummyImageEast);
+      child->GetTexture()->SetInputData(dummyImageEast);
       child->SetLatitudeRange(-270, -90);
       child->SetLongitudeRange(0, 180);
       }
@@ -144,7 +144,7 @@ bool vtkGeoFileImageSource::ReadImage(int level, int id, vtkGeoImageNode* node)
     dummy->GetPointData()->SetScalars(scalar);
     dummy->SetOrigin(node->GetLongitudeRange()[0], node->GetLatitudeRange()[0], 0.0);
     dummy->SetSpacing(node->GetLongitudeRange()[1], node->GetLatitudeRange()[1], 0.0);
-    node->GetTexture()->SetInput(dummy);
+    node->GetTexture()->SetInputData(dummy);
     return false;
     }
   in.close();

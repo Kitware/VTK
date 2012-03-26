@@ -43,7 +43,7 @@
 // guarantees a unique triangulation.
 //
 // There is another related characteristic of Delaunay triangulations. Given
-// a N-dimensional Delaunay triangulation, points lying on a (N-1) dimensional
+// a N-dimensional Delaunay triangulation, points laying on a (N-1) dimensional
 // plane also form a (N-1) Delaunay triangulation. This means for example,
 // that if a 3D cell is defined by a set of (2D) planar faces, then the
 // face triangulations are Delaunay. Combining this with the method to

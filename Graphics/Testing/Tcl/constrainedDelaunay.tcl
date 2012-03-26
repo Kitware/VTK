@@ -98,8 +98,8 @@ vtkPolyData polyData
 # triangulate them
 #
 vtkDelaunay2D del1
-    del1 SetInput polyData
-    del1 SetSource polyData
+    del1 SetInputData polyData
+    del1 SetSourceData polyData
 vtkPolyDataMapper mapMesh
     mapMesh SetInputConnection [del1 GetOutputPort]
 vtkActor meshActor

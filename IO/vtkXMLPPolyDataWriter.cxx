@@ -61,7 +61,7 @@ vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
 {  
   // Create the writer for the piece.
   vtkXMLPolyDataWriter* pWriter = vtkXMLPolyDataWriter::New();
-  pWriter->SetInput(this->GetInput());
+  pWriter->SetInputConnection(this->GetInputConnection(0, 0));
   return pWriter;
 }
 

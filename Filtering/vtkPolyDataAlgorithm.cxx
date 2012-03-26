@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
@@ -155,87 +154,34 @@ int vtkPolyDataAlgorithm::RequestUpdateExtent(
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkPolyDataAlgorithm::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
-  // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
-
-  // which output port did the request come from
-  int outputPort = 
-    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-  // if output port is negative then that means this filter is calling the
-  // update directly, in that case just assume port 0
-  if (outputPort == -1)
-      {
-      outputPort = 0;
-      }
-  
-  // get the data object
-  vtkInformation *outInfo = 
-    outputVector->GetInformationObject(outputPort);
-  // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-
   return 1;
 }
 
 //----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData 
-// can handle an empty extent.
-void vtkPolyDataAlgorithm::ExecuteData(vtkDataObject *output)
+void vtkPolyDataAlgorithm::SetInputData(vtkDataObject* input)
 {
-  // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(output))
-    {
-    output->Initialize();
-    return;
-    }
-  
-  this->Execute();
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::Execute()
+void vtkPolyDataAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
-}
-
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(vtkDataObject* input)
-{
-  this->SetInput(0, input);
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkPolyDataAlgorithm::AddInputData(vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(vtkDataObject* input)
+void vtkPolyDataAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  this->AddInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
-{
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 

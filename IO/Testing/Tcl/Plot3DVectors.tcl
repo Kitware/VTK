@@ -29,17 +29,18 @@ vtkTextProperty textProp
 
 set i 0
 foreach vectorFunction $vectorFunctions {
-  vtkPLOT3DReader pl3d$vectorFunction
+  vtkMultiBlockPLOT3DReader pl3d$vectorFunction
     pl3d$vectorFunction SetXYZFileName "$VTK_DATA_ROOT/Data/bluntfinxyz.bin"
     pl3d$vectorFunction SetQFileName "$VTK_DATA_ROOT/Data/bluntfinq.bin"
     pl3d$vectorFunction SetVectorFunctionNumber [expr int($vectorFunction)]
     pl3d$vectorFunction Update
+    set output [[pl3d$vectorFunction GetOutput] GetBlock 0]
 vtkStructuredGridGeometryFilter plane$vectorFunction
-    plane$vectorFunction SetInputConnection [pl3d$vectorFunction GetOutputPort]
+    plane$vectorFunction SetInputData $output
     plane$vectorFunction SetExtent 25 25 0 100 0 100
 vtkHedgeHog hog$vectorFunction
   hog$vectorFunction SetInputConnection [plane$vectorFunction GetOutputPort]
-  set maxnorm [[[[pl3d$vectorFunction GetOutput] GetPointData] GetVectors] GetMaxNorm]
+  set maxnorm [[[$output GetPointData] GetVectors] GetMaxNorm]
   hog$vectorFunction SetScaleFactor [expr 1.0 / $maxnorm]
 vtkPolyDataMapper mapper$vectorFunction
     mapper$vectorFunction SetInputConnection [hog$vectorFunction GetOutputPort]

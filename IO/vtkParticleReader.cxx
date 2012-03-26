@@ -40,7 +40,7 @@ namespace {
   // .SECTION Description
   // The ParseLine operator scans a string and returns 0 if it finds a 
   // comment symbol. Otherwise it returns 1 and four values corresponding 
-  // to the position of the particle (x,y,z) and a scalar s asociated with 
+  // to the position of the particle (x,y,z) and a scalar s associated with 
   // the particle. It is a good idea to set the values of val to some 
   // predefined value before calling the operator.
   template < typename T > 

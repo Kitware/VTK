@@ -160,7 +160,7 @@ int vtkMoleculeAlgorithm::RequestData(
   vtkInformationVector* outputVector)
 {
   // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteData
+  // output is requesting the data, and pass that into ExecuteDataWithInformation
 
   // which output port did the request come from
   int outputPort =
@@ -177,18 +177,20 @@ int vtkMoleculeAlgorithm::RequestData(
   vtkInformation *outInfo =
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
-  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->ExecuteDataWithInformation( outInfo->Get(vtkDataObject::DATA_OBJECT()), outInfo );
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData
+// Assume that any source that implements ExecuteDataWithInformation
 // can handle an empty extent.
-void vtkMoleculeAlgorithm::ExecuteData(vtkDataObject *output)
+void vtkMoleculeAlgorithm::ExecuteDataWithInformation(
+  vtkDataObject *output,
+  vtkInformation *outInfo)
 {
   // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(output))
+  if (output && this->UpdateExtentIsEmpty(outInfo, output))
     {
     output->Initialize();
     return;
@@ -205,36 +207,26 @@ void vtkMoleculeAlgorithm::Execute()
 
 
 //----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::SetInput(vtkDataObject* input)
+void vtkMoleculeAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkMoleculeAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::AddInput(vtkDataObject* input)
+void vtkMoleculeAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkMoleculeAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+
+  this->AddInputDataInternal(index, input);
 }

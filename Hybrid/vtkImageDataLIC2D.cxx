@@ -498,7 +498,7 @@ int vtkImageDataLIC2D::RequestData(
 
   int inputRequestedExtent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inputRequestedExtent);
-  // tranform inputRequestedExtent relative to the input's actual extent since the
+  // transform inputRequestedExtent relative to the input's actual extent since the
   // vtkLineIntegralConvolution2D needs extents relative to the input vector
   // field.
   vtkStructuredExtent::Transform(inputRequestedExtent, input->GetExtent());
@@ -585,8 +585,7 @@ int vtkImageDataLIC2D::RequestData(
   // hence we allocate the output using the GPU extent and then crop it.
   
   output->SetExtent(gpuExtent);
-  output->SetNumberOfScalarComponents(3);
-  output->AllocateScalars();
+  output->AllocateScalars(VTK_FLOAT, 3);
   outputBus->SetCPUExtent(gpuExtent);
   outputBus->SetGPUExtent(gpuExtent);
   outputBus->SetTexture(internal->GetLIC());
@@ -599,7 +598,7 @@ int vtkImageDataLIC2D::RequestData(
   noiseBus->Delete();
 
   // Ensures that the output extent is exactly same as what was asked for.
-  output->Crop();
+  output->Crop(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
   return 1;
 }
 

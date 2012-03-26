@@ -44,10 +44,6 @@
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
 
-#ifndef VTK_LEGACY_REMOVE
-# include "vtkDataArray.h" // Needed for backwards compatibility.
-#endif
-
 class vtkIdList;
 
 class VTK_FILTERING_EXPORT vtkFieldData : public vtkObject
@@ -300,76 +296,6 @@ public:
   // as necessary.
   vtkIdType InsertNextTuple(const vtkIdType j, vtkFieldData* source);
 
-  // Following are LEGACY methods. Using these methods for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  
-  // Description:
-  // Return a tuple consisting of a concatenation of all data from all
-  // the different arrays. Note that everything is converted to and from
-  // double values.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(double *GetTuple(const vtkIdType i));
-
-  // Description:
-  // Copy the ith tuple value into a user provided tuple array. Make
-  // sure that you've allocated enough space for the copy.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(void GetTuple(const vtkIdType i, double * tuple));
-
-  // Description:
-  // Set the tuple value at the ith location. Set operations
-  // mean that no range checking is performed, so they're faster.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(void SetTuple(const vtkIdType i, const double * tuple));
-
-  // Description:
-  // Insert the tuple value at the ith location. Range checking is
-  // performed and memory allocates as necessary.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(void InsertTuple(const vtkIdType i, const double * tuple));
-
-  // Description:
-  // Insert the tuple value at the end of the tuple matrix. Range
-  // checking is performed and memory is allocated as necessary.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(vtkIdType InsertNextTuple(const double * tuple));
-  
-  // Description:
-  // Get the component value at the ith tuple (or row) and jth component (or
-  // column).
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(double GetComponent(const vtkIdType i, const int j));
-
-  // Description:
-  // Set the component value at the ith tuple (or row) and jth component (or
-  // column).  Range checking is not performed, so set the object up properly
-  // before invoking.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(void SetComponent(const vtkIdType i, const int j, const double c));
-  
-  // Description:
-  // Insert the component value at the ith tuple (or row) and jth component
-  // (or column).  Range checking is performed and memory allocated as
-  // necessary o hold data.
-  // @deprecated as of VTK 5.2. Using this method for FieldData
-  // having arrays that are not subclasses of vtkDataArray may
-  // yield unexpected results.
-  VTK_LEGACY(void InsertComponent(const vtkIdType i, const int j, const double c));
 protected:
 
   vtkFieldData();
@@ -412,11 +338,6 @@ private:
   vtkFieldData(const vtkFieldData&);  // Not implemented.
   void operator=(const vtkFieldData&);  // Not implemented.
 
-#ifndef VTK_LEGACY_REMOVE
-  // Must be removed when support for Legacy GetTuple is removed.
-  int TupleSize; // used for type conversion in Legacy support.
-  double* Tuple;
-#endif
 public:
 
   class VTK_FILTERING_EXPORT BasicIterator

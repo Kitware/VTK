@@ -3,12 +3,13 @@ package require vtkinteraction
 
 # create pipeline
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+set output [[pl3d GetOutput] GetBlock 0]
 
 # create three line probes
 vtkLineSource line
@@ -23,7 +24,8 @@ vtkTransformPolyDataFilter tf
     tf SetTransform transL1
 vtkProbeFilter probe
     probe SetInputConnection [tf GetOutputPort]
-    probe SetSource [pl3d GetOutput]
+    probe SetSourceData $output
+    probe Update
 
 vtkTransform transL2
     transL2 Translate 9.2 0.0 31.20
@@ -34,7 +36,8 @@ vtkTransformPolyDataFilter tf2
     tf2 SetTransform transL2
 vtkProbeFilter probe2
     probe2 SetInputConnection [tf2 GetOutputPort]
-    probe2 SetSource [pl3d GetOutput]
+    probe2 SetSourceData $output
+    probe2 Update
 
 vtkTransform transL3
     transL3 Translate 13.27 0.0 33.40
@@ -45,12 +48,13 @@ vtkTransformPolyDataFilter tf3
     tf3 SetTransform transL3
 vtkProbeFilter probe3
     probe3 SetInputConnection [tf3 GetOutputPort]
-    probe3 SetSource [pl3d GetOutput]
+    probe3 SetSourceData $output
+    probe3 Update
 
 vtkAppendPolyData appendF
-    appendF AddInput [probe GetPolyDataOutput]
-    appendF AddInput [probe2 GetPolyDataOutput]
-    appendF AddInput [probe3 GetPolyDataOutput]
+    appendF AddInputData [probe GetPolyDataOutput]
+    appendF AddInputData [probe2 GetPolyDataOutput]
+    appendF AddInputData [probe3 GetPolyDataOutput]
 vtkTubeFilter tuber
     tuber SetInputConnection [appendF GetOutputPort]
     tuber SetRadius 0.1
@@ -59,11 +63,14 @@ vtkPolyDataMapper lineMapper
 vtkActor lineActor
     lineActor SetMapper lineMapper
 
+probe Update
+probe3 Update
+
 # probe the line and plot it
 vtkXYPlotActor xyplot
-    xyplot AddInput [probe GetOutput]
-    xyplot AddInput [probe2 GetOutput]
-    xyplot AddInput [probe3 GetOutput]
+    xyplot AddDataSetInput [probe GetOutput]
+    xyplot AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot AddDataSetInput [probe3 GetOutput]
     [xyplot GetPositionCoordinate] SetValue 0.0 0.67 0
     [xyplot GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot SetXValuesToArcLength
@@ -84,9 +91,9 @@ vtkXYPlotActor xyplot
     xyplot SetLabelFormat "%-#6.2f"
 
 vtkXYPlotActor xyplot2
-    xyplot2 AddInput [probe GetOutput]
-    xyplot2 AddInput [probe2 GetOutput]
-    xyplot2 AddInput [probe3 GetOutput]
+    xyplot2 AddDataSetInput [probe GetOutput]
+    xyplot2 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot2 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot2 GetPositionCoordinate] SetValue 0.00 0.33 0
     [xyplot2 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot2 SetXValuesToNormalizedArcLength
@@ -107,9 +114,9 @@ vtkXYPlotActor xyplot2
     xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
-    xyplot3 AddInput [probe GetOutput]
-    xyplot3 AddInput [probe2 GetOutput]
-    xyplot3 AddInput [probe3 GetOutput]
+    xyplot3 AddDataSetInputConnection [probe GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe2 GetOutputPort]
+    xyplot3 AddDataSetInputConnection [probe3 GetOutputPort]
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot3 SetXValuesToIndex
@@ -130,7 +137,7 @@ vtkXYPlotActor xyplot3
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [pl3d GetOutputPort]
+    outline SetInputData $output
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

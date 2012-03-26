@@ -66,9 +66,9 @@ cutPoly.SetPolys(cutStrips.GetOutput().GetLines())
 # Triangle filter is robust enough to ignore the duplicate point at
 # the beginning and end of the polygons and triangulate them.
 cutTriangles = vtk.vtkTriangleFilter()
-cutTriangles.SetInput(cutPoly)
+cutTriangles.SetInputData(cutPoly)
 cutMapper = vtk.vtkPolyDataMapper()
-cutMapper.SetInput(cutPoly)
+cutMapper.SetInputData(cutPoly)
 cutMapper.SetInputConnection(cutTriangles.GetOutputPort())
 cutActor = vtk.vtkActor()
 cutActor.SetMapper(cutMapper)
@@ -76,7 +76,7 @@ cutActor.GetProperty().SetColor(peacock)
 
 # The clipped part of the cow is rendered wireframe.
 restMapper = vtk.vtkPolyDataMapper()
-restMapper.SetInput(clipper.GetClippedOutput())
+restMapper.SetInputConnection(clipper.GetClippedOutputPort())
 restMapper.ScalarVisibilityOff()
 restActor = vtk.vtkActor()
 restActor.SetMapper(restMapper)

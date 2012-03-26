@@ -39,7 +39,7 @@ int TestPolyDataSilhouette(int argc, char *argv[])
   //create mapper and actor for original model
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(polyData);
+  mapper->SetInputData(polyData);
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
@@ -58,7 +58,7 @@ int TestPolyDataSilhouette(int argc, char *argv[])
   //Compute the silhouette
   vtkSmartPointer<vtkPolyDataSilhouette> silhouette =
     vtkSmartPointer<vtkPolyDataSilhouette>::New();
-  silhouette->SetInput(polyData);
+  silhouette->SetInputData(polyData);
   silhouette->SetCamera(renderer->GetActiveCamera());
   silhouette->SetEnableFeatureAngle(0);
 

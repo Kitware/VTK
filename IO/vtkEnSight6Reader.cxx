@@ -2116,8 +2116,6 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   this->ReadNextDataLine(line);
   sscanf(line, " %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
   output->SetDimensions(dimensions);
-  output->SetWholeExtent(
-    0, dimensions[0]-1, 0, dimensions[1]-1, 0, dimensions[2]-1);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
   points->Allocate(numPts);
   

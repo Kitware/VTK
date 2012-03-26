@@ -54,7 +54,7 @@ vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D() : vtkBiDime
   this->LinePolyData->SetPoints(this->LinePoints);
   this->LinePolyData->SetLines(this->LineCells);
   this->LineMapper = vtkPolyDataMapper2D::New();
-  this->LineMapper->SetInput(this->LinePolyData);
+  this->LineMapper->SetInputData(this->LinePolyData);
   this->LineProperty = vtkProperty2D::New();
   this->LineActor = vtkActor2D::New();
   this->LineActor->SetProperty(this->LineProperty);

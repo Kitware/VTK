@@ -61,7 +61,7 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkPolyDataMapper2D> diskMapper =
     vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  diskMapper->SetInput(diskSource->GetOutput());
+  diskMapper->SetInputConnection(diskSource->GetOutputPort());
 
   vtkSmartPointer<vtkActor2D> diskActor =
     vtkSmartPointer<vtkActor2D>::New();
@@ -75,7 +75,7 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkPolyDataMapper2D> diskMapper2 =
     vtkSmartPointer<vtkPolyDataMapper2D>::New();
-  diskMapper2->SetInput(diskSource2->GetOutput());
+  diskMapper2->SetInputConnection(diskSource2->GetOutputPort());
 
   vtkSmartPointer<vtkActor2D> diskActor2 =
     vtkSmartPointer<vtkActor2D>::New();
@@ -101,6 +101,7 @@ int TestHandleWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cursor2D->AxesOn();
   cursor2D->OutlineOn();
   cursor2D->SetRadius(4);
+  cursor2D->Update();
 
   vtkSmartPointer<vtkPointHandleRepresentation2D> handleRep =
     vtkSmartPointer<vtkPointHandleRepresentation2D>::New();

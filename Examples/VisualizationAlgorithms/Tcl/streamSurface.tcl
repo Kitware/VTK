@@ -11,12 +11,14 @@ package require vtktesting
 
 # Read the data and specify which scalars and vectors to read.
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
   pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   pl3d SetScalarFunctionNumber 100 
   pl3d SetVectorFunctionNumber 202
   pl3d Update
+
+set pl3dOutput [[pl3d GetOutput] GetBlock 0]
 
 # We use a rake to generate a series of streamline starting points
 # scattered along a line. Each point will generate a streamline. These
@@ -33,15 +35,14 @@ vtkActor rakeActor
   rakeActor SetMapper rakeMapper 
 
 vtkRungeKutta4 integ
-vtkStreamTracer sl
-  sl SetInputConnection [pl3d GetOutputPort]
+vtkStreamLine sl
+  sl SetInputData $pl3dOutput
   sl SetSourceConnection [rake GetOutputPort] 
   sl SetIntegrator integ 
-  sl SetMaximumPropagation 0.1
-  sl SetMaximumPropagationUnitToTimeUnit
-  sl SetInitialIntegrationStep 0.1
-  sl SetInitialIntegrationStepUnitToCellLengthUnit
+  sl SetMaximumPropagationTime 0.1
+  sl SetIntegrationStepLength 0.1
   sl SetIntegrationDirectionToBackward
+  sl SetStepLength 0.001
 
 #
 # The ruled surface stiches together lines with triangle strips.
@@ -57,14 +58,14 @@ vtkRuledSurfaceFilter scalarSurface
   scalarSurface SetDistanceFactor 30 
 vtkPolyDataMapper mapper
   mapper SetInputConnection [scalarSurface GetOutputPort]
-  eval mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+  eval mapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor actor
   actor SetMapper mapper 
 
 # Put an outline around for context.
 #
 vtkStructuredGridOutlineFilter outline
-  outline SetInputConnection [pl3d GetOutputPort]
+  outline SetInputData $pl3dOutput
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

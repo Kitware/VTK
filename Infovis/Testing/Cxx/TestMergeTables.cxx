@@ -62,8 +62,8 @@ TestMergeTables(int argc, char* argv[])
   table2->Dump(10);
 
   VTK_CREATE(vtkMergeTables,merge);
-  merge->SetInput(0, table1);
-  merge->SetInput(1, table2);
+  merge->SetInputData(0, table1);
+  merge->SetInputData(1, table2);
   merge->SetMergeColumnsByName(true);
   merge->Update();
 

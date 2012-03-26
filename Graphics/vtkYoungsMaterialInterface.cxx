@@ -1502,7 +1502,7 @@ int vtkYoungsMaterialInterface::RequestData(
         delete [] Mats[m].outCellArrays;
         delete [] Mats[m].outPointArrays;
 
-        // activate attributes similarily to input
+        // activate attributes similarly to input
         for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
           {
           vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
@@ -2307,7 +2307,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
 
   /**************************************
-   *** Precision dependant constants   ***
+   *** Precision dependent constants   ***
    ***************************************/
 
   // float
@@ -2552,7 +2552,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   REAL quadraticFunctionSolve( REAL3 F, const REAL value, const REAL xmin, const REAL xmax )
   {
     // Analytic resolution of ax²+bx+c=0
-    // (!) numerically unsteady, the Newton method is prefered despite being REALLY slower
+    // (!) numerically unsteady, the Newton method is preferred despite being REALLY slower
 
     F.z -= value;
 
@@ -2689,7 +2689,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL* dist, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -2707,7 +2707,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -2727,7 +2727,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -3323,7 +3323,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
 
-// usefull to avoid numerical errors
+// useful to avoid numerical errors
 #define Clamp(x,min,max) if(x<min) x=min; else if(x>max) x=max
 
 // ------------------------------------

@@ -54,9 +54,9 @@ vtkStructuredPoints* vtkImageToStructuredPoints::GetStructuredPointsOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::SetVectorInput(vtkImageData *input)
+void vtkImageToStructuredPoints::SetVectorInputData(vtkImageData *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------

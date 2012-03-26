@@ -108,7 +108,7 @@ public:
 
   // Description:
   // This method returns true if this node descends from the
-  // elder node.  The descision is made from the node ids, so the nodes do
+  // elder node.  The decision is made from the node ids, so the nodes do
   // not have to be in the same tree!
   bool IsDescendantOf(vtkGeoTreeNode* elder);
 

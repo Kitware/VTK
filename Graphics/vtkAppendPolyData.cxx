@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTrivialProducer.h"
 
 vtkStandardNewMacro(vtkAppendPolyData);
 
@@ -41,7 +42,7 @@ vtkAppendPolyData::~vtkAppendPolyData()
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
-void vtkAppendPolyData::AddInput(vtkPolyData *ds)
+void vtkAppendPolyData::AddInputData(vtkPolyData *ds)
 {
   if (this->UserManagedInputs)
     {
@@ -49,12 +50,12 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
       "AddInput is not supported if UserManagedInputs is true");
     return;
     }
-  this->Superclass::AddInput(ds);
+  this->Superclass::AddInputData(ds);
 }
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
-void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
+void vtkAppendPolyData::RemoveInputData(vtkPolyData *ds)
 {
   if (this->UserManagedInputs)
     {
@@ -63,13 +64,19 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
     return;
     }
 
-  vtkAlgorithmOutput *algOutput = 0;
-  if (ds)
+  if (!ds)
     {
-    algOutput = ds->GetProducerPort();
+    return;
     }
-
-  this->RemoveInputConnection(0, algOutput);
+  int numCons = this->GetNumberOfInputConnections(0);
+  for(int i=0; i<numCons; i++)
+    {
+    if (this->GetInput(i) == ds)
+      {
+      this->RemoveInputConnection(0,
+        this->GetInputConnection(0, i));
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -89,18 +96,28 @@ void vtkAppendPolyData::SetNumberOfInputs(int num)
 }
 
 //----------------------------------------------------------------------------
+void vtkAppendPolyData::SetInputDataByNumber(int num, vtkPolyData* input)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(input);
+  this->SetInputConnectionByNumber(num, tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
-void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
+void vtkAppendPolyData::SetInputConnectionByNumber(int num,
+                                                   vtkAlgorithmOutput *input)
 {
   if (!this->UserManagedInputs)
     {
     vtkErrorMacro(<<
-      "SetInputByNumber is not supported if UserManagedInputs is false");
+      "SetInputConnectionByNumber is not supported if UserManagedInputs is false");
     return;
     }
 
   // Ask the superclass to connect the input.
-  this->SetNthInputConnection(0, num, input? input->GetProducerPort() : 0);
+  this->SetNthInputConnection(0, num, input);
 }
 
 //----------------------------------------------------------------------------
@@ -565,7 +582,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     }
   newStrips->Delete();
 
-  // When all optimizations are complete, this squeeze will be unecessary.
+  // When all optimizations are complete, this squeeze will be unnecessary.
   // (But it does not seem to cost much.)
   output->Squeeze();
 

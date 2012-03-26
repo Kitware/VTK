@@ -56,7 +56,7 @@ void InitializeACell(vtkCell *cell)
 //----------------------------------------------------------------------------
 // c1 is the reference cell. In the test this is the linear cell
 // and thus c2 is the higher order one. We need to check that result on c1
-// are consistant with result on c2 (but we cannot say anything after that)
+// are consistent with result on c2 (but we cannot say anything after that)
 int CompareHigherOrderCell(vtkCell *c1, vtkCell *c2)
 {
   int rval = 0;

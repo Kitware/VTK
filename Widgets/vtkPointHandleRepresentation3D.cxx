@@ -48,7 +48,8 @@ vtkPointHandleRepresentation3D::vtkPointHandleRepresentation3D()
   this->Cursor3D->TranslationModeOn();
   
   this->Mapper = vtkPolyDataMapper::New();
-  this->Mapper->SetInput(this->Cursor3D->GetOutput());
+  this->Mapper->SetInputConnection(
+    this->Cursor3D->GetOutputPort());
 
   // Set up the initial properties
   this->CreateDefaultProperties();

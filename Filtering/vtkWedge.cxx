@@ -617,7 +617,7 @@ int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   int i, p[4];
 
-  // Tetra #0 info (orginal point Ids): { 0, 2, 1, 3 }
+  // Tetra #0 info (original point Ids): { 0, 2, 1, 3 }
   p[0] = 0; p[1] = 2; p[2] = 1; p[3] = 3;
   for ( i=0; i < 4; i++ )
     {
@@ -625,7 +625,7 @@ int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertNextPoint(this->Points->GetPoint(p[i]));
     }
 
-  // Tetra #1 info (orginal point Ids): { 1, 3, 5, 4 }
+  // Tetra #1 info (original point Ids): { 1, 3, 5, 4 }
   p[0] = 1; p[1] = 3; p[2] = 5; p[3] = 4;
   for ( i=0; i < 4; i++ )
     {
@@ -633,7 +633,7 @@ int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertNextPoint(this->Points->GetPoint(p[i]));
     }
 
-  // Tetra #2 info (orginal point Ids): { 1, 2, 5, 3 }
+  // Tetra #2 info (original point Ids): { 1, 2, 5, 3 }
   p[0] = 1; p[1] = 2; p[2] = 5; p[3] = 3;
   for ( i=0; i < 4; i++ )
     {

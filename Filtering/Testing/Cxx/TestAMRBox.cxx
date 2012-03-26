@@ -13,271 +13,408 @@
 
 =========================================================================*/
 #include "vtkAMRBox.h"
+#include "vtkStructuredData.h"
 
+#include <iostream>
+#include <string>
+
+void Construct2DAMRBox(
+    vtkAMRBox& box,double origin[3],double h[3],int lo[3],int hi[3])
+{
+  box.SetGridDescription( VTK_XY_PLANE );
+  box.SetDimensionality( 2 );
+  box.SetDataSetOrigin( origin );
+  box.SetGridSpacing( h );
+  box.SetDimensions( lo, hi );
+  box.SetBlockId( 0 );
+  box.SetLevel( 0 );
+}
+
+//------------------------------------------------------------------------------
+void Construct3DAMRBox(
+    vtkAMRBox& box,double origin[3],double h[3],int lo[3],int hi[3])
+{
+  box.SetGridDescription( VTK_XYZ_GRID );
+  box.SetDimensionality( 3 );
+  box.SetDataSetOrigin( origin );
+  box.SetGridSpacing( h );
+  box.SetDimensions( lo, hi );
+  box.SetBlockId( 0 );
+  box.SetLevel( 0 );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxEquality()
+{
+  int rc = 0;
+
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A, B, C, A2D;
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi );
+  Construct3DAMRBox( B, X0, h, lo, hi );
+  Construct2DAMRBox( A2D, X0, h, lo, hi );
+
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 16;
+  hi[0] = hi[1] = hi[2] = 32;
+  Construct3DAMRBox( C, X0, h, lo, hi );
+
+  if( A != B )
+    {
+    rc++;
+    }
+
+  if( A == A2D )
+    {
+    rc++;
+    }
+
+  if( A == C  )
+    {
+    rc++;
+    }
+
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxAssignmentOperator()
+{
+  int rc = 0;
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A, B;
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+
+  Construct3DAMRBox( A, X0, h, lo, hi );
+  B = A;
+  if( A != B )
+    {
+    rc++;
+    }
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxCoarsenRefineOperators()
+{
+  int rc = 0;
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A, A0, Ar;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi);
+
+  // Here is the refined AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 0.5;
+  lo[0] = lo[1] = lo[2] = 16;
+  hi[0] = hi[1] = hi[2] = 33;
+  Construct3DAMRBox( Ar, X0, h, lo, hi );
+
+  // Save the intial AMR box to A0
+  A0 = A;
+
+  // Refine the AMR box to Ar
+  A.Refine( 2 );
+  if( A != Ar )
+    {
+    std::cerr << "Here is A: ";
+    A.Print( std::cerr ) << "\n";
+
+    std::cerr << "Here is Ar: ";
+    Ar.Print( std::cerr ) << "\n";
+
+    std::cerr << "ERROR: refining AMR box failed!\n";
+    rc++;
+    }
+
+  // Coarsen AMR box to A0
+  A.Coarsen( 2 );
+  if( A != A0 )
+    {
+    std::cerr << "ERROR: coarsening AMR box failed!\n";
+    rc++;
+    }
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxShiftOperator()
+{
+  int rc = 0;
+
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A, A0, Ashifted;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi);
+
+  A0 = A;
+
+  int shift[3];
+  shift[0] = shift[1] = shift[2] = 3;
+
+  // Here is the shifted AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 11;
+  hi[0] = hi[1] = hi[2] = 19;
+  Construct3DAMRBox( Ashifted, X0, h, lo, hi);
+
+  A.Shift( shift );
+  if( A != Ashifted )
+    {
+    std::cerr << "ERROR: shifting AMR box failed!\n";
+    rc++;
+    }
+
+  // Reverse shift orientation
+  for( int i=0; i < 3; i++)
+    {
+    shift[i] = shift[i]*(-1);
+    }
+  A.Shift( shift );
+  if( A != A0 )
+    {
+    std::cerr << "ERROR: shifting AMR box failed!\n";
+    rc++;
+    }
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxGrowShrinkOperators()
+{
+  int rc = 0;
+
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A, A0, Agrown;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi);
+
+  A0 = A;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 6;
+  hi[0] = hi[1] = hi[2] = 18;
+  Construct3DAMRBox( Agrown, X0, h, lo, hi);
+
+  A.Grow( 2 );
+  if( A != Agrown )
+    {
+    std::cerr << "ERROR: growing AMR box failed!\n";
+    rc ++;
+    }
+
+  A.Shrink( 2 );
+  if( A != A0 )
+    {
+    std::cerr << "ERROR: shrinking AMR box failed!\n";
+    rc ++;
+    }
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxIntersection()
+{
+  int rc = 0;
+
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A0, A, B, I;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi);
+
+  // Save the initial
+  A0 = A;
+  bool doesIntersect = false;
+
+  B = A;
+  B.Shrink( 2 );
+  doesIntersect = A.Intersect( B );
+  if( !doesIntersect || (A != B) )
+    {
+    std::cerr << "ERROR: Intersecting a fully encompassing box failed!\n";
+    rc++;
+    }
+
+  A = A0;
+  B = A;
+  B.Shift( 2,2,2 );
+
+  // Here is the expected box after intersecting
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 10;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox(I, X0, h, lo, hi );
+
+  doesIntersect = A.Intersect( B );
+  if( !doesIntersect || (A != I) )
+    {
+    std::cerr << "ERROR: Intersecting a partially overlapping box failed!\n";
+    rc++;
+    }
+
+  A = A0;
+  B = A;
+  B.Shift(10,10,10);
+  doesIntersect = A.Intersect( B );
+  if( doesIntersect )
+    {
+    std::cerr << "ERROR: Intersecting a non-overlapping box failed!\n";
+    rc++;
+    }
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestAMRBoxSerialization()
+{
+  int rc = 0;
+  double X0[3];
+  double h[3];
+  int    lo[3];
+  int    hi[3];
+
+  vtkAMRBox A;
+
+  // Here is the initial AMR box
+  X0[0] = X0[1] = X0[2] = 0.0;
+  h[0]  = h[1]  = h[2]  = 1.0;
+  lo[0] = lo[1] = lo[2] = 8;
+  hi[0] = hi[1] = hi[2] = 16;
+  Construct3DAMRBox( A, X0, h, lo, hi);
+
+  vtkIdType bytesize    = 0;
+  unsigned char *buffer = NULL;
+  A.Serialize( buffer, bytesize );
+  if( (buffer == NULL) || (bytesize == 0) )
+    {
+    std::cerr << "ERROR: Serializing AMR box failed!\n";
+    ++rc;
+    }
+
+  vtkIdType expectedByteSize = vtkAMRBox::GetBytesize();
+  if( bytesize != expectedByteSize )
+    {
+    std::cerr << "ERROR: Bytesize of buffer did not match expected size!\n";
+    ++rc;
+    }
+
+  vtkAMRBox B;
+  B.Deserialize( buffer, bytesize );
+
+  if( A != B )
+    {
+    std::cerr << "ERROR: Deserialization of AMR box failed!\n";
+    rc++;
+    }
+
+  if( buffer != NULL )
+    {
+    delete [] buffer;
+    }
+
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+void CheckTestStatus( int rc, std::string TestName )
+{
+  std::cout << "Test " << TestName << "...";
+  std::cout.flush();
+  if( rc == 0 )
+    {
+    std::cout << "PASSED!\n";
+    std::cout.flush();
+    }
+  else
+    {
+    std::cout << "FAILED!\n";
+    std::cout.flush();
+    }
+}
+
+//------------------------------------------------------------------------------
 int TestAMRBox(int , char *[])
 {
-  // Equality.
-  {
-  vtkAMRBox A(-8,-8,-8,-4,-4,-4);
-  vtkAMRBox B(-8,-8,-8,-4,-4,-4);
-  vtkAMRBox C(-8,-8,-8,-1,-1,-1);
-  vtkAMRBox D;
-  vtkAMRBox E(-8,-8,-4,-4);
-  vtkAMRBox F(-8,-8,-4,-4);
-  vtkAMRBox G(-12,-12,-4,-4);
-  if ( !(A==A)
-    || !(A==B)
-    || A==C
-    || A==D
-    || D==A
-    || A==E
-    || E==A
-    || !(E==E)
-    || !(E==F)
-    || E==G)
-    {
-    A.Print(cerr) << endl;
-    B.Print(cerr) << endl;
-    C.Print(cerr) << endl;
-    D.Print(cerr) << endl;
-    E.Print(cerr) << endl;
-    F.Print(cerr) << endl;
-    G.Print(cerr) << endl;
-    cerr << "Failed testing operator===." << endl;
-    return 1;
-    }
-  }
-  // Coarsen then refine.
-  {
-  vtkAMRBox A0(-8,-8,-8,7,7,7);
-  vtkAMRBox B0(-8,-8,-8,8,8,8); // can't coarsen
-  vtkAMRBox C(-1,-1,-1,0,0,0);
+  int rc = 0;
 
-  vtkAMRBox A1(A0);
-  A1.Coarsen(8);      // ==C
-  vtkAMRBox A2(A1);
-  A2.Refine(8);       // ==A0
+  rc += TestAMRBoxEquality();
+  CheckTestStatus(rc, "TestAMRBoxEquality");
 
-  vtkAMRBox B1(B0);
-  B1.Coarsen(8);      // ==B0
+  rc += TestAMRBoxAssignmentOperator();
+  CheckTestStatus(rc, "TestAMRBoxAssignmentOperator");
 
-  vtkAMRBox D0(-8,-8,7,7);
-  vtkAMRBox E0(-8,-8,8,8); // can't coarsen
-  vtkAMRBox F(-1,-1,0,0);
+  rc += TestAMRBoxCoarsenRefineOperators();
+  CheckTestStatus(rc, "TestAMRBoxCoarsenRefineOperators");
 
-  vtkAMRBox D1(D0);
-  D1.Coarsen(8);      // ==F
-  vtkAMRBox D2(D1);
-  D2.Refine(8);       // ==D0
+  rc += TestAMRBoxShiftOperator();
+  CheckTestStatus(rc, "TestAMRBoxShiftOperator");
 
-  vtkAMRBox E1(E0);
-  E1.Coarsen(8);      // ==E0
+  rc += TestAMRBoxGrowShrinkOperators();
+  CheckTestStatus(rc, "TestAMRBoxGrowShrinkOperators");
 
-  if ( !(A1==C)
-    || !(B1==B0)
-    || !(A2==A0)
-    || !(D1==F)
-    || !(D2==D0)
-    || !(E1==E0))
-    {
-    A0.Print(cerr) << endl;
-    B0.Print(cerr) << endl;
-    C.Print(cerr) << endl;
-    A1.Print(cerr) << endl;
-    A2.Print(cerr) << endl;
-    B1.Print(cerr) << endl;
-    D0.Print(cerr) << endl;
-    E0.Print(cerr) << endl;
-    F.Print(cerr) << endl;
-    D1.Print(cerr) << endl;
-    D2.Print(cerr) << endl;
-    E1.Print(cerr) << endl;
-    cerr << "Failed testing refine coarsened." << endl;
-    return 1;
-    }
-  }
-  // Refine then coarsen.
-  {
-  vtkAMRBox A0(-1,-1,-1,0,0,0);
-  vtkAMRBox B(-8,-8,-8,7,7,7);
+  rc += TestAMRBoxIntersection();
+  CheckTestStatus(rc, "TestAMRBoxIntersection");
 
-  vtkAMRBox A1(A0);
-  A1.Refine(8);      // ==B
-  vtkAMRBox A2(A1);
-  A2.Coarsen(8);     // ==A0
+  rc += TestAMRBoxSerialization();
+  CheckTestStatus(rc, "TestAMRBoxSerialization");
 
-  vtkAMRBox D0(-1,-1,0,0);
-  vtkAMRBox E(-8,-8,7,7);
-
-  vtkAMRBox D1(D0);
-  D1.Refine(8);      // ==E
-  vtkAMRBox D2(D1);
-  D2.Coarsen(8);     // ==D0
-
-  if ( !(A1==B)
-    || !(A2==A0)
-    || !(D1==E)
-    || !(D2==D0))
-    {
-    A0.Print(cerr) << endl;
-    B.Print(cerr) << endl;
-    A1.Print(cerr) << endl;
-    A2.Print(cerr) << endl;
-    D0.Print(cerr) << endl;
-    E.Print(cerr) << endl;
-    D1.Print(cerr) << endl;
-    D2.Print(cerr) << endl;
-    cerr << "Failed testing coarsen refined." << endl;
-    return 1;
-    }
-  }
-  // Shift.
-  {
-  vtkAMRBox A(-2,-2,-2,2,2,2);
-  vtkAMRBox B(A);
-  B.Shift(100,0,0);
-  B.Shift(0,100,0);
-  B.Shift(0,0,100);
-  B.Shift(-200,-200,-200);
-  B.Shift(100,0,0);
-  B.Shift(0,100,0);
-  B.Shift(0,0,100); // ==A
-
-  vtkAMRBox C(-2,-2,2,2);
-  vtkAMRBox D(C);
-  D.Shift(100,0,0);
-  D.Shift(0,100,0);
-  D.Shift(0,0,100);
-  D.Shift(-200,-200,-200);
-  D.Shift(100,0,0);
-  D.Shift(0,100,0);
-  D.Shift(0,0,100); // ==C
-
-  if ( !(B==A)
-    || !(D==C))
-    {
-    A.Print(cerr) << endl;
-    B.Print(cerr) << endl;
-    C.Print(cerr) << endl;
-    D.Print(cerr) << endl;
-    cerr << "Failed testing shift." << endl;
-    return 1;
-    }
-  }
-  // Grow/shrink.
-  {
-  vtkAMRBox A(-2,-2,-2,2,2,2);
-  vtkAMRBox B(-4,-4,-4,4,4,4);
-  vtkAMRBox A1(A);
-  A1.Grow(2);       // ==B
-  vtkAMRBox A2(A1);
-  A2.Shrink(2);     // ==A
-
-  vtkAMRBox C(-2,-2,2,2);
-  vtkAMRBox D(-4,-4,4,4);
-  vtkAMRBox C1(C);
-  C1.Grow(2);       // ==D
-  vtkAMRBox C2(C1);
-  C2.Shrink(2);     // ==C
-
-  if ( !(A2==A)
-    || !(A1==B)
-    || !(C2==C)
-    || !(C1==D))
-    {
-    A.Print(cerr) << endl;
-    B.Print(cerr) << endl;
-    A1.Print(cerr) << endl;
-    A2.Print(cerr) << endl;
-    C.Print(cerr) << endl;
-    D.Print(cerr) << endl;
-    C1.Print(cerr) << endl;
-    C2.Print(cerr) << endl;
-    cerr << "Failed tetsing grow/shrink." << endl;
-    return 1;
-    }
-  }
-  // Intersect.
-  {
-  vtkAMRBox A(-4,-4,-4,4,4,4);
-  vtkAMRBox B(-4,-4,-4,-1,-1,-1);
-  vtkAMRBox C(1,1,1,4,4,4);
-  vtkAMRBox AA(A);
-  AA&=A;              // ==A
-  vtkAMRBox AB(A);
-  AB&=B;              // ==B
-  vtkAMRBox BA(B);
-  BA&=A;              // ==B
-  vtkAMRBox AC(A);
-  AC&=C;              // ==C
-  vtkAMRBox CA(C);
-  CA&=A;              // ==C
-  vtkAMRBox BC(B); 
-  BC&=C;              // ==NULL
-  vtkAMRBox CB(C);
-  CB&=B;              // ==NULL
-
-  vtkAMRBox D(-4,-4,4,4);
-  vtkAMRBox E(-4,-4,-1,-1);
-  vtkAMRBox F(1,1,4,4);
-  vtkAMRBox DD(D);
-  DD&=D;              // ==D
-  vtkAMRBox DE(D);
-  DE&=E;              // ==E
-  vtkAMRBox ED(E);
-  ED&=D;              // ==E
-  vtkAMRBox DF(D);
-  DF&=F;              // ==F
-  vtkAMRBox FD(F);
-  FD&=D;              // ==F
-  vtkAMRBox EF(E);
-  EF&=F;              // ==NULL
-  vtkAMRBox FE(F);
-  FE&=E;              // ==NULL
-
-  vtkAMRBox AD(A);
-  AD&=D;              // ==NULL
-  vtkAMRBox DA(D);
-  DA&=A;              // ==NULL
-
-  if (!(AA==A)
-   || !(AB==B) || !(BA==AB)
-   || !(AC==C) || !(AC==CA)
-   || !BC.Empty() || !CB.Empty()
-   || !(DD==D)
-   || !(DE==E) || !(DE==ED)
-   || !(DF==F) || !(DF==FD)
-   || !EF.Empty() || !FE.Empty()
-   || !(AD==A)
-   || !(DA==D))
-    {
-    A.Print(cerr) << endl;
-    B.Print(cerr) << endl;
-    C.Print(cerr) << endl;
-    AA.Print(cerr) << endl;
-    AB.Print(cerr) << endl;
-    BA.Print(cerr) << endl;
-    AC.Print(cerr) << endl;
-    CA.Print(cerr) << endl;
-    BC.Print(cerr) << endl;
-    CB.Print(cerr) << endl;
-    D.Print(cerr) << endl;
-    E.Print(cerr) << endl;
-    F.Print(cerr) << endl;
-    DD.Print(cerr) << endl;
-    DE.Print(cerr) << endl;
-    ED.Print(cerr) << endl;
-    DF.Print(cerr) << endl;
-    FD.Print(cerr) << endl;
-    FE.Print(cerr) << endl;
-    EF.Print(cerr) << endl;
-    AD.Print(cerr) << endl;
-    DA.Print(cerr) << endl;
-    cerr << "Failed testing operator&=." << endl;
-    return 1;
-    }
-  }
-  return 0;
+  return( rc );
 }
 
 

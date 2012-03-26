@@ -22,11 +22,11 @@ vtkPolyData profile
 # triangulate them
 #
 vtkDelaunay2D del1
-    del1 SetInput profile
+    del1 SetInputData profile
     del1 SetTolerance 0.001
     del1 SetAlpha 0.1
-    del1 Update
-    
+
+
 vtkShrinkPolyData shrink
     shrink SetInputConnection [del1 GetOutputPort]
 

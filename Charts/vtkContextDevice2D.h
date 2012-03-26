@@ -272,7 +272,7 @@ public:
 //BTX
 protected:
   vtkContextDevice2D();
-  virtual ~vtkContextDevice2D();
+  ~vtkContextDevice2D();
 
   // Description:
   // Store the width and height of the device in pixels.

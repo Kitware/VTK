@@ -730,6 +730,11 @@ void vtkContext2D::ApplyId(vtkIdType id)
   this->Device->SetColor4(rgba);
 }
 
+void vtkContext2D::SetContext3D(vtkContext3D *context)
+{
+  this->Context3D = context;
+}
+
 //-----------------------------------------------------------------------------
 vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
@@ -773,7 +778,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 }
 
 //-----------------------------------------------------------------------------
-vtkContext2D::vtkContext2D()
+vtkContext2D::vtkContext2D() : Context3D(NULL)
 {
   this->Device = NULL;
   this->Transform = vtkTransform2D::New();

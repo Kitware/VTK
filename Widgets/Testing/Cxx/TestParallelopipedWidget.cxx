@@ -56,15 +56,15 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
                                                         
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
-  append->AddInput(glyph->GetOutput());
-  append->AddInput(sphere->GetOutput());
+  append->AddInputConnection(glyph->GetOutputPort());
+  append->AddInputConnection(sphere->GetOutputPort());
   append->Update();
   
   vtkSmartPointer<vtkCubeSource>  cube =
@@ -99,14 +99,14 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkTransformPolyDataFilter>  transformFilter =
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   transformFilter->SetTransform(transform);
-  transformFilter->SetInput(cube->GetOutput());
+  transformFilter->SetInputConnection(cube->GetOutputPort());
   transformFilter->Update();
   
   vtkSmartPointer<vtkPoints>  parallelopipedPoints =
     vtkSmartPointer<vtkPoints>::New();
   parallelopipedPoints->DeepCopy(transformFilter->GetOutput()->GetPoints());
   
-  transformFilter->SetInput(append->GetOutput());
+  transformFilter->SetInputConnection(append->GetOutputPort());
   transformFilter->Update();
   
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
@@ -145,7 +145,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   
   vtkSmartPointer<vtkCubeAxesActor2D> axes =
     vtkSmartPointer<vtkCubeAxesActor2D>::New();
-  axes ->SetInput (transformFilter-> GetOutput());
+  axes ->SetInputConnection (transformFilter-> GetOutputPort());
   axes ->SetCamera (renderer-> GetActiveCamera());
   axes ->SetLabelFormat ("%6.1f");
   axes ->SetFlyModeToOuterEdges();

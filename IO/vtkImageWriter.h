@@ -82,11 +82,18 @@ protected:
   int FileLowerLeft;
   char *InternalFileName;
 
-  virtual void RecursiveWrite(int dim, vtkImageData *region, ofstream *file);
-  virtual void RecursiveWrite(int dim, vtkImageData *cache, 
-                              vtkImageData *data, ofstream *file);
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *) {};
+  virtual void RecursiveWrite(int dim,
+                              vtkImageData *region,
+                              vtkInformation*inInfo,
+                              ofstream *file);
+  virtual void RecursiveWrite(int dim,
+                              vtkImageData *cache,
+                              vtkImageData *data,
+                              vtkInformation* inInfo,
+                              ofstream *file);
+  virtual void WriteFile(ofstream *file, vtkImageData *data,
+                         int extent[6], int wExtent[6]);
+  virtual void WriteFileHeader(ofstream *, vtkImageData *, int [6]) {};
   virtual void WriteFileTrailer(ofstream *, vtkImageData *) {};
   
   // This is called by the superclass.

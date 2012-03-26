@@ -47,7 +47,7 @@ public:
   // Description:
   // Open a new connection to the database.
   // You need to set up any database parameters before calling this function.
-  // Returns true is the database was opened sucessfully, and false otherwise.
+  // Returns true is the database was opened successfully, and false otherwise.
   virtual bool Open(const char* password);
 
   // Description:
@@ -157,12 +157,12 @@ protected:
 private:
   
   // Storing the tables in the database, this array
-  // is accessable through GetTables() method
+  // is accessible through GetTables() method
   vtkStringArray *myTables;
   
   // Storing the currect record list from any one
   // of the tables in the database, this array is
-  // accessable through GetRecord(const char *table)
+  // accessible through GetRecord(const char *table)
   vtkStringArray *currentRecord;
   
   // Used to assign unique identifiers for database instances

@@ -103,7 +103,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   painter.setCompositionMode( QPainter::CompositionMode_SourceOver );
 
   this->QtImageSource->SetQImage( this->QtImage );
-  this->LabelTexture->SetInput(this->QtImageSource->GetOutput());
+  this->LabelTexture->SetInputConnection(this->QtImageSource->GetOutputPort());
   this->LabelTexture->PremultipliedAlphaOn();
   
   this->TextureMapToPlane->SetSRange( 0., 1. );
@@ -287,7 +287,7 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   
   VTK_CREATE( vtkQImageToImageSource, qis );
   qis->SetQImage( this->QtImage );
-  this->LabelTexture->SetInput( qis->GetOutput() );
+  this->LabelTexture->SetInputConnection( qis->GetOutputPort() );
   this->LabelTexture->PremultipliedAlphaOn();
 
   this->PlaneSource->SetOrigin( 0, 0, 0 );

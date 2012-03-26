@@ -142,7 +142,7 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
 
-  void ExecuteData(vtkDataObject *);
+  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *);
   virtual int RequestInformation (vtkInformation *, 
                                   vtkInformationVector **,
                                   vtkInformationVector *);

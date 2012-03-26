@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Control the contribution of the LIC in the final output image.
-  // 0.0 produces same result as disabling LIC alltogether, while 1.0 implies
+  // 0.0 produces same result as disabling LIC altogether, while 1.0 implies
   // show LIC result alone.
   vtkSetClampMacro(LICIntensity, double, 0.0, 1.0);
   vtkGetMacro(LICIntensity, double);
@@ -119,7 +119,7 @@ protected:
 
   // Description:
   // Some subclasses may need to do some preprocessing
-  // before the actual rendering can be done eg. build effecient
+  // before the actual rendering can be done eg. build efficient
   // representation for the data etc. This should be done here.
   // This method get called after the ProcessInformation()
   // but before RenderInternal().

@@ -1402,7 +1402,7 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 argmatch = 1;
                 }
-              /* double preceeds float */
+              /* double precedes float */
               else if ((indirect1 == indirect2) &&
                   (baseType1 == VTK_PARSE_DOUBLE) &&
                   (baseType2 == VTK_PARSE_FLOAT))
@@ -1415,7 +1415,7 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 if (!vote1) { vote2 = 1; }
                 }
-              /* unsigned char preceeds signed char */
+              /* unsigned char precedes signed char */
               else if ((indirect1 == indirect2) &&
                        ((baseType1 == VTK_PARSE_CHAR) && unsigned1) &&
                        (baseType2 == VTK_PARSE_SIGNED_CHAR))
@@ -1428,7 +1428,7 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 if (!vote1) { vote2 = 1; }
                 }
-              /* signed preceeds unsigned for everthing but char */
+              /* signed precedes unsigned for everything but char */
               else if ((indirect1 == indirect2) &&
                        (baseType1 != VTK_PARSE_CHAR) &&
                        (baseType2 != VTK_PARSE_CHAR) &&
@@ -1463,7 +1463,7 @@ void vtkWrapPython_RemovePreceededMethods(
                 {
                 if (!vote1) { vote2 = 1; }
                 }
-              /* a string method preceeds a "char *" method */
+              /* a string method precedes a "char *" method */
               else if ((baseType2 == VTK_PARSE_CHAR) &&
                        (indirect2 == VTK_PARSE_POINTER) &&
                        (baseType1 == VTK_PARSE_STRING) &&
@@ -2329,7 +2329,7 @@ void vtkWrapPython_GenerateOneMethod(
     wrappedFunctions, numberOfWrappedFunctions, fnum,
     &all_static, &all_legacy);
 
-  /* find all occurances of this method */
+  /* find all occurrences of this method */
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
     {
@@ -2491,7 +2491,7 @@ void vtkWrapPython_GenerateOneMethod(
   /* set the legacy flag */
   theFunc->IsLegacy = all_legacy;
 
-  /* clear all occurances of this method from further consideration */
+  /* clear all occurrences of this method from further consideration */
   for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
     {
     theOccurrence = wrappedFunctions[occ];

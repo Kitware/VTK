@@ -27,10 +27,8 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
-
 
 vtkStandardNewMacro(vtkImageData);
 
@@ -98,23 +96,6 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
     this->Origin[i] = sPts->Origin[i];
     }
   this->SetExtent(sPts->GetExtent());
-
-  vtkInformation* thisPInfo = this->GetPipelineInformation();
-  vtkInformation* thatPInfo = ds->GetPipelineInformation();
-  if(thisPInfo && thatPInfo)
-    {
-    // copy point data.
-    if (thatPInfo->Has(POINT_DATA_VECTOR()))
-      {
-      thisPInfo->CopyEntry(thatPInfo, POINT_DATA_VECTOR());
-      }
-    // copy cell data.
-    if (thatPInfo->Has(CELL_DATA_VECTOR()))
-      {
-      thisPInfo->CopyEntry(thatPInfo, CELL_DATA_VECTOR());
-      }
-    }
-  this->CopyInformation(sPts);
 }
 
 //----------------------------------------------------------------------------
@@ -128,77 +109,12 @@ void vtkImageData::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
-                                             vtkInformation* input,
-                                             vtkInformation* output,
-                                             int forceCopy)
+void vtkImageData::CopyInformationFromPipeline(vtkInformation* information)
 {
   // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationToPipeline(request, input, output, forceCopy);
+  this->Superclass::CopyInformationFromPipeline(information);
 
-  // Set default pipeline information during a request for information.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    // Copy settings from the input if available.  Otherwise use our
-    // current settings.
-
-    if(input && input->Has(ORIGIN()))
-      {
-      output->CopyEntry(input, ORIGIN());
-      }
-    else if (!output->Has(ORIGIN()) || forceCopy)
-      {
-      // Set origin (only if it is not set).
-      output->Set(ORIGIN(), this->GetOrigin(), 3);
-      }
-
-    if(input && input->Has(SPACING()))
-      {
-      output->CopyEntry(input, SPACING());
-      }
-    else if (!output->Has(SPACING()) || forceCopy)
-      {
-      // Set spacing (only if it is not set).
-      output->Set(SPACING(), this->GetSpacing(), 3);
-      }
-
-    // copy of input to output (if input exists) occurs in vtkDataObject, so
-    // only to to check need to check if the scalar info exists in the field
-    // data info of the output.  If it exists, then we assume the type and
-    // number of components are set; if not, set type and number of components
-    // to default values
-    vtkInformation *scalarInfo =
-      vtkDataObject::GetActiveFieldInformation(output,
-                                               FIELD_ASSOCIATION_POINTS,
-                                               vtkDataSetAttributes::SCALARS);
-    if (!scalarInfo || forceCopy)
-      {
-      vtkDataArray* scalars = this->GetPointData()->GetScalars();
-      if (scalars)
-        {
-        vtkDataObject::SetPointDataActiveScalarInfo(
-          output, scalars->GetDataType(), scalars->GetNumberOfComponents());
-        }
-      else
-        {
-        vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageData::CopyInformationFromPipeline(vtkInformation* request)
-{
-  // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationFromPipeline(request);
-
-  // Copy pipeline information to data information before the producer
-  // executes.
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    this->CopyOriginAndSpacingFromPipeline();
-    }
+  this->CopyOriginAndSpacingFromPipeline(information);
 }
 
 //----------------------------------------------------------------------------
@@ -228,15 +144,12 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
 {
   vtkImageData *image = static_cast<vtkImageData *>(data);
 
-  // Copy the generic stuff
-  this->CopyInformation( data );
-
   // Now do the specific stuff
   this->SetOrigin( image->GetOrigin() );
   this->SetSpacing( image->GetSpacing() );
-  this->SetScalarType( image->GetScalarType() );
-  this->SetNumberOfScalarComponents(
-    image->GetNumberOfScalarComponents() );
+  //this->SetScalarType( image->GetScalarType() );
+  //this->SetNumberOfScalarComponents(
+  //image->GetNumberOfScalarComponents() );
 }
 
 //----------------------------------------------------------------------------
@@ -244,52 +157,6 @@ template <class T>
 unsigned long vtkImageDataGetTypeSize(T*)
 {
   return sizeof(T);
-}
-
-//----------------------------------------------------------------------------
-
-unsigned long vtkImageData::GetEstimatedMemorySize()
-{
-  vtkLargeInteger size;
-  int             idx;
-  int             *uExt;
-  unsigned long   lsize;
-
-  // Start with the number of scalar components
-  size = static_cast<unsigned long>(this->GetNumberOfScalarComponents());
-
-  // Multiply by the number of bytes per scalar
-  switch (this->GetScalarType())
-    {
-    vtkTemplateMacro(
-      size *= vtkImageDataGetTypeSize(static_cast<VTK_TT*>(0))
-      );
-    case VTK_BIT:
-      size /= 8;
-      break;
-    default:
-      vtkWarningMacro(<< "GetExtentMemorySize: "
-        << "Cannot determine input scalar type");
-    }
-
-  // Multiply by the number of scalars.
-  uExt = this->GetUpdateExtent();
-  for (idx = 0; idx < 3; ++idx)
-    {
-    size = size*(uExt[idx*2+1] - uExt[idx*2] + 1);
-    }
-
-  // In case the extent is set improperly, set the size to 0
-  if (size < 0)
-    {
-    vtkWarningMacro("Oops, size should not be negative.");
-    size = 0;
-    }
-
-  // Convert from double bytes to unsigned long kilobytes
-  size = size >> 10;
-  lsize = size.CastToUnsignedLong();
-  return lsize;
 }
 
 //----------------------------------------------------------------------------
@@ -886,6 +753,10 @@ int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 //----------------------------------------------------------------------------
 void vtkImageData::ComputeBounds()
 {
+  if ( this->GetMTime() <= this->ComputeTime )
+    {
+    return;
+    }
   const double *origin = this->Origin;
   const double *spacing = this->Spacing;
   const int* extent = this->Extent;
@@ -895,20 +766,22 @@ void vtkImageData::ComputeBounds()
        extent[4] > extent[5] )
     {
     vtkMath::UninitializeBounds(this->Bounds);
-    return;
     }
-
-  int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
-  int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
-  int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
-
-  this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
-  this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
-  this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
-
-  this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
-  this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
-  this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+  else
+    {
+    int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
+    int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
+    int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
+    
+    this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
+    this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
+    this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
+    
+    this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
+    this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
+    this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
+    }
+  this->ComputeTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1161,9 +1034,6 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   const int *dims = this->GetDimensions();
   const int* extent = this->Extent;
 
-  os << indent << "ScalarType: " << this->GetScalarType() << endl;
-  os << indent << "NumberOfScalarComponents: " <<
-    this->GetNumberOfScalarComponents() << endl;
   os << indent << "Spacing: (" << this->Spacing[0] << ", "
                                << this->Spacing[1] << ", "
                                << this->Spacing[2] << ")\n";
@@ -1184,47 +1054,49 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
 }
 
-//----------------------------------------------------------------------------
-void vtkImageData::UpdateInformation()
-{
-  // Use the compatibility method in the superclass to update the
-  // information.
-  this->Superclass::UpdateInformation();
 
-  // Now copy the information the caller is probably expecting to get
-  // from this data object instead of the pipeline information.  This
-  // preserves compatibility.
-  this->CopyOriginAndSpacingFromPipeline();
+//----------------------------------------------------------------------------
+void vtkImageData::SetNumberOfScalarComponents(int num,
+  vtkInformation* meta_data)
+{
+  vtkDataObject::SetPointDataActiveScalarInfo(meta_data, -1, num);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetNumberOfScalarComponents(int num)
+bool vtkImageData::HasNumberOfScalarComponents(vtkInformation* meta_data)
 {
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data,
+    FIELD_ASSOCIATION_POINTS, 
+    vtkDataSetAttributes::SCALARS);
+  if (!scalarInfo)
     {
-    vtkDataObject::SetPointDataActiveScalarInfo(info, -1, num);
+    return false;
     }
-  else
+  return scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()) != 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageData::GetNumberOfScalarComponents(vtkInformation* meta_data)
+{
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data,
+    FIELD_ASSOCIATION_POINTS, 
+    vtkDataSetAttributes::SCALARS);
+  if (scalarInfo && scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
     {
-    vtkErrorMacro("SetNumberOfScalarComponents called with no "
-                  "executive producing this image data object.");
+    return scalarInfo->Get( FIELD_NUMBER_OF_COMPONENTS() );
     }
-  this->ComputeIncrements(num);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkImageData::GetNumberOfScalarComponents()
 {
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
+  vtkDataArray* scalars = this->GetPointData()->GetScalars();
+  if (scalars)
     {
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
-      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-    if (scalarInfo && scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
-      {
-      return scalarInfo->Get( FIELD_NUMBER_OF_COMPONENTS() );
-      }
+    return scalars->GetNumberOfComponents();
     }
   return 1;
 }
@@ -1370,11 +1242,10 @@ void vtkImageData::ComputeIncrements(int numberOfComponents, vtkIdType inc[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::CopyOriginAndSpacingFromPipeline()
+void vtkImageData::CopyOriginAndSpacingFromPipeline(vtkInformation* info)
 {
   // Copy origin and spacing from pipeline information to the internal
   // copies.
-  vtkInformation* info = this->PipelineInformation;
   if(info->Has(SPACING()))
     {
     this->SetSpacing(info->Get(SPACING()));
@@ -1412,13 +1283,14 @@ double vtkImageData::GetScalarComponentAsDouble(int x, int y, int z, int comp)
   double result = 0.0;
 
   // Convert the scalar type.
-  switch (this->GetScalarType())
+  int scalarType = this->GetPointData()->GetScalars()->GetDataType();
+  switch (scalarType)
     {
     vtkTemplateMacro(vtkImageDataConvertScalar(static_cast<VTK_TT*>(ptr)+comp,
                                                &result));
     default:
       {
-      vtkErrorMacro("Unknown Scalar type " << this->GetScalarType());
+      vtkErrorMacro("Unknown Scalar type " << scalarType);
       }
     }
 
@@ -1445,13 +1317,14 @@ void vtkImageData::SetScalarComponentFromDouble(int x, int y, int z, int comp,
     }
 
   // Convert the scalar type.
-  switch (this->GetScalarType())
+  int scalarType = this->GetPointData()->GetScalars()->GetDataType();
+  switch (scalarType)
     {
     vtkTemplateMacro(vtkImageDataConvertScalar(
                        &value, static_cast<VTK_TT*>(ptr)+comp));
     default:
       {
-      vtkErrorMacro("Unknown Scalar type " << this->GetScalarType());
+      vtkErrorMacro("Unknown Scalar type " << scalarType);
       }
     }
 }
@@ -1503,14 +1376,10 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
   // Make sure the array has been allocated.
   if (scalars == NULL)
     {
-    vtkDebugMacro("Allocating scalars in ImageData");
-    this->AllocateScalars();
-    scalars = this->PointData->GetScalars();
-    }
-
-  if (scalars == NULL)
-    {
-    vtkErrorMacro("Could not allocate scalars.");
+    //vtkDebugMacro("Allocating scalars in ImageData");
+    //abort();
+    //this->AllocateScalars();
+    //scalars = this->PointData->GetScalars();
     return NULL;
     }
 
@@ -1542,53 +1411,68 @@ void *vtkImageData::GetScalarPointer()
   if (this->PointData->GetScalars() == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
-    this->AllocateScalars();
+    abort();
+    //this->AllocateScalars();
     }
   return this->PointData->GetScalars()->GetVoidPointer(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetScalarType(int type)
+void vtkImageData::SetScalarType(int type, vtkInformation* meta_data)
 {
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
-    {
-    vtkDataObject::SetPointDataActiveScalarInfo(info, type, -1);
-    }
-  else
-    {
-    vtkErrorMacro("SetScalarType called with no "
-                  "executive producing this image data object.");
-    }
+  vtkDataObject::SetPointDataActiveScalarInfo(meta_data, type, -1);
 }
 
 //----------------------------------------------------------------------------
 int vtkImageData::GetScalarType()
 {
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
+  vtkDataArray* scalars = this->GetPointData()->GetScalars();
+  if (!scalars)
     {
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
-      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-    if (scalarInfo)
-      {
-      return scalarInfo->Get( FIELD_ARRAY_TYPE() );
-      }
+    return VTK_DOUBLE;
+    }
+  return scalars->GetDataType();
+}
+
+//----------------------------------------------------------------------------
+bool vtkImageData::HasScalarType(vtkInformation* meta_data)
+{
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data,
+    FIELD_ASSOCIATION_POINTS,
+    vtkDataSetAttributes::SCALARS);
+  if (!scalarInfo)
+    {
+    return false;
+    }
+
+  return scalarInfo->Has( FIELD_ARRAY_TYPE() ) != 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageData::GetScalarType(vtkInformation* meta_data)
+{
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+    meta_data,
+    FIELD_ASSOCIATION_POINTS,
+    vtkDataSetAttributes::SCALARS);
+  if (scalarInfo)
+    {
+    return scalarInfo->Get( FIELD_ARRAY_TYPE() );
     }
   return VTK_DOUBLE;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::AllocateScalars()
+void vtkImageData::AllocateScalars(vtkInformation* pipeline_info)
 {
   int newType = VTK_DOUBLE;
   int newNumComp = 1;
 
-  // basically allocate the scalars based on the
-  this->GetProducerPort();
-  if(vtkInformation* info = this->GetPipelineInformation())
+  if(pipeline_info)
     {
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info,
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
+      pipeline_info,
       FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (scalarInfo)
       {
@@ -1600,10 +1484,16 @@ void vtkImageData::AllocateScalars()
       }
     }
 
+  this->AllocateScalars(newType, newNumComp);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::AllocateScalars(int dataType, int numComponents)
+{
   vtkDataArray *scalars;
 
   // if the scalar type has not been set then we have a problem
-  if (newType == VTK_VOID)
+  if (dataType == VTK_VOID)
     {
     vtkErrorMacro("Attempt to allocate scalars before scalar type was set!.");
     return;
@@ -1619,10 +1509,10 @@ void vtkImageData::AllocateScalars()
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
-  if (scalars && scalars->GetDataType() == newType
+  if (scalars && scalars->GetDataType() == dataType
       && scalars->GetReferenceCount() == 1)
     {
-    scalars->SetNumberOfComponents(newNumComp);
+    scalars->SetNumberOfComponents(numComponents);
     scalars->SetNumberOfTuples(imageSize);
     // Since the execute method will be modifying the scalars
     // directly.
@@ -1631,8 +1521,8 @@ void vtkImageData::AllocateScalars()
     }
 
   // allocate the new scalars
-  scalars = vtkDataArray::CreateDataArray(newType);
-  scalars->SetNumberOfComponents(newNumComp);
+  scalars = vtkDataArray::CreateDataArray(dataType);
+  scalars->SetNumberOfComponents(numComponents);
   scalars->SetName("ImageScalars");
 
   // allocate enough memory
@@ -1644,9 +1534,19 @@ void vtkImageData::AllocateScalars()
 
 
 //----------------------------------------------------------------------------
+int vtkImageData::GetScalarSize(vtkInformation* meta_data)
+{
+  return vtkDataArray::GetDataTypeSize(this->GetScalarType(meta_data));
+}
+
 int vtkImageData::GetScalarSize()
 {
-  return vtkDataArray::GetDataTypeSize(this->GetScalarType());
+  vtkDataArray* scalars = this->GetPointData()->GetScalars();
+  if (!scalars)
+    {
+    return vtkDataArray::GetDataTypeSize(VTK_DOUBLE);
+    }
+  return vtkDataArray::GetDataTypeSize(scalars->GetDataType());
 }
 
 //----------------------------------------------------------------------------
@@ -1706,7 +1606,8 @@ void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
     return;
     }
 
-  switch (outData->GetScalarType())
+  int scalarType = outData->GetPointData()->GetScalars()->GetDataType();
+  switch (scalarType)
     {
     vtkTemplateMacro(
       vtkImageDataCastExecute(inData,
@@ -1738,7 +1639,8 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
     return;
     }
 
-  switch (inData->GetScalarType())
+  int scalarType = inData->GetPointData()->GetScalars()->GetDataType();
+  switch (scalarType)
     {
     vtkTemplateMacro(vtkImageDataCastExecute(inData,
                                              static_cast<VTK_TT *>(inPtr),
@@ -1750,7 +1652,7 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::Crop()
+void vtkImageData::Crop(const int* updateExtent)
 {
   int           nExt[6];
   int           idxX, idxY, idxZ;
@@ -1759,9 +1661,6 @@ void vtkImageData::Crop()
   vtkImageData  *newImage;
   vtkIdType numPts, numCells, tmp;
   const int* extent = this->Extent;
-
-  int updateExtent[6] = {0,-1,0,-1,0,-1};
-  this->GetUpdateExtent(updateExtent);
 
   // If extents already match, then we need to do nothing.
   if (extent[0] == updateExtent[0]
@@ -1776,7 +1675,7 @@ void vtkImageData::Crop()
 
   // Take the intersection of the two extent so that
   // we are not asking for more than the extent.
-  this->GetUpdateExtent(nExt);
+  memcpy(nExt, updateExtent, 6*sizeof(int));
   if (nExt[0] < extent[0]) { nExt[0] = extent[0];}
   if (nExt[1] > extent[1]) { nExt[1] = extent[1];}
   if (nExt[2] < extent[2]) { nExt[2] = extent[2];}
@@ -1817,8 +1716,6 @@ void vtkImageData::Crop()
 
   // Create a new temporary image.
   newImage = vtkImageData::New();
-  newImage->SetScalarType(this->GetScalarType());
-  newImage->SetNumberOfScalarComponents(this->GetNumberOfScalarComponents());
   newImage->SetExtent(nExt);
   vtkPointData *npd = newImage->GetPointData();
   vtkCellData *ncd = newImage->GetCellData();
@@ -1899,11 +1796,23 @@ void vtkImageData::Crop()
 
 
 //----------------------------------------------------------------------------
+double vtkImageData::GetScalarTypeMin(vtkInformation* meta_data)
+{
+  return vtkDataArray::GetDataTypeMin(this->GetScalarType(meta_data));
+}
+
+//----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMin()
 {
   return vtkDataArray::GetDataTypeMin(this->GetScalarType());
 }
 
+
+//----------------------------------------------------------------------------
+double vtkImageData::GetScalarTypeMax(vtkInformation* meta_data)
+{
+  return vtkDataArray::GetDataTypeMax(this->GetScalarType(meta_data));
+}
 
 //----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMax()
@@ -2022,39 +1931,30 @@ void vtkImageData::GetDimensions(int *dOut)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max)
+void vtkImageData::SetAxisUpdateExtent(int idx, int min, int max,
+                                       const int* updateExtent,
+                                       int* axisUpdateExtent)
 {
-  int modified = 0;
-
   if (idx > 2)
     {
     vtkWarningMacro("illegal axis!");
     return;
     }
 
-  int updateExtent[6] = {0,-1,0,-1,0,-1};
-  this->GetUpdateExtent(updateExtent);
-
-  if (updateExtent[idx*2] != min)
+  memcpy(axisUpdateExtent, updateExtent, 6*sizeof(int));
+  if (axisUpdateExtent[idx*2] != min)
     {
-    modified = 1;
-    updateExtent[idx*2] = min;
+    axisUpdateExtent[idx*2] = min;
     }
-  if (updateExtent[idx*2+1] != max)
+  if (axisUpdateExtent[idx*2+1] != max)
     {
-    modified = 1;
-    updateExtent[idx*2+1] = max;
-    }
-
-  this->SetUpdateExtent(updateExtent);
-  if (modified)
-    {
-    this->Modified();
+    axisUpdateExtent[idx*2+1] = max;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
+void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max,
+                                       const int* updateExtent)
 {
   if (idx > 2)
     {
@@ -2062,8 +1962,6 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
     return;
     }
 
-  int updateExtent[6] = {0,-1,0,-1,0,-1};
-  this->GetUpdateExtent(updateExtent);
   min = updateExtent[idx*2];
   max = updateExtent[idx*2+1];
 }
@@ -2110,8 +2008,8 @@ void vtkImageData::InternalImageDataCopy(vtkImageData *src)
 {
   int idx;
 
-  this->SetScalarType(src->GetScalarType());
-  this->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
+  //this->SetScalarType(src->GetScalarType());
+  //this->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
   for (idx = 0; idx < 3; ++idx)
     {
     this->Dimensions[idx] = src->Dimensions[idx];

@@ -91,7 +91,7 @@ vtkSphereSource glyphSource
   glyphSource SetRadius 0.01
 
 vtkGlyph3D glyph
-  glyph SetSource [glyphSource GetOutput]
+  glyph SetSourceConnection [glyphSource GetOutputPort]
   glyph SetInputConnection [reader GetOutputPort]
 
 vtkDataSetMapper mapper

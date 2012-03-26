@@ -82,7 +82,7 @@ vtkIncrementalOctreeNode::vtkIncrementalOctreeNode()
   
   // unnecessary to initialize spatial and data bounding boxes here as 
   // SetBounds() are always called by the user for the root node of an
-  // octree and this function is also always called for any decendant 
+  // octree and this function is also always called for any descendant 
   // node upon node-subdivison.  for now though we'll set them to
   // something to avoid uninitialized variable warnings
   for(int i=0;i<3;i++)

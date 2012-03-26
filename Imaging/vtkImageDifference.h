@@ -45,7 +45,11 @@ public:
 
   // Description:
   // Specify the Image to compare the input to.
-  void SetImage(vtkDataObject *image) {this->SetInput(1,image);}
+  void SetImageConnection(vtkAlgorithmOutput* output)
+  {
+    this->SetInputConnection(1, output);
+  }
+  void SetImageData(vtkDataObject *image) {this->SetInputData(1,image);}
   vtkImageData *GetImage();
 
   // Description:

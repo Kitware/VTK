@@ -231,7 +231,7 @@ public:
   vtkGetObjectMacro(Material, vtkXMLMaterial);
 
   // Description:
-  // Returns the name of the material currenly loaded, if any.
+  // Returns the name of the material currently loaded, if any.
   vtkGetStringMacro(MaterialName);
 
   // Description:
@@ -354,7 +354,7 @@ public:
 
   // Description:
   // Remove a texture from the collection. Note that the
-  // indices of all the subsquent textures, if any, will change.
+  // indices of all the subsequent textures, if any, will change.
   void RemoveTexture(const char* name);
 
   // Description:

@@ -60,9 +60,11 @@ proc adjustPointsProc {} {
     newPts Delete; #reference counting - it's ok
 }
 
+adjustPoints Update
+
 # Now remove the extreme peak in the center
 vtkGeometryFilter gf
-    gf SetInput [adjustPoints GetPolyDataOutput]
+    gf SetInputData [adjustPoints GetPolyDataOutput]
     gf ExtentClippingOn
     gf SetExtent -100 100 -100 100 -1 0.9
 

@@ -61,7 +61,7 @@ int TestLinePlotAxisFonts(int, char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table.GetPointer(), 0, 1);
+  line->SetInputData(table.GetPointer(), 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
 

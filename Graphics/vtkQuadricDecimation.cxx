@@ -35,7 +35,7 @@
 // coordinates be clamped?  or just indicate that one might want to use the
 // array calculator to fix these?
 
-// ISSUE: the initial value of the Attribute weights is one, this is generaly
+// ISSUE: the initial value of the Attribute weights is one, this is generally
 // not useful, ussually set around .1, but I did this because the the
 // toggling on and off sets it to 1 and 0
 
@@ -891,7 +891,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
 {
   // this function is so ugly because the functionality of converting an QEM
   // into a dence matrix was not extracted into a separate function and
-  // neither was multiplication and some other matrix and vector primatives
+  // neither was multiplication and some other matrix and vector primitives
   static const double errorNumber = 1e-10;
   vtkIdType pointIds[2];
   double cost = 0.0;
@@ -987,7 +987,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
   if (!solveOk) 
     {
     // cheapest point along the edge
-    // this should not frequently occour, so I am using dynamic allocation
+    // this should not frequently occur, so I am using dynamic allocation
     double *pt1 = new double [3+this->NumberOfComponents];
     double *pt2 = new double [3+this->NumberOfComponents]; 
     double *v = new double [3+this->NumberOfComponents]; 

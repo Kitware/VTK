@@ -22,6 +22,7 @@
 #include "vtkImageActorPointPlacer.h"
 #include "vtkImageAnisotropicDiffusion2D.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImageGradientMagnitude.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkImageShiftScale.h"
@@ -178,7 +179,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
 
   vtkSmartPointer<vtkImageActor> actor =
     vtkSmartPointer<vtkImageActor>::New();
-  actor->SetInput( colorMap->GetOutput() );
+  actor->GetMapper()->SetInputConnection( colorMap->GetOutputPort() );
   actor->SetDisplayExtent( 0, 255, 0, 255, 0, 0 );
 
   renderer->AddActor( actor );

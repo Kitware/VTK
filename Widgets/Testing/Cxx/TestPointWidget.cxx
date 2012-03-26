@@ -19,7 +19,8 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPointWidget.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -547,13 +548,14 @@ int TestPointWidget( int argc, char *argv[] )
 
   // Start by loading some data.
   //
-  vtkSmartPointer<vtkPLOT3DReader> pl3d =
-    vtkSmartPointer<vtkPLOT3DReader>::New();
+  vtkSmartPointer<vtkMultiBlockPLOT3DReader> pl3d =
+    vtkSmartPointer<vtkMultiBlockPLOT3DReader>::New();
   pl3d->SetXYZFileName(fname);
   pl3d->SetQFileName(fname2);
   pl3d->SetScalarFunctionNumber(100);
   pl3d->SetVectorFunctionNumber(202);
   pl3d->Update();
+  vtkDataSet* pl3d_block0 = vtkDataSet::SafeDownCast(pl3d->GetOutput()->GetBlock(0));
 
   delete [] fname;
   delete [] fname2;
@@ -563,8 +565,8 @@ int TestPointWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(point);
-  probe->SetSource(pl3d->GetOutput());
+  probe->SetInputData(point);
+  probe->SetSourceData(pl3d_block0);
 
   // create glyph
   vtkSmartPointer<vtkConeSource> cone =
@@ -574,10 +576,10 @@ int TestPointWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkGlyph3D> glyph =
     vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(probe->GetOutputPort());
-  glyph->SetSource(cone->GetOutput());
+  glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseVector();
   glyph->SetScaleModeToDataScalingOff();
-  glyph->SetScaleFactor(pl3d->GetOutput()->GetLength() * 0.1);
+  glyph->SetScaleFactor(pl3d_block0->GetLength() * 0.1);
 
   vtkSmartPointer<vtkPolyDataMapper> glyphMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -591,7 +593,7 @@ int TestPointWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInputConnection(pl3d->GetOutputPort());
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -626,7 +628,7 @@ int TestPointWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkPointWidget> pointWidget =
     vtkSmartPointer<vtkPointWidget>::New();
   pointWidget->SetInteractor(iren);
-  pointWidget->SetInput(pl3d->GetOutput());
+  pointWidget->SetInputData(pl3d_block0);
   pointWidget->AllOff();
   pointWidget->PlaceWidget();
   pointWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);

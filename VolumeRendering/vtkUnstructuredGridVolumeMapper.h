@@ -41,8 +41,8 @@ public:
 
   // Description:
   // Set/Get the input data
-  virtual void SetInput( vtkUnstructuredGrid * );
-  virtual void SetInput( vtkDataSet * );
+  virtual void SetInputData( vtkUnstructuredGrid * );
+  virtual void SetInputData( vtkDataSet * );
   vtkUnstructuredGrid *GetInput();
 
   vtkSetMacro( BlendMode, int );

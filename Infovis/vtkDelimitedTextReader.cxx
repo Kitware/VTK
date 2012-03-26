@@ -657,7 +657,7 @@ int vtkDelimitedTextReader::RequestData(
       converter->SetTrimWhitespacePriorToNumericConversion(this->TrimWhitespacePriorToNumericConversion);
       vtkTable* clone = output_table->NewInstance();
       clone->ShallowCopy(output_table);
-      converter->SetInput(clone);
+      converter->SetInputData(clone);
       converter->Update();
       clone->Delete();
       output_table->ShallowCopy(converter->GetOutputDataObject(0));

@@ -34,6 +34,8 @@
 
 #include "vtkWarpTransform.h"
 
+class vtkAlgorithmOutput;
+class vtkBSplineTransformConnectionHolder;
 class vtkImageData;
 
 #define VTK_BSPLINE_EDGE 0
@@ -50,8 +52,11 @@ public:
   // Description:
   // Set/Get the coefficient grid for the b-spline transform.
   // The vtkBSplineTransform class will never modify the data.
-  virtual void SetCoefficients(vtkImageData*);
-  vtkGetObjectMacro(Coefficients,vtkImageData);
+  // Note that SetCoefficientData() does not setup a pipeline
+  // connection whereas SetCoefficientConnection does.
+  virtual void SetCoefficientConnection(vtkAlgorithmOutput*);
+  virtual void SetCoefficientData(vtkImageData*);
+  virtual vtkImageData* GetCoefficientData();
 
   // Description:
   // Set/Get a scale to apply to the transformation.
@@ -122,7 +127,6 @@ protected:
                           int borderMode);
 //ETX
 
-  vtkImageData *Coefficients;
   double DisplacementScale;
   int BorderMode;
 
@@ -135,6 +139,8 @@ protected:
 private:
   vtkBSplineTransform(const vtkBSplineTransform&);  // Not implemented.
   void operator=(const vtkBSplineTransform&);  // Not implemented.
+
+  vtkBSplineTransformConnectionHolder* ConnectionHolder;
 };
 
 #endif

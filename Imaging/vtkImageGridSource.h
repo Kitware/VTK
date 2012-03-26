@@ -100,7 +100,7 @@ protected:
   virtual int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 
 private:
   vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.

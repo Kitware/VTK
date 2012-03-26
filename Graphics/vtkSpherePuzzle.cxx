@@ -111,7 +111,7 @@ int vtkSpherePuzzle::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // We are about to create/destroy alot of objects.  Defer garbage
+  // We are about to create/destroy a lot of objects.  Defer garbage
   // collection until we are done.
   vtkGarbageCollector::DeferredCollectionPush();
 
@@ -131,7 +131,7 @@ int vtkSpherePuzzle::RequestData(
   sphere->SetThetaResolution(4);
 
   tf->SetTransform(this->Transform);
-  tf->SetInput(sphere->GetOutput());
+  tf->SetInputConnection(sphere->GetOutputPort());
 
   for (j = 0; j < 4; ++j)
     {
@@ -173,7 +173,7 @@ int vtkSpherePuzzle::RequestData(
         }
 
       // append all the pieces.
-      append->AddInput(tmp);
+      append->AddInputData(tmp);
       tmp->FastDelete();
       ++count;
       }

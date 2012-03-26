@@ -50,7 +50,7 @@ int TestLSDynaReader( int argc, char *argv[] )
   
   // Create a mapper.
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInput(geom1->GetOutput());
+  mapper->SetInputConnection(geom1->GetOutputPort());
   mapper->SetScalarModeToUsePointFieldData();
   
   // Create the actor.

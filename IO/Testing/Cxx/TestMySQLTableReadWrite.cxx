@@ -58,7 +58,7 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableToMySQLWriter> writerToTest =
     vtkSmartPointer<vtkTableToMySQLWriter>::New();
 
-  writerToTest->SetInput(table);
+  writerToTest->SetInputData(table);
   writerToTest->SetDatabase(db);
   writerToTest->SetTableName("tableTest");
   writerToTest->Update();
@@ -75,7 +75,7 @@ int TestMySQLTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableWriter> tableFileWriter =
     vtkSmartPointer<vtkTableWriter>::New();
   tableFileWriter->SetFileName("TestMySQLTableReadWrite.vtk");
-  tableFileWriter->SetInput(readerToTest->GetOutput());
+  tableFileWriter->SetInputConnection(readerToTest->GetOutputPort());
   tableFileWriter->Update();
 
   cerr << "verifying that it's the same as what we started with...";

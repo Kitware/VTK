@@ -50,6 +50,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -161,9 +162,9 @@ int vtkEnSightWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInforma
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkEnSightWriter::SetInput(vtkUnstructuredGrid *input)
+void vtkEnSightWriter::SetInputData(vtkUnstructuredGrid *input)
 {
-  this->Superclass::SetInput(0, input);
+  this->SetInputDataInternal(0, input);
 }
 
 
@@ -215,13 +216,15 @@ void vtkEnSightWriter::WriteData()
 #endif
 
   vtkUnstructuredGrid *input=this->GetInput();
+  vtkInformation* inInfo = this->GetInputInformation();
 
-  if (this->GhostLevel > input->GetUpdateGhostLevel())
+  if (this->GhostLevel >
+      vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(inInfo))
     {
     // re-execute pipeline if necessary to obtain ghost cells
 
-    input->SetUpdateGhostLevel(this->GhostLevel);
-    input->Update();
+    vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(inInfo, this->GhostLevel);
+    this->GetInputAlgorithm()->Update();
     }
 
   int deletemmd = 0;

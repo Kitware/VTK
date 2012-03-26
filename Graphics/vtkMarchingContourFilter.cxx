@@ -168,7 +168,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
     int i;
     
     msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkImageData *)input);
+    msquares->SetInputData((vtkImageData *)input);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -188,7 +188,7 @@ void vtkMarchingContourFilter::StructuredPointsContour(int dim,
     int i;
     
     mcubes = vtkMarchingCubes::New();
-    mcubes->SetInput((vtkImageData *)input);
+    mcubes->SetInputData((vtkImageData *)input);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);
@@ -217,7 +217,7 @@ void vtkMarchingContourFilter::DataSetContour(vtkDataSet *input,
   double *values=this->ContourValues->GetValues();
 
   vtkContourFilter *contour = vtkContourFilter::New();
-  contour->SetInput((vtkImageData *)input);
+  contour->SetInputData((vtkImageData *)input);
   contour->SetComputeNormals (this->ComputeNormals);
   contour->SetComputeGradients (this->ComputeGradients);
   contour->SetComputeScalars (this->ComputeScalars);
@@ -247,7 +247,7 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     int i;
     
     msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkImageData *)input);
+    msquares->SetInputData((vtkImageData *)input);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -267,7 +267,7 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     int i;
     
     mcubes = vtkImageMarchingCubes::New();
-    mcubes->SetInput((vtkImageData *)input);
+    mcubes->SetInputData((vtkImageData *)input);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);

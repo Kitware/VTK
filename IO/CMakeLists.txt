@@ -104,7 +104,6 @@ ${_VTK_OGGTHEORA_SOURCES}
 vtkOpenFOAMReader.cxx
 vtkOutputStream.cxx
 vtkPDBReader.cxx
-vtkPLOT3DReader.cxx
 vtkPLY.cxx
 vtkPLYReader.cxx
 vtkPLYWriter.cxx
@@ -400,11 +399,11 @@ IF ( VTK_USE_ODBC AND ODBC_FOUND )
   # ODBC code with -DBUILD_REAL_64_BIT_MODE in order to have the driver
   # work properly.
   INCLUDE(CheckTypeSize)
-  CHECK_TYPE_SIZE("unsigned long" CMAKE_SIZEOF_LONG)
-  IF ( "${CMAKE_SIZEOF_LONG}" STREQUAL "8" )
+  CHECK_TYPE_SIZE("unsigned long" VTK_SIZEOF_LONG)
+  IF("${VTK_SIZEOF_LONG}" STREQUAL "8")
 #    MESSAGE( STATUS "Building ODBC driver with 64-bit flag." )
     ADD_DEFINITIONS( -DBUILD_REAL_64_BIT_MODE )
-  ENDIF ( "${CMAKE_SIZEOF_LONG}"  STREQUAL "8" )
+  ENDIF()
 ENDIF ( VTK_USE_ODBC AND ODBC_FOUND )
 
 #-----------------------------------------------------------------------------

@@ -51,7 +51,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
 # Generate hyperstreamlines
 vtkHyperStreamline s1
-s1 SetInput $input
+s1 SetInputData $input
 s1 SetStartPosition 9 9 -9
 s1 IntegrateMinorEigenvector
 s1 SetMaximumPropagationDistance 18.0
@@ -74,7 +74,7 @@ vtkActor s1Actor
     s1Actor SetMapper s1Mapper
 
 vtkHyperStreamline s2
-    s2 SetInput $input
+    s2 SetInputData $input
     s2 SetStartPosition -9 -9 -9
     s2 IntegrateMinorEigenvector
     s2 SetMaximumPropagationDistance 18.0
@@ -92,7 +92,7 @@ vtkActor s2Actor
     s2Actor SetMapper s2Mapper
 
 vtkHyperStreamline s3
-    s3 SetInput $input
+    s3 SetInputData $input
     s3 SetStartPosition 9 -9 -9
     s3 IntegrateMinorEigenvector
     s3 SetMaximumPropagationDistance 18.0
@@ -110,7 +110,7 @@ vtkActor s3Actor
     s3Actor SetMapper s3Mapper
 
 vtkHyperStreamline s4
-    s4 SetInput $input
+    s4 SetInputData $input
     s4 SetStartPosition -9 9 -9
     s4 IntegrateMinorEigenvector
     s4 SetMaximumPropagationDistance 18.0
@@ -130,7 +130,7 @@ vtkActor s4Actor
 # plane for context
 #
 vtkImageDataGeometryFilter g
-    g SetInput $input
+    g SetInputData $input
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 vtkPolyDataMapper gm
@@ -142,7 +142,7 @@ vtkActor ga
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput $input
+    outline SetInputData $input
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

@@ -520,7 +520,8 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   vtkImageData *input, int numTimeSteps, int *dimids)
 {
   int wholeExtent[6];
-  input->GetWholeExtent(wholeExtent);
+  vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation(0, 0), wholeExtent);
   int numComponents = input->GetNumberOfScalarComponents();
 
   // Create a default dimension order using the direction cosines.
@@ -679,7 +680,8 @@ int vtkMINCImageWriter::CreateMINCVariables(
   int imageDataType = input->GetScalarType();
   input->GetSpacing(spacing);
   input->GetOrigin(origin);
-  input->GetWholeExtent(wholeExtent);
+  vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation(0, 0), wholeExtent);
 
   // Add all dimensions onto the list of variables
   int ndim = this->FileDimensionNames->GetNumberOfValues();
@@ -1121,7 +1123,7 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
   // the floating-point values represent the real data values
   if (imageDataType == VTK_FLOAT || imageDataType == VTK_DOUBLE)
     {
-    // If the data type of the input is floating point, but the orginal
+    // If the data type of the input is floating point, but the original
     // data type stored in ImageAttributes was an integer type, then 
     // we will rescale the floating-point values to integer.
     if (this->ImageAttributes &&
@@ -1565,16 +1567,13 @@ void vtkMINCImageWriterExecuteChunk(
 // to calculate the scalar range of each slice before writing it,
 // therefore the UpdateExtent must contain whole slices, otherwise
 // the range won't be properly calculated.
-int vtkMINCImageWriter::WriteMINCData(vtkImageData *data, int timeStep)
+int vtkMINCImageWriter::WriteMINCData(
+  vtkImageData *data, int timeStep, int inWholeExt[6], int inExt[6])
 {
   int scalarType = data->GetScalarType();
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
   int numTimeSteps = this->GetNumberOfInputConnections(0);
-  int inWholeExt[6];
-  data->GetWholeExtent(inWholeExt);
-  int inExt[6];
-  data->GetUpdateExtent(inExt);
   vtkIdType inInc[3];
   data->GetIncrements(inInc);
 
@@ -1872,7 +1871,8 @@ void vtkMINCImageWriter::Write()
     return;
     }
 
-  input->UpdateInformation();
+  vtkDemandDrivenPipeline::SafeDownCast(
+    this->GetInputExecutive(0, 0))->UpdateInformation();
 
   // Update the rest.
   this->UpdateInformation();
@@ -1901,7 +1901,8 @@ void vtkMINCImageWriter::Write()
     }
 
   // Get the whole extent of the input
-  input->GetWholeExtent(this->DataUpdateExtent);
+  vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation(0, 0), this->DataUpdateExtent);
 
   // If the image and file data types are the same, then we
   // write the data out directly and set the ValidRange to
@@ -1958,7 +1959,7 @@ void vtkMINCImageWriter::Write()
     // Call Update to execute pipeline and write slice to disk.
     this->Update();
 
-    // If MINCFileID was set to zero, an error occured
+    // If MINCFileID was set to zero, an error occurred
     if (this->MINCFileId == 0)
       {
       break;
@@ -2062,7 +2063,7 @@ int vtkMINCImageWriter::RequestInformation(
   int components = 0;
   int dataType = 0;
 
-  // For each connection on port 0, check agains the first connection
+  // For each connection on port 0, check against the first connection
   for (int i = 0; i < this->GetNumberOfInputConnections(0); i++)
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(i);
@@ -2139,7 +2140,11 @@ int vtkMINCImageWriter::RequestData(
       }
 
     // Call WriteMINCData for each input
-    if (this->WriteMINCData(input, timeStep) == 0)
+    if (this->WriteMINCData(
+          input,
+          timeStep,
+          vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo),
+          vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo)) == 0)
       {
       return 0;
       }

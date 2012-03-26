@@ -29,7 +29,7 @@ public:
   //
   vtkInformationQuadratureSchemeDefinitionVectorValue()
   {
-    // Typically we have one defintion per cell type.
+    // Typically we have one definition per cell type.
     this->Vector.resize(VTK_NUMBER_OF_CELL_TYPES);
   }
   // Accessor.

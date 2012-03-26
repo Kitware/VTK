@@ -405,7 +405,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
         }
 
       vtkCellDataToPointData *cd2pd = vtkCellDataToPointData::New();
-      cd2pd->SetInput(dummy);
+      cd2pd->SetInputData(dummy);
       cd2pd->PassCellDataOff();
       cd2pd->Update();
 
@@ -430,7 +430,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     dummy->GetCellData()->SetScalars(array);
 
     vtkCellDataToPointData *cd2pd = vtkCellDataToPointData::New();
-    cd2pd->SetInput(dummy);
+    cd2pd->SetInputData(dummy);
     cd2pd->PassCellDataOff();
     cd2pd->Update();
     vtkDataArray *pointScalars
@@ -620,7 +620,7 @@ namespace {
               }
             
             double derivative[3];
-            // Get derivitive of cell at point.
+            // Get derivative of cell at point.
             cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
             
             g[InputComponent*3] += static_cast<data_type>(derivative[0]);

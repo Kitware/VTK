@@ -29,7 +29,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -86,6 +86,8 @@ int TestShadowMapPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
   vtkCameraPass *cameraP=vtkCameraPass::New();
   
   vtkOpaquePass *opaque=vtkOpaquePass::New();
@@ -135,7 +137,7 @@ int TestShadowMapPass(int argc, char* argv[])
   cameraP->SetDelegatePass(seq);
   
   
-  renderer->SetPass(cameraP);
+  glrenderer->SetPass(cameraP);
   
   vtkPlaneSource *rectangleSource=vtkPlaneSource::New();
   rectangleSource->SetOrigin(-5.0,0.0,5.0);

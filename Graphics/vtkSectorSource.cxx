@@ -22,6 +22,7 @@
 #include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
 #include "vtkMath.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name)                                  \
@@ -54,10 +55,10 @@ int vtkSectorSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  int piece, numPieces, ghostLevel;
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
+  int piece, numPieces;
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   
 //   if( (this->StartAngle == 0. && this->EndAngle == 360.) ||
 //       (this->StartAngle == 360. && this->EndAngle == 0. ) )
@@ -100,17 +101,14 @@ int vtkSectorSource::RequestData(
   
   VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
   rotateFilter->SetResolution( this->CircumferentialResolution );
-  rotateFilter->SetInput(lineSource->GetOutput());
+  rotateFilter->SetInputConnection(lineSource->GetOutputPort());
   rotateFilter->SetAngle( this->EndAngle - this->StartAngle );
   
-  if (output->GetUpdatePiece() == 0 && numPieces > 0)
+  if (piece == 0 && numPieces > 0)
     {
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
     }
-  output->SetUpdatePiece(piece);
-  output->SetUpdateNumberOfPieces(numPieces);
-  output->SetUpdateGhostLevel(ghostLevel);
 //  }
   
   return 1;

@@ -622,7 +622,7 @@ void vtkPlotBar::GetBounds(double bounds[4])
     bounds[valuesHigh] += y_range[1];
     }
 
-  // Bar plots always have one of the value bounds at the orgin
+  // Bar plots always have one of the value bounds at the origin
   if (bounds[valuesLow] > 0.0f)
     {
     bounds[valuesLow] = 0.0;

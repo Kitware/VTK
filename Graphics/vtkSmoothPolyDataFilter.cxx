@@ -133,9 +133,9 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
   this->SetNumberOfInputPorts(2);
 }
 
-void vtkSmoothPolyDataFilter::SetSource(vtkPolyData *source)
+void vtkSmoothPolyDataFilter::SetSourceData(vtkPolyData *source)
 {
-  this->SetInput(1, source);
+  this->SetInputData(1, source);
 }
 
 vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
@@ -330,7 +330,7 @@ int vtkSmoothPolyDataFilter::RequestData(
       { // convert data to triangles
       inMesh->SetStrips(inStrips);
       toTris = vtkTriangleFilter::New();
-      toTris->SetInput(inMesh);
+      toTris->SetInputData(inMesh);
       toTris->Update();
       Mesh = toTris->GetOutput();
       }

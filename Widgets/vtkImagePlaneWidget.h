@@ -147,7 +147,7 @@ public:
 
   // Description:
   // Set the vtkImageData* input for the vtkImageReslice.
-  void SetInput(vtkDataSet* input);
+  void SetInputConnection(vtkAlgorithmOutput* aout);
 
   // Description:
   // Set/Get the origin of the plane.
@@ -432,7 +432,7 @@ public:
   // triggered by a key modifier. For example, if you do not need cursoring,
   // you can bind the left button action to VTK_SLICE_MOTION_ACTION (see above) 
   // and the left button auto modifier to VTK_CONTROL_MODIFIER: you end up with
-  // the left button controling panning without pressing a key.
+  // the left button controlling panning without pressing a key.
   enum
   {
     VTK_NO_MODIFIER         = 0,

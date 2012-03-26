@@ -35,7 +35,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 
 #include "vtkImageSinusoidSource.h"
@@ -203,7 +203,8 @@ void MyProcess::Execute()
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
 
-  renderer->SetPass(cameraP);
+  vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  glrenderer->SetPass(cameraP);
 
   vtkPlaneSource *rectangleSource=vtkPlaneSource::New();
   rectangleSource->SetOrigin(-5.0,0.0,5.0);

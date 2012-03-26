@@ -103,7 +103,7 @@ int TestContingencyStatistics( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  cs->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
+  cs->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable );
   vtkTable* outputData = cs->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
 
   datasetTable->Delete();

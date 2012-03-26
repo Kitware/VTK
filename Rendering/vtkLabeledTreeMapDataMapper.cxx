@@ -334,7 +334,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  input->Update();
+  this->GetInputAlgorithm()->Update();
 
   // Input might have changed
   input = this->GetInputTree();
@@ -831,7 +831,7 @@ int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level,
 int vtkLabeledTreeMapDataMapper::ApplyMasks(int level, float flimits[4],
                                             float blimits[4])
 {
-// Note that all limits and mask infomation is in Device Coordinates
+// Note that all limits and mask information is in Device Coordinates
   
   float dy = 0.0;
   int changed = 1, dir = 0, l;
@@ -893,7 +893,7 @@ int vtkLabeledTreeMapDataMapper::ApplyMasks(int level, float flimits[4],
       if (this->LabelMasks[l][0] > flimits[1])
         {
         // Set the second component to be -(value + 1) - the reason
-        // for the offset is to take of the case the orginal value is 0
+        // for the offset is to take of the case the original value is 0
         this->LabelMasks[l][1] = -1.0 * (this->LabelMasks[l][1] + 1.0);
         continue;
         }

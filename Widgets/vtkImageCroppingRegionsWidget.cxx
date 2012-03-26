@@ -53,7 +53,8 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
     tcoord->Delete();
     this->LineActors[i]->SetMapper(pdm);
     this->LineActors[i]->GetProperty()->SetColor(1, 1, 1);
-    pdm->SetInput(this->LineSources[i]->GetOutput());
+    pdm->SetInputConnection(
+      this->LineSources[i]->GetOutputPort());
     pdm->Delete();
     }
 
@@ -115,7 +116,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
     this->RegionActors[i]->GetProperty()->SetColor(1, 1, 1);
     this->RegionActors[i]->GetProperty()->SetOpacity(0.0);
 
-    pdm->SetInput(this->RegionPolyData[i]);
+    pdm->SetInputData(this->RegionPolyData[i]);
     pdm->Delete();
     }
 

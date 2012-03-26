@@ -82,10 +82,6 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     vtkSetStringMacro(IdChannelArray);
     vtkGetStringMacro(IdChannelArray);
 
-    // DO NOT CALL.  Deprecated in VTK 5.6.  This class now tracks all scalars.
-    VTK_LEGACY(void SetScalarArray(const char *));
-    VTK_LEGACY(const char *GetScalarArray());
-
     // Description:
     // If a particle disappears from one end of a simulation and reappears
     // on the other side, the track left will be unrepresentative.
@@ -119,7 +115,7 @@ class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorith
     // Set a second input which is a selection. Particles with the same
     // Id in the selection as the primary input will be chosen for pathlines
     // Note that you must have the same IdChannelArray in the selection as the input
-    void SetSelection(vtkDataSet *input);
+    void SetSelectionData(vtkDataSet *input);
 
   protected:
      vtkTemporalPathLineFilter();

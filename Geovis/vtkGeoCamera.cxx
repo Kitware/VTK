@@ -39,7 +39,7 @@ vtkGeoCamera::vtkGeoCamera()
   this->OriginLongitude = 0.0;
   this->OriginLatitude = 0.0;
 
-  // Intial state will be looking at earth over the American continent.
+  // Initial state will be looking at earth over the American continent.
   //this->Longitude = -90.0;
   this->Longitude = 0.0;
   this->Latitude = 0.0;

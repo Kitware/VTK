@@ -32,8 +32,11 @@ vtkOBBTree obb
 vtkSpatialRepresentationFilter boxes
   boxes SetInputConnection [transPD GetOutputPort]
   boxes SetSpatialRepresentation obb
+  boxes SetGenerateLeaves 1
+boxes Update
+set output [[boxes GetOutput] GetBlock [expr [boxes GetMaximumLevel] + 1]]
 vtkExtractEdges boxEdges
-  boxEdges SetInput [ boxes GetOutput ]
+  boxEdges SetInputData $output
 vtkPolyDataMapper boxMapper
   boxMapper SetInputConnection [boxEdges GetOutputPort]
   boxMapper SetResolveCoincidentTopology 1

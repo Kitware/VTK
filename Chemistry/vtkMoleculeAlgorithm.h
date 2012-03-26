@@ -68,16 +68,16 @@ public:
   // vtkAlgorithm::SetInputConnection().  These methods transform the
   // input index to the input port index, not an index of a connection
   // within a single port.
-  void SetInput(vtkDataObject *);
-  void SetInput(int, vtkDataObject*);
+  void SetInputData(vtkDataObject *);
+  void SetInputData(int, vtkDataObject*);
 
   // Description:
   // Add an input of this algorithm.  Note that these methods support
   // old-style pipeline connections.  When writing new code you should
   // use the more general vtkAlgorithm::AddInputConnection().  See
   // SetInput() for details.
-  void AddInput(vtkDataObject *);
-  void AddInput(int, vtkDataObject*);
+  void AddInputData(vtkDataObject *);
+  void AddInputData(int, vtkDataObject*);
 
 protected:
   vtkMoleculeAlgorithm();
@@ -104,7 +104,8 @@ protected:
 
   // Description:
   // This method is the old style execute method
-  virtual void ExecuteData(vtkDataObject *output);
+  virtual void ExecuteDataWithInformation(vtkDataObject *output,
+                                          vtkInformation* outInfo);
   virtual void Execute();
 
   // see algorithm for more info

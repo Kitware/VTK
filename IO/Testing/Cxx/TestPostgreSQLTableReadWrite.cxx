@@ -70,7 +70,7 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableToPostgreSQLWriter> writerToTest =
     vtkSmartPointer<vtkTableToPostgreSQLWriter>::New();
 
-  writerToTest->SetInput(table);
+  writerToTest->SetInputData(table);
   writerToTest->SetDatabase(db);
   writerToTest->SetTableName("tabletest");
   writerToTest->Update();
@@ -87,7 +87,7 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
   vtkSmartPointer<vtkTableWriter> tableFileWriter =
     vtkSmartPointer<vtkTableWriter>::New();
   tableFileWriter->SetFileName("TestPostgreSQLTableReadWrite.vtk");
-  tableFileWriter->SetInput(readerToTest->GetOutput());
+  tableFileWriter->SetInputConnection(readerToTest->GetOutputPort());
   tableFileWriter->Update();
 
   cerr << "verifying that it's the same as what we started with...";

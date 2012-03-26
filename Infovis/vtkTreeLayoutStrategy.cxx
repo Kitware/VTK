@@ -72,7 +72,7 @@ void vtkTreeLayoutStrategy::Layout()
     vtkBoostBreadthFirstSearchTree* bfs = vtkBoostBreadthFirstSearchTree::New();
     bfs->CreateGraphVertexIdArrayOn();
     bfs->SetReverseEdges(this->ReverseEdges);
-    bfs->SetInput(this->Graph);
+    bfs->SetInputData(this->Graph);
     bfs->Update();
     tree = vtkTree::New();
     tree->ShallowCopy(bfs->GetOutput());
@@ -229,7 +229,7 @@ void vtkTreeLayoutStrategy::Layout()
       if (tree->IsLeaf(vertex))
         {
         
-        // 1) Compute the postion in the arc
+        // 1) Compute the position in the arc
         // 2) Spin around so that the tree leaves are at 
         //    the bottom and centered
         // 3) Convert to radians

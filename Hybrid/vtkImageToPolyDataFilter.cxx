@@ -117,8 +117,8 @@ int vtkImageToPolyDataFilter::RequestData(
   totalPieces = numPieces[0]*numPieces[1];
 
   appendOutput->Initialize(); //empty the output
-  append->AddInput(tmpOutput); //output of piece
-  append->AddInput(tmpInput); //output of previoius append
+  append->AddInputData(tmpOutput); //output of piece
+  append->AddInputData(tmpInput); //output of previoius append
 
   // Loop over this many pieces
   for (pieceNum=j=0; j < numPieces[1] && !abortExecute; j++)
@@ -736,7 +736,7 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
       wave->Reset(); wave2->Reset();
 
       // To prevent creating polygons with inner loops, we're going to start
-      // the wave as a "vertical" stack of pixels, and then propogate the
+      // the wave as a "vertical" stack of pixels, and then propagate the
       // wave horizontally only.
       wave->InsertId(0,i);
       this->GetIJ(i, x, y, dims);
@@ -756,11 +756,11 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
           }
         }
 
-      // Okay, defined vertical wave, now propogate horizontally
+      // Okay, defined vertical wave, now propagate horizontally
       numIds = wave->GetNumberOfIds();
       while ( numIds > 0 )
         {
-        for (j=0; j<numIds; j++) //propogate wave
+        for (j=0; j<numIds; j++) //propagate wave
           {
           id = wave->GetId(j);
           ptr = pixels + 3*id;

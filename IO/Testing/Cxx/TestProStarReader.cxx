@@ -77,12 +77,12 @@ int TestProStarReader( int argc, char *argv[] )
 
   // Convert to PolyData.
   vtkGeometryFilter* geometryFilter = vtkGeometryFilter::New();
-  geometryFilter->SetInput(newGrid);
+  geometryFilter->SetInputData(newGrid);
   newGrid->Delete();
 
   // Create a mapper.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(geometryFilter->GetOutput());
+  mapper->SetInputConnection(geometryFilter->GetOutputPort());
   mapper->ScalarVisibilityOn();
 
   // Create the actor.

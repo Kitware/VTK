@@ -136,7 +136,7 @@ class vtkCellPointTraversal
           this->m_sp = this->m_stack + 1; //this points to the second element of the stack
           }
 
-        const vtkCellTreeLocator::vtkCellTreeNode* Next()  // this returns n (the location in the CellTree) if it is a leaf or 0 if the point doesnt contain in the data domain
+        const vtkCellTreeLocator::vtkCellTreeNode* Next()  // this returns n (the location in the CellTree) if it is a leaf or 0 if the point doesn't contain in the data domain
           {
           while( true )
             {
