@@ -28,7 +28,7 @@
 class vtkChartMatrix::PIMPL
 {
 public:
-  PIMPL() {}
+  PIMPL() : Geometry(0, 0) {}
   ~PIMPL() {}
 
   // Container for the vtkChart objects that make up the matrix.
@@ -40,7 +40,7 @@ public:
 
 vtkStandardNewMacro(vtkChartMatrix)
 
-vtkChartMatrix::vtkChartMatrix() : Gutter(15.0, 15.0)
+vtkChartMatrix::vtkChartMatrix() : Size(0, 0), Gutter(15.0, 15.0)
 {
   this->Private = new PIMPL;
   this->Borders[vtkAxis::LEFT] = 50;

@@ -19,7 +19,6 @@
 #include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
-#include "vtkEvent.h"
 #include "vtkWindow.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"

@@ -120,25 +120,22 @@ int vtkActor::GetIsOpaque()
     // force creation of a property
     this->GetProperty();
     }
+  bool is_opaque = (this->Property->GetOpacity() >= 1.0);
 
-  int result=this->Property->GetOpacity() >= 1.0;
+  // are we using an opaque texture, if any?
+  is_opaque = is_opaque &&
+    (this->Texture ==NULL || this->Texture->IsTranslucent() == 0);
 
-  if(result && this->Texture)
-    {
-    result = !this->Texture->IsTranslucent();
-    }
-  if(result)
-    {
-    if(this->Mapper!=0 && this->Mapper->GetLookupTable()!=0)
-      {
-      result=this->Mapper->GetLookupTable()->IsOpaque();
-      if (result)
-        {
-        result = this->Mapper->GetIsOpaque()? 1: 0;
-        }
-      }
-    }
-  return result;
+  // are we using an opaque LUT, if any?
+  is_opaque = is_opaque &&
+    (this->Mapper == NULL || this->Mapper->GetLookupTable() == NULL ||
+     this->Mapper->GetLookupTable()->IsOpaque() == 1);
+
+  // are we using an opaque scalar array, if any?
+  is_opaque = is_opaque &&
+    (this->Mapper == NULL || this->Mapper->GetIsOpaque());
+
+  return is_opaque? 1 : 0;
 }
 
 

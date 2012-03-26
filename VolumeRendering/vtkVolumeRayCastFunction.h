@@ -85,7 +85,7 @@ typedef struct
   // about its size, spacing, origin and precomputed increment
   int                          ScalarDataType;
   void                        *ScalarDataPointer;
-  int                          DataIncrement[3];
+  vtkIdType                    DataIncrement[3];
   int                          DataSize[3];
   double                       DataSpacing[3];
   double                       DataOrigin[3];

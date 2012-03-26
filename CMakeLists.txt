@@ -87,7 +87,7 @@ endif()
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 9)
+SET(VTK_MINOR_VERSION 10)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -803,8 +803,11 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
 VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+
+set(HDF5_FIND_COMPONENTS "HL;C")
 VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
 INCLUDE(vtkHDF5Library)
+
 IF(VTK_USE_GL2PS)
 VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
 ENDIF(VTK_USE_GL2PS)

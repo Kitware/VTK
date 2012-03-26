@@ -1,5 +1,7 @@
 #
 # Find the native HDF5 includes and library
+# Note: this is deprecated, and will be removed entirely
+# once vtk's min cmake >= 2.8.0
 #
 # HDF5_INCLUDE_DIR - where to find H5public.h, etc.
 # HDF5_LIBRARIES   - List of fully qualified libraries to link against when using hdf5.

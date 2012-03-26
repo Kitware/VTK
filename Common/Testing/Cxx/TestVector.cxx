@@ -101,7 +101,8 @@ int TestVector(int, char*[])
   // Now to test out one of the color classes and memory layouts of arrays
   // Note that the memory layout of a vtkColor3ub[5] is the same as an unsigned
   // char[15], and can be addressed as such.
-  vtkColor3ub color[3];
+  vtkColor3ub color[3] = { vtkColor3ub(0, 0, 0), vtkColor3ub(0, 0, 0),
+        vtkColor3ub(0, 0, 0) };
   unsigned char* colorPtr = color->GetData();
   for (int i = 0; i < 3; ++i)
     {

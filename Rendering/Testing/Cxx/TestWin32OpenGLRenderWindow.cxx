@@ -11,7 +11,7 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-=========================================================================*/ 
+=========================================================================*/
 
 #include "vtkTestUtilities.h"
 #include "vtkRenderWindowInteractor.h"
@@ -31,29 +31,30 @@ static bool TestWin32OpenGLRenderWindowOffScreen(vtkWin32OpenGLRenderWindow* ren
   //Create a cone
   vtkNew<vtkConeSource> coneSource;
   coneSource->Update();
- 
+
   //Create a mapper and actor
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(coneSource->GetOutputPort());
- 
+
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
- 
+
   //Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
   renderWindow->AddRenderer(renderer.GetPointer());
- 
+
   //Add the actors to the scene
   renderer->AddActor(actor.GetPointer());
   renderer->SetBackground(.3, .2, .1); // Background color dark red
- 
+
   //Render and interact
   renderWindow->SetOffScreenRendering(1);
   renderWindow->SetSize(100,100);
-  renderWindow->Render(); 
+  renderWindow->Render();
   return 1;
 }
-int TestWin32OpenGLRenderWindow(int argc, char* argv[])
+
+int TestWin32OpenGLRenderWindow(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkWin32OpenGLRenderWindow* renderWindow(NULL);
 

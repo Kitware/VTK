@@ -526,9 +526,9 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     selectionId = numAtoms + bondInd; // mixing 1 and 0 indexed ids on purpose
     // Extract bond info
     vtkBond bond = molecule->GetBond(bondInd);
-    bondOrder = bond.GetBondOrder();
-    pos1 = bond.GetBeginAtomPositionAsVector3f();
-    pos2 = bond.GetEndAtomPositionAsVector3f();
+    bondOrder = bond.GetOrder();
+    pos1 = bond.GetBeginAtom().GetPosition();
+    pos2 = bond.GetEndAtom().GetPosition();
     atomicNumbers[0] = bond.GetBeginAtom().GetAtomicNumber();
     atomicNumbers[1] = bond.GetEndAtom().GetAtomicNumber();
 

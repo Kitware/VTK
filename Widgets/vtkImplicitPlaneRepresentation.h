@@ -55,6 +55,7 @@ class vtkPolyData;
 class vtkPolyDataAlgorithm;
 class vtkTransform;
 class vtkBox;
+class vtkLookupTable;
 
 class VTK_WIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
 {
@@ -79,6 +80,7 @@ public:
   // Get the normal to the plane.
   void SetNormal(double x, double y, double z);
   void SetNormal(double x[3]);
+  void SetNormalToCamera();
   double* GetNormal();
   void GetNormal(double xyz[3]);
 
@@ -97,6 +99,14 @@ public:
   void SetNormalToZAxis(int);
   vtkGetMacro(NormalToZAxis,int);
   vtkBooleanMacro(NormalToZAxis,int);
+
+  // Description:
+  // If enabled, and a vtkCamera is available through the renderer, then
+  // LockNormalToCamera will cause the normal to follow the camera's
+  // normal.
+  virtual void SetLockNormalToCamera(int);
+  vtkGetMacro(LockNormalToCamera,int);
+  vtkBooleanMacro(LockNormalToCamera,int);
 
   // Description:
   // Turn on/off tubing of the wire outline of the plane. The tube thickens
@@ -176,6 +186,34 @@ public:
   // Get the property of the intersection edges. (This property also
   // applies to the edges when tubed.)
   vtkGetObjectMacro(EdgesProperty,vtkProperty);
+  // Description
+  // Set color to the edge
+  void SetEdgeColor(vtkLookupTable*);
+  void SetEdgeColor(double, double, double);
+  void SetEdgeColor(double x[3]);
+
+  // Description:
+  // Specify a translation distance used by the BumpPlane() method. Note that the
+  // distance is normalized; it is the fraction of the length of the bounding
+  // box of the wire outline.
+  vtkSetClampMacro(BumpDistance,double,0.000001,1);
+  vtkGetMacro(BumpDistance,double);
+
+  // Description:
+  // Translate the plane in the direction of the normal by the
+  // specified BumpDistance.  The dir parameter controls which
+  // direction the pushing occurs, either in the same direction
+  // as the normal, or when negative, in the opposite direction.
+  // The factor controls whether what percentage of the bump is
+  // used.
+  void BumpPlane(int dir, double factor);
+
+  // Description:
+  // Push the plane the distance specified along the normal. Positive
+  // values are in the direction of the normal; negative values are
+  // in the opposite direction of the normal. The distance value is
+  // expressed in world coordinates.
+  void PushPlane(double distance);
 
   // Description:
   // Methods to interface with the vtkSliderWidget.
@@ -185,7 +223,6 @@ public:
   virtual void StartWidgetInteraction(double eventPos[2]);
   virtual void WidgetInteraction(double newEventPos[2]);
   virtual void EndWidgetInteraction(double newEventPos[2]);
-
   // Decsription:
   // Methods supporting the rendering process.
   virtual double *GetBounds();
@@ -204,7 +241,6 @@ public:
     MovingOrigin,
     Rotating,
     Pushing,
-    MovingPlane,
     Scaling
   };
 //ETX
@@ -238,6 +274,12 @@ protected:
   int NormalToXAxis;
   int NormalToYAxis;
   int NormalToZAxis;
+
+  // Locking normal to camera
+  int LockNormalToCamera;
+
+  // Controlling the push operation
+  double BumpDistance;
 
   // The actual plane which is being manipulated
   vtkPlane *Plane;

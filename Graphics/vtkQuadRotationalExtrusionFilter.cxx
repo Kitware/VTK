@@ -547,7 +547,6 @@ void vtkQuadRotationalExtrusionFilter::PrintSelf( ostream& os, vtkIndent indent 
   os << indent << "PerBlockAngles:\n";
   for( vtksys_stl::map<vtkIdType,double>::iterator it=this->PerBlockAngles.begin();it!=this->PerBlockAngles.end();++it )
     {
-    os << indent.GetNextIndent() << "Block #" << it->first << " -> " << it->second << "°\n";
-     
+    os << indent.GetNextIndent() << "Block #" << it->first << " -> " << it->second << "\n";
     }
 }

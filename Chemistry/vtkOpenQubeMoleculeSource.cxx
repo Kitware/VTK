@@ -162,7 +162,7 @@ void vtkOpenQubeMoleculeSource::CopyOQMoleculeToVtkMolecule(
     {
     vtkAtom atom = mol->AppendAtom();
     pos = oqmol->atomPos(i);
-    atom.SetPosition(pos.data());
+    atom.SetPosition(vtkVector3d(pos.data()).Cast<float>().GetData());
     atom.SetAtomicNumber(oqmol->atomAtomicNumber(i));
     }
 

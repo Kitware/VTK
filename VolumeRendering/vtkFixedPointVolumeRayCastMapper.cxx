@@ -95,6 +95,7 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
                                                            vtkFixedPointVolumeRayCastMapper *me )
 {
   int                 x, y, z;
+  vtkIdType           yinc, zinc;
   int                 x_start, x_limit;
   int                 y_start, y_limit;
   int                 z_start, z_limit;
@@ -112,13 +113,16 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
     me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
     }
 
-
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
 
   // adjust the aspect
   aspect[0] = spacing[0] * 2.0 / avgSpacing;
   aspect[1] = spacing[1] * 2.0 / avgSpacing;
   aspect[2] = spacing[2] * 2.0 / avgSpacing;
+
+  // compute the increments
+  yinc = static_cast<vtkIdType>(dim[0]);
+  zinc = yinc*static_cast<vtkIdType>(dim[1]);
 
   if ( scalarRange[1] - scalarRange[0] )
     {
@@ -164,11 +168,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       xlow = x_start;
       xhigh = x_limit;
 
-      dirPtr  = gradientDirPtr + y * dim[0] + xlow;
-      magPtr  = gradientMagPtr + y * dim[0] + xlow;
+      dirPtr  = gradientDirPtr + y * yinc + xlow;
+      magPtr  = gradientMagPtr + y * yinc + xlow;
 
       // Working on dx - that is this row
-      dptr = dataPtr + z * dim[0] * dim[1] + y * dim[0] + xlow;
+      dptr = dataPtr + z * zinc + y * yinc + xlow;
       // add this into our dxBuffer
       dxBuffer[0] = *dptr;
       for ( x = xlow+1; x < xhigh; x++ )
@@ -187,11 +191,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       // first, the row before, or this row if we are at the edge
       if ( y > 0 )
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + (y-1) * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + (y-1) * yinc + xlow;
         }
       else
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + y * yinc + xlow;
         }
       // add this into our dyBuffer
       for ( x = xlow; x < xhigh; x++ )
@@ -202,11 +206,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       // now the row after
       if ( y < y_limit-1 )
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + (y+1) * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + (y+1) * yinc + xlow;
         }
       else
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + y * yinc + xlow;
         }
       // subtract this from our dyBuffer
       for ( x = xlow; x < xhigh; x++ )
@@ -218,11 +222,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       // no slice before
       if ( z > 0 )
         {
-        dptr = dataPtr + (z-1) * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + (z-1) * zinc + y * yinc + xlow;
         }
       else
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + y * yinc + xlow;
         }
 
       // add this into our dzBuffer
@@ -235,11 +239,11 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
       // no slice after
       if ( z < z_limit-1 )
         {
-        dptr = dataPtr + (z+1) * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + (z+1) * zinc + y * yinc + xlow;
         }
       else
         {
-        dptr = dataPtr + z * dim[0] * dim[1] + y * dim[0] + xlow;
+        dptr = dataPtr + z * zinc + y * yinc + xlow;
         }
 
       // add this into our dzBuffer
@@ -395,6 +399,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
                                                        vtkFixedPointVolumeRayCastMapper *me )
 {
   int                 x, y, z, c;
+  vtkIdType           yinc, zinc;
   int                 x_start, x_limit;
   int                 y_start, y_limit;
   int                 z_start, z_limit;
@@ -403,7 +408,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   float               gvalue=0;
   int                 xlow, xhigh;
   double              aspect[3];
-  int                 xstep, ystep, zstep;
+  vtkIdType           xstep, ystep, zstep;
   float               scale[4];
   unsigned short      *dirPtr, *cdirPtr;
   unsigned char       *magPtr, *cmagPtr;
@@ -423,10 +428,14 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   aspect[1] = spacing[1] * 2.0 / avgSpacing;
   aspect[2] = spacing[2] * 2.0 / avgSpacing;
 
+  // compute the increments
+  yinc = static_cast<vtkIdType>(dim[0]);
+  zinc = yinc*static_cast<vtkIdType>(dim[1]);
+
   // Compute steps through the volume in x, y, and z
   xstep = components;
-  ystep = components*dim[0];
-  zstep = components*dim[0] * dim[1];
+  ystep = components*yinc;
+  zstep = components*zinc;
 
   if ( !independent )
     {
@@ -495,10 +504,10 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
       xlow = x_start;
       xhigh = x_limit;
 
-      dptr = dataPtr + components*(z * dim[0] * dim[1] + y * dim[0] + xlow);
+      dptr = dataPtr + components*(z * zinc + y * yinc + xlow);
 
-      dirPtr  = gradientDirPtr    + (y * dim[0] + xlow)*increment;
-      magPtr  = gradientMagPtr    + (y * dim[0] + xlow)*increment;
+      dirPtr  = gradientDirPtr    + (y * yinc + xlow)*increment;
+      magPtr  = gradientMagPtr    + (y * yinc + xlow)*increment;
 
       for ( x = xlow; x < xhigh; x++ )
         {
@@ -2784,8 +2793,10 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
    this->CurrentScalars->GetRange(scalarRange[c], c);
    }
 
- int sliceSize = dim[0]*dim[1]*((independent)?(components):(1));
- int numSlices = dim[2];
+ vtkIdType sliceSize = (static_cast<vtkIdType>(dim[0])*
+                        static_cast<vtkIdType>(dim[1])*
+                        ((independent)?(components):(1)));
+ vtkIdType numSlices = dim[2];
 
  int i;
 

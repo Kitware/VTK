@@ -81,7 +81,7 @@ class vtkUnsignedShortArray;
 
 class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 {
- public:
+public:
   static vtkMolecule *New();
   vtkTypeMacro(vtkMolecule,vtkUndirectedGraph);
   void PrintSelf(ostream &os, vtkIndent indent);
@@ -93,36 +93,21 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   // a vtkAtom that refers to the new atom.
   vtkAtom AppendAtom()
   {
-    const double pos[3] = {0.0, 0.0, 0.0};
-    return this->AppendAtom(0, pos);
+    return this->AppendAtom(0, vtkVector3f(0, 0, 0));
   }
 
   // Description:
-  // Add new atom with the specified atomic number and
-  // position. Return a vtkAtom that refers to the new atom.
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const vtkVector3d &pos)
+  // Add new atom with the specified atomic number and position. Return a
+  // vtkAtom that refers to the new atom.
+  vtkAtom AppendAtom(unsigned short atomicNumber, const vtkVector3f &pos);
+
+  // Description:
+  // Convenience methods to append a new atom with the specified atomic number
+  // and position.
+  vtkAtom AppendAtom(unsigned short atomicNumber, double x, double y, double z)
   {
-    return this->AppendAtom(atomicNumber, pos.GetData());
+    return this->AppendAtom(atomicNumber, vtkVector3f(x, y, z));
   }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const vtkVector3f &pos)
-  {
-    return this->AppendAtom(atomicNumber, pos.GetData());
-  }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     double x, double y, double z)
-  {
-    double pos[3];
-    pos[0] = x;
-    pos[1] = y;
-    pos[2] = z;
-    return this->AppendAtom(atomicNumber, pos);
-  }
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const float pos[3]);
-  vtkAtom AppendAtom(unsigned short atomicNumber,
-                     const double pos[3]);
 
   // Description:
   // Return a vtkAtom that refers to the atom with the specified id.
@@ -163,32 +148,14 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
                            unsigned short atomicNum);
 
   // Description:
-  // Get/Set the position of the atom with the specified id
-  void GetAtomPosition(vtkIdType atomId, double pos[3]);
-  void SetAtomPosition(vtkIdType atomId, const double pos[3]);
-  void GetAtomPosition(vtkIdType atomId, float pos[3]);
-  void SetAtomPosition(vtkIdType atomId, const float pos[3]);
+  // Set the position of the atom with the specified id.
+  void SetAtomPosition(vtkIdType atomId, const vtkVector3f &pos);
   void SetAtomPosition(vtkIdType atomId, double x, double y, double z);
-  vtkVector3d GetAtomPositionAsVector3d(vtkIdType atomId)
-  {
-    double pos[3];
-    this->GetAtomPosition(atomId, pos);
-    return vtkVector3d(pos);
-  }
-  void SetAtomPosition(vtkIdType atomId, const vtkVector3d &pos)
-  {
-    return this->SetAtomPosition(atomId, pos.GetData());
-  }
-  vtkVector3f GetAtomPositionAsVector3f(vtkIdType atomId)
-  {
-    float pos[3];
-    this->GetAtomPosition(atomId, pos);
-    return vtkVector3f(pos);
-  }
-  void SetAtomPosition(vtkIdType atomId, const vtkVector3f &pos)
-  {
-    return this->SetAtomPosition(atomId, pos.GetData());
-  }
+
+  // Description:
+  // Get the position of the atom with the specified id.
+  vtkVector3f GetAtomPosition(vtkIdType atomId);
+  void GetAtomPosition(vtkIdType atomId, float pos[3]);
 
   // Description
   // Get/Set the bond order of the bond with the specified id
@@ -245,8 +212,7 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 
   // Description:
   // Obtain the plane that passes through the indicated bond with the given
-  // normal. If the plane is set successfully, the function return true.
-  //
+  // normal. If the plane is set successfully, the function returns true.
   //
   // If the normal is not orthogonal to the bond, a new normal will be
   // constructed in such a way that the plane will be orthogonal to
@@ -270,72 +236,10 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
   //
   // If n_i is parallel to v, a warning will be printed and no plane will be
   // added. Obviously, n_i must not be parallel to v.
-  static bool GetPlaneFromBond(vtkBond bond, const double normal[3],
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond.GetBeginAtom(),
-                                         bond.GetEndAtom(), normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, const float normal[3],
-                               vtkPlane *plane)
-  {
-    double normald[3];
-    normald[0] = static_cast<double>(normal[0]);
-    normald[1] = static_cast<double>(normal[1]);
-    normald[2] = static_cast<double>(normal[2]);
-    return vtkMolecule::GetPlaneFromBond(bond, normald, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond,
-                               double n_x, double n_y, double n_z,
-                               vtkPlane *plane)
-  {
-    double normal[3];
-    normal[0] = n_x;
-    normal[1] = n_y;
-    normal[2] = n_z;
-    return vtkMolecule::GetPlaneFromBond(bond, normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, vtkVector3d normal,
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond, normal.GetData(), plane);
-  }
-  static bool GetPlaneFromBond(vtkBond bond, vtkVector3f normal,
-                               vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(bond, normal.GetData(), plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             const double normal[3], vtkPlane *plane);
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             const float normal[3], vtkPlane *plane)
-  {
-    double normald[3];
-    normald[0] = static_cast<double>(normal[0]);
-    normald[1] = static_cast<double>(normal[1]);
-    normald[2] = static_cast<double>(normal[2]);
-    return vtkMolecule::GetPlaneFromBond(atom1, atom2, normald, plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                               double n_x, double n_y, double n_z,
-                               vtkPlane *plane)
-  {
-    double normal[3];
-    normal[0] = n_x;
-    normal[1] = n_y;
-    normal[2] = n_z;
-    return vtkMolecule::GetPlaneFromBond(atom1, atom2, normal, plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             vtkVector3d normal, vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(atom1,atom2,normal.GetData(),plane);
-  }
-  static bool GetPlaneFromBond(vtkAtom atom1, vtkAtom atom2,
-                             vtkVector3f normal, vtkPlane *plane)
-  {
-    return vtkMolecule::GetPlaneFromBond(atom1,atom2,normal.GetData(),plane);
-  }
+  static bool GetPlaneFromBond(const vtkBond &bond, const vtkVector3f &normal,
+                               vtkPlane *plane);
+  static bool GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
+                               const vtkVector3f &normal, vtkPlane *plane);
 
  protected:
   vtkMolecule();
@@ -363,7 +267,7 @@ class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
 
   vtkAbstractElectronicData *ElectronicData;
 
- private:
+private:
   vtkMolecule(const vtkMolecule&);    // Not implemented.
   void operator=(const vtkMolecule&); // Not implemented.
 };

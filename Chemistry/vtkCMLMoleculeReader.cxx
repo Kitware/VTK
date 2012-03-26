@@ -196,7 +196,7 @@ void vtkCMLParser::NewAtom(const char **attr)
   vtkAtom atom = this->Target->AppendAtom();
   int attrInd = 0;
   unsigned short atomicNum = 0;
-  double pos[3];
+  float pos[3];
   const char * id;
   while (const char * cur = attr[attrInd])
     {

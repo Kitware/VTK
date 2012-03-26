@@ -82,23 +82,19 @@ private:
 };
 
 //----------------------------------------------------------------------------
-// Need to use vtkstd_bool type because std: :less requires bool return
-// type from operators.  This example should not be used to justify
-// using bool elsewhere in VTK.
-
 #define VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(op) \
-  inline vtkstd_bool \
+  inline bool \
   operator op (const vtkSmartPointerBase& l, const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op \
             static_cast<void*>(r.GetPointer())); \
     } \
-  inline vtkstd_bool \
+  inline bool \
   operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
     } \
-  inline vtkstd_bool \
+  inline bool \
   operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \

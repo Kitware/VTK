@@ -110,7 +110,7 @@ public:
   // avoid the bogus ambiguous overload error.
 #if defined(__HP_aCC) || defined(__IBMCPP__)
 # define VTK_WEAK_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
-  vtkstd_bool operator op (NullPointerOnly*) const        \
+  bool operator op (NullPointerOnly*) const              \
     {                                                     \
     return ::operator op (*this, 0);                      \
     }
@@ -136,18 +136,18 @@ private:
 
 #define VTK_WEAK_POINTER_DEFINE_OPERATOR(op) \
   template <class T> \
-  inline vtkstd_bool \
+  inline bool \
   operator op (const vtkWeakPointer<T>& l, const vtkWeakPointer<T>& r) \
     { \
     return (l.GetPointer() op r.GetPointer()); \
     } \
   template <class T> \
-  inline vtkstd_bool operator op (T* l, const vtkWeakPointer<T>& r) \
+  inline bool operator op (T* l, const vtkWeakPointer<T>& r) \
     { \
     return (l op r.GetPointer()); \
     } \
   template <class T> \
-  inline vtkstd_bool operator op (const vtkWeakPointer<T>& l, T* r) \
+  inline bool operator op (const vtkWeakPointer<T>& l, T* r) \
     { \
     return (l.GetPointer() op r); \
     }

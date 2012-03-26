@@ -501,7 +501,19 @@ void vtkScatterPlotMatrix::StartAnimation(
     }
 }
 
+#ifndef VTK_LEGACY_REMOVE
 vtkAnnotationLink* vtkScatterPlotMatrix::GetActiveAnnotationLink()
+{
+  // Never made it into a release, deprecating for shorter, more consistent
+  // naming of the function.
+  VTK_LEGACY_REPLACED_BODY(vtkScatterPlotMatrix::GetActiveAnnotationLink,
+                           "VTK 5.8",
+                           vtkScatterPlotMatrix::GetAnnotationLink);
+  return this->GetAnnotationLink();
+}
+#endif
+
+vtkAnnotationLink* vtkScatterPlotMatrix::GetAnnotationLink()
 {
   return this->Private->Link.GetPointer();
 }

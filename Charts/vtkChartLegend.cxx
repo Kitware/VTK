@@ -38,7 +38,7 @@
 class vtkChartLegend::Private
 {
 public:
-  Private()
+  Private() : Point(0, 0)
   {
   }
   ~Private()
@@ -58,6 +58,7 @@ vtkChartLegend::vtkChartLegend()
 {
   this->Storage = new vtkChartLegend::Private;
   this->Point = this->Storage->Point.GetData();
+  this->Rect.Set(0, 0, 0, 0);
   // Defaults to 12pt text, with top, right alignment to the specified point.
   this->LabelProperties->SetFontSize(12);
   this->LabelProperties->SetColor(0.0, 0.0, 0.0);

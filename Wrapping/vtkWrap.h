@@ -162,6 +162,11 @@ void vtkWrap_FindCountHints(
   ClassInfo *data, HierarchyInfo *hinfo);
 
 /**
+ * Get the size of a fixed-size tuple
+ */
+int vtkWrap_GetTupleSize(ClassInfo *data, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about methods that return a new object instance,
  * i.e. factory methods and the like.  Reference counts must be
  * handled differently for such returned objects.
