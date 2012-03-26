@@ -565,8 +565,8 @@ void vtkPStructuredGridConnectivity::PostReceives()
     assert("ERROR: grid rcv buffers must be 1-to-1 with the rcv buffer sizes" &&
       this->RcvBufferSizes[gridIdx].size()==this->RcvBuffers[gridIdx].size() );
 
-    int NumNeis = this->Neighbors[ gridIdx ].size();
-    for( int nei=0; nei < NumNeis; ++nei )
+    unsigned int NumNeis = this->Neighbors[ gridIdx ].size();
+    for( unsigned int nei=0; nei < NumNeis; ++nei )
       {
       int neiGridIdx = this->Neighbors[gridIdx][nei].NeighborID;
       assert("ERROR: Neighbor grid index is out-of-bounds!" &&
