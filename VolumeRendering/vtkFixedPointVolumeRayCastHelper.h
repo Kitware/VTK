@@ -785,10 +785,10 @@
     scalarOpacityTable[c] = mapper->GetScalarOpacityTable(c);                                   \
     }                                                                                           \
                                                                                                 \
-  unsigned int inc[3];                                                                          \
+  vtkIdType inc[3];                                                                             \
   inc[0] = components;                                                                          \
-  inc[1] = dim[0]*components;                                                                   \
-  inc[2] = dim[0]*dim[1]*components;
+  inc[1] = inc[0]*dim[0];                                                                       \
+  inc[2] = inc[1]*dim[1];
 //ETX
 
 //BTX
@@ -809,7 +809,7 @@
     }                                                                   \
   unsigned char **gradientMag = mapper->GetGradientMagnitude();         \
                                                                         \
-  unsigned int mInc[3];                                                 \
+  vtkIdType mInc[3];                                                    \
   if ( vol->GetProperty()->GetIndependentComponents() )                 \
     {                                                                   \
     mInc[0] = inc[0];                                                   \
@@ -819,8 +819,8 @@
   else                                                                  \
     {                                                                   \
     mInc[0] = 1;                                                        \
-    mInc[1] = dim[0];                                                   \
-    mInc[2] = dim[0]*dim[1];                                            \
+    mInc[1] = mInc[0]*dim[0];                                           \
+    mInc[2] = mInc[1]*dim[1];                                           \
     }
 //ETX
 
@@ -834,7 +834,7 @@
     specularShadingTable[c] = mapper->GetSpecularShadingTable(c);       \
     }                                                                   \
   unsigned short **gradientDir = mapper->GetGradientNormal();           \
-  unsigned int dInc[3];                                                 \
+  vtkIdType dInc[3];                                                    \
   if ( vol->GetProperty()->GetIndependentComponents() )                 \
     {                                                                   \
     dInc[0] = inc[0];                                                   \
@@ -844,25 +844,25 @@
   else                                                                  \
     {                                                                   \
     dInc[0] = 1;                                                        \
-    dInc[1] = dim[0];                                                   \
-    dInc[2] = dim[0]*dim[1];                                            \
+    dInc[1] = dInc[0]*dim[0];                                           \
+    dInc[2] = dInc[1]*dim[1];                                           \
     }
 //ETX
 
 //BTX
-#define VTKKWRCHelper_InitializeTrilinVariables()                                       \
-  unsigned int Binc =                                                components;        \
-  unsigned int Cinc =                            dim[0]*components;                     \
-  unsigned int Dinc =                            dim[0]*components + components;        \
-  unsigned int Einc = dim[0]*dim[1]*components;                                         \
-  unsigned int Finc = dim[0]*dim[1]*components                     + components;        \
-  unsigned int Ginc = dim[0]*dim[1]*components + dim[0]*components;                     \
-  unsigned int Hinc = dim[0]*dim[1]*components + dim[0]*components + components;
+#define VTKKWRCHelper_InitializeTrilinVariables() \
+  vtkIdType Binc = components;                    \
+  vtkIdType Cinc = Binc*dim[0];                   \
+  vtkIdType Dinc = Cinc + Binc;                   \
+  vtkIdType Einc = Cinc*dim[1];                   \
+  vtkIdType Finc = Einc + Binc;                   \
+  vtkIdType Ginc = Einc + Cinc;                   \
+  vtkIdType Hinc = Ginc + Binc;
 //ETX
 
 //BTX
 #define VTKKWRCHelper_InitializeTrilinVariablesGO()             \
-  int magOffset;                                                \
+  vtkIdType magOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
     {                                                           \
     magOffset = components;                                     \
@@ -872,14 +872,14 @@
     magOffset = 1;                                              \
     }                                                           \
                                                                 \
-  unsigned int mBFinc =                    magOffset;           \
-  unsigned int mCGinc = dim[0]*magOffset;                       \
-  unsigned int mDHinc = dim[0]*magOffset + magOffset;
+  vtkIdType mBFinc =                    magOffset;              \
+  vtkIdType mCGinc = dim[0]*magOffset;                          \
+  vtkIdType mDHinc = dim[0]*magOffset + magOffset;
 //ETX
 
 //BTX
 #define VTKKWRCHelper_InitializeTrilinVariablesShade()          \
-  int dirOffset;                                                \
+  vtkIdType dirOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
     {                                                           \
     dirOffset = components;                                     \
@@ -889,9 +889,9 @@
     dirOffset = 1;                                              \
     }                                                           \
                                                                 \
-  unsigned int dBFinc =                    dirOffset;           \
-  unsigned int dCGinc = dim[0]*dirOffset;                       \
-  unsigned int dDHinc = dim[0]*dirOffset + dirOffset;
+  vtkIdType dBFinc =                    dirOffset;              \
+  vtkIdType dCGinc = dim[0]*dirOffset;                          \
+  vtkIdType dDHinc = dim[0]*dirOffset + dirOffset;
 //ETX
 
 //BTX
@@ -911,7 +911,7 @@
       {                                                                 \
       break;                                                            \
       }                                                                 \
-    imagePtr = image + 4*(j*imageMemorySize[0] + rowBounds[j*2]);   
+    imagePtr = image + 4*(j*imageMemorySize[0] + rowBounds[j*2]);
 
 //ETX
 
@@ -961,13 +961,13 @@
   oldSPos[1] = 0;                                       \
   oldSPos[2] = 0;                                       \
                                                         \
-  unsigned int w1X, w1Y, w1Z;                           \
-  unsigned int w2X, w2Y, w2Z;                           \
-  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;          \
+  unsigned int w1X, w1Y, w1Z;                              \
+  unsigned int w2X, w2Y, w2Z;                              \
+  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;             \
                                                         \
   unsigned short  maxValue=0;                           \
   unsigned short  val;                                  \
-  unsigned int    A=0,B=0,C=0,D=0,E=0,F=0,G=0,H=0;
+  unsigned int A=0,B=0,C=0,D=0,E=0,F=0,G=0,H=0;
 //ETX
 
 //BTX
@@ -979,9 +979,9 @@
   oldSPos[1] = 0;                                               \
   oldSPos[2] = 0;                                               \
                                                                 \
-  unsigned int w1X, w1Y, w1Z;                                   \
-  unsigned int w2X, w2Y, w2Z;                                   \
-  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;                  \
+  unsigned int w1X, w1Y, w1Z;                                      \
+  unsigned int w2X, w2Y, w2Z;                                      \
+  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;                     \
                                                                 \
   unsigned short  maxValue[4];                                  \
   unsigned short  val[4];                                       \

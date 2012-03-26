@@ -586,30 +586,30 @@ inline void vtkFixedPointVolumeRayCastMapper::ShiftVectorDown( unsigned int in[3
   out[0] = in[0] >> VTKKW_FP_SHIFT;
   out[1] = in[1] >> VTKKW_FP_SHIFT;
   out[2] = in[2] >> VTKKW_FP_SHIFT;
-} 
+}
 
 inline int vtkFixedPointVolumeRayCastMapper::CheckMinMaxVolumeFlag( unsigned int mmpos[3], int c )
 {
-  unsigned int offset = 
-    static_cast<unsigned int>(this->MinMaxVolumeSize[3]) * 
-    ( mmpos[2]*static_cast<unsigned int>(
+  vtkIdType offset =
+    static_cast<vtkIdType>(this->MinMaxVolumeSize[3]) *
+    ( mmpos[2]*static_cast<vtkIdType>(
         this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1]) +
-      mmpos[1]*static_cast<unsigned int>(this->MinMaxVolumeSize[0]) +
-      mmpos[0] ) + static_cast<unsigned int>(c);
-  
+      mmpos[1]*static_cast<vtkIdType>(this->MinMaxVolumeSize[0]) +
+      mmpos[0] ) + static_cast<vtkIdType>(c);
+
   return ((*(this->MinMaxVolume + 3*offset + 2))&0x00ff);
 }
 
-inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned int mmpos[3], int c, 
+inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned int mmpos[3], int c,
                                                                        unsigned short maxIdx, int flip )
 {
-  unsigned int offset = 
-    static_cast<unsigned int>(this->MinMaxVolumeSize[3]) * 
-    ( mmpos[2]*static_cast<unsigned int>(
+  vtkIdType offset =
+    static_cast<vtkIdType>(this->MinMaxVolumeSize[3]) *
+    ( mmpos[2]*static_cast<vtkIdType>(
         this->MinMaxVolumeSize[0]*this->MinMaxVolumeSize[1]) +
-      mmpos[1]*static_cast<unsigned int>(this->MinMaxVolumeSize[0]) +
-      mmpos[0] ) + static_cast<unsigned int>(c);
-  
+      mmpos[1]*static_cast<vtkIdType>(this->MinMaxVolumeSize[0]) +
+      mmpos[0] ) + static_cast<vtkIdType>(c);
+
   if ( (*(this->MinMaxVolume + 3*offset + 2)&0x00ff) )
     {
     if (flip)
@@ -622,7 +622,7 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned 
       }
     }
   else
-    { 
+    {
     return 0;
     }
 }
