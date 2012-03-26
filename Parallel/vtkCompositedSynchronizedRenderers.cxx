@@ -18,6 +18,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTreeCompositer.h"
 
@@ -83,7 +84,7 @@ void vtkCompositedSynchronizedRenderers::CaptureRenderedDepthBuffer(
   vtkFloatArray* depth_buffer)
 {
   double viewport[4];
-  vtkRenderer* ren = this->Renderer;
+  vtkOpenGLRenderer* ren = this->Renderer;
   ren->GetViewport(viewport);
 
   int window_size[2];

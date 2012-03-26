@@ -27,8 +27,10 @@
 #include "vtkPNGWriter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 
 #include "vtkgl.h"
+#include <assert.h>
 
 
 //----------------------------------------------------------------------------
@@ -111,7 +113,17 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
       {
       this->Renderer->RemoveObserver(this->Observer);
       }
-    vtkSetObjectBodyMacro(Renderer, vtkRenderer, renderer);
+
+    // The renderer should be OpenGL ...
+    vtkOpenGLRenderer *glRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
+    if(renderer && !glRenderer)
+      {
+        vtkErrorMacro("Received non OpenGL renderer");
+        assert(false);
+      }
+
+    vtkSetObjectBodyMacro(Renderer, vtkOpenGLRenderer, glRenderer);
     if (this->Renderer)
       {
       this->Renderer->AddObserver(vtkCommand::StartEvent, this->Observer);
@@ -769,4 +781,10 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     this->GetRawPtr());
   this->MarkValid();
   return true;
+}
+
+vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of " << this->Renderer );
+  return this->Renderer;
 }
