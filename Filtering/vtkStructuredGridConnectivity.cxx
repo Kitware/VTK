@@ -71,7 +71,10 @@ void vtkStructuredGridConnectivity::PrintSelf(std::ostream& os,vtkIndent indent)
   os << "========================\n";
   os << "DATA DIMENSION: " << this->DataDimension << std::endl;
   os << "WHOLE EXTENT: [ ";
-  for( int i=0; i < 6; os << this->WholeExtent[i++] << " " );
+  for( int i=0; i < 6; i++ )
+    {
+    os << this->WholeExtent[i] << " ";
+    }
   os << "]\n";
   os << "CONNECTIVITY INFORMATION: \n";
   for( unsigned int gridID=0; gridID < this->NumberOfGrids; ++gridID )
@@ -1151,7 +1154,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
   // STEP 4: Loop through the ghosted extent and mark the nodes in the ghosted
   // extent accordingly. If the node exists in the grown extent
   int ijk[3];
-  unsigned char p;
+  unsigned char p = 0;
   for( int i=ghostedExtent[0]; i <= ghostedExtent[1]; ++i )
     {
     for( int j=ghostedExtent[2]; j <= ghostedExtent[3]; ++j )
