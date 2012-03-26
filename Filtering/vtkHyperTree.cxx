@@ -20,7 +20,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
 #include "vtkHyperTreeCursor.h"
-#include "vtkHyperTreePointsGrabber.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"

@@ -103,10 +103,10 @@ vtkHierarchicalBoxDataSet.cxx
 vtkHyperOctreeAlgorithm.cxx
 vtkHyperOctreeCursor.cxx
 vtkHyperOctree.cxx
+vtkHyperOctreeCursor.cxx
 vtkHyperOctreePointsGrabber.cxx
 vtkHyperTree.cxx
 vtkHyperTreeCursor.cxx
-vtkHyperTreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
 vtkImageBSplineInternals.cxx
 vtkImageBSplineInterpolator.cxx
@@ -289,7 +289,6 @@ vtkHyperOctreeAlgorithm
 vtkHyperOctreeCursor
 vtkHyperOctreePointsGrabber
 vtkHyperTreeCursor
-vtkHyperTreePointsGrabber
 vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator

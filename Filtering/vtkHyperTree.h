@@ -121,7 +121,6 @@
 class vtkHyperTreeLightWeightCursor;
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
-class vtkHyperTreePointsGrabber;
 
 class vtkHyperTreeIdSet; // Pimpl idiom
 class vtkPolygon;
