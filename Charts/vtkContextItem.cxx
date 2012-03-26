@@ -15,14 +15,6 @@
 
 #include "vtkContextItem.h"
 
-// Get my new commands
-#include "vtkCommand.h"
-
-#include "vtkInteractorStyle.h"
-#include "vtkInteractorStyleRubberBand2D.h"
-#include "vtkContextScene.h"
-#include "vtkObjectFactory.h"
-
 //-----------------------------------------------------------------------------
 vtkContextItem::vtkContextItem()
 {

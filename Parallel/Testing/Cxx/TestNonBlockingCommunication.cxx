@@ -54,29 +54,36 @@ int main( int argc, char **argv )
   int N        = myController->GetNumberOfProcesses();
   int Rank     = myController->GetLocalProcessId();
   int SendRank = (Rank==0)? 1 : 0;
+  if( N != 2 )
+    {
+    cerr << "This test must be run with 2 MPI processes!\n";
+    myController->Finalize();
+    myController->Delete();
+    return(-1);
+    }
   assert("pre: N must be 2" && (N==2));
   assert("pre: Rank is out-of-bounds" && (Rank >= 0) && (Rank < N) );
 
-  std::cout << "Filling arrays...";
-  std::cout.flush();
+  cout << "Filling arrays...";
+  cout.flush();
   FillArray( Rank, 10, sndarray );
   FillArray( SendRank, 10, expected );
-  std::cout << "[DONE]\n";
-  std::cout.flush();
+  cout << "[DONE]\n";
+  cout.flush();
 
   // Post receives
-  std::cout << "Posting receives....\n";
-  std::cout.flush();
+  cout << "Posting receives....\n";
+  cout.flush();
   myController->NoBlockReceive( rcvarray, 10, SendRank, 0, requests[0] );
 
   // Post sends
-  std::cout << "Posting sends...\n";
-  std::cout.flush();
+  cout << "Posting sends...\n";
+  cout.flush();
   myController->NoBlockSend( sndarray, 10, SendRank, 0, requests[1] );
 
   // Wait all
-  std::cout << "Do a wait all!\n";
-  std::cout.flush();
+  cout << "Do a wait all!\n";
+  cout.flush();
   myController->WaitAll(2,requests);
 
   bool arraysMatch = true;
@@ -90,13 +97,13 @@ int main( int argc, char **argv )
     }
   if( arraysMatch )
     {
-    std::cout << "RcvArray matches expected data!\n";
-    std::cout.flush();
+    cout << "RcvArray matches expected data!\n";
+    cout.flush();
     }
   else
     {
-    std::cout << "ERROR: rcvarray does not match expected data!\n";
-    std::cout.flush();
+    cout << "ERROR: rcvarray does not match expected data!\n";
+    cout.flush();
     }
   myController->Barrier();
 

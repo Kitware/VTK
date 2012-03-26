@@ -296,7 +296,7 @@ void vtkPStructuredGridConnectivity::TransferGhostDataFromNeighbors(
           (this->NumberOfGrids==this->Neighbors.size() ) );
   assert( "pre: grid must be local!" && this->IsGridLocal(gridID) );
 
-  int NumNeis = this->Neighbors[ gridID ].size();
+  int NumNeis = static_cast<int>(this->Neighbors[ gridID ].size());
   for( int nei=0; nei < NumNeis; ++nei )
     {
     int neiGridIdx = this->Neighbors[gridID][nei].NeighborID;
@@ -404,14 +404,11 @@ void vtkPStructuredGridConnectivity::SerializeBufferSizes(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeBufferSizesForProcess(
-    int *buffersizes, vtkIdType N, const int processId )
+    int *buffersizes, vtkIdType N, const int vtkNotUsed(processId) )
 {
   assert("pre: Controller should not be NULL" && (this->Controller != NULL) );
   assert("pre: Cannot deserialize empty buffer size" && (buffersizes != NULL) );
   assert("pre: Buffer size should not be empty!" && (N > 0) );
-  assert("pre: Process ID is out-of-bounds!" &&
-          (processId >= 0) &&
-          (processId < this->Controller->GetNumberOfProcesses() ) );
   assert("pre: Buffer size must be a multiple of 3" && ( (N%3)==0) );
   assert("pre: RcvBuffersizes is not properly allocated!" &&
           this->RcvBufferSizes.size() == this->NumberOfGrids);
@@ -518,8 +515,8 @@ void vtkPStructuredGridConnectivity::UnpackGhostData()
                     (neiGridIdx >= 0) &&
                     (neiGridIdx < static_cast<int>(this->NumberOfGrids) ) );
 
-      int neiListIndex = this->GetNeighborIndex( gridIdx, neiGridIdx );
-      assert("ERROR: neiListIndex mismatch!" && (neiListIndex==nei) );
+//      int neiListIndex = this->GetNeighborIndex( gridIdx, neiGridIdx );
+//      assert("ERROR: neiListIndex mismatch!" && (neiListIndex==nei) );
 
       if( this->IsGridRemote(neiGridIdx) )
         {
@@ -628,7 +625,7 @@ void vtkPStructuredGridConnectivity::PostSends()
     assert("ERROR: grid rcv buffers must be 1-to-1 with the rcv buffer sizes" &&
       this->SendBufferSizes[gridIdx].size()==this->SendBuffers[gridIdx].size() );
 
-    int NumNeis = this->Neighbors[gridIdx].size();
+    int NumNeis = static_cast<int>(this->Neighbors[gridIdx].size());
     for( int nei=0; nei < NumNeis; ++nei )
       {
       int neiGridIdx = this->Neighbors[gridIdx][nei].NeighborID;
@@ -1077,7 +1074,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeFieldData(
-    int ext[6], vtkFieldData* fieldData, vtkMultiProcessStream& bytestream )
+    int* vtkNotUsed(ext), vtkFieldData* fieldData, vtkMultiProcessStream& bytestream )
 {
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
   assert("pre: field data should not be NULL!" && (fieldData != NULL) );
@@ -1098,8 +1095,6 @@ void vtkPStructuredGridConnectivity::DeserializeFieldData(
     dataArray = NULL;
     bytestream >> dataType >> numTuples >> numComponents;
     bytestream >> arrayName;
-    assert("ERROR: unexpected number of tuples in array" &&
-            numTuples==vtkStructuredData::GetNumberOfNodes(ext) );
 
     this->DeserializeDataArray(
         dataArray, dataType, numTuples, numComponents, bytestream );
@@ -1298,7 +1293,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostData(
-    const int gridID, const int neiGridID, const int neiGridIdx,
+    const int gridID, const int neiGridID, const int vtkNotUsed(neiGridIdx),
     int rcvext[6],unsigned char *buffer, unsigned int size )
 {
   assert("pre: raw buffer is NULL!" && (buffer != NULL) );
@@ -1312,8 +1307,8 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
   int remoteGrid;
   int rcvGrid;
   bytestream >> remoteGrid >> rcvGrid;
-  assert("pre: Remote grid must match the Neighbor grid index" &&
-         (neiGridIdx==remoteGrid) );
+//  assert("pre: Remote grid must match the Neighbor grid index" &&
+//         (neiGridIdx==remoteGrid) );
   assert("pre: Serialized receiver grid must match this grid instance" &&
          (rcvGrid == gridID) );
 
