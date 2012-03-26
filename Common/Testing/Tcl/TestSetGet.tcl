@@ -28,6 +28,8 @@ vtkMPICommunicator-GetNumberOfProcesses
 vtkMPICommunicator-GetMPIComm
 vtkOpenGLScalarsToColorsPainter-GetTextureSizeLimit
 vtkScalarsToColorsPainter-GetTextureSizeLimit
+vtkStructuredGridConnectivity-GetNumberOfGrids
+vtkPStructuredGridConnectivity-GetNumberOfGrids
 vtkMesaScalarsToColorsPainter-GetTextureSizeLimit
 }
 
