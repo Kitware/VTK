@@ -1213,12 +1213,26 @@ void vtkContourRepresentation
 //----------------------------------------------------------------------
 void vtkContourRepresentation::Initialize( vtkPolyData * pd )
 {
-  this->Initialize(pd, NULL);
+  // For backward compatibility
+  this->InitializeContour(pd, NULL);
 }
 
 //----------------------------------------------------------------------
 void vtkContourRepresentation
 ::Initialize( vtkPolyData * pd, vtkIdList *nodeIds )
+{
+  if (!nodeIds)
+    {
+    this->Initialize(pd);
+    return;
+    }
+
+  this->InitializeContour(pd, nodeIds);
+}
+
+//----------------------------------------------------------------------
+void vtkContourRepresentation
+::InitializeContour( vtkPolyData * pd, vtkIdList *nodeIds )
 {
   vtkPoints *points   = pd->GetPoints();
   vtkIdType nPoints = points->GetNumberOfPoints();
