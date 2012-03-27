@@ -2849,12 +2849,8 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
 
   // first, attempt contiguous memory. If this fails, then go
   // for non-contiguous
-  // NOTE: To be able to catch allocation failures, when VTK is running in the
-  //       context of other framework (e.g. MFC), we should use (...) in the
-  //       catch handler instead of std::bad_alloc. If hosting framework implements
-  //       its own operator new, it's possible that it will throw own defined exception
-  //       and not the standard std::bad_alloc! In the case of MFC this is CMemoryException,
-  //       so it would not be handled correctly and crash.
+  // NOTE: Standard behavior is to catch std::bad_alloc, but it's
+  // CMemoryException if hosted by MFC.
   try
     {
     this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
