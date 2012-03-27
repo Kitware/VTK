@@ -15,9 +15,10 @@
 // .NAME vtkFieldDataSerializer.h -- Field data serialization/de-serialization
 //
 // .SECTION Description
-//  A singleton class which provides functionality for serializing and
-//  de-serializing field data, primarily used for the purpose of preparing the
-//  data for transfer over MPI or other communication mechanism.
+//  A concrete instance of vtkObject which provides functionality for
+//  serializing and de-serializing field data, primarily used for the purpose
+//  of preparing the data for transfer over MPI or other communication
+//  mechanism.
 //
 // .SECTION See Also
 // vtkFieldData vtkPointData vtkCellData vtkMultiProcessStream
