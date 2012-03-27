@@ -47,7 +47,11 @@ void vtkFieldDataSerializer::PrintSelf(ostream& os, vtkIndent indent)
 void vtkFieldDataSerializer::Serialize(
     vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: Field data is NULL!" && (fieldData != NULL) );
+  if( fieldData == NULL )
+    {
+    vtkGenericWarningMacro("Field data is NULL!");
+    return;
+    }
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
@@ -70,7 +74,11 @@ void vtkFieldDataSerializer::SerializeTuples(
     vtkIdList *tupleIds, vtkFieldData *fieldData,
     vtkMultiProcessStream& bytestream )
 {
-  assert("pre: Field data is NULL!" && (fieldData != NULL) );
+  if( fieldData == NULL )
+   {
+   vtkGenericWarningMacro("Field data is NULL!");
+   return;
+   }
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
@@ -103,7 +111,11 @@ void vtkFieldDataSerializer::SerializeSubExtent(
     int subext[6], int gridExtent[6], vtkFieldData *fieldData,
     vtkMultiProcessStream& bytestream)
 {
-  assert("pre: Field data is NULL!" && (fieldData != NULL) );
+  if( fieldData == NULL )
+   {
+   vtkGenericWarningMacro("Field data is NULL!");
+   return;
+   }
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
@@ -136,7 +148,11 @@ void vtkFieldDataSerializer::SerializeSubExtent(
 vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
     int subext[6], int gridExtent[6], vtkDataArray *inputDataArray )
 {
-  assert("pre: input data array is NULL!" && (inputDataArray != NULL));
+  if( inputDataArray == NULL )
+    {
+    vtkGenericWarningMacro("input data array is NULL!");
+    return NULL;
+    }
 
   // STEP 0: Acquire structured data description, i.e, XY_PLANE, XYZ_GRID etc.
   int description = vtkStructuredData::GetDataDescriptionFromExtent(gridExtent);
@@ -187,9 +203,6 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
 vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
     vtkIdList *tupleIds, vtkDataArray *inputDataArray )
 {
-  assert("pre: input data array is NULL!" && (inputDataArray != NULL));
-  assert("pre: tuple ID list is NULL!" && (tupleIds != NULL) );
-
   vtkDataArray *subSetArray =
       vtkDataArray::CreateDataArray( inputDataArray->GetDataType() );
   subSetArray->SetName( inputDataArray->GetName() );
@@ -212,7 +225,11 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
 void vtkFieldDataSerializer::SerializeDataArray(
     vtkDataArray *dataArray, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: data array is NULL" && (dataArray != NULL) );
+  if( dataArray == NULL )
+    {
+    vtkGenericWarningMacro("data array is NULL!");
+    return;
+    }
 
   // STEP 0: Serialize array information
   int dataType  = dataArray->GetDataType();
@@ -249,8 +266,17 @@ void vtkFieldDataSerializer::SerializeDataArray(
 void vtkFieldDataSerializer::Deserialize(
     vtkMultiProcessStream& bytestream, vtkFieldData *fieldData)
 {
-  assert("pre: Field data is NULL!" && (fieldData != NULL) );
-  assert("pre: bytestream is empty!" && (!bytestream.Empty()) );
+  if( fieldData == NULL )
+    {
+    vtkGenericWarningMacro("FieldData is NULL!");
+    return;
+    }
+
+  if( bytestream.Empty() )
+    {
+    vtkGenericWarningMacro("Bytestream is empty!");
+    return;
+    }
 
   // STEP 0: Get the number of arrays
   int numberOfArrays = 0;
@@ -278,7 +304,11 @@ void vtkFieldDataSerializer::DeserializeDataArray(
     vtkMultiProcessStream& bytestream,
     vtkDataArray *&dataArray)
 {
-  assert("pre: bytestream is empty!" && (!bytestream.Empty()) );
+  if( bytestream.Empty() )
+    {
+    vtkGenericWarningMacro("Bytestream is empty!");
+    return;
+    }
 
   // STEP 0: Deserialize array information
   int dataType, numTuples, numComp;
