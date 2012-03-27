@@ -303,7 +303,7 @@ int TestFieldDataSerialization(int argc, char *argv[])
     }
 
   vtkPointData *field2 = vtkPointData::New();
-  vtkFieldDataSerializer::Deserialize( field2, bytestream );
+  vtkFieldDataSerializer::Deserialize( bytestream, field2 );
   if( !AreFieldsEqual(field,field2) )
     {
     cerr << "ERROR: fields are not equal!\n";

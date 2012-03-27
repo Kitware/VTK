@@ -64,7 +64,7 @@ class VTK_PARALLEL_EXPORT vtkFieldDataSerializer : public vtkObject
     // Description:
     // Deserializes the field data from a bytestream.
     static void Deserialize(
-        vtkFieldData *fieldData, vtkMultiProcessStream& bytestream);
+        vtkMultiProcessStream& bytestream, vtkFieldData *fieldData );
 
   protected:
     vtkFieldDataSerializer();
@@ -90,7 +90,7 @@ class VTK_PARALLEL_EXPORT vtkFieldDataSerializer : public vtkObject
     // Description:
     // Deserializes the data array from a bytestream
     static void DeserializeDataArray(
-        vtkDataArray *&dataArray, vtkMultiProcessStream& bytestream );
+        vtkMultiProcessStream& bytestream, vtkDataArray *&dataArray );
 
 
   private:

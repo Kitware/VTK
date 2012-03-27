@@ -247,7 +247,7 @@ void vtkFieldDataSerializer::SerializeDataArray(
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::Deserialize(
-    vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
+    vtkMultiProcessStream& bytestream, vtkFieldData *fieldData)
 {
   assert("pre: Field data is NULL!" && (fieldData != NULL) );
   assert("pre: bytestream is empty!" && (!bytestream.Empty()) );
@@ -265,7 +265,7 @@ void vtkFieldDataSerializer::Deserialize(
   for( int array=0; array < numberOfArrays; ++array )
     {
     vtkDataArray *dataArray = NULL;
-    vtkFieldDataSerializer::DeserializeDataArray( dataArray, bytestream );
+    vtkFieldDataSerializer::DeserializeDataArray( bytestream,dataArray );
     assert("post: deserialized data array should not be NULL!" &&
             (dataArray != NULL));
     fieldData->AddArray( dataArray );
@@ -275,7 +275,8 @@ void vtkFieldDataSerializer::Deserialize(
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::DeserializeDataArray(
-    vtkDataArray *&dataArray,vtkMultiProcessStream& bytestream)
+    vtkMultiProcessStream& bytestream,
+    vtkDataArray *&dataArray)
 {
   assert("pre: bytestream is empty!" && (!bytestream.Empty()) );
 
