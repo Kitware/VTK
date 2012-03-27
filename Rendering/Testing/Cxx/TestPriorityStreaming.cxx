@@ -147,7 +147,7 @@ int TestPriorityStreaming(int argc, char *argv[])
   delete [] priority;
 
   //--------------------------------------------------------------------------
-  // Now test meta-information persistance.
+  // Now test meta-information persistence.
   // Meta information is either about the geometry (GI), or about
   // the attribute ranges (AI).
   //

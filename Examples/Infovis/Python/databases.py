@@ -58,5 +58,3 @@ view.ResetCamera()
 view.Render()
 view.GetInteractor().Start()
 
-database.FastDelete()
-

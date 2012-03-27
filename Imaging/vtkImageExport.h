@@ -188,6 +188,9 @@ private:
   static void UpdateDataCallbackFunction(void*);
   static int* DataExtentCallbackFunction(void*);
   static void* BufferPointerCallbackFunction(void*);
+
+  vtkAlgorithm* GetInputAlgorithm();
+  vtkInformation* GetInputInformation();
 };
 
 #endif

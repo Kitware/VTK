@@ -27,4 +27,7 @@ IF (VTK_USE_MPI)
   IF(APPLE AND VTK_USE_CARBON)
    TARGET_LINK_LIBRARIES(TaskParallelism "-framework Carbon")
   ENDIF(APPLE AND VTK_USE_CARBON)
+  
+#  ADD_EXECUTABLE(SimpleBenchmark SimpleBenchmark.cxx)
+#  TARGET_LINK_LIBRARIES(SimpleBenchmark vtkParallel ${MPI_LIBRARIES} )
 ENDIF (VTK_USE_MPI)

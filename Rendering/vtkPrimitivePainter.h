@@ -63,7 +63,7 @@ protected:
 
   // Description:
   // Some subclasses may need to do some preprocessing
-  // before the actual rendering can be done eg. build effecient
+  // before the actual rendering can be done eg. build efficient
   // representation for the data etc. This should be done here.
   // This method get called after the ProcessInformation()
   // but before RenderInternal(). 

@@ -133,7 +133,7 @@ int vtkCollectGraph::RequestDataObject(
     return 0;
     }
   vtkInformation *info = outputVector->GetInformationObject(0);
-  output->SetPipelineInformation(info);
+  info->Set(vtkDataObject::DATA_OBJECT(), output);
   output->Delete();
 
   return 1;

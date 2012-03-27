@@ -354,12 +354,12 @@ void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, c
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M,  const char* volume, const char* normalX, const char* normalY, const char* normalZ, const char* ordering )
 {
   this->NumberOfDomains = -1;
-  if( M<0 )
+  if( M < 0 )
     {
     vtkErrorMacro(<<"Bad material index "<<M<<"\n");
     return;
     }
-  else if( M>=this->GetNumberOfMaterials() )
+  else if( M >= this->GetNumberOfMaterials() )
     {
     this->SetNumberOfMaterials(M+1);
     }
@@ -553,7 +553,7 @@ void vtkYoungsMaterialInterface::UpdateBlockMapping()
     if( b < 0 ) curmat = (-b) - 1;
     else
       {
-      vtkDebugMacro(<<"Material "<<curmat<<" Ajout block "<<b<<"\n");
+      vtkDebugMacro(<<"Material "<<curmat<<": Adding block "<<b<<"\n");
       this->Internals->Materials[curmat].blocks.insert(b);
       }
     }
@@ -663,7 +663,7 @@ int vtkYoungsMaterialInterface::RequestData(
   this->Aggregate( nmat, inputsPerMaterial );
 
   // map containing output blocks
-  std::map<int, vtkDataSet*> outputBlocks;
+  std::map<int, vtkSmartPointer<vtkUnstructuredGrid> > outputBlocks;
 
   // iterate over input blocks
   inputIterator->InitTraversal();
@@ -748,7 +748,6 @@ int vtkYoungsMaterialInterface::RequestData(
         bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
         if( ! this->UseAllBlocks && ! materialHasBlock )
           {
-          // FIXME: verify the former condition
           Mats[m].fractionArray = 0; // TODO: we certainly can do better to avoid material calculations
           }
 
@@ -951,7 +950,7 @@ int vtkYoungsMaterialInterface::RequestData(
             CellInfo nextCell; // empty cell by default
             int interfaceCellType = VTK_EMPTY_CELL;
 
-            if( mi==0 || ( !this->OnionPeel ) )
+            if( ( ! mi ) || ( ! this->OnionPeel ) )
               {
               normal[0]=0; normal[1]=0; normal[2]=0;
 
@@ -1179,11 +1178,11 @@ int vtkYoungsMaterialInterface::RequestData(
                   //Mats[m].cellTypes.push_back( VTK_POLYGON );
                   }
 
-                /* remaining volume is a convex point set
-                   IMPORTANT NOTE: next iteration cell cannot be entirely built right now.
-                   in this particular case we'll finish it at the end of the material loop */
-                // si on est sur qu'il n'y aura plus d'autre materiaux a extraire, on evite cette etape
-                if( mi<(nmat-1) && processedEfectiveMat<nEffectiveMat )
+                // NB: Remaining volume is a convex point set
+                // IMPORTANT NOTE: next iteration cell cannot be entirely built right now.
+                // in this particular case we'll finish it at the end of the material loop.
+                // If no other material remains to be processed, then skip this step.
+                if( mi < ( nmat - 1 ) && processedEfectiveMat < nEffectiveMat )
                   {
                   nextCell.type = VTK_CONVEX_POINT_SET;
                   nextCell.np = nInterfaceEdges + nOutsidePoints;
@@ -1204,7 +1203,8 @@ int vtkYoungsMaterialInterface::RequestData(
                   {
                   vtkIdType id = - (int) ( prevPointsMap.size() + 1 );
                   DBG_ASSERT( (-id-1) == prevPointsMap.size() );
-                  prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+i ) ); // we know that interpolated points will be added consecutively
+                  // Interpolated points will be added consecutively
+                  prevPointsMap.push_back( std::make_pair( m , Mats[m].pointCount+i ) );
                   nextCell.pointIds[i] = id;
                   }
                 for(int i = 0;i<nOutsidePoints;i++)
@@ -1218,9 +1218,7 @@ int vtkYoungsMaterialInterface::RequestData(
                 {
                 DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
                 }
-
               } // End 3D case
-
 
             //  create output cell
             if( interfaceCellType != VTK_EMPTY_CELL )
@@ -1288,19 +1286,20 @@ int vtkYoungsMaterialInterface::RequestData(
                   }
                 }
 
-              // populate connectivity array
-              // and add extra points from previous edge intersections that are used but not inserted yet
+              // Populate connectivity array and add extra points from previous 
+              // edge intersections that are used but not inserted yet
               int prevMatInterfAdded = 0;
               Mats[m].cells.push_back( nOutCellPoints ); Mats[m].cellArrayCount++;
-              for(int p=0;p<nOutCellPoints;p++)
+              for( int p = 0; p < nOutCellPoints; ++ p )
                 {
                 int nptId;
                 int pointIndex = outCellPointIds[p];
-                if( pointIndex >=0 ) // an original point (not an edge intersection)
+                if( pointIndex >= 0 )
                   {
+                  // An original point is encountered (not an edge intersection)
                   DBG_ASSERT( pointIndex>=0 && pointIndex<cell.np );
                   int ptId = cell.pointIds[ pointIndex ];
-                  if( ptId>=0 )
+                  if( ptId >= 0 )
                     {
                     // Interface from a previous iteration
                     DBG_ASSERT( ptId>=0 && ptId<nPoints );
@@ -1331,18 +1330,18 @@ int vtkYoungsMaterialInterface::RequestData(
 
               Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
 
-              // copy cell arrays
+              // Copy cell arrays
               for(int a = 0;a<nCellData;a++)
                 {
                 Mats[m].outCellArrays[a]->InsertNextTuple( inCellArrays[a]->GetTuple(ci) );
                 }
               Mats[m].cellCount ++;
 
-              // check for equivalence between counters and container sizes
+              // Check for equivalence between counters and container sizes
               DBG_ASSERT( Mats[m].cellCount == Mats[m].cellTypes.size() );
               DBG_ASSERT( Mats[m].cellArrayCount == Mats[m].cells.size() );
 
-              // populate next iteration cell's point coords
+              // Populate next iteration cell point coordinates
               for(int i = 0;i<nextCell.np;i++)
                 {
                 DBG_ASSERT( ( nextCell.pointIds[i]<0 && (-nextCell.pointIds[i]-1)<prevPointsMap.size() ) || ( nextCell.pointIds[i]>=0 && nextCell.pointIds[i]<nPoints ) );
@@ -1440,7 +1439,7 @@ int vtkYoungsMaterialInterface::RequestData(
 
         delete [] Mats[m].pointMap;
 
-        vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::New();
+        vtkSmartPointer<vtkUnstructuredGrid> ugOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
 
         // set points
         Mats[m].outPointArrays[nPointData-1]->Squeeze();
@@ -1503,8 +1502,8 @@ int vtkYoungsMaterialInterface::RequestData(
         delete [] Mats[m].outCellArrays;
         delete [] Mats[m].outPointArrays;
 
-        // activate attributes similarily to input
-        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+        // activate attributes similarly to input
+        for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
           {
           vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
           if( attr!=0 )
@@ -1512,7 +1511,7 @@ int vtkYoungsMaterialInterface::RequestData(
             ugOutput->GetCellData()->SetActiveAttribute(attr->GetName(),i);
             }
           }
-        for(int i = 0;i<vtkDataSetAttributes::NUM_ATTRIBUTES;i++)
+        for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
           {
           vtkDataArray* attr = input->GetPointData()->GetAttribute(i);
           if( attr!=0 )
@@ -1522,7 +1521,7 @@ int vtkYoungsMaterialInterface::RequestData(
           }
 
         // add material data set to multiblock output
-        if( ugOutput!=0 && ugOutput->GetNumberOfCells()>0 )
+        if( ugOutput && ugOutput->GetNumberOfCells()>0 )
           {
           int domain = inputsPerMaterial[m];
           outputBlocks[ domain * nmat + m ] = ugOutput;
@@ -1530,24 +1529,34 @@ int vtkYoungsMaterialInterface::RequestData(
           }
         }
       delete [] Mats;
-
-    } /* Iterate over input blocks */
+    } // Iterate over input blocks
 
   delete [] inputsPerMaterial;
 
-  if(debugStats_PrimaryTriangulationfailed != 0 ) { vtkDebugMacro(<<"PrimaryTriangulationfailed "<<debugStats_PrimaryTriangulationfailed<<"\n"); }
-  if(debugStats_Triangulationfailed != 0 ) { vtkDebugMacro(<<"Triangulationfailed "<<debugStats_Triangulationfailed<<"\n"); }
-  if(debugStats_NullNormal != 0 ) { vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n"); }
-  if(debugStats_NoInterfaceFound != 0 ) { vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n"); }
+  if ( debugStats_PrimaryTriangulationfailed )
+    {
+    vtkDebugMacro(<<"PrimaryTriangulationfailed "<<debugStats_PrimaryTriangulationfailed<<"\n");
+    }
+  if ( debugStats_Triangulationfailed )
+    {
+    vtkDebugMacro(<<"Triangulationfailed "<<debugStats_Triangulationfailed<<"\n");
+    }
+  if ( debugStats_NullNormal )
+    {
+    vtkDebugMacro(<<"NullNormal "<<debugStats_NullNormal<<"\n");
+    }
+  if( debugStats_NoInterfaceFound )
+    {
+    vtkDebugMacro(<<"NoInterfaceFound "<<debugStats_NoInterfaceFound<<"\n");
+    }
 
-  // build final composite output. also tagging blocks with their associated Id
-
+  // Build final composite output. also tagging blocks with their associated Id
   vtkDebugMacro(<<this->NumberOfDomains<<" Domains, "<<nmat<<" Materials\n");
 
   output->SetNumberOfBlocks(0);
   output->SetNumberOfBlocks(nmat);
 
-  for (int m = 0; m < nmat; m++)
+  for ( int m = 0; m < nmat; ++ m )
     {
     vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::New();
     matBlock->SetNumberOfBlocks(this->NumberOfDomains);
@@ -1556,7 +1565,8 @@ int vtkYoungsMaterialInterface::RequestData(
     }
 
   int blockIndex=0;
-  for(std::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex)
+  for( std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin(); 
+       it!=outputBlocks.end(); ++ it, ++ blockIndex )
     {
     if( it->second->GetNumberOfCells() > 0 )
       {
@@ -1564,7 +1574,6 @@ int vtkYoungsMaterialInterface::RequestData(
       int dom = it->first / nmat;
       vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(mat));
       matBlock->SetBlock(dom,it->second);
-      it->second->Delete();
       }
     }
 
@@ -1572,10 +1581,6 @@ int vtkYoungsMaterialInterface::RequestData(
 }
 
 #undef GET_POINT_DATA
-
-
-
-
 
 /* ------------------------------------------------------------------------------------------
    --- Low level computations including interface placement and intersection line/polygon ---
@@ -2302,7 +2307,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
 
   /**************************************
-   *** Precision dependant constants   ***
+   *** Precision dependent constants   ***
    ***************************************/
 
   // float
@@ -2547,7 +2552,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   REAL quadraticFunctionSolve( REAL3 F, const REAL value, const REAL xmin, const REAL xmax )
   {
     // Analytic resolution of ax²+bx+c=0
-    // (!) numerically unsteady, the Newton method is prefered despite being REALLY slower
+    // (!) numerically unsteady, the Newton method is preferred despite being REALLY slower
 
     F.z -= value;
 
@@ -2684,7 +2689,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL* dist, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -2702,7 +2707,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL3* vertices, const REAL3 normal, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -2722,7 +2727,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   FUNC_DECL
   void sortVertices( const int n, const REAL2* vertices, const REAL2 normal, IntType* indices )
   {
-    // insertion sort : slow but symetrical across all instances
+    // insertion sort : slow but symmetrical across all instances
 #define SWAP(a,b) { IntType t = indices[a]; indices[a] = indices[b]; indices[b] = t; }
     for(int i = 0;i<n;i++)
       {
@@ -2874,13 +2879,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++)
         {
         derivatives[j] += triangleSurfFunc[0];
         }
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += triangleSurfFunc[1];
@@ -3023,13 +3028,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++)
         {
         derivatives[j] += coneVolDeriv[0];
         }
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++)
         {
         derivatives[j] += coneVolDeriv[1];
@@ -3237,13 +3242,13 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
       DBG_MESG( "surf(x) steps = "<<i0<<','<<i1<<','<<i2<<','<<i3 );
 
-      DBG_MESG( "ajout surfFunc sur ["<<i0<<';'<<i1<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i0<<';'<<i1<<"]" );
       for(unsigned int j=i0;j<i1;j++) derivatives[j] += tetraSurfFunc[0] ;
 
-      DBG_MESG( "ajout surfFunc sur ["<<i1<<';'<<i2<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i1<<';'<<i2<<"]" );
       for(unsigned int j=i1;j<i2;j++) derivatives[j] += tetraSurfFunc[1] ;
 
-      DBG_MESG( "ajout surfFunc sur ["<<i2<<';'<<i3<<"]" );
+      DBG_MESG( "Adding surfFunc onto ["<<i2<<';'<<i3<<"]" );
       for(unsigned int j=i2;j<i3;j++) derivatives[j] += tetraSurfFunc[2] ;
       }
 
@@ -3318,7 +3323,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
 
-// usefull to avoid numerical errors
+// useful to avoid numerical errors
 #define Clamp(x,min,max) if(x<min) x=min; else if(x>max) x=max
 
 // ------------------------------------

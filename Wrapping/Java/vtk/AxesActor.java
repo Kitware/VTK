@@ -30,10 +30,6 @@ public class AxesActor extends vtkAssembly {
         yactor.SetInput("Y");
         zactor.SetInput("Z");
 
-        xactor.ScaledTextOn();
-        yactor.ScaledTextOn();
-        zactor.ScaledTextOn();
-
         xactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
         yactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
         zactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
@@ -62,12 +58,12 @@ public class AxesActor extends vtkAssembly {
         zactor.SetMaximumLineHeight(0.25);
 
         vtkTubeFilter tube = new vtkTubeFilter();
-        tube.SetInput(axes.GetOutput());
+        tube.SetInputConnection(axes.GetOutputPort());
         tube.SetRadius(0.05);
         tube.SetNumberOfSides(8);
 
         vtkPolyDataMapper tubeMapper = new vtkPolyDataMapper();
-        tubeMapper.SetInput(tube.GetOutput());
+        tubeMapper.SetInputConnection(tube.GetOutputPort());
 
         vtkActor tubeActor = new vtkActor();
         tubeActor.SetMapper(tubeMapper);
@@ -80,7 +76,7 @@ public class AxesActor extends vtkAssembly {
         vtkConeSource xcone = new vtkConeSource();
         xcone.SetResolution(coneRes);
         vtkPolyDataMapper xconeMapper = new vtkPolyDataMapper();
-        xconeMapper.SetInput(xcone.GetOutput());
+        xconeMapper.SetInputConnection(xcone.GetOutputPort());
         vtkActor xconeActor = new vtkActor();
         xconeActor.SetMapper(xconeMapper);
         xconeActor.GetProperty().SetColor(1, 0, 0);
@@ -91,7 +87,7 @@ public class AxesActor extends vtkAssembly {
         vtkConeSource ycone = new vtkConeSource();
         ycone.SetResolution(coneRes);
         vtkPolyDataMapper yconeMapper = new vtkPolyDataMapper();
-        yconeMapper.SetInput(ycone.GetOutput());
+        yconeMapper.SetInputConnection(ycone.GetOutputPort());
         vtkActor yconeActor = new vtkActor();
         yconeActor.SetMapper(yconeMapper);
         yconeActor.GetProperty().SetColor(1, 1, 0);
@@ -103,7 +99,7 @@ public class AxesActor extends vtkAssembly {
         vtkConeSource zcone = new vtkConeSource();
         zcone.SetResolution(coneRes);
         vtkPolyDataMapper zconeMapper = new vtkPolyDataMapper();
-        zconeMapper.SetInput(zcone.GetOutput());
+        zconeMapper.SetInputConnection(zcone.GetOutputPort());
         vtkActor zconeActor = new vtkActor();
         zconeActor.SetMapper(zconeMapper);
         zconeActor.GetProperty().SetColor(0, 1, 0);

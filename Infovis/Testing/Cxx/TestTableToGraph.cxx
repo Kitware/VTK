@@ -84,7 +84,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg,
   graph->DeepCopy(output);
 
   VTK_CREATE(vtkGraphLayout, layout);
-  layout->SetInput(graph);
+  layout->SetInputData(graph);
   if (circular)
     {
     VTK_CREATE(vtkCircularLayoutStrategy, strategy);
@@ -218,9 +218,9 @@ int TestTableToGraph(int argc, char* argv[])
 
   // Merge the two tables
   VTK_CREATE(vtkMergeTables, merge);
-  merge->SetInput(0, personTable);
+  merge->SetInputData(0, personTable);
   merge->SetFirstTablePrefix("person.");
-  merge->SetInput(1, orgTable);
+  merge->SetInputData(1, orgTable);
   merge->SetSecondTablePrefix("organization.");
   merge->MergeColumnsByNameOff();
   merge->PrefixAllButMergedOn();

@@ -16,6 +16,7 @@ import vtk.vtkNativeLibrary;
 import vtk.vtkOutlineFilter;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkVolume16Reader;
+import vtk.vtkAlgorithmOutput;
 
 /**
  * Example of complex 3D widget in use.
@@ -50,7 +51,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         v16.SetDataSpacing(3.2, 3.2, 1.5);
         v16.Update();
 
-        setImageData(v16.GetOutput());
+        setImageData(v16.GetOutput(), v16.GetOutputPort());
 
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
@@ -64,7 +65,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public void setImageData(vtkImageData id) {
+    public void setImageData(vtkImageData id, vtkAlgorithmOutput out) {
         // The shared picker enables us to use 3 planes at one time
         // and gets the picking order right
         vtkCellPicker picker = new vtkCellPicker();
@@ -73,7 +74,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         // The 3 image plane widgets are used to probe the dataset.
         vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
         planeWidgetX.DisplayTextOn();
-        planeWidgetX.SetInput(id);
+        planeWidgetX.SetInputData(id);
         planeWidgetX.SetInteractor(getRenderWindowInteractor());
         planeWidgetX.SetPlaneOrientationToXAxes();
         planeWidgetX.SetSliceIndex(32);
@@ -84,7 +85,7 @@ public class ImagePlaneWidget extends vtkCanvas {
 
         vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
         planeWidgetY.DisplayTextOn();
-        planeWidgetY.SetInput(id);
+        planeWidgetY.SetInputData(id);
         planeWidgetY.SetInteractor(getRenderWindowInteractor());
         planeWidgetY.SetPlaneOrientationToYAxes();
         planeWidgetY.SetSliceIndex(32);
@@ -99,7 +100,7 @@ public class ImagePlaneWidget extends vtkCanvas {
         // cross-hair cursor snapping to pixel centers
         vtkImagePlaneWidget planeWidgetZ = new vtkImagePlaneWidget();
         planeWidgetZ.DisplayTextOn();
-        planeWidgetZ.SetInput(id);
+        planeWidgetZ.SetInputData(id);
         planeWidgetZ.TextureInterpolateOff();
         planeWidgetZ.SetInteractor(getRenderWindowInteractor());
         planeWidgetZ.SetPlaneOrientationToZAxes();
@@ -112,10 +113,10 @@ public class ImagePlaneWidget extends vtkCanvas {
 
         // An outline is shown for context.
         vtkOutlineFilter outline = new vtkOutlineFilter();
-        outline.SetInput(id);
+        outline.SetInputConnection(out);
 
         vtkPolyDataMapper outlineMapper = new vtkPolyDataMapper();
-        outlineMapper.SetInput(outline.GetOutput());
+        outlineMapper.SetInputConnection(outline.GetOutputPort());
 
         vtkActor outlineActor = new vtkActor();
         outlineActor.SetMapper(outlineMapper);

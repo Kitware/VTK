@@ -165,7 +165,7 @@ static vtkSmartPointer<vtkRenderer> CreateRenderer(vtkPolyData *input,
                                                    int interpolate)
 {
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->SetInput(input);
+  mapper->SetInputData(input);
   mapper->SetLookupTable(lut);
   mapper->SetInterpolateScalarsBeforeMapping(interpolate);
 
@@ -221,6 +221,8 @@ int RenderNonFinite(int argc, char *argv[])
 
   renderer = CreateRenderer(input, CreateDiscretizableColorTransferFunction(), 1);
   AddRenderer(renderer, renwin);
+
+  renwin->Render();
 
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -92,6 +92,9 @@
 #define VTK_DIRECTED_ACYCLIC_GRAPH         26
 #define VTK_ARRAY_DATA                     27
 #define VTK_REEB_GRAPH                     28
+#define VTK_UNIFORM_GRID_AMR               29
+#define VTK_NON_OVERLAPPING_AMR            30
+#define VTK_OVERLAPPING_AMR                31
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

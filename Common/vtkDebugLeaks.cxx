@@ -306,6 +306,36 @@ void vtkDebugLeaks::DestructClass(const char*)
 #endif
 
 //----------------------------------------------------------------------------
+void vtkDebugLeaks::SetDebugLeaksObserver(vtkDebugLeaksObserver* observer)
+{
+  vtkDebugLeaks::Observer = observer;
+}
+
+//----------------------------------------------------------------------------
+vtkDebugLeaksObserver* vtkDebugLeaks::GetDebugLeaksObserver()
+{
+  return vtkDebugLeaks::Observer;
+}
+
+//----------------------------------------------------------------------------
+void vtkDebugLeaks::ConstructingObject(vtkObjectBase* object)
+{
+  if (vtkDebugLeaks::Observer)
+    {
+    vtkDebugLeaks::Observer->ConstructingObject(object);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDebugLeaks::DestructingObject(vtkObjectBase* object)
+{
+  if (vtkDebugLeaks::Observer)
+    {
+    vtkDebugLeaks::Observer->DestructingObject(object);
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkDebugLeaks::PrintCurrentLeaks()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -413,10 +443,12 @@ void vtkDebugLeaks::ClassInitialize()
 
   // Default to error when leaks occur while running tests.
   vtkDebugLeaks::ExitError = 1;
+  vtkDebugLeaks::Observer = 0;
 #else
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
   vtkDebugLeaks::ExitError = 0;
+  vtkDebugLeaks::Observer = 0;
 #endif
 }
 
@@ -435,18 +467,13 @@ void vtkDebugLeaks::ClassFinalize()
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = 0;
 
-  // Exit with error if leaks occured and error mode is on.
+  // Exit with error if leaks occurred and error mode is on.
   if(leaked && vtkDebugLeaks::ExitError)
     {
     exit(1);
     }
 #endif
 }
-
-#ifndef VTK_LEGACY_REMOVE
-void vtkDebugLeaks::PromptUserOn() {}
-void vtkDebugLeaks::PromptUserOff() {}
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -458,3 +485,6 @@ vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 int vtkDebugLeaks::ExitError;
+
+// Purposely not initialized.  ClassInitialize will handle it.
+vtkDebugLeaksObserver* vtkDebugLeaks::Observer;

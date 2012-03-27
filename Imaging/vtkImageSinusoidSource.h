@@ -68,7 +68,7 @@ protected:
   double Amplitude;
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 private:
   vtkImageSinusoidSource(const vtkImageSinusoidSource&);  // Not implemented.
   void operator=(const vtkImageSinusoidSource&);  // Not implemented.

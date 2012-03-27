@@ -71,7 +71,8 @@ vtkAxisActor::vtkAxisActor()
 
   this->TitleVector = vtkVectorText::New();
   this->TitleMapper = vtkPolyDataMapper::New();
-  this->TitleMapper->SetInput(this->TitleVector->GetOutput());
+  this->TitleMapper->SetInputConnection(
+    this->TitleVector->GetOutputPort());
   this->TitleActor = vtkAxisFollower::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->SetEnableDistanceLOD(0);
@@ -89,22 +90,22 @@ vtkAxisActor::vtkAxisActor()
 
   this->AxisLines = vtkPolyData::New();
   this->AxisLinesMapper = vtkPolyDataMapper::New();
-  this->AxisLinesMapper->SetInput(this->AxisLines);
+  this->AxisLinesMapper->SetInputData(this->AxisLines);
   this->AxisLinesActor = vtkActor::New();
   this->AxisLinesActor->SetMapper(this->AxisLinesMapper);
   this->Gridlines = vtkPolyData::New();
   this->GridlinesMapper = vtkPolyDataMapper::New();
-  this->GridlinesMapper->SetInput(this->Gridlines);
+  this->GridlinesMapper->SetInputData(this->Gridlines);
   this->GridlinesActor = vtkActor::New();
   this->GridlinesActor->SetMapper(this->GridlinesMapper);
   this->InnerGridlines = vtkPolyData::New();
   this->InnerGridlinesMapper = vtkPolyDataMapper::New();
-  this->InnerGridlinesMapper->SetInput(this->InnerGridlines);
+  this->InnerGridlinesMapper->SetInputData(this->InnerGridlines);
   this->InnerGridlinesActor = vtkActor::New();
   this->InnerGridlinesActor->SetMapper(this->InnerGridlinesMapper);
   this->Gridpolys = vtkPolyData::New();
   this->GridpolysMapper = vtkPolyDataMapper::New();
-  this->GridpolysMapper->SetInput(this->Gridpolys);
+  this->GridpolysMapper->SetInputData(this->Gridpolys);
   this->GridpolysActor = vtkActor::New();
   this->GridpolysActor->SetMapper(this->GridpolysMapper);
 
@@ -1118,7 +1119,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;
 
-  os << indent << "Usé2DMode: " << this->Use2DMode << endl;
+  os << indent << "Use2DMode: " << this->Use2DMode << endl;
   os << indent << "SaveTitlePosition: " << this->SaveTitlePosition << endl;
   os << indent << "VerticalOffsetXTitle2D" << this->VerticalOffsetXTitle2D << endl;
   os << indent << "HorizontalOffsetYTitle2D" << this->HorizontalOffsetYTitle2D << endl;
@@ -1168,7 +1169,8 @@ void vtkAxisActor::SetLabels(vtkStringArray *labels)
       {
       this->LabelVectors[i] = vtkVectorText::New();
       this->LabelMappers[i] = vtkPolyDataMapper::New();
-      this->LabelMappers[i]->SetInput(this->LabelVectors[i]->GetOutput());
+      this->LabelMappers[i]->SetInputConnection(
+        this->LabelVectors[i]->GetOutputPort());
       this->LabelActors[i] = vtkAxisFollower::New();
       this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
       this->LabelActors[i]->SetEnableDistanceLOD(0);

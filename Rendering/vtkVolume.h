@@ -200,11 +200,11 @@ protected:
   // The corrected scalar opacity transfer function array - this is identical
   // to the opacity transfer function array when the step size is 1.
   // In other cases, it is corrected to reflect the new material thickness
-  // modeled by a step size different than 1.
+  // modelled by a step size different than 1.
   float                *CorrectedScalarOpacityArray[VTK_MAX_VRCOMP];
   vtkTimeStamp          CorrectedScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
 
-  // CorrectedStepSize is the step size currently modeled by
+  // CorrectedStepSize is the step size currently modelled by
   // CorrectedArray.  It is used to determine when the 
   // CorrectedArray needs to be updated to match SampleDistance
   // in the volume mapper.

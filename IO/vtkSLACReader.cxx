@@ -445,7 +445,7 @@ public:
 
   // Description:
   // References and shallow copies to the last output data.  We keep this
-  // arround in case we do not have to read everything in again.
+  // around in case we do not have to read everything in again.
   vtkSmartPointer<vtkPoints> PointCache;
   vtkSmartPointer<vtkMultiBlockDataSet> MeshCache;
   MidpointIdMap MidpointIdCache;

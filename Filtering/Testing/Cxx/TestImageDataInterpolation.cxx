@@ -276,4 +276,5 @@ int TestImageDataInterpolation(int, char *[])
     } // END for all tests
 
   return( testStatus );
+
 }

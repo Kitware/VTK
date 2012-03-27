@@ -60,7 +60,7 @@ int TestMultiCylinderOff(int, char *[])
   vtkBond B13 = mol->AppendBond( O1,  H5, 1);
 
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInput(mol.GetPointer());
+  molmapper->SetInputData(mol.GetPointer());
 
   molmapper->UseBallAndStickSettings();
   molmapper->RenderAtomsOff();

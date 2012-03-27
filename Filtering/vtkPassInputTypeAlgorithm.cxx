@@ -108,38 +108,27 @@ vtkGraph *vtkPassInputTypeAlgorithm::GetGraphOutput()
 }
 
 //----------------------------------------------------------------------------
-void vtkPassInputTypeAlgorithm::SetInput(vtkDataObject* input)
+void vtkPassInputTypeAlgorithm::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPassInputTypeAlgorithm::SetInput(int index, vtkDataObject* input)
+void vtkPassInputTypeAlgorithm::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPassInputTypeAlgorithm::AddInput(vtkDataObject* input)
+void vtkPassInputTypeAlgorithm::AddInputData(vtkDataObject* input)
 {
-  this->AddInput(0, input);
+  this->AddInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPassInputTypeAlgorithm::AddInput(int index, vtkDataObject* input)
+void vtkPassInputTypeAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->AddInputConnection(index, input->GetProducerPort());
-    }
+  this->AddInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
@@ -215,7 +204,7 @@ int vtkPassInputTypeAlgorithm::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         vtkDataObject* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }

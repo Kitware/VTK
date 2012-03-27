@@ -24,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkUnsignedIntArray.h"
 #include "vtkDoubleArray.h"
@@ -121,7 +122,10 @@ void vtkFacetWriter::WriteToStream(ostream* ost)
   // we always write, even if nothing has changed, so send a modified
   this->Modified();
   this->UpdateInformation();
-  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
+  vtkInformation* inInfo = this->GetInputInformation(0, 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+              6);
   this->Update();
   this->OutputStream = 0;
 }

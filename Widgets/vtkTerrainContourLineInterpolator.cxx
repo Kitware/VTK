@@ -51,7 +51,7 @@ void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
     if (this->ImageData != NULL) 
       { 
       this->ImageData->Register(this); 
-      this->Projector->SetSource(this->ImageData);
+      this->Projector->SetSourceData(this->ImageData);
       }
     if (temp != NULL)
       {
@@ -89,7 +89,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   lines->Delete();
   pts->Delete();
   
-  this->Projector->SetInput(terrainPath);
+  this->Projector->SetInputData(terrainPath);
   this->Projector->Update();
   terrainPath->Delete();
 

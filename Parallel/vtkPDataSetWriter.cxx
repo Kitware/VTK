@@ -16,10 +16,11 @@
 #include "vtkPDataSetWriter.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkSource.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkErrorCode.h"
 
 vtkStandardNewMacro(vtkPDataSetWriter);
@@ -70,6 +71,7 @@ int vtkPDataSetWriter::Write()
 
   ostream *fptr;
   vtkDataSet *input = this->GetInput();
+  vtkAlgorithm *inputAlg = this->GetInputAlgorithm();
 
   if (this->FileName == NULL)
     {
@@ -160,8 +162,8 @@ int vtkPDataSetWriter::Write()
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return 0;
       }
-
-    input->UpdateInformation();
+    
+    inputAlg->UpdateInformation();
     switch (input->GetDataObjectType())
       {
       case VTK_POLY_DATA:
@@ -244,17 +246,16 @@ int vtkPDataSetWriter::Write()
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
     writer->SetFileName(fileName);
-    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-    input->Update();
+    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    inputAlg->Update();
     copy = input->NewInstance();
     copy->ShallowCopy(input);
     // I am putting this in here because shallow copy does not copy the
     // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy
     // in ParaViews release.
-    copy->SetUpdateExtent(0,1,0);
-    copy->SetUpdateExtent(input->GetUpdateExtent());
-    copy->Crop();
-    writer->SetInput(vtkDataSet::SafeDownCast(copy));
+    copy->Crop(vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+                 this->GetInputInformation()));
+    writer->SetInputData(vtkDataSet::SafeDownCast(copy));
     writer->Write();
     copy->Delete();
     copy = NULL;
@@ -300,24 +301,25 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
 
 
 //----------------------------------------------------------------------------
-int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input, 
+int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
                                           char *root, char *str, ostream *fptr)
 {
   int i;
   int *pi;
   double *pf;
+  vtkInformation* inInfo = this->GetInputInformation();
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
   // Image data has a buch of meta data.
   *fptr << "      scalarType=\"" << input->GetScalarType() << "\"" << endl;
-  pf = input->GetOrigin();
+  pf = inInfo->Get(vtkDataObject::ORIGIN());
   *fptr << "      origin=\"" 
         << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
-  pf = input->GetSpacing();
+  pf = inInfo->Get(vtkDataObject::SPACING());
   *fptr << "      spacing=\"" 
         << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
-  pi = input->GetWholeExtent();
+  pi = vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo);
   *fptr << "      wholeExtent=\"" 
         << pi[0] << " " << pi[1] << " " << pi[2] << " "
         << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
@@ -328,8 +330,9 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input,
 
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-    pi = input->GetUpdateExtent();
+    this->SetUpdateExtent(
+      i, this->NumberOfPieces, this->GhostLevel);
+    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
@@ -354,7 +357,8 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
 
-  pi = input->GetWholeExtent();
+  pi = vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation());
   *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
         << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
 
@@ -364,8 +368,10 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-    pi = input->GetUpdateExtent();
+    this->SetUpdateExtent(
+      i, this->NumberOfPieces, this->GhostLevel);
+    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+      this->GetInputInformation());
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
@@ -391,7 +397,8 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
 
-  pi = input->GetWholeExtent();
+  pi = vtkStreamingDemandDrivenPipeline::GetWholeExtent(
+    this->GetInputInformation());
   *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
         << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
 
@@ -401,8 +408,9 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-    pi = input->GetUpdateExtent();
+    this->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    pi = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+      this->GetInputInformation());
     sprintf(str, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "

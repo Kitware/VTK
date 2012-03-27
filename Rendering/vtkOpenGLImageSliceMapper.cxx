@@ -31,6 +31,10 @@
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+
 
 #include <math.h>
 
@@ -974,7 +978,9 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   vtkImageData *input = this->GetInput();
   input->GetSpacing(this->DataSpacing);
   input->GetOrigin(this->DataOrigin);
-  input->GetWholeExtent(this->DataWholeExtent);
+  vtkInformation *inputInfo = this->GetInputInformation(0, 0);
+  inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 this->DataWholeExtent);
 
   // OpenGL matrices are column-order, not row-order like VTK
   vtkMatrix4x4 *matrix = this->GetDataToWorldMatrix();

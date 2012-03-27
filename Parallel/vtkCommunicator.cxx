@@ -655,7 +655,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
       }
     }
   writer->WriteToOutputStringOn();
-  writer->SetInput(copy);
+  writer->SetInputData(copy);
 
   if (!writer->Write())
     {

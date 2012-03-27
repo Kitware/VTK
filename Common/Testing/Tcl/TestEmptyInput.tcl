@@ -22,19 +22,19 @@ proc TestOne {cname} {
 
    if {[b IsA "vtkAlgorithm"]} {
         catch {b Update}
-	if {[catch {b SetInput emptyPD}] == 0} {
+	if {[catch {b SetInputData emptyPD}] == 0} {
             catch {b Update}
         }
-	if {[catch {b SetInput emptyID}] == 0} {
+	if {[catch {b SetInputData emptyID}] == 0} {
             catch {b Update}
         }
-	if {[catch {b SetInput emptySG}] == 0} {
+	if {[catch {b SetInputData emptySG}] == 0} {
             catch {b Update}
         }
-	if {[catch {b SetInput emptyUG}] == 0} {
+	if {[catch {b SetInputData emptyUG}] == 0} {
             catch {b Update}
         }
-	if {[catch {b SetInput emptyRG}] == 0} {
+	if {[catch {b SetInputData emptyRG}] == 0} {
             catch {b Update}
         }
     }

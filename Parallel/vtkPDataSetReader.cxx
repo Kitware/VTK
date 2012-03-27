@@ -25,7 +25,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkSource.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
@@ -197,8 +196,8 @@ int vtkPDataSetReader::RequestDataObject(
     vtkWarningMacro("Creating a new output of type " 
                   << newOutput->GetClassName());
     }
-  
-  newOutput->SetPipelineInformation(info);
+
+  info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
   newOutput->Delete();
 
   return 1;
@@ -363,7 +362,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     }
   // Terminate the parameter string.
   *tmp = '\0';
-  // Expect an equals sign imediately after parameter string (no spaces).
+  // Expect an equals sign immediately after parameter string (no spaces).
   if (*ptr != '=')
     {
     vtkErrorMacro("Reached end of line before =");
@@ -924,10 +923,11 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
     // Do not copy the ExtentTranslator (hack) 
     // reader should probably set the extent translator
     // not paraview.
-    vtkExtentTranslator *tmp = output->GetExtentTranslator();
+    vtkExtentTranslator *tmp = 
+      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info);
     tmp->Register(this);
     output->CopyStructure(data);
-    output->SetExtentTranslator(tmp);
+    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(info, tmp);
     tmp->UnRegister(tmp);
     output->GetFieldData()->PassData(data->GetFieldData());
     output->GetCellData()->PassData(data->GetCellData());
@@ -973,8 +973,9 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
   int startPiece, endPiece;
   int idx;
 
-  updatePiece = output->GetUpdatePiece();
-  updateNumberOfPieces = output->GetUpdateNumberOfPieces();
+  updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+  updateNumberOfPieces =
+    vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(info);
 
   // Only the first N pieces have anything in them.
   if (updateNumberOfPieces > this->NumberOfPieces)
@@ -1015,7 +1016,7 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
       }
     else
       {
-      append->AddInput(tmp);
+      append->AddInputConnection(reader->GetOutputPort());
       }
     reader->Delete();
     }
@@ -1046,8 +1047,9 @@ int vtkPDataSetReader::UnstructuredGridExecute(
   int startPiece, endPiece;
   int idx;
 
-  updatePiece = output->GetUpdatePiece();
-  updateNumberOfPieces = output->GetUpdateNumberOfPieces();
+  updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+  updateNumberOfPieces =
+    vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(info);
 
   // Only the first N pieces have anything in them.
   if (updateNumberOfPieces > this->NumberOfPieces)
@@ -1081,7 +1083,7 @@ int vtkPDataSetReader::UnstructuredGridExecute(
       }
     else
       {
-      append->AddInput(reader->GetUnstructuredGridOutput());
+      append->AddInputConnection(reader->GetOutputPort());
       }
     reader->Delete();
     }
@@ -1116,9 +1118,9 @@ int vtkPDataSetReader::ImageDataExecute(
   int i, j;
 
   // Allocate the data object.
-  output->GetUpdateExtent(uExt);
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
   output->SetExtent(uExt);
-  output->AllocateScalars();
+  output->AllocateScalars(info);
 
   // Get the pieces that will be read.
   pieceMask = new int[this->NumberOfPieces];
@@ -1217,7 +1219,7 @@ int vtkPDataSetReader::StructuredGridExecute(
     {
     pieceMask[i] = 0;
     }
-  output->GetUpdateExtent(uExt);
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, uExt);
   this->CoverExtent(uExt, pieceMask);
 
   // Now read the pieces.
@@ -1411,10 +1413,10 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
     return;
     }
 
-  // Mark the choosen piece in the mask.
+  // Mark the chosen piece in the mask.
   pieceMask[best] = 1;
 
-  // Now recompute the coverage for the choosen piece.
+  // Now recompute the coverage for the chosen piece.
   i = best;
   for (j = 0; j < 3; ++j)
     { // Intersection of piece and extent to cover.

@@ -140,7 +140,7 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
     }
 
   // Set the input into my stats algorithms
-  this->StatisticsAlgorithm->SetInput(inData);
+  this->StatisticsAlgorithm->SetInputData(inData);
   this->StatisticsAlgorithm->SetLearnOptionParameters( inParameters );
   this->StatisticsAlgorithm->SetInputModel( this->InternalModel );
 

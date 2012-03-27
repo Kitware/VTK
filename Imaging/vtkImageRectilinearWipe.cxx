@@ -130,7 +130,7 @@ int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
 void vtkImageRectilinearWipe::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ),
   vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkInformationVector * outputVector,
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
@@ -176,7 +176,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     }
 
   // Wipe pattern depends on the whole extent.
-  outData[0]->GetWholeExtent(wholeExt);
+  outputVector->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 
   // Each quadrant is processed separately
   // lower left

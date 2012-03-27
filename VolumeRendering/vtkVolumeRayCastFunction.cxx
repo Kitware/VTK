@@ -61,8 +61,9 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // What are the data increments? 
   // (One voxel, one row, and one slice offsets)
   staticInfo->DataIncrement[0] = 1;
-  staticInfo->DataIncrement[1] = staticInfo->DataSize[0];
-  staticInfo->DataIncrement[2] = staticInfo->DataSize[0] * staticInfo->DataSize[1];
+  staticInfo->DataIncrement[1] = static_cast<vtkIdType>(staticInfo->DataSize[0]);
+  staticInfo->DataIncrement[2] = static_cast<vtkIdType>(staticInfo->DataSize[0])*
+                                 static_cast<vtkIdType>(staticInfo->DataSize[1]);
 
 
   // Get the encoded normals from the normal encoder in the

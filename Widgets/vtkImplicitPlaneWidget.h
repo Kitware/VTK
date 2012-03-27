@@ -121,7 +121,7 @@ public:
   // Force the plane widget to be aligned with one of the x-y-z axes.
   // If one axis is set on, the other two will be set off.
   // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the plane to the axes if it is orginally
+  // This can be used to snap the plane to the axes if it is originally
   // not aligned.
   void SetNormalToXAxis(int);
   vtkGetMacro(NormalToXAxis,int);

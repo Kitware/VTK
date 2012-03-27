@@ -56,7 +56,7 @@ eval elevation$lod SetScalarRange $lo $hi
     toPoly$lod SetInputConnection [elevation$lod GetOutputPort]
   
   vtkPolyDataNormals normals$lod
-    normals$lod SetInput [toPoly$lod GetPolyDataOutput]
+    normals$lod SetInputConnection [toPoly$lod GetOutputPort]
     normals$lod SetFeatureAngle 60
     normals$lod ConsistencyOff
     normals$lod SplittingOff

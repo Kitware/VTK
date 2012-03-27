@@ -59,11 +59,11 @@ vtkConeSource cone
 # Create a vtkGlyph3D to dispatch the glyph/cone geometry (SetSource) on the
 # sphere dataset (SetInput). Each glyph is oriented through the dataset 
 # normals (SetVectorModeToUseNormal). The resulting dataset is a set
-# of cones lying on a sphere surface.
+# of cones laying on a sphere surface.
 #
 vtkGlyph3D glyph
     glyph SetInputConnection [sphere GetOutputPort]
-    glyph SetSource [cone GetOutput]
+    glyph SetSourceConnection [cone GetOutputPort]
     glyph SetVectorModeToUseNormal 
     glyph SetScaleModeToScaleByVector 
     glyph SetScaleFactor 0.25

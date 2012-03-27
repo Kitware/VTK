@@ -111,7 +111,7 @@ int TestGroupLeafVertices(int argc, char* argv[])
   //
 
   VTK_CREATE(vtkTableToTreeFilter, tableToTree);
-  tableToTree->SetInput(table);
+  tableToTree->SetInputData(table);
   tableToTree->Update();
   vtkTree* tree = tableToTree->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)

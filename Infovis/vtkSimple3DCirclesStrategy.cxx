@@ -395,7 +395,7 @@ void vtkSimple3DCirclesStrategy::Layout( void )
 
   if ( order->GetValue( order->GetMaxId() ) == -1 )
     {
-    vtkErrorMacro( << "Not all parts of the graph is accessable. There may be a loop." );
+    vtkErrorMacro( << "Not all parts of the graph is accessible. There may be a loop." );
     return;
     }
 

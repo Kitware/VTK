@@ -212,7 +212,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
 
   this->InputArrayTable = vtkSmartPointer<vtkTable>::New();
   this->LinearThreshold = vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
-  this->LinearThreshold->SetInput(this->InputArrayTable);
+  this->LinearThreshold->SetInputData(this->InputArrayTable);
 
   this->Axes = NULL;
   this->NumberOfAxisLabels = 2;
@@ -381,11 +381,11 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
     int lineNum = 0;
     vtkIdType* pts = 0;
     vtkIdType  npts = 0;
-    double p[3] = {x,y,0.0};
+    double p[3] = {static_cast<double>(x),static_cast<double>(y),0.0};
     p[0] /= size[0];
     p[1] /= size[1];
 
-    if (p[0] < this->Xs[0] || 
+    if (p[0] < this->Xs[0] ||
         p[0] > this->Xs[this->NumberOfAxes-1] ||
         p[1] < this->YMin ||
         p[1] > this->YMax)
@@ -459,7 +459,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     if (inputData->IsA("vtkArrayData"))
       {
       vtkSmartPointer<vtkArrayToTable> att = vtkSmartPointer<vtkArrayToTable>::New();
-      att->SetInput(inputData);
+      att->SetInputData(inputData);
       att->Update();
 
       this->InputArrayTable->ShallowCopy(att->GetOutput());
@@ -662,7 +662,7 @@ void vtkParallelCoordinatesRepresentation::SetAxisTitles(vtkStringArray* sa)
 {
   vtkSmartPointer<vtkTable> t = vtkSmartPointer<vtkTable>::New();
   t->AddColumn(sa);
-  this->SetInput(1,t);
+  this->SetInputData(1,t);
 }
 //------------------------------------------------------------------------------
 void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os, 
@@ -2065,7 +2065,7 @@ vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::InitializePlotMapper(
   vtkSmartPointer<vtkCoordinate> dummyCoord = vtkSmartPointer<vtkCoordinate>::New();
   dummyCoord->SetCoordinateSystemToNormalizedViewport();
 
-  mapper->SetInput(input);
+  mapper->SetInputData(input);
   mapper->SetTransformCoordinate(dummyCoord);
   mapper->ScalarVisibilityOff();
   actor->SetMapper(mapper);  

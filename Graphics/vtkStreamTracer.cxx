@@ -96,9 +96,9 @@ void vtkStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
   this->SetInputConnection(1, algOutput);
 }
 
-void vtkStreamTracer::SetSource(vtkDataSet *source)
+void vtkStreamTracer::SetSourceData(vtkDataSet *source)
 {
-  this->SetInput(1, source);
+  this->SetInputData(1, source);
 }
 
 vtkDataSet *vtkStreamTracer::GetSource()

@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
@@ -300,8 +301,6 @@ int vtkGenericGlyph3DFilter::RequestData(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->SetUpdateExtent(0, 1, 0);
-    this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();
@@ -724,37 +723,44 @@ int vtkGenericGlyph3DFilter::RequestInformation(
 
 //-----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGenericGlyph3DFilter::SetSource(int id, vtkPolyData *pd)
+void vtkGenericGlyph3DFilter::SetSourceData(int id, vtkPolyData *pd)
 {
-  if (id < 0)
+  int numConnections = this->GetNumberOfInputConnections(1);
+
+  if (id < 0 || id > numConnections)
     {
     vtkErrorMacro("Bad index " << id << " for source.");
     return;
     }
-  
-  int numConnections = this->GetNumberOfInputConnections(1);
-  vtkAlgorithmOutput *algOutput = 0;
+
+  vtkTrivialProducer* tp = 0;
   if (pd)
     {
-    algOutput = pd->GetProducerPort();
-    }
-  else
-    {
-    vtkErrorMacro("Cannot set NULL source.");
-    return;
+    tp = vtkTrivialProducer::New();
+    tp->SetOutput(pd);
     }
 
   if (id < numConnections)
     {
-    if (algOutput)
+    if (tp)
       {
-      this->SetNthInputConnection(1, id, algOutput);
+      this->SetNthInputConnection(1, id, tp->GetOutputPort());
+      }
+    else
+      {
+      this->SetNthInputConnection(1, id, 0);
       }
     }
-  else if (id == numConnections && algOutput)
+  else if (id == numConnections && tp)
     {
-    this->AddInputConnection(1, algOutput);
+    this->AddInputConnection(1, tp->GetOutputPort());
     }
+
+  if (tp)
+    {
+    tp->Delete();
+    }
+
 }
 
 //-----------------------------------------------------------------------------

@@ -52,7 +52,7 @@ int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
        != MPI_SUCCESS)
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkErrorMacro("MPI error occurred: " << msg);
     delete[] msg;
     return 0;
     }

@@ -27,6 +27,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPNGWriter.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkTimerLog.h"
+#include "vtkRenderPass.h"
+#include "vtkRenderState.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 # include "vtkOpenGL.h"
@@ -51,6 +53,7 @@ vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
+vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);
 
 #define VTK_MAX_LIGHTS 8
 
@@ -83,6 +86,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 
   this->ShaderProgram=0;
   this->BackgroundTexture = 0;
+  this->Pass = 0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -228,27 +232,37 @@ void vtkOpenGLRenderer::DeviceRender(void)
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  // Do not remove this MakeCurrent! Due to Start / End methods on
-  // some objects which get executed during a pipeline update,
-  // other windows might get rendered since the last time
-  // a MakeCurrent was called.
-  this->RenderWindow->MakeCurrent();
+  if(this->Pass!=0)
+    {
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    this->Pass->Render(&s);
+    }
+  else
+    {
+    // Do not remove this MakeCurrent! Due to Start / End methods on
+    // some objects which get executed during a pipeline update,
+    // other windows might get rendered since the last time
+    // a MakeCurrent was called.
+    this->RenderWindow->MakeCurrent();
 
-  // standard render method
-  this->ClearLights();
+    // standard render method
+    this->ClearLights();
 
-  this->UpdateCamera();
-  this->UpdateLightGeometry();
-  this->UpdateLights();
+    this->UpdateCamera();
+    this->UpdateLightGeometry();
+    this->UpdateLights();
 
-  // set matrix mode for actors
-  glMatrixMode(GL_MODELVIEW);
+    // set matrix mode for actors
+    glMatrixMode(GL_MODELVIEW);
 
-  this->UpdateGeometry();
+    this->UpdateGeometry();
 
-  // clean up the model view matrix set up by the camera
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+    // clean up the model view matrix set up by the camera
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
@@ -1032,6 +1046,15 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
+  os << indent << "Pass:";
+  if(this->Pass!=0)
+    {
+      os << "exists" << endl;
+    }
+  else
+    {
+      os << "null" << endl;
+    }
 }
 
 
@@ -1161,7 +1184,13 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   glPushName(0);
 }
 
-
+void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
+{
+  if (w && this->Pass)
+    {
+    this->Pass->ReleaseGraphicsResources(w);
+    }
+}
 
 void vtkOpenGLRenderer::UpdatePickId()
 {
@@ -1226,7 +1255,7 @@ void vtkOpenGLRenderer::DonePick()
       {
       this->PickInfo->PickedId = *ptr;
       }
-    // skip additonal names
+    // skip additional names
     ptr += num_names;
     }
   // If there was a pick, then get the Z value
@@ -1275,6 +1304,11 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     {
     this->ShaderProgram->Delete();
     }
+
+  if(this->Pass!=0)
+    {
+    this->Pass->UnRegister(this);
+    }
 }
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()
@@ -1302,7 +1336,7 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     iptr++; // move to first name picked
     *optr = static_cast<unsigned int>(*iptr);
     optr++;
-    // skip additonal names
+    // skip additional names
     iptr += num_names;
     }
   return k;

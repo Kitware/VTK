@@ -1739,7 +1739,7 @@ static const char* vtkTextLabelList[] =
   "Assurance",
   "Perry",
   "Cruise",
-  "Vermillion",
+  "Vermilion",
   "San Jacinto",
   "Diamond Head",
   "Lardner",
@@ -2671,7 +2671,7 @@ int TestLabelPlacer2D( int argc, char* argv[] )
   polyData->GetPointData()->AddArray( priorities );
 
   vtkLabelSizeCalculator* sizeCalc = vtkLabelSizeCalculator::New();
-  sizeCalc->SetInput( polyData );
+  sizeCalc->SetInputData( polyData );
   sizeCalc->GetFontProperty()->SetFontSize( 12 );
   sizeCalc->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
   sizeCalc->SetInputArrayToProcess( 0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText" );

@@ -86,8 +86,8 @@ endif()
 
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
-SET(VTK_MAJOR_VERSION 5)
-SET(VTK_MINOR_VERSION 9)
+SET(VTK_MAJOR_VERSION 6)
+SET(VTK_MINOR_VERSION 0)
 SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
@@ -443,6 +443,7 @@ ENDIF(VTK_USE_RENDERING)
 
 IF(VTK_USE_PARALLEL)
   SET(VTK_KITS ${VTK_KITS} PARALLEL)
+  SET(VTK_KITS ${VTK_KITS} AMR)
 ENDIF(VTK_USE_PARALLEL)
 
 IF(VTK_USE_INFOVIS)
@@ -514,11 +515,33 @@ ADD_DEFINITIONS(-DVTK_IN_VTK)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
-INCLUDE(CMakeBackwardCompatibilityC)
+
+INCLUDE (TestBigEndian)
+TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
+
+include(FindThreads)
+set(VTK_USE_WIN32_THREADS 0)
+set(VTK_USE_PTHREADS 0)
+set(VTK_HP_PTHREADS 0)
+set(VTK_USE_SPROC 0)
+if(CMAKE_USE_WIN32_THREADS_INIT)
+  set(VTK_USE_WIN32_THREADS 1)
+  set(CMAKE_THREAD_LIBS_INIT "")
+elseif(CMAKE_USE_PTHREADS_INIT)
+  set(VTK_USE_PTHREADS 1)
+  if(CMAKE_HP_PTHREADS_INIT)
+    set(VTK_HP_PTHREADS 1)
+  endif()
+elseif(CMAKE_USE_SPROC_INIT)
+  set(VTK_USE_SPROC 1)
+endif()
+set(CMAKE_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}" CACHE STRING "Thread library used.")
+mark_as_advanced(CMAKE_THREAD_LIBS)
+set(VTK_MAX_THREADS "64" CACHE STRING
+  "Max number of threads vktMultiThreader will allocate.")
+mark_as_advanced(VTK_MAX_THREADS)
+
 INCLUDE(TestForANSIStreamHeaders)
-INCLUDE(TestForSTDNamespace)
-INCLUDE(TestForANSIForScope)
-INCLUDE(CheckTypeSize)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
 INCLUDE(TestForSSTREAM)
@@ -548,13 +571,7 @@ MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
 ENDMACRO(VTK_PREPARE_CMAKEDEFINE)
 
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_PTHREADS VTK_USE_PTHREADS)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_SPROC VTK_USE_SPROC)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_HP_PTHREADS VTK_HP_PTHREADS)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_WIN32_THREADS VTK_USE_WIN32_THREADS)
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
-VTK_PREPARE_CMAKEDEFINE(NOT CMAKE_ANSI_FOR_SCOPE VTK_NO_FOR_SCOPE)
 VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 VTK_PREPARE_CMAKEDEFINE(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
@@ -570,7 +587,7 @@ ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies except *Implicit.txx files.
   SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
 ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
+INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|Test|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.
@@ -729,25 +746,15 @@ OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
 OPTION(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
 
-VTK_DEPENDENT_OPTION(VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL." OFF
-                     "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
 
 
-# Off-Screen MESA cannot be used with Mangled MESA.
-IF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
-  MESSAGE(FATAL_ERROR
-    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
-    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
-ENDIF(VTK_OPENGL_HAS_OSMESA  AND  VTK_USE_MANGLED_MESA)
-
-
 SET(VTK_CAN_DO_OFF_SCREEN)
-IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
+IF(VTK_OPENGL_HAS_OSMESA OR WIN32)
   SET(VTK_CAN_DO_OFF_SCREEN 1)
-ENDIF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA OR WIN32)
+ENDIF(VTK_OPENGL_HAS_OSMESA OR WIN32)
 
 VTK_DEPENDENT_OPTION(VTK_USE_OFFSCREEN
                      "Use off screen calls by default." OFF
@@ -795,7 +802,6 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_OFFSCREEN
                  VTK_USE_TK
                  VTK_USE_GL2PS
-                 VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
                  VTK_USE_MPI
                  VTK_USE_PARALLEL_BGL)
@@ -803,8 +809,11 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.
 VTK_THIRD_PARTY_OPTION(ZLIB zlib)
+
+set(HDF5_FIND_COMPONENTS "HL;C")
 VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
 INCLUDE(vtkHDF5Library)
+
 IF(VTK_USE_GL2PS)
 VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
 ENDIF(VTK_USE_GL2PS)
@@ -861,17 +870,6 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 
 VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
-
-#-----------------------------------------------------------------------------
-# Configure Mangled MESA support.
-IF(VTK_USE_MANGLED_MESA)
-  FIND_PACKAGE(MangledMesa)
-
-  IF(MANGLED_MESA_INCLUDE_DIR)
-    USE_MANGLED_MESA(${MANGLED_MESA_INCLUDE_DIR}/GL
-                     ${VTK_BINARY_DIR}/MangleMesaInclude)
-  ENDIF(MANGLED_MESA_INCLUDE_DIR)
-ENDIF(VTK_USE_MANGLED_MESA)
 
 #-----------------------------------------------------------------------------
 # Configure Off-Screen MESA support.
@@ -1347,12 +1345,12 @@ ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
 ADD_SUBDIRECTORY(Utilities)
 
 # Build the subdirector for each kit.
-ADD_SUBDIRECTORY(  Common )
-ADD_SUBDIRECTORY(  Filtering )
-ADD_SUBDIRECTORY(  Imaging )
-ADD_SUBDIRECTORY(  Graphics )
-ADD_SUBDIRECTORY(  GenericFiltering )
-ADD_SUBDIRECTORY(  IO )
+ADD_SUBDIRECTORY(Common)
+ADD_SUBDIRECTORY(Filtering)
+ADD_SUBDIRECTORY(Imaging)
+ADD_SUBDIRECTORY(Graphics)
+ADD_SUBDIRECTORY(GenericFiltering)
+ADD_SUBDIRECTORY(IO)
 
 IF(VTK_USE_RENDERING)
   ADD_SUBDIRECTORY(Rendering)
@@ -1362,6 +1360,7 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 IF(VTK_USE_PARALLEL)
   ADD_SUBDIRECTORY(Parallel)
+  ADD_SUBDIRECTORY(AMR)
 ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_INFOVIS)
   ADD_SUBDIRECTORY(Infovis)
@@ -1415,6 +1414,7 @@ IF(BUILD_TESTING)
   ENDIF(VTK_USE_RENDERING)
   IF(VTK_USE_PARALLEL)
     ADD_SUBDIRECTORY(Parallel/Testing)
+    ADD_SUBDIRECTORY(AMR/Testing)
   ENDIF(VTK_USE_PARALLEL)
   IF(VTK_USE_INFOVIS)
     ADD_SUBDIRECTORY(Infovis/Testing)

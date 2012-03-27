@@ -95,10 +95,6 @@ unsigned long vtkImplicitVolume::GetMTime()
 
   if ( this->Volume != NULL )
     {
-    this->Volume->RequestExactExtentOn();
-    this->Volume->UpdateInformation();
-    this->Volume->SetUpdateExtentToWholeExtent();
-    this->Volume->Update();
     volumeMTime = this->Volume->GetMTime();
     mTime = ( volumeMTime > mTime ? volumeMTime : mTime );
     }

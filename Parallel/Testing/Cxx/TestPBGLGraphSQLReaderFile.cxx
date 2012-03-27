@@ -71,7 +71,7 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
                      vtkPBGLGraphSQLReader * sqlSrc,
                      int testNum,
                      bool directed);
-int collectDistributedGraphToSingleNode(vtkGraph * inGraph,
+int collectDistributedGraphToSingleNode(vtkAlgorithmOutput * inGraph,
                                         vtkPBGLCollectGraph * PBGLCollect);
 
 int validateByCounting(vtkIdType testCase, vtkIdType numVerts, vtkIdType numEdges);
@@ -130,7 +130,7 @@ int executeTestCase(vtkIdType testCase, vtkSQLiteDatabase * db)
   //       graph.  For now, we'll just let correctness be based on whether this
   //       step passes or not.
   VTK_CREATE(vtkPBGLCollectGraph, collectedGraph);
-  collectDistributedGraphToSingleNode(sqlSrc->GetOutput(),
+  collectDistributedGraphToSingleNode(sqlSrc->GetOutputPort(),
                                     collectedGraph);
 
   // =====[ Do some validation ]================================================
@@ -362,7 +362,7 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
 
 
 //=====[ Collect Graph to One Processor ]=======================================
-int collectDistributedGraphToSingleNode(vtkGraph * inGraph,
+int collectDistributedGraphToSingleNode(vtkAlgorithmOutput * inGraph,
                                         vtkPBGLCollectGraph * PBGLCollect)
 {
   boost::mpi::communicator world;
@@ -372,7 +372,7 @@ int collectDistributedGraphToSingleNode(vtkGraph * inGraph,
     }
   world.barrier();
 
-  PBGLCollect->SetInputConnection( inGraph->GetProducerPort() );
+  PBGLCollect->SetInputConnection( inGraph );
   PBGLCollect->SetTargetProcessor(0);
   PBGLCollect->SetReplicateGraph(false);
   PBGLCollect->CopyVertexDataOn();

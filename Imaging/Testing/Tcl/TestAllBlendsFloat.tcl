@@ -62,12 +62,12 @@ alpha SetOutValue 0.0
 # make luminanceAlpha and colorAlpha versions 
 
 vtkImageAppendComponents luminanceAlpha
-luminanceAlpha AddInput [luminance GetOutput]
-luminanceAlpha AddInput [alpha GetOutput]
+luminanceAlpha AddInputConnection [luminance GetOutputPort]
+luminanceAlpha AddInputConnection [alpha GetOutputPort]
 
 vtkImageAppendComponents colorAlpha
-colorAlpha AddInput [color GetOutput]
-colorAlpha AddInput [alpha GetOutput]
+colorAlpha AddInputConnection [color GetOutputPort]
+colorAlpha AddInputConnection [alpha GetOutputPort]
 
 set foregrounds "luminance luminanceAlpha color colorAlpha"
 set backgrounds "backgroundColor backgroundLuminance"
@@ -80,9 +80,9 @@ set deltaY [expr 1.0/2.0]
 foreach background $backgrounds {
     foreach foreground $foregrounds {
 	vtkImageBlend blend${row}${column}
-	blend${row}${column} AddInput [$background GetOutput]
+	blend${row}${column} AddInputConnection [$background GetOutputPort]
 	if { $background == "backgroundColor" || $foreground == "luminance" || $foreground == "luminanceAlpha" } { 
-	    blend${row}${column} AddInput [$foreground GetOutput]
+	    blend${row}${column} AddInputConnection [$foreground GetOutputPort]
 	    blend${row}${column} SetOpacity 1 0.8
 	}
 

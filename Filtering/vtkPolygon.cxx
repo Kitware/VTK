@@ -1990,15 +1990,3 @@ int vtkPolygon::IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
     return 0;
     }
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-void vtkPolygon::ComputeWeights(double x[3], double *weights)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkPolygon::ComputeWeights, "VTK 5.2",
-                           vtkPolygon::InterpolateFunctions);
-  this->InterpolateFunctions(x, weights);
-}
-#endif
-
-

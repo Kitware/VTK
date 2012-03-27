@@ -296,7 +296,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   // Make sure we call SetExecutive right after the filter creation and
   // before the SetInput call.
   surface->SetExecutive(exec);
-  surface->SetInput(hds);
+  surface->SetInputData(hds);
   exec->Delete();
   hds->Delete();
 

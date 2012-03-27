@@ -891,7 +891,7 @@ private:
   // the are local in the sense that they can change with each time step.
   // For the purpose of this object, which represents a particular
   // time step, they are therefore considered "local".  (Since they need
-  // to be updated everytime another read is done from the file.)
+  // to be updated every time another read is done from the file.)
 
   int NumberOfGlobalVariables;   // (G)
   char **GlobalVariableNames;    // (G) NumberOfGlobalVariables

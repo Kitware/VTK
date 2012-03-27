@@ -27,8 +27,10 @@
 #include "vtkPNGWriter.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 
 #include "vtkgl.h"
+#include <assert.h>
 
 
 //----------------------------------------------------------------------------
@@ -111,7 +113,17 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
       {
       this->Renderer->RemoveObserver(this->Observer);
       }
-    vtkSetObjectBodyMacro(Renderer, vtkRenderer, renderer);
+
+    // The renderer should be OpenGL ...
+    vtkOpenGLRenderer *glRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+
+    if(renderer && !glRenderer)
+      {
+        vtkErrorMacro("Received non OpenGL renderer");
+        assert(false);
+      }
+
+    vtkSetObjectBodyMacro(Renderer, vtkOpenGLRenderer, glRenderer);
     if (this->Renderer)
       {
       this->Renderer->AddObserver(vtkCommand::StartEvent, this->Observer);
@@ -428,7 +440,23 @@ void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->HeadPose[12]
          << this->HeadPose[13]
          << this->HeadPose[14]
-         << this->HeadPose[15] ;
+         << this->HeadPose[15]
+         << this->WandPose[0]
+         << this->WandPose[1]
+         << this->WandPose[2]
+         << this->WandPose[3]
+         << this->WandPose[4]
+         << this->WandPose[5]
+         << this->WandPose[6]
+         << this->WandPose[7]
+         << this->WandPose[8]
+         << this->WandPose[9]
+         << this->WandPose[10]
+         << this->WandPose[11]
+         << this->WandPose[12]
+         << this->WandPose[13]
+         << this->WandPose[14]
+         << this->WandPose[15];
 }
 
 //----------------------------------------------------------------------------
@@ -477,7 +505,23 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
          >> this->HeadPose[12]
          >> this->HeadPose[13]
          >> this->HeadPose[14]
-         >> this->HeadPose[15];
+         >> this->HeadPose[15]
+         >> this->WandPose[0]
+         >> this->WandPose[1]
+         >> this->WandPose[2]
+         >> this->WandPose[3]
+         >> this->WandPose[4]
+         >> this->WandPose[5]
+         >> this->WandPose[6]
+         >> this->WandPose[7]
+         >> this->WandPose[8]
+         >> this->WandPose[9]
+         >> this->WandPose[10]
+         >> this->WandPose[11]
+         >> this->WandPose[12]
+         >> this->WandPose[13]
+         >> this->WandPose[14]
+         >> this->WandPose[15];
   return true;
 }
 
@@ -497,11 +541,13 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   this->CameraParallelScale = cam->GetParallelScale();
 
   vtkMatrix4x4 *headMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4 *wandMatrix = cam->GetModelTransformMatrix();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
        this->HeadPose[i*4 + j] = headMatrix->GetElement(i, j);
+       this->WandPose[i*4 + j] = wandMatrix->GetElement(i, j);
       }
     }
 }
@@ -523,15 +569,19 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetParallelScale(this->CameraParallelScale);
 
   vtkMatrix4x4 *headMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *wandMatrix = vtkMatrix4x4::New();
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
       {
       headMatrix->SetElement(i, j, this->HeadPose[i * 4 + j]);
+      wandMatrix->SetElement(i, j, this->WandPose[i * 4 + j]);
       }
     }
   cam->SetEyeTransformMatrix(headMatrix);
+  cam->SetModelTransformMatrix(wandMatrix);
   headMatrix->Delete();
+  wandMatrix->Delete();
 }
 
 
@@ -576,11 +626,9 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
     }
 
   vtkImageData* img = vtkImageData::New();
-  img->SetScalarTypeToUnsignedChar();
-  img->SetNumberOfScalarComponents(
-    this->Data->GetNumberOfComponents());
   img->SetDimensions(this->Size[0], this->Size[1], 1);
-  img->AllocateScalars();
+  img->AllocateScalars(VTK_UNSIGNED_CHAR,
+                       this->Data->GetNumberOfComponents());
   memcpy(img->GetScalarPointer(),
     this->GetRawPtr()->GetVoidPointer(0),
     sizeof(unsigned char)*this->Size[0]*this->Size[1]*
@@ -588,7 +636,7 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 
   vtkPNGWriter* writer = vtkPNGWriter::New();
   writer->SetFileName(filename);
-  writer->SetInput(img);
+  writer->SetInputData(img);
   writer->Write();
   writer->Delete();
   img->Delete();
@@ -733,4 +781,10 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     this->GetRawPtr());
   this->MarkValid();
   return true;
+}
+
+vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of " << this->Renderer );
+  return this->Renderer;
 }

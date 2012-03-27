@@ -40,7 +40,6 @@ vtkSphericalDirectionEncoder.cxx
 vtkVolumeMapper.cxx
 vtkVolumeOutlineSource.cxx
 vtkVolumePicker.cxx
-vtkVolumeProMapper.cxx
 vtkVolumeRayCastCompositeFunction.cxx
 vtkVolumeRayCastFunction.cxx
 vtkVolumeRayCastIsosurfaceFunction.cxx
@@ -62,6 +61,14 @@ vtkUnstructuredGridVolumeRayIntegrator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkUnstructuredGridVolumeZSweepMapper.cxx
 )
+
+IF(VTK_USE_PARALLEL)
+ set(Kit_SRCS ${Kit_SRCS} vtkAMRVolumeMapper.cxx)
+ set(KIT_INTERFACE_LIBRARIES ${KIT_INTERFACE_LIBRARIES} vtkAMR)
+ set(KIT_TCL_LIBS ${KIT_TCL_LIBS} vtkAMRTCL)
+ set(KIT_PYTHON_LIBS ${KIT_PYTHON_LIBS} vtkAMRPythonD)
+ set(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} vtkAMRJava) 
+ENDIF(VTK_USE_PARALLEL)
 
 SET( KitOpenGL_SRCS
   vtkOpenGLGPUVolumeRayCastMapper.cxx
@@ -174,50 +181,11 @@ vtkUnstructuredGridVolumeRayIntegrator
 ABSTRACT
 )
 
-IF (VTK_USE_MANGLED_MESA)
-  IF (MANGLED_MESA_LIBRARY)
-    SET ( KitOpenGL_SRCS ${KitOpenGL_SRCS}
-                 vtkMesaProjectedTetrahedraMapper.cxx
-                 vtkMesaRayCastImageDisplayHelper.cxx
-                 vtkMesaVolumeTextureMapper2D.cxx
-    )
-    SET (KIT_LIBS ${KIT_LIBS} ${MANGLED_MESA_LIBRARY})
-    IF(MANGLED_OSMESA_LIBRARY)
-      SET( KIT_LIBS ${KIT_LIBS} ${MANGLED_OSMESA_LIBRARY} )
-    ENDIF(MANGLED_OSMESA_LIBRARY)
-  ENDIF (MANGLED_MESA_LIBRARY)
-ELSE (VTK_USE_MANGLED_MESA)
-  IF(VTK_OPENGL_HAS_OSMESA)
-    IF (OSMESA_LIBRARY)
-      SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
-    ENDIF (OSMESA_LIBRARY)
-  ENDIF(VTK_OPENGL_HAS_OSMESA)
-ENDIF(VTK_USE_MANGLED_MESA)
-
-INCLUDE(${VTK_SOURCE_DIR}/CMake/FindVLI.cmake)
-
-IF (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
-  OPTION (VTK_USE_VOLUMEPRO_1000 "Enable support for VolumePro 1000." ON)
-ELSE (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
-  OPTION (VTK_USE_VOLUMEPRO_1000 "Enable support for VolumePro 1000." OFF)
-ENDIF (VLI_LIBRARY_FOR_VP1000 AND VLI_INCLUDE_PATH_FOR_VP1000)
-
-IF (VTK_USE_VOLUMEPRO_1000)
-  SET (Kit_SRCS ${Kit_SRCS}
-    vtkVolumeProVP1000Mapper.cxx
-    )
-  SET (KitOpenGL_SRCS ${KitOpenGL_SRCS}
-    vtkOpenGLVolumeProVP1000Mapper.cxx
-    )
-  INCLUDE_DIRECTORIES (${VLI_INCLUDE_PATH_FOR_VP1000})
-  SET (KIT_LIBS ${KIT_LIBS} ${VLI_LIBRARY_FOR_VP1000})
-ENDIF (VTK_USE_VOLUMEPRO_1000)
-
-MARK_AS_ADVANCED (
-  VTK_USE_VOLUMEPRO_1000
-  VLI_LIBRARY_FOR_VP1000
-  VLI_INCLUDE_PATH_FOR_VP1000
-  )
+IF(VTK_OPENGL_HAS_OSMESA)
+  IF (OSMESA_LIBRARY)
+    SET(KIT_LIBS ${KIT_LIBS} ${OSMESA_LIBRARY})
+  ENDIF (OSMESA_LIBRARY)
+ENDIF(VTK_OPENGL_HAS_OSMESA)
 
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
 

@@ -125,7 +125,7 @@ int TestPushTokenValueFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       documents->AddColumn(content_array);
     
       vtkSmartPointer<vtkTextExtraction> text_extraction = vtkSmartPointer<vtkTextExtraction>::New();
-      text_extraction->SetInputConnection(0, documents->GetProducerPort());
+      text_extraction->SetInputData(0, documents);
     
       vtkSmartPointer<vtkTokenizer> tokenizer = vtkSmartPointer<vtkTokenizer>::New();
       tokenizer->SetInputConnection(0, text_extraction->GetOutputPort());
@@ -154,7 +154,7 @@ int TestPushTokenValueFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       documents->AddColumn(mime_type_array);
       documents->AddColumn(content_array);      
       content_array->SetValue(0, "hello");
-      text_extraction->SetInputConnection(0, documents->GetProducerPort());
+      text_extraction->SetInputData(0, documents);
       
       vtkThreadedStreamingPipeline::Push(text_extraction->GetExecutive(), extra_info);
       vtkExecutionScheduler::GetGlobalScheduler()->WaitUntilAllDone();

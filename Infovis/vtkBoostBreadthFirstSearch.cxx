@@ -113,7 +113,7 @@ vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
 
 void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 {
-  this->SetOriginSelectionConnection(s->GetProducerPort());
+  this->SetOriginSelection(s);
 }
 
 // Description:

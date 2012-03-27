@@ -151,7 +151,7 @@ protected:
   //ETX
 
   // Description:
-  // Runs throught the XML element children to locate uniform
+  // Runs through the XML element children to locate uniform
   // variable elements and process them.
   virtual void SetShaderParameters(vtkActor*, vtkRenderer*,
                                    vtkXMLDataElement*);

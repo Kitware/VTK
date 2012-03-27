@@ -87,7 +87,7 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   v->Delete();
 
   vtkUncertaintyTubeFilter *utf = vtkUncertaintyTubeFilter::New();
-  utf->SetInput(pd);
+  utf->SetInputData(pd);
   utf->SetNumberOfSides(8);
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();

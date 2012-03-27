@@ -110,7 +110,7 @@ void vtkSCurveSpline::Compute ()
   int i;
   
   // Make sure the function is up to date.
-  this->PiecewiseFunction->Update();
+  //this->PiecewiseFunction->Update();
   
   // get the size of the independent variables
   size = this->PiecewiseFunction->GetSize ();

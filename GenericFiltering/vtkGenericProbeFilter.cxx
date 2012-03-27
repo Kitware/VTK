@@ -48,9 +48,9 @@ vtkGenericProbeFilter::~vtkGenericProbeFilter()
 
 
 //----------------------------------------------------------------------------
-void vtkGenericProbeFilter::SetSource(vtkGenericDataSet *input)
+void vtkGenericProbeFilter::SetSourceData(vtkGenericDataSet *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
@@ -65,6 +65,32 @@ vtkGenericDataSet *vtkGenericProbeFilter::GetSource()
     this->GetExecutive()->GetInputData(1, 0));
 }
 
+
+//----------------------------------------------------------------------------
+int vtkGenericProbeFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // A variation of the bug fix from John Biddiscombe.
+  // Make sure that the scalar type and number of components
+  // are propagated from the source not the input.
+  if (vtkImageData::HasScalarType(sourceInfo))
+    {
+    vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
+                                outInfo);
+    }
+  if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
+    {
+    vtkImageData::SetNumberOfScalarComponents(
+      vtkImageData::GetNumberOfScalarComponents(sourceInfo),
+      outInfo);
+    }
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 int vtkGenericProbeFilter::RequestData(
@@ -209,16 +235,6 @@ int vtkGenericProbeFilter::RequestData(
   cellIt->Delete();
   delete[] tuples;
 
-  // BUG FIX: JB.
-  // Output gets setup from input, but when output is imagedata, scalartype
-  // depends on source scalartype not input scalartype
-  if (output->IsA("vtkImageData"))
-    {
-    vtkImageData *out = static_cast<vtkImageData *>(output);
-    vtkDataArray *s = outputPD->GetScalars();
-    out->SetScalarType(s->GetDataType());
-    out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
-    }
   return 1;
 }
 

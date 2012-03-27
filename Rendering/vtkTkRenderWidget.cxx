@@ -18,6 +18,8 @@
 #include "vtkTclUtil.h"
 #include "vtkTkInternals.h"
 #include "vtkToolkits.h"
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -74,7 +76,7 @@ static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
 };
 
 
-// Foward prototypes
+// Forward prototypes
 extern "C"
 {
   void vtkTkRenderWidget_EventProc(ClientData clientData, 
@@ -179,12 +181,24 @@ extern "C" {
     sscanf ( argv[1], "_%I64x_%s", &u.l, typeCheck);
 #endif
     // Various historical pointer manglings
-    if ( strcmp ( "vtkImageData", typeCheck ) != 0 &&
-         strcmp ( "vtkImageData_p", typeCheck ) != 0 &&
-         strcmp ( "p_vtkImageData", typeCheck ) != 0 &&
-         strcmp ( "vtkStructuredPoints", typeCheck ) != 0 &&
-         strcmp ( "vtkStructuredPoints_p", typeCheck ) != 0 &&
-         strcmp ( "p_vtkStructuredPoints", typeCheck ) != 0 )
+    if ((strcmp ( "vtkAlgorithmOutput", typeCheck ) == 0 ||
+         strcmp ( "vtkAlgorithmOutput_p", typeCheck ) == 0 ||
+         strcmp ( "p_vtkAlgorithmOutput", typeCheck ) == 0))
+      {
+      vtkAlgorithmOutput* algOutput = static_cast<vtkAlgorithmOutput*>(u.p);
+      if (algOutput)
+        {
+        vtkAlgorithm* alg = algOutput->GetProducer();
+        alg->Update();
+        u.p = vtkImageData::SafeDownCast(alg->GetOutputDataObject(algOutput->GetIndex()));
+        }
+      }
+    else if ( strcmp ( "vtkImageData", typeCheck ) != 0 &&
+              strcmp ( "vtkImageData_p", typeCheck ) != 0 &&
+              strcmp ( "p_vtkImageData", typeCheck ) != 0 &&
+              strcmp ( "vtkStructuredPoints", typeCheck ) != 0 &&
+              strcmp ( "vtkStructuredPoints_p", typeCheck ) != 0 &&
+              strcmp ( "p_vtkStructuredPoints", typeCheck ) != 0 )
       {
       // bad type
       u.p = NULL;
@@ -193,6 +207,17 @@ extern "C" {
 #else
     image = static_cast<vtkImageData*>(
       vtkTclGetPointerFromObject ( argv[1], "vtkImageData", interp, status ));
+    if (!image)
+      {
+      vtkAlgorithmOutput* algOutput = static_cast<vtkAlgorithmOutput*>(
+        vtkTclGetPointerFromObject ( argv[1], "vtkAlgorithmOutput", interp, status ));
+      if (algOutput)
+        {
+        vtkAlgorithm* alg = algOutput->GetProducer();
+        alg->Update();
+        image = vtkImageData::SafeDownCast(alg->GetOutputDataObject(algOutput->GetIndex()));
+        }
+      }
 #endif
     if ( !image )
       {
@@ -253,8 +278,7 @@ extern "C" {
     int extent[6];
     // Pass the check?
     int valid = 1;
-    image->Update();
-    image->GetWholeExtent ( extent );
+    image->GetExtent ( extent );
     // Setup the photo data block, this info will be used later to
     // handle the vtk data types and window/level
     // For reference:

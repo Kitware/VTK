@@ -33,6 +33,7 @@
 class vtkRenderer;
 class vtkMultiProcessController;
 class vtkMultiProcessStream;
+class vtkOpenGLRenderer;
 
 class VTK_PARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
 {
@@ -47,7 +48,7 @@ public:
   // renderer on each processes. You can create multiple instances on
   // vtkSynchronizedRenderers to synchronize multiple renderers.
   virtual void SetRenderer(vtkRenderer*);
-  vtkGetObjectMacro(Renderer, vtkRenderer);
+  virtual vtkRenderer* GetRenderer();
 
   // Description:
   // Set the parallel message communicator. This is used to communicate among
@@ -186,6 +187,7 @@ protected:
     double CameraViewAngle;
     double CameraParallelScale;
     double HeadPose[16];
+    double WandPose[16];
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
@@ -208,7 +210,7 @@ protected:
   virtual void SlaveEndRender();
 
   vtkMultiProcessController* ParallelController;
-  vtkRenderer* Renderer;
+  vtkOpenGLRenderer* Renderer;
 
   // Description:
   // Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()

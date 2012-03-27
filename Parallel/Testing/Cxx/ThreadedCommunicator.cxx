@@ -288,7 +288,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   ip->GetPolyDataOutput()->Update();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  pmapper->SetInput(ip->GetPolyDataOutput());
+  pmapper->SetInputConnection(ip->GetOutputPort());
 
   vtkActor* pactor = vtkActor::New();
   pactor->SetMapper(pmapper);

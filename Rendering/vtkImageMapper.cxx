@@ -20,6 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 #include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
@@ -57,17 +58,9 @@ vtkImageMapper::~vtkImageMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapper::SetInput(vtkImageData *input)
+void vtkImageMapper::SetInputData(vtkImageData *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -140,21 +133,22 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     }
 
 
-  if (!this->GetInput())
+  if (!this->GetInputAlgorithm())
     {
     vtkDebugMacro(<< "vtkImageMapper::Render - Please Set the input.");
     return;
     }
 
-  this->GetInput()->UpdateInformation();
+  this->GetInputAlgorithm()->UpdateInformation();
+
+  vtkInformation* inInfo = this->GetInputInformation();
 
   if (!this->UseCustomExtents)
     {
     // start with the wholeExtent
     int wholeExtent[6];
-    memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
-    memcpy(this->DisplayExtent,
-           this->GetInput()->GetWholeExtent(),6*sizeof(int));
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->DisplayExtent);
     // Set The z values to the zslice
     this->DisplayExtent[4] = this->ZSlice;
     this->DisplayExtent[5] = this->ZSlice;
@@ -211,7 +205,8 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
       return;
       }
 
-    this->GetInput()->SetUpdateExtent(this->DisplayExtent);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      this->GetInputInformation(), this->DisplayExtent);
 
     // set the position adjustment
     this->PositionAdjustment[0] = this->DisplayExtent[0];
@@ -226,14 +221,15 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     this->DisplayExtent[4] = this->ZSlice;
     this->DisplayExtent[5] = this->ZSlice;
     //
-    this->GetInput()->SetUpdateExtentToWholeExtent();
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
+      this->GetInputInformation());
     // clear the position adjustment
     this->PositionAdjustment[0] = 0;
     this->PositionAdjustment[1] = 0;
     }
 
   // Get the region from the input
-  this->GetInput()->Update();
+  this->GetInputAlgorithm()->Update();
   data = this->GetInput();
   if ( !data)
     {
@@ -253,8 +249,9 @@ int vtkImageMapper::GetWholeZMin()
     {
     return 0;
     }
-  this->GetInput()->UpdateInformation();
-  extent = this->GetInput()->GetWholeExtent();
+  this->GetInputAlgorithm()->UpdateInformation();
+  extent = this->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
 
@@ -267,8 +264,9 @@ int vtkImageMapper::GetWholeZMax()
     {
     return 0;
     }
-  this->GetInput()->UpdateInformation();
-  extent = this->GetInput()->GetWholeExtent();
+  this->GetInputAlgorithm()->UpdateInformation();
+  extent = this->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }
 

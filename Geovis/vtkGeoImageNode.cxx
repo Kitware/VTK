@@ -160,8 +160,7 @@ void vtkGeoImageNode::CropImageForTile(
     this->Image = vtkSmartPointer<vtkImageData>::New();
     }
   this->Image->ShallowCopy(image);
-  this->Image->SetUpdateExtent(ext);
-  this->Image->Crop();
+  this->Image->Crop(ext);
   
   // Now set the longitude and latitude range based on the actual image size.
   this->LongitudeRange[0] = origin[0] + ext[0]*spacing[0];
@@ -180,7 +179,7 @@ void vtkGeoImageNode::CropImageForTile(
     char fn[512];
     sprintf(fn, "%s/tile_%d_%ld.vti", prefix, this->Level, this->Id);
     writer->SetFileName(fn);
-    writer->SetInput(storedImage);
+    writer->SetInputData(storedImage);
     writer->Write();
     writer->Delete();
     storedImage->Delete();

@@ -154,7 +154,7 @@ public:
   // Description:
   // Turn off renormalization.  Most of the sinc windows provide kernels
   // for which the weights do not sum to one, and for which the sum depends
-  // on the offset.  Ths results in small ripple artifacts in the output.
+  // on the offset.  This results in small ripple artifacts in the output.
   // By default, the vtkImageSincInterpolator will renormalize these kernels.
   // This method allows the renormalization to be turned off.
   void SetRenormalization(int antialiasing);

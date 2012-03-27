@@ -238,7 +238,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       { // convert data to triangles
       inMesh->SetStrips(inStrips);
       toTris = vtkTriangleFilter::New();
-      toTris->SetInput(inMesh);
+      toTris->SetInputData(inMesh);
       toTris->Update();
       Mesh = toTris->GetOutput();
       }

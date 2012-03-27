@@ -18,6 +18,7 @@
 
 #include "vtkMetaImageWriter.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
@@ -82,8 +83,9 @@ void vtkMetaImageWriter::Write( )
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  this->GetInput()->UpdateInformation();
-  
+  vtkDemandDrivenPipeline::SafeDownCast(
+    this->GetInputExecutive(0, 0))->UpdateInformation();
+
   // Error checking
   if (this->GetInput() == NULL )
     {
@@ -98,7 +100,8 @@ void vtkMetaImageWriter::Write( )
     }
 
   int nDims = 3;
-  int * ext = this->GetInput()->GetWholeExtent();
+  int * ext = this->GetInputInformation(0, 0)->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   if ( ext[4] == ext[5] )
     {
     nDims = 2;
@@ -148,10 +151,11 @@ void vtkMetaImageWriter::Write( )
 
   int numberOfElements = this->GetInput()->GetNumberOfScalarComponents();
 
-  this->GetInput()->SetUpdateExtent(ext[0], ext[1],
-                                    ext[2], ext[3],
-                                    ext[4], ext[5]);
-  this->GetInput()->UpdateData();
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    this->GetInputInformation(0, 0), ext);
+  vtkDemandDrivenPipeline::SafeDownCast(
+    this->GetInputExecutive(0, 0))->UpdateData(
+      this->GetInputConnection(0, 0)->GetIndex());
   this->MetaImagePtr->InitializeEssential( nDims,
                                            dimSize,
                                            spacing,

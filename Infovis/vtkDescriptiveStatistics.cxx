@@ -48,7 +48,7 @@ vtkStandardNewMacro(vtkDescriptiveStatistics);
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 {
   this->AssessNames->SetNumberOfValues( 1 );
-  this->AssessNames->SetValue( 0, "d" ); // relative deviation, i.e., when unsigned, 1D Mahlanobis distance
+  this->AssessNames->SetValue( 0, "d" ); // relative deviation, i.e., when unsigned, 1D Mahalanobis distance
 
   this->UnbiasedVariance = 1; // By default, use unbiased estimator of the variance (divided by cardinality-1)
   this->G1Skewness = 0; // By default, use g1 estimator of the skewness (G1 otherwise)
@@ -752,7 +752,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         return;
         }
       
-      // For descriptive statistics, type must be convertible to DataArray (e.g., StringArrays do not fit here).
+      // For descriptive statistics, type must be convertible to DataArray 
+      // E.g., StringArrays do not fit here
       vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
       if ( ! vals )
         {

@@ -63,9 +63,9 @@ vtkPolyData cutPoly; #This trick defines polygons as polyline loop
 # Triangle filter is robust enough to ignore the duplicate point at the 
 # beginning and end of the polygons and triangulate them.
 vtkTriangleFilter cutTriangles
-  cutTriangles SetInput cutPoly
+  cutTriangles SetInputData cutPoly
 vtkPolyDataMapper cutMapper
-  cutMapper SetInput cutPoly
+  cutMapper SetInputData cutPoly
   cutMapper SetInputConnection [cutTriangles GetOutputPort]
 vtkActor cutActor
   cutActor SetMapper cutMapper

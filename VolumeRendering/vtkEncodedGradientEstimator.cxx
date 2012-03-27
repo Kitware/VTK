@@ -23,7 +23,7 @@
 #include <math.h>
 
 
-vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
+vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData );
 
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
 // the Input, EncodedNormal, and GradientMagnitude. Also,
@@ -33,7 +33,7 @@ vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
-  this->Input                      = NULL;
+  this->InputData                      = NULL;
   this->EncodedNormals             = NULL;
   this->EncodedNormalsSize[0]      = 0;
   this->EncodedNormalsSize[1]      = 0;
@@ -66,7 +66,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
-  this->SetInput(NULL);
+  this->SetInputData(NULL);
   this->Threader->Delete();
   this->Threader = NULL;
   
@@ -175,7 +175,7 @@ void vtkEncodedGradientEstimator::Update( )
   double             startSeconds, endSeconds;
   double             startCPUSeconds, endCPUSeconds;
 
-  if ( !this->Input )
+  if ( !this->InputData )
     {
     vtkErrorMacro(<< "No input in gradient estimator.");
     return;
@@ -183,19 +183,16 @@ void vtkEncodedGradientEstimator::Update( )
     
   if ( this->GetMTime() > this->BuildTime || 
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
-       this->Input->GetMTime() > this->BuildTime ||
+       this->InputData->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
-    this->Input->UpdateInformation();
-    this->Input->SetUpdateExtentToWholeExtent();
-    this->Input->Update();
     
     startSeconds = vtkTimerLog::GetUniversalTime();
     startCPUSeconds = vtkTimerLog::GetCPUTime();
     
     // Get the dimensions of the data and its aspect ratio
-    this->Input->GetDimensions( scalarInputSize );
-    this->Input->GetSpacing( scalarInputAspect );
+    this->InputData->GetDimensions( scalarInputSize );
+    this->InputData->GetSpacing( scalarInputAspect );
     
     // If we previously have allocated space for the encoded normals,
     // and this space is no longer the right size, delete it
@@ -302,9 +299,9 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Input )
+  if ( this->InputData )
     {
-    os << indent << "Input: (" << this->Input << ")\n";
+    os << indent << "InputData: (" << this->InputData << ")\n";
     }
   else
     {
@@ -375,5 +372,5 @@ void
 vtkEncodedGradientEstimator::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->Input, "Input");
+  vtkGarbageCollectorReport(collector, this->InputData, "Input");
 }

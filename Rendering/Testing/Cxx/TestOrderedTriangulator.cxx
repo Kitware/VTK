@@ -158,7 +158,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   //First tets:
   vtkShrinkFilter *shrink1 = vtkShrinkFilter::New();
-  shrink1->SetInput( aTetraGrid1 );
+  shrink1->SetInputData( aTetraGrid1 );
   shrink1->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *aTetraMapper1 = vtkDataSetMapper::New();
@@ -169,7 +169,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   //Second tets:  
   vtkShrinkFilter *shrink2 = vtkShrinkFilter::New();
-  shrink2->SetInput( aTetraGrid2 );
+  shrink2->SetInputData( aTetraGrid2 );
   shrink2->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *aTetraMapper2 = vtkDataSetMapper::New();
@@ -181,7 +181,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   //iso cases:
   //First tets:
   vtkShrinkFilter *isoshrink1 = vtkShrinkFilter::New();
-  isoshrink1->SetInput( isoTetraGrid1 );
+  isoshrink1->SetInputData( isoTetraGrid1 );
   isoshrink1->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *isoTetraMapper1 = vtkDataSetMapper::New();
@@ -192,7 +192,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   //Second tets:  
   vtkShrinkFilter *isoshrink2 = vtkShrinkFilter::New();
-  isoshrink2->SetInput( isoTetraGrid2 );
+  isoshrink2->SetInputData( isoTetraGrid2 );
   isoshrink2->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *isoTetraMapper2 = vtkDataSetMapper::New();

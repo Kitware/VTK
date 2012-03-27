@@ -259,10 +259,10 @@ void GraphConvertSelections(int & errors, int size)
     -1.0, -0.5, -1.0, 1.0,
     -1.0,  0.5,  1.0, 1.0,
     -1.0,  0.5, -1.0, 1.0,
-    size, -0.5,  1.0, 1.0,
-    size, -0.5, -1.0, 1.0,
-    size,  0.5,  1.0, 1.0,
-    size,  0.5, -1.0, 1.0
+    static_cast<double>(size), -0.5,  1.0, 1.0,
+    static_cast<double>(size), -0.5, -1.0, 1.0,
+    static_cast<double>(size),  0.5,  1.0, 1.0,
+    static_cast<double>(size),  0.5, -1.0, 1.0
   };
   VTK_CREATE(vtkDoubleArray, frustumArr);
   for (vtkIdType i = 0; i < 32; i++)
@@ -458,10 +458,10 @@ void PolyDataConvertSelections(int & errors, int size)
     -1.0, -0.5, -1.0, 1.0,
     -1.0,  0.5,  1.0, 1.0,
     -1.0,  0.5, -1.0, 1.0,
-    size, -0.5,  1.0, 1.0,
-    size, -0.5, -1.0, 1.0,
-    size,  0.5,  1.0, 1.0,
-    size,  0.5, -1.0, 1.0
+    static_cast<double>(size), -0.5,  1.0, 1.0,
+    static_cast<double>(size), -0.5, -1.0, 1.0,
+    static_cast<double>(size),  0.5,  1.0, 1.0,
+    static_cast<double>(size),  0.5, -1.0, 1.0
   };
   VTK_CREATE(vtkDoubleArray, frustumArr);
   for (vtkIdType i = 0; i < 32; i++)

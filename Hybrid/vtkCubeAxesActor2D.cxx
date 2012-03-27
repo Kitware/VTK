@@ -20,21 +20,36 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
-vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Camera,vtkCamera);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,ViewProp,vtkProp);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisLabelTextProperty,vtkTextProperty);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisTitleTextProperty,vtkTextProperty);
 
+class vtkCubeAxesActor2DConnection : public vtkAlgorithm
+{
+public:
+  static vtkCubeAxesActor2DConnection *New();
+  vtkTypeMacro(vtkCubeAxesActor2DConnection,vtkAlgorithm);
+
+  vtkCubeAxesActor2DConnection()
+    {
+      this->SetNumberOfInputPorts(1);
+    }
+};
+
+vtkStandardNewMacro(vtkCubeAxesActor2DConnection);
+
 //----------------------------------------------------------------------------
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
-  this->Input = NULL;
+  this->ConnectionHolder = vtkCubeAxesActor2DConnection::New();
+
   this->ViewProp = NULL;
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
@@ -116,7 +131,8 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
   this->SetYLabel(actor->GetYLabel());
   this->SetZLabel(actor->GetZLabel());
   this->SetFlyMode(actor->GetFlyMode());
-  this->SetInput(actor->GetInput());
+  this->SetInputConnection(
+    actor->ConnectionHolder->GetInputConnection(0, 0));
   this->SetViewProp(actor->GetViewProp());
   this->SetCamera(actor->GetCamera());
 }
@@ -124,10 +140,7 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
 //----------------------------------------------------------------------------
 vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
 {
-  if ( this->Input )
-    {
-    this->Input->Delete();
-    }
+  this->ConnectionHolder->Delete();
 
   if ( this->ViewProp )
     {
@@ -164,6 +177,28 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
 
   this->SetAxisLabelTextProperty(NULL);
   this->SetAxisTitleTextProperty(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkCubeAxesActor2D::SetInputConnection(vtkAlgorithmOutput* ao)
+{
+  this->ConnectionHolder->SetInputConnection(ao);
+}
+
+//----------------------------------------------------------------------------
+void vtkCubeAxesActor2D::SetInputData(vtkDataSet* ds)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(ds);
+  this->SetInputConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkCubeAxesActor2D::GetInput()
+{
+  return vtkDataSet::SafeDownCast(
+    this->ConnectionHolder->GetInputDataObject(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -682,10 +717,10 @@ void vtkCubeAxesActor2D::GetBounds(double bounds[6])
   double *propBounds;
   int i;
 
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    this->Input->Update();
-    this->Input->GetBounds(bounds);
+    this->ConnectionHolder->GetInputAlgorithm()->Update();
+    this->GetInput()->GetBounds(bounds);
     for (i=0; i< 6; i++)
       {
       this->Bounds[i] = bounds[i];
@@ -737,9 +772,9 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    os << indent << "Input: (" << (void *)this->Input << ")\n";
+    os << indent << "Input: (" << (void *)this->GetInput() << ")\n";
     }
   else
     {
@@ -1071,56 +1106,3 @@ static int IsInBounds(double x[3], double bounds[6])
     return 1;
     }
 }
-
-//----------------------------------------------------------------------------
-
-// Disable warnings about qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303
-#endif
-#if defined(__INTEL_COMPILER)
-# pragma warning (disable:858)
-#endif
-
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef SetProp
-#  undef GetProp
-void vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::SetViewProp);
-  this->SetViewProp(prop);
-}
-void vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::SetViewProp);
-  this->SetViewProp(prop);
-}
-vtkProp* vtkCubeAxesActor2D::GetPropA()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::GetViewProp);
-  return this->GetViewProp();
-}
-vtkProp* vtkCubeAxesActor2D::GetPropW()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::GetViewProp);
-  return this->GetViewProp();
-}
-# endif
-void vtkCubeAxesActor2D::SetProp(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::SetViewProp);
-  this->SetViewProp(prop);
-}
-vtkProp* vtkCubeAxesActor2D::GetProp()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
-                           vtkCubeAxesActor2D::GetViewProp);
-  return this->GetViewProp();
-}
-#endif

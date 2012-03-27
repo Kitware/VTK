@@ -86,7 +86,7 @@ void InitializeData(vtkUnstructuredGrid* Data)
 {
   vtkCubeSource* const source = vtkCubeSource::New();
   vtkDelaunay3D* const delaunay = vtkDelaunay3D::New();
-  delaunay->AddInput(source->GetOutput());
+  delaunay->AddInputConnection(source->GetOutputPort());
   delaunay->Update();
 
   Data->ShallowCopy(delaunay->GetOutput());
@@ -115,7 +115,7 @@ bool TestDataObjectXMLSerialization()
 
   vtkXMLDataSetWriter* const writer =
     vtkXMLDataSetWriter::New();
-  writer->SetInput(output_data);
+  writer->SetInputData(output_data);
   writer->SetFileName(filename);
   writer->Write();
   writer->Delete();

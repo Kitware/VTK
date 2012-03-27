@@ -30,14 +30,23 @@ template<typename T>
 class vtkColor3 : public vtkTuple<T, 3>
 {
 public:
-  vtkColor3(const T& red = 0, const T& green = 0, const T& blue = 0)
+  vtkColor3()
+  {
+  }
+
+  explicit vtkColor3(const T& scalar) : vtkTuple<T, 3>(scalar)
+  {
+  }
+
+  explicit vtkColor3(const T* init) : vtkTuple<T, 3>(init)
+  {
+  }
+
+  vtkColor3(const T& red, const T& green, const T& blue)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
-  }
-  explicit vtkColor3(const T* init) : vtkTuple<T, 3>(init)
-  {
   }
 
   // Description:
@@ -83,16 +92,24 @@ template<typename T>
 class vtkColor4 : public vtkTuple<T, 4>
 {
 public:
-  vtkColor4(const T& red = 0, const T& green = 0, const T& blue = 0,
-            const T& alpha = 0)
+  vtkColor4()
+  {
+  }
+
+  explicit vtkColor4(const T& scalar) : vtkTuple<T, 4>(scalar)
+  {
+  }
+
+  explicit vtkColor4(const T* init) : vtkTuple<T, 4>(init)
+  {
+  }
+
+  vtkColor4(const T& red, const T& green, const T& blue, const T& alpha)
   {
     this->Data[0] = red;
     this->Data[1] = green;
     this->Data[2] = blue;
     this->Data[3] = alpha;
-  }
-  explicit vtkColor4(const T* init) : vtkTuple<T, 4>(init)
-  {
   }
 
   // Description:
@@ -156,36 +173,44 @@ public:
 class vtkColor3ub : public vtkColor3<unsigned char>
 {
 public:
-  vtkColor3ub(unsigned char r = 0, unsigned char g = 0,
-              unsigned char b = 0) : vtkColor3<unsigned char>(r, g, b) {}
+  vtkColor3ub() {}
+  explicit vtkColor3ub(unsigned char scalar)
+    : vtkColor3<unsigned char>(scalar) {}
   explicit vtkColor3ub(const unsigned char* init)
     : vtkColor3<unsigned char>(init) {}
+  vtkColor3ub(unsigned char r, unsigned char g, unsigned char b)
+    : vtkColor3<unsigned char>(r, g, b) {}
 };
 
 class vtkColor3f : public vtkColor3<float>
 {
 public:
-  vtkColor3f(float r = 0.0, float g = 0.0, float b = 0.0)
-    : vtkColor3<float>(r, g, b) {}
+  vtkColor3f() {}
+  explicit vtkColor3f(float scalar) : vtkColor3<float>(scalar) {}
   explicit vtkColor3f(const float* init) : vtkColor3<float>(init) {}
+  vtkColor3f(float r, float g, float b) : vtkColor3<float>(r, g, b) {}
 };
 
 class vtkColor3d : public vtkColor3<double>
 {
 public:
-  vtkColor3d(double r = 0.0, double g = 0.0, double b = 0.0)
-    : vtkColor3<double>(r, g, b) {}
+  vtkColor3d() {}
+  explicit vtkColor3d(double scalar) : vtkColor3<double>(scalar) {}
   explicit vtkColor3d(const double* init) : vtkColor3<double>(init) {}
+  vtkColor3d(double r, double g, double b) : vtkColor3<double>(r, g, b) {}
 };
 
 class vtkColor4ub : public vtkColor4<unsigned char>
 {
 public:
-  vtkColor4ub(unsigned char r = 0, unsigned char g = 0,
-              unsigned char b = 0, unsigned char a = 255)
-                : vtkColor4<unsigned char>(r, g, b, a) {}
+  vtkColor4ub() {}
+  explicit vtkColor4ub(unsigned char scalar)
+    : vtkColor4<unsigned char>(scalar) {}
   explicit vtkColor4ub(const unsigned char* init)
     : vtkColor4<unsigned char>(init) {}
+  vtkColor4ub(unsigned char r, unsigned char g,
+              unsigned char b, unsigned char a = 255)
+                : vtkColor4<unsigned char>(r, g, b, a) {}
   vtkColor4ub(const vtkColor3ub &c) :
     vtkColor4<unsigned char>(c[0], c[1], c[2], 255) {}
 };
@@ -193,17 +218,21 @@ public:
 class vtkColor4f : public vtkColor4<float>
 {
 public:
-  vtkColor4f(float r = 0.0, float g = 0.0, float b = 0.0, float a = 1.0)
-    : vtkColor4<float>(r, g, b, a) {}
+  vtkColor4f() {}
+  explicit vtkColor4f(float scalar) : vtkColor4<float>(scalar) {}
   explicit vtkColor4f(const float* init) : vtkColor4<float>(init) {}
+  vtkColor4f(float r, float g, float b, float a = 1.0)
+    : vtkColor4<float>(r, g, b, a) {}
 };
 
 class vtkColor4d : public vtkColor4<double>
 {
 public:
-  vtkColor4d(double r = 0.0, double g = 0.0, double b = 0.0, float a = 1.0)
-    : vtkColor4<double>(r, g, b, a) {}
+  vtkColor4d() {}
+  explicit vtkColor4d(double scalar) : vtkColor4<double>(scalar) {}
   explicit vtkColor4d(const double* init) : vtkColor4<double>(init) {}
+  vtkColor4d(double r, double g, double b, double a = 1.0)
+    : vtkColor4<double>(r, g, b, a) {}
 };
 
 #endif // __vtkColor_h

@@ -44,16 +44,9 @@ class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
 class vtkPainter;
-class vtkIdentColoredPainter;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
-class vtkRenderPass;
 class vtkTexture;
-
-#if !defined(VTK_LEGACY_REMOVE)
-class vtkVisibleCellSelector;
-#endif
-
 
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
@@ -404,7 +397,7 @@ public:
   // Description:
   // Compute the aspect ratio of this renderer for the current tile. When
   // tiled displays are used the aspect ratio of the renderer for a given
-  // tile may be diferent that the aspect ratio of the renderer when rendered
+  // tile may be different that the aspect ratio of the renderer when rendered
   // in it entirity
   double GetTiledAspectRatio();
 
@@ -462,12 +455,6 @@ public:
   vtkGetObjectMacro(Delegate,vtkRendererDelegate);
 
   // Description:
-  // Set/Get a custom render pass.
-  // Initial value is NULL.
-  void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass,vtkRenderPass);
-
-  // Description:
   // Get the current hardware selector. If the Selector is set, it implies the
   // current render pass is for selection. Mappers/Properties may choose to
   // behave differently when rendering for hardware selection.
@@ -499,6 +486,9 @@ protected:
   // matrix or model view transform matrix based on whether or not deering
   // frustum is used.
   virtual void ExpandBounds(double bounds[6], vtkMatrix4x4 *matrix);
+
+  // Internal method to release graphics resources in any derived renderers.
+  virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
@@ -574,11 +564,14 @@ protected:
   // By default, Draw is on.
   int Draw;
 
+  // Friend class to allow render passes to access functions.
+  friend class vtkRenderPass;
+
   // Description:
   // Ask all props to update and draw any opaque and translucent
   // geometry. This includes both vtkActors and vtkVolumes
   // Returns the number of props that rendered geometry.
-  virtual int UpdateGeometry(void);
+  virtual int UpdateGeometry();
 
   // Description:
   // Ask all props to update and draw any translucent polygonal
@@ -639,55 +632,6 @@ protected:
   // Initial value is false.
   int LastRenderingUsedDepthPeeling;
 
-#if !defined(VTK_LEGACY_REMOVE)
-  // VISIBLE CELL SELECTION ----------------------------------------
-  friend class vtkVisibleCellSelector;
-
-  //Description:
-  // Call to put the Renderer into a mode in which it will color visible
-  // polygons with an enoded index. Later the pixel colors can be retrieved to
-  // determine what objects lie behind each pixel.
-  enum {NOT_SELECTING = 0, COLOR_BY_PROCESSOR, COLOR_BY_ACTOR,
-        COLOR_BY_CELL_ID_HIGH, COLOR_BY_CELL_ID_MID, COLOR_BY_CELL_ID_LOW,
-        COLOR_BY_VERTEX};
-
-  vtkSetMacro(SelectMode, int);
-  vtkSetMacro(SelectConst, unsigned int);
-
-   // Description:
-  // Allows the use of customized Painters for selection.
-  // If none is supplied with this method, a default will be created
-  // automatically.
-  void SetIdentPainter(vtkIdentColoredPainter*);
-
-  // Description:
-  // Renders each polygon with a color that represents an selection index.
-  virtual int UpdateGeometryForSelection(void);
-
-  // Description:
-  // Called by UpdateGeometryForSelection to temporarily swap in a mapper to
-  // render a prop in selection mode.
-  vtkPainter* SwapInSelectablePainter(vtkProp *,
-                                              int &);
-
-  // Description:
-  // Called by UpdateGeometryForSelection to restore a prop's original mapper.
-  void SwapOutSelectablePainter(vtkProp *,
-                                vtkPainter*,
-                                int );
-
-  // Description:
-  // Used in Selection to recover a selected prop from an index.
-  vtkProp            **PropsSelectedFrom;
-  int                PropsSelectedFromCount;
-
-  // Ivars for visible cell selecting
-  int SelectMode;
-  unsigned int SelectConst;
-  vtkIdentColoredPainter *IdentPainter;
-  // End Ivars for visible cell selecting.
-#endif
-
   // HARDWARE SELECTION ----------------------------------------
   friend class vtkHardwareSelector;
 
@@ -702,9 +646,6 @@ protected:
   //---------------------------------------------------------------
   friend class vtkRendererDelegate;
   vtkRendererDelegate *Delegate;
-
-  friend class vtkRenderPass;
-  vtkRenderPass *Pass;
 
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
@@ -722,6 +663,5 @@ inline vtkLightCollection *vtkRenderer::GetLights() {
 // Description:
 // Get the list of cullers for this renderer.
 inline vtkCullerCollection *vtkRenderer::GetCullers(){return this->Cullers;}
-
 
 #endif

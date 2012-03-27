@@ -85,7 +85,7 @@ typedef struct _TemplateArgs
  *
  * Note that Dimensions is an array of char pointers, in
  * order to support dimensions that are sized according to
- * template arg values or accoring to named constants.
+ * template arg values or according to named constants.
  */
 typedef struct _ValueInfo
 {

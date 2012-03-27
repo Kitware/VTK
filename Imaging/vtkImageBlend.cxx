@@ -78,10 +78,9 @@ void vtkImageBlend::ReplaceNthInputConnection(int idx,
 // The default vtkImageAlgorithm semantics are that SetInput() puts
 // each input on a different port, we want all the image inputs to
 // go on the first port.
-void vtkImageBlend::SetInput(int idx, vtkDataObject *input)
+void vtkImageBlend::SetInputData(int idx, vtkDataObject *input)
 {
-  // Ask the superclass to connect the input.
-  this->SetNthInputConnection(0, idx, (input ? input->GetProducerPort() : 0));
+  this->SetInputDataInternal(idx, input);
 }
 
 //----------------------------------------------------------------------------
@@ -96,11 +95,14 @@ vtkDataObject *vtkImageBlend::GetInput(int idx)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::SetStencil(vtkImageStencilData *stencil)
+void vtkImageBlend::SetStencilConnection(vtkAlgorithmOutput *algOutput)
 {
-  // if stencil is null, then set the input port to null
-  this->SetNthInputConnection(1, 0, 
-    (stencil ? stencil->GetProducerPort() : 0));
+  this->SetInputConnection(1, algOutput);
+}
+//----------------------------------------------------------------------------
+void vtkImageBlend::SetStencilData(vtkImageStencilData *stencil)
+{
+  this->SetInputDataInternal(1, stencil);
 }
 
 
@@ -871,10 +873,9 @@ void vtkImageBlend::ThreadedRequestData (
         return;
         }
       tmpData->SetExtent(outExt);
-      tmpData->SetNumberOfScalarComponents(
+      tmpData->AllocateScalars(
+        VTK_DOUBLE,
         (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
-      tmpData->SetScalarType(VTK_DOUBLE);
-      tmpData->AllocateScalars();
       memset(static_cast<void *>(tmpData->GetScalarPointer()), 0, 
              (outExt[1] - outExt[0] + 1) * 
              (outExt[3] - outExt[2] + 1) * 

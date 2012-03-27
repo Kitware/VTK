@@ -69,6 +69,12 @@ int vtkRectilinearGridGeometryFilter::RequestData(
 
   vtkDebugMacro(<< "Extracting rectilinear points geometry");
 
+  if (input->GetNumberOfPoints() == 0)
+    {
+    vtkDebugMacro("Empty input");
+    return 1;
+    }
+
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyNormalsOff();

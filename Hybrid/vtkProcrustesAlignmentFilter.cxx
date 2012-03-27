@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkProcrustesAlignmentFilter.h"
+
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
@@ -137,32 +140,54 @@ int vtkProcrustesAlignmentFilter::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
+  vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
+  const int N_SETS = mbInput->GetNumberOfBlocks();
+  if (N_SETS == 0)
+    {
+    return 1;
+    }
+
+  int i,v;
+  vtkPointSet* input = 0;
+  for (i=0; i<N_SETS; i++)
+    {
+    input = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+    if (input)
+      {
+      break;
+      }
+    }
+
+  if (!input)
+    {
+    return 1;
+    }
+
+  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Execute()");
 
-  int i,v;
-
-  const int N_SETS = this->GetNumberOfInputConnections(0);
+  vtkPointSet *tmpInput;
 
   // copy the inputs across
   // (really actually only the points need to be deep copied since the rest stays the same)
-  vtkInformation *tmpInfo;
-  vtkPointSet *tmpInput;
-  output->DeepCopy(input);
-  for(i=1;i<N_SETS;i++)
+  for(i=0;i<N_SETS;i++)
     {
-    tmpInfo = inputVector[0]->GetInformationObject(i);
-    tmpInput = 0;
-    if (tmpInfo)
+    tmpInput =
+      vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+    vtkPointSet* outputBlock = 0;
+    if (tmpInput)
       {
-      tmpInput =
-        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+      outputBlock = tmpInput->NewInstance();
+      outputBlock->DeepCopy(tmpInput);
       }
-    this->GetOutput(i)->DeepCopy(tmpInput);
+    output->SetBlock(i, outputBlock);
+    if(outputBlock)
+      {
+        outputBlock->Delete();
+      }
     }
 
   // the number of points is determined by the first input (they must all be the same)
@@ -178,16 +203,11 @@ int vtkProcrustesAlignmentFilter::RequestData(
 
   // all the inputs must have the same number of points to consider executing
 
-  for(i=1;i<N_SETS;i++) 
+  for(i=1;i<N_SETS;i++)
     {
-    tmpInfo = inputVector[0]->GetInformationObject(i);
-    tmpInput = 0;
-    if (tmpInfo)
-      {
-      tmpInput =
-        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
-      }
-    else
+    tmpInput =
+      vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+    if (!tmpInput)
       {
       continue;
       }
@@ -199,7 +219,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
     }
 
 //  vtkPoints *mean_points = vtkPoints::New();
-  MeanPoints->DeepCopy(input->GetPoints());
+  this->MeanPoints->DeepCopy(input->GetPoints());
   // our initial estimate of the mean comes from the first example in the set
   
 
@@ -215,12 +235,11 @@ int vtkProcrustesAlignmentFilter::RequestData(
 
     for(i=1;i<N_SETS;i++)
       {
-      tmpInfo = inputVector[0]->GetInformationObject(i);
-      tmpInput = 0;
-      if (tmpInfo)
+      tmpInput =
+        vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
+      if (!tmpInput)
         {
-        tmpInput =
-          vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+        continue;
         }
       double localCentroid[3];
       Centroid(tmpInput->GetPoints(), localCentroid);
@@ -250,16 +269,18 @@ int vtkProcrustesAlignmentFilter::RequestData(
   // to avoid shrinking
   if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY)
   {
-    if (!NormaliseShape(MeanPoints)) {
+    if (!NormaliseShape(MeanPoints)) 
+      {
       vtkErrorMacro(<<"Centroid size zero");
       return 1;
-    }
-    if (!NormaliseShape(first_mean)) {
+      }
+    if (!NormaliseShape(first_mean)) 
+      {
       vtkErrorMacro(<<"Centroid size zero");
       return 1;
-    }
+      }
   }
-  
+
 
   // storage for the new mean that is being calculated
   vtkPoints *new_mean = vtkPoints::New();
@@ -277,14 +298,20 @@ int vtkProcrustesAlignmentFilter::RequestData(
     // align each pointset with the mean
     for(i=0;i<N_SETS;i++)
       {
-      this->LandmarkTransform->SetSourceLandmarks(this->GetOutput(i)->GetPoints());
-      this->LandmarkTransform->SetTargetLandmarks(MeanPoints);
+      vtkPointSet* block = vtkPointSet::SafeDownCast(
+        output->GetBlock(i));
+      if (!block)
+        {
+        continue;
+        }
+      this->LandmarkTransform->SetSourceLandmarks(block->GetPoints());
+      this->LandmarkTransform->SetTargetLandmarks(this->MeanPoints);
       this->LandmarkTransform->Update();
       for(v=0;v<N_POINTS;v++)
         {
         this->LandmarkTransform->InternalTransformPoint(
-          this->GetOutput(i)->GetPoint(v), outPoint);
-        this->GetOutput(i)->GetPoints()->SetPoint(v, outPoint);
+          block->GetPoint(v), outPoint);
+        block->GetPoints()->SetPoint(v, outPoint);
         }
       }
 
@@ -296,7 +323,9 @@ int vtkProcrustesAlignmentFilter::RequestData(
       point[2]=0.0F;
       for(i=0;i<N_SETS;i++)
         {
-        this->GetOutput(i)->GetPoint(v, p);
+        vtkPointSet* block = vtkPointSet::SafeDownCast(
+          output->GetBlock(i));
+        block->GetPoint(v, p);
         point[0]+=p[0];
         point[1]+=p[1];
         point[2]+=p[2];
@@ -324,12 +353,14 @@ int vtkProcrustesAlignmentFilter::RequestData(
 
     // If the similarity transform is used, the mean shape must be normalised
     // to avoid shrinking
-    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY) {
-      if (!NormaliseShape(new_mean)) {
+    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY)
+      {
+      if (!NormaliseShape(new_mean))
+        {
         vtkErrorMacro(<<"Centroid size zero");
         return 1;
+        }
       }
-    }
 
 
     // the new mean becomes our mean
@@ -337,16 +368,17 @@ int vtkProcrustesAlignmentFilter::RequestData(
     difference = 0.0F;
     for(v=0;v<N_POINTS;v++)
       {
-        new_mean->GetPoint(v, p);
-        MeanPoints->GetPoint(v, p2);
-        difference += vtkMath::Distance2BetweenPoints(p,p2);
-        MeanPoints->SetPoint(v, p);
+      new_mean->GetPoint(v, p);
+      MeanPoints->GetPoint(v, p2);
+      difference += vtkMath::Distance2BetweenPoints(p,p2);
+      MeanPoints->SetPoint(v, p);
       }
 
     // test for convergence
     iterations++;
     vtkDebugMacro( << "Difference after " << iterations << " iteration(s) is: " << difference);
-    if(difference<1e-6 || iterations>=MAX_ITERATIONS) {
+    if(difference<1e-6 || iterations>=MAX_ITERATIONS) 
+      {
       converged=1; // true
       }
 
@@ -357,15 +389,17 @@ int vtkProcrustesAlignmentFilter::RequestData(
 
   } while(!converged);  
 
-  if(iterations>=MAX_ITERATIONS) {
+  if(iterations>=MAX_ITERATIONS)
+    {
     vtkDebugMacro( << "Procrustes did not converge in  " << MAX_ITERATIONS << " iterations! Objects may not be aligned. Difference = " <<
-      difference);
+                   difference);
     // we don't throw an Error here since the shapes most probably *are* aligned, but the 
     // numerical precision is worse than our convergence test anticipated.
     }
-  else {
+  else
+    {
     vtkDebugMacro( << "Procrustes required " << iterations << " iterations to converge to " <<
-      difference);
+                   difference);
     }
 
   // clean up
@@ -373,66 +407,6 @@ int vtkProcrustesAlignmentFilter::RequestData(
   new_mean->Delete();
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-// public
-void vtkProcrustesAlignmentFilter::SetNumberOfInputs(int n)
-{ 
-  this->SetNumberOfInputConnections(0, n);
-  this->SetNumberOfOutputPorts(n);
-
-  // initialise the outputs
-  for(int i=0;i<n;i++)
-    {
-    vtkPoints *points = vtkPoints::New();
-    vtkPolyData *ps = vtkPolyData::New();
-    ps->SetPoints(points);
-    points->Delete();
-    this->GetExecutive()->SetOutputData(i,ps);
-    ps->Delete();
-    }
-
-  // is this the right thing to be doing here? if we don't initialise the outputs here
-  // then the filter crashes but vtkPolyData may not be the type of the inputs
-}
-
-//----------------------------------------------------------------------------
-void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkPointSet *p)
-{
-  this->SetNthInputConnection(0, idx, p ? p->GetProducerPort() : 0);
-}
-
-//----------------------------------------------------------------------------
-void vtkProcrustesAlignmentFilter::SetInput(int idx, vtkDataObject* input)
-{
-  vtkPointSet* p = vtkPointSet::SafeDownCast(input);
-
-  if (p)
-    {
-    this->SetInput(idx, p);
-    }
-  else
-    {
-    vtkErrorMacro(<< this->GetClassName() << " input is a " <<
-      input->GetClassName() << " -- it should be a vtkPointSet");
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkPointSet* vtkProcrustesAlignmentFilter::GetInput(int idx)
-{
-  return vtkPointSet::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, idx));
-}
-
-//----------------------------------------------------------------------------
-int vtkProcrustesAlignmentFilter::FillInputPortInformation(
-  int port, vtkInformation *info)
-{
-  int retval = this->Superclass::FillInputPortInformation(port, info);
-  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
-  return retval;
 }
 
 //----------------------------------------------------------------------------

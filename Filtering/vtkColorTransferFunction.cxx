@@ -348,7 +348,7 @@ int vtkColorTransferFunction::AddRGBPoint( double x, double r,
   node->Midpoint  = midpoint;
   node->Sharpness = sharpness;
   
-  // Add it, then sort to get everyting in order
+  // Add it, then sort to get everything in order
   this->Internal->Nodes.push_back(node);
   this->SortAndUpdateRange();
   

@@ -646,7 +646,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint
     this->OctreeRootNode->GetDistance2ToBoundary
                           ( x, initialPt, this->OctreeRootNode, 1 );
     
-    // This intial (closest) point might be outside the octree a little bit
+    // This initial (closest) point might be outside the octree a little bit
     if ( initialPt[0] <= minBounds[0] )
       {
       initialPt[0] = minBounds[0] + this->FudgeFactor;

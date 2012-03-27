@@ -16,12 +16,25 @@
 
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTrivialProducer.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
 vtkStandardNewMacro(vtkBSplineTransform);
-vtkCxxSetObjectMacro(vtkBSplineTransform,Coefficients,vtkImageData);
+
+class vtkBSplineTransformConnectionHolder: public vtkAlgorithm
+{
+public:
+  static vtkBSplineTransformConnectionHolder *New();
+  vtkTypeMacro(vtkBSplineTransformConnectionHolder,vtkAlgorithm);
+
+  vtkBSplineTransformConnectionHolder() {
+    this->SetNumberOfInputPorts(1); }
+};
+
+vtkStandardNewMacro(vtkBSplineTransformConnectionHolder);
 
 namespace {
 
@@ -377,17 +390,19 @@ void vtkBSplineTransformFunction<T>::Cubic(
 //----------------------------------------------------------------------------
 vtkBSplineTransform::vtkBSplineTransform()
 {
-  this->Coefficients = 0;
+  this->ConnectionHolder = vtkBSplineTransformConnectionHolder::New();
   this->BorderMode = VTK_BSPLINE_EDGE;
   this->InverseTolerance = 1e-6;
   this->DisplacementScale = 1.0;
   this->CalculateSpline = 0;
+  this->GridPointer = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkBSplineTransform::~vtkBSplineTransform()
 {
-  this->SetCoefficients(0);
+  this->ConnectionHolder->Delete();
+  this->ConnectionHolder = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -397,11 +412,6 @@ void vtkBSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "BorderMode: " << this->GetBorderModeAsString() << "\n";
   os << indent << "DisplacementScale: " << this->DisplacementScale << "\n";
-  os << indent << "Coefficients: " << this->Coefficients << "\n";
-  if (this->Coefficients)
-    {
-    this->Coefficients->PrintSelf(os,indent.GetNextIndent());
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -428,14 +438,16 @@ unsigned long vtkBSplineTransform::GetMTime()
 {
   unsigned long mtime,result;
   result = vtkWarpTransform::GetMTime();
-  if (this->Coefficients)
+  if (this->GetCoefficientData())
     {
-    this->Coefficients->UpdateInformation();
+    vtkAlgorithm* inputAlgorithm =
+      this->ConnectionHolder->GetInputAlgorithm(0, 0);
+    inputAlgorithm->UpdateInformation();
 
-    mtime = this->Coefficients->GetPipelineMTime();
-    result = ( mtime > result ? mtime : result );
-
-    mtime = this->Coefficients->GetMTime();
+    vtkStreamingDemandDrivenPipeline* sddp =
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(
+        inputAlgorithm->GetExecutive());
+    mtime = sddp->GetPipelineMTime();
     result = ( mtime > result ? mtime : result );
     }
 
@@ -446,7 +458,7 @@ unsigned long vtkBSplineTransform::GetMTime()
 void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3],
                                                 double outPoint[3])
 {
-  if (!this->Coefficients || !this->CalculateSpline)
+  if (this->GridPointer || !this->CalculateSpline)
     {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
@@ -506,7 +518,7 @@ void vtkBSplineTransform::ForwardTransformDerivative(const double inPoint[3],
                                                      double outPoint[3],
                                                      double derivative[3][3])
 {
-  if (!this->Coefficients || !this->CalculateSpline)
+  if (!this->GridPointer || !this->CalculateSpline)
     {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
@@ -580,7 +592,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
                                                      double outPoint[3],
                                                      double derivative[3][3])
 {
-  if (!this->Coefficients || !this->CalculateSpline)
+  if (!this->GridPointer || !this->CalculateSpline)
     {
     outPoint[0] = inPoint[0];
     outPoint[1] = inPoint[1];
@@ -797,7 +809,8 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->SetInverseTolerance(gridTransform->InverseTolerance);
   this->SetInverseIterations(gridTransform->InverseIterations);
   this->CalculateSpline = gridTransform->CalculateSpline;
-  this->SetCoefficients(gridTransform->Coefficients);
+  this->ConnectionHolder->SetInputConnection(
+    0, gridTransform->ConnectionHolder->GetInputConnection(0, 0));
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->SetBorderMode(gridTransform->BorderMode);
 
@@ -811,14 +824,20 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 //----------------------------------------------------------------------------
 void vtkBSplineTransform::InternalUpdate()
 {
-  vtkImageData *grid = this->Coefficients;
+  vtkImageData *grid = this->GetCoefficientData();
+  this->GridPointer = 0;
 
   if (grid == 0)
     {
     return;
     }
 
-  grid->UpdateInformation();
+  vtkAlgorithm* inputAlgorithm =
+    this->ConnectionHolder->GetInputAlgorithm(0, 0);
+  inputAlgorithm->Update();
+
+  // In case output changed.
+  grid = this->GetCoefficientData();
 
   if (grid->GetNumberOfScalarComponents() != 3)
     {
@@ -841,9 +860,6 @@ void vtkBSplineTransform::InternalUpdate()
       break;
     }
 
-  grid->SetUpdateExtent(grid->GetWholeExtent());
-  grid->Update();
-
   this->GridPointer = grid->GetScalarPointer();
   grid->GetSpacing(this->GridSpacing);
   grid->GetOrigin(this->GridOrigin);
@@ -855,4 +871,27 @@ void vtkBSplineTransform::InternalUpdate()
 vtkAbstractTransform *vtkBSplineTransform::MakeTransform()
 {
   return vtkBSplineTransform::New();
+}
+
+//----------------------------------------------------------------------------
+void vtkBSplineTransform::SetCoefficientConnection(
+  vtkAlgorithmOutput* output)
+{
+  this->ConnectionHolder->SetInputConnection(output);
+}
+
+//----------------------------------------------------------------------------
+void vtkBSplineTransform::SetCoefficientData(vtkImageData* grid)
+{
+  vtkTrivialProducer* tp = vtkTrivialProducer::New();
+  tp->SetOutput(grid);
+  this->SetCoefficientConnection(tp->GetOutputPort());
+  tp->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkBSplineTransform::GetCoefficientData()
+{
+  return vtkImageData::SafeDownCast(
+    this->ConnectionHolder->GetInputDataObject(0, 0));
 }

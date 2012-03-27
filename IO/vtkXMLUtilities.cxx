@@ -565,7 +565,7 @@ void vtkXMLUtilities::FactorElements(vtkXMLDataElement *tree)
   pool->SetAttributeEncoding(tree->GetAttributeEncoding());
   tree->AddNestedElement(pool);
 
-  // Factor the tree, as long as some factorization has occured
+  // Factor the tree, as long as some factorization has occurred
   // (multiple pass might be needed because larger trees are factored
   // first)
 

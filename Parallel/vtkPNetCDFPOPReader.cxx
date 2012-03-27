@@ -26,6 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTimerLog.h"
 
 #include "vtkMPI.h"  // added by RGM
 #include "vtkMPIController.h" // added by RGM
@@ -199,6 +200,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
     if(openFile)
       {
       int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
+      vtkTimerLog::MarkEndEvent( "nc_open()"); // RGM
       if (retval != NC_NOERR)//checks if read file error
         {
         vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
@@ -340,6 +342,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
   size_t count[]= { subext[5]-subext[4]+1, subext[3]-subext[2]+1,
                     subext[1]-subext[0]+1};
 
+
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
   bool firstPass = true;
   for(size_t i=0;i<this->Internals->VariableMap.size();i++)
@@ -477,12 +480,19 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
           recvReqs.push_back( recvReq);
           }
 
+      // Wait for all the sends to complete
+      if (this->Internals->SendReqs.size() > 0)
+        {
+        MPI_Waitall( static_cast<int>(this->Internals->SendReqs.size()), &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
 
         if (this->IsReaderRank())
           {
           // Reads part of the netCDF file and sends subarrays out to all the ranks
           this->ReadAndSend( outInfo, varidp);
           }
+        this->Internals->SendBufs.clear();
+        this->Internals->SendReqs.clear();
+        }
 
         delete[] this->Internals->P_allExtents;
 
@@ -631,6 +641,7 @@ int vtkPNetCDFPOPReader::ReadAndSend( vtkInformation *outInfo, int varID)
           MPI_Request sendReq;
           MPI_Type_create_subarray( 2, subarray_sizes, subarray_subsizes, subarray_starts, MPI_ORDER_C, MPI_FLOAT, &subArrayType);
           MPI_Type_commit( &subArrayType);
+          // cerr << "Rank " << mpiRank << ": Sending depth " << curDepth << " to rank " << destRank << endl;
 
           // vtkMPICommunicator can't handle arbitrary types, so we'll have to do it ourselves
           MPI_Comm *p_comm = ((vtkMPICommunicator *)this->Controller->GetCommunicator())->GetMPIComm()->GetHandle();

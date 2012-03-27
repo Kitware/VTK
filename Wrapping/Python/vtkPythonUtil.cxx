@@ -459,7 +459,7 @@ PyObject *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
       {
       PyObject *cls = pyclass;
       PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
-      // count the heirarchy depth for this class
+      // count the hierarchy depth for this class
       for (depth = 0; PyTuple_GET_SIZE(bases) != 0; depth++)
         {
         cls = PyTuple_GET_ITEM(bases,0);
@@ -796,7 +796,7 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
       i = sscanf(text, "_%I64x_%s", &u.l ,typeCheck);
 #endif
       if (strcmp(type,typeCheck) == 0)
-        { // sucessfully unmangle
+        { // successfully unmangle
         *len = 0;
         return u.p;
         }

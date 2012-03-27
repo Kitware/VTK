@@ -60,7 +60,7 @@ int TestCompositeRender(int, char *[])
 
   // Opaque balls and sticks
   vtkNew<vtkMoleculeMapper> bsMapper;
-  bsMapper->SetInput(mol.GetPointer());
+  bsMapper->SetInputData(mol.GetPointer());
   bsMapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> bsActor;
@@ -68,7 +68,7 @@ int TestCompositeRender(int, char *[])
 
   // Translucent VDW
   vtkNew<vtkMoleculeMapper> vdwMapper;
-  vdwMapper->SetInput(mol.GetPointer());
+  vdwMapper->SetInputData(mol.GetPointer());
   vdwMapper->UseVDWSpheresSettings();
   vdwMapper->RenderBondsOff();
 

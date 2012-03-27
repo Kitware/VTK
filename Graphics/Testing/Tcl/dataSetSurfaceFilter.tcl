@@ -3,26 +3,26 @@ package require vtkinteraction
 
 # create pipeline - structured grid
 #
-vtkPLOT3DReader pl3d
+vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+    set output [[pl3d GetOutput] GetBlock 0]
 
 vtkDataSetSurfaceFilter gf
-    gf SetInputConnection [pl3d GetOutputPort]
+    gf SetInputData $output
 vtkPolyDataMapper gMapper
     gMapper SetInputConnection [gf GetOutputPort]
-    eval gMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval gMapper SetScalarRange [$output GetScalarRange]
 vtkActor gActor
     gActor SetMapper gMapper
 vtkDataSetSurfaceFilter gf2
-    gf2 SetInputConnection [pl3d GetOutputPort]
-    gf2 UseStripsOn
+    gf2 SetInputData $output
 vtkPolyDataMapper g2Mapper
     g2Mapper SetInputConnection [gf2 GetOutputPort]
-    eval g2Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval g2Mapper SetScalarRange [$output GetScalarRange]
 vtkActor g2Actor
     g2Actor SetMapper g2Mapper
     g2Actor AddPosition 0 15 0
@@ -33,7 +33,7 @@ vtkDataSetSurfaceFilter gf3
     gf3 SetInputConnection [gf GetOutputPort]
 vtkPolyDataMapper g3Mapper
     g3Mapper SetInputConnection [gf3 GetOutputPort]
-    eval g3Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval g3Mapper SetScalarRange [$output GetScalarRange]
 vtkActor g3Actor
     g3Actor SetMapper g3Mapper
     g3Actor AddPosition 0 0 15
@@ -42,7 +42,7 @@ vtkDataSetSurfaceFilter gf4
     gf4 UseStripsOn
 vtkPolyDataMapper g4Mapper
     g4Mapper SetInputConnection [gf4 GetOutputPort]
-    eval g4Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval g4Mapper SetScalarRange [$output GetScalarRange]
 vtkActor g4Actor
     g4Actor SetMapper g4Mapper
     g4Actor AddPosition 0 15 15
@@ -50,16 +50,16 @@ vtkActor g4Actor
 # create pipeline - unstructured grid
 #
 vtkSphere s
-    eval s SetCenter [[pl3d GetOutput] GetCenter]
+    eval s SetCenter [$output GetCenter]
     s SetRadius 100.0; #everything
 vtkExtractGeometry eg
-    eg SetInputConnection [pl3d GetOutputPort]
+    eg SetInputData $output
     eg SetImplicitFunction s
 vtkDataSetSurfaceFilter gf5
     gf5 SetInputConnection [eg GetOutputPort]
 vtkPolyDataMapper g5Mapper
     g5Mapper SetInputConnection [gf5 GetOutputPort]
-    eval g5Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval g5Mapper SetScalarRange [$output GetScalarRange]
 vtkActor g5Actor
     g5Actor SetMapper g5Mapper
     g5Actor AddPosition 0 0 30
@@ -68,7 +68,7 @@ vtkDataSetSurfaceFilter gf6
     gf6 UseStripsOn
 vtkPolyDataMapper g6Mapper
     g6Mapper SetInputConnection [gf6 GetOutputPort]
-    eval g6Mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
+    eval g6Mapper SetScalarRange [$output GetScalarRange]
 vtkActor g6Actor
     g6Actor SetMapper g6Mapper
     g6Actor AddPosition 0 15 30
@@ -98,7 +98,7 @@ vtkActor g8Actor
     g8Actor AddPosition 0 15 0
 
 # Create the RenderWindow, Renderer and both Actors
-#
+
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1

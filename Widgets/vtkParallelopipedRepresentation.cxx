@@ -319,7 +319,7 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   this->HexPolyData       = vtkPolyData::New();
   this->HexMapper         = vtkPolyDataMapper::New();
   this->HexActor          = vtkActor::New();
-  this->HexMapper->SetInput(HexPolyData);
+  this->HexMapper->SetInputData(HexPolyData);
   this->HexActor->SetMapper(this->HexMapper);
 
   // 16 points from the parallelopiped and the chair (also modelled as a
@@ -344,7 +344,7 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   this->HexFaceActor    = vtkActor::New();
   this->HexFacePolyData->SetPoints(this->Points);
   this->HexFacePolyData->SetPolys(cells);
-  this->HexFaceMapper->SetInput(HexFacePolyData);
+  this->HexFaceMapper->SetInputData(HexFacePolyData);
   this->HexFaceActor->SetMapper(this->HexFaceMapper);
   cells->Delete();
 

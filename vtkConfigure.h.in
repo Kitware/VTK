@@ -96,8 +96,6 @@
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
 #cmakedefine VTK_NO_ANSI_STRING_STREAM
-#cmakedefine VTK_NO_STD_NAMESPACE
-#cmakedefine VTK_NO_FOR_SCOPE
 #cmakedefine VTK_COMPILER_HAS_BOOL
 #cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
@@ -178,21 +176,19 @@
 
 /* Setup vtkstd, a portable namespace for std.  */
 #ifndef VTK_LEGACY_REMOVE
-# ifndef VTK_NO_STD_NAMESPACE
-#  define vtkstd std
-# else
-#  define vtkstd
-# endif
+# define vtkstd std
 #endif
 
 /* Define a "vtkstd_bool" type.  This should be used as the
    return type of comparison operators to keep STL happy on all
    platforms.  It should not be used elsewhere.  Only use bool
    if this file is included by a c++ file. */
-#if defined(VTK_COMPILER_HAS_BOOL) && defined(__cplusplus)
-typedef bool vtkstd_bool;
-#else
-typedef int vtkstd_bool;
+#ifndef VTK_LEGACY_REMOVE
+# if defined(VTK_COMPILER_HAS_BOOL) && defined(__cplusplus)
+  typedef bool vtkstd_bool;
+# else
+  typedef int vtkstd_bool;
+# endif
 #endif
 
 /* Define a macro to help define template specializations.  Skip if
@@ -203,22 +199,6 @@ typedef int vtkstd_bool;
 #  define VTK_TEMPLATE_SPECIALIZE
 # else
 #  define VTK_TEMPLATE_SPECIALIZE template <>
-# endif
-#endif
-
-#cmakedefine VTK_USE_FOR_SCOPE_WORKAROUND
-
-/* Use the common for-scope work-around when compiling a source in VTK.  */
-/* External Projects can set VTK_USE_FOR_SCOPE_WORKAROUND to get this "fix" */
-#if (defined(VTK_IN_VTK) && !defined(VTK_NO_WORKAROUND_FOR_SCOPE)) || defined(VTK_USE_FOR_SCOPE_WORKAROUND)
-# define VTK_WORKAROUND_FOR_SCOPE
-#endif
-#if defined(VTK_NO_FOR_SCOPE) && defined(VTK_WORKAROUND_FOR_SCOPE)
-# ifndef for
-#  define for if(0) {} else for
-#  if defined(_MSC_VER)
-#   pragma warning (disable: 4127) /* conditional expression is constant */
-#  endif
 # endif
 #endif
 

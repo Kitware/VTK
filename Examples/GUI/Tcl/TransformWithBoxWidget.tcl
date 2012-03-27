@@ -10,13 +10,13 @@ vtkSphereSource sphere
 vtkConeSource cone
 vtkGlyph3D glyph
     glyph SetInputConnection [sphere GetOutputPort]
-    glyph SetSource [cone GetOutput]
+    glyph SetSourceConnection [cone GetOutputPort]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 vtkAppendPolyData appendData
-    appendData AddInput [glyph GetOutput]
-    appendData AddInput [sphere GetOutput]
+    appendData AddInputConnection [glyph GetOutputPort]
+    appendData AddInputConnection [sphere GetOutputPort]
 vtkPolyDataMapper maceMapper
     maceMapper SetInputConnection [appendData GetOutputPort]
 vtkLODActor maceActor

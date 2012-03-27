@@ -98,9 +98,9 @@ int vtkMoleculeToBondStickFilter::RequestData(
     {
     // Extract bond info
     vtkBond bond = input->GetBond(bondInd);
-    bondOrder = bond.GetBondOrder();
-    bond.GetBeginAtomPosition(pos1);
-    bond.GetEndAtomPosition(pos2);
+    bondOrder = bond.GetOrder();
+    bond.GetBeginAtom().GetPosition(pos1);
+    bond.GetEndAtom().GetPosition(pos2);
 
     // Compute additional bond info
     // - Normalized vector in direction of bond
@@ -177,13 +177,14 @@ int vtkMoleculeToBondStickFilter::RequestData(
       cylPolys->InitTraversal();
       while (cylPolys->GetNextCell(numCellPoints, cellPoints) != 0)
         {
-        vtkIdType newCellPoints[numCellPoints];
+        vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
         for (vtkIdType i = 0; i < numCellPoints; ++i)
           {
           // The new point ids should be offset by the pointOffset above
           newCellPoints[i] = cellPoints[i] + pointOffset;
           }
         polys->InsertNextCell(numCellPoints, newCellPoints);
+        delete [] newCellPoints;
         }
 
       // Setup for the next cylinder in a multi-bond

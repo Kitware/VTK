@@ -24,6 +24,9 @@
 #include "vtkWindow.h"
 #include "vtkMath.h"
 
+#include <cmath>
+#include <limits>
+
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -93,7 +96,7 @@ vtkAxisActor2D::vtkAxisActor2D()
 
   this->Axis = vtkPolyData::New();
   this->AxisMapper = vtkPolyDataMapper2D::New();
-  this->AxisMapper->SetInput(this->Axis);
+  this->AxisMapper->SetInputData(this->Axis);
   this->AxisActor = vtkActor2D::New();
   this->AxisActor->SetMapper(this->AxisMapper);
 
@@ -430,21 +433,34 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   p21[2] = p2[2] - p1[2];
   length = vtkMath::Normalize(p21);
 
+  // Sum of all the ticks: minor and majors. Contains the start and end ticks.
   int numTicks;
+  // Distance between each minor tick.
   double distance;
   if ( this->RulerMode )
     {
-    double wp1[3], wp2[3], wp21[3], wLength, wDistance;
+    double wp1[3], wp2[3], wp21[3];
     this->PositionCoordinate->GetValue(wp1);
     this->Position2Coordinate->GetValue(wp2);
     wp21[0] = wp2[0] - wp1[0];
     wp21[1] = wp2[1] - wp1[1];
     wp21[2] = wp2[2] - wp1[2];
-    wLength = vtkMath::Norm(wp21);
-    wDistance = this->RulerDistance / (this->NumberOfMinorTicks+1);
-    numTicks = (wDistance <= 0.0 ? 0 : static_cast<int>(wLength / wDistance)+1);
-    wDistance *= numTicks;
-    distance = (length / (numTicks-1)) * (wDistance/wLength);
+    const double worldLength = vtkMath::Norm(wp21);
+    const double worldDistance = this->RulerDistance / (this->NumberOfMinorTicks+1);
+    numTicks = static_cast<int>(
+      worldDistance <= 0.0 ? 0. : (worldLength / worldDistance));
+    const double precision = std::numeric_limits<double>::epsilon();
+    const bool hasRemainderInDivision = worldDistance <= 0.0 ? false:
+      std::fmod(worldLength, worldDistance) > precision;
+    // numTicks must contain the start and end ticks
+    // Don't add the end tick if it is already in numTicks:
+    //   when wLength / wDistance is an integer.
+    numTicks += hasRemainderInDivision ? 2 : 1;
+    // Tick distance was computed in world coordinates, convert to viewport
+    // coordinates.
+    const double worldToLocalRatio =
+      (worldLength < 0.0 ? 0. : length / worldLength);
+    distance = worldDistance * worldToLocalRatio;
     }
   else
     {
@@ -453,6 +469,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     distance = length / (numTicks-1);
     }
 
+  // Only draw the inner ticks (not the start/end ticks)
   for (i = 1; i < numTicks - 1; i++)
     {
     int tickLength = 0;

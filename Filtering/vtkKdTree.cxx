@@ -769,12 +769,6 @@ void vtkKdTree::BuildLocator()
     return;
     }
 
-  // Make sure input is up to date.
-  for (i = 0; i < this->GetNumberOfDataSets(); i++)
-    {
-    this->GetDataSet(i)->Update();
-    }
-
   nCells = this->GetNumberOfCells();
 
   if (nCells == 0)
@@ -805,7 +799,6 @@ void vtkKdTree::BuildLocator()
   for (vtkDataSet *iset = this->DataSets->GetNextDataSet(cookie);
        iset != NULL; iset = this->DataSets->GetNextDataSet(cookie))
     {
-    iset->Update();
     if (first)
       {
       iset->GetBounds(volBounds);
@@ -1434,7 +1427,7 @@ int vtkKdTree::Select(int dim, float *c1, int *ids, int nvals, double &coord)
   // We need to be careful in the case where the "mid"
   // value is repeated several times in the array.  We
   // want to roll the dividing index (mid) back to the
-  // first occurence in the array, so that there is no
+  // first occurrence in the array, so that there is no
   // ambiguity about which spatial region a given point
   // belongs in.
   //
@@ -4304,30 +4297,6 @@ int vtkKdTree::__ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode 
     return (numNodesLeft + numNodesRight);                                               
     }
 }
-
-//-----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-
-int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
-                                 double *directionOfProjection,
-                                 vtkIntArray *orderedList)
-{   
-  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderRegions, "VTK 5.2",
-                           vtkKdTree::ViewOrderRegionsInDirection);
-  return this->ViewOrderRegionsInDirection(regionIds, directionOfProjection,
-                                           orderedList);
-}
-
-int vtkKdTree::DepthOrderAllRegions(double *directionOfProjection,
-                                    vtkIntArray *orderedList)
-{   
-  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderAllRegions, "VTK 5.2",
-                           vtkKdTree::ViewOrderAllRegionsInDirection);
-  return this->ViewOrderAllRegionsInDirection(directionOfProjection,
-                                              orderedList);
-}
-
-#endif //VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 int vtkKdTree::ViewOrderRegionsInDirection(

@@ -289,7 +289,7 @@ int vtkConvexHull2D::RequestData(vtkInformation *vtkNotUsed(request),
   this->OutputTransform->Translate(centre);
   this->OutputTransform->Scale(this->ScaleFactor, this->ScaleFactor, this->ScaleFactor);
   this->OutputTransform->Translate(-centre[0], -centre[1], -centre[2]);
-  this->OutputTransformFilter->SetInput(hullPolyData);
+  this->OutputTransformFilter->SetInputData(hullPolyData);
   this->OutputTransformFilter->Update();
   hullPolyData = this->OutputTransformFilter->GetOutput();
 

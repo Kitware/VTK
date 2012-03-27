@@ -17,9 +17,9 @@ class SimpleGlyph:
         sg.SetCenter(0.5, 0.0, 0.0)
         g = self.glyph = vtk.vtkTensorGlyph()        
         g.SetInputConnection(self.reader.GetOutputPort())
-        g.SetSource(self.src_glyph.GetOutput())
+        g.SetSourceConnection(self.src_glyph.GetOutputPort())
         g.SetScaleFactor(0.25)
-        
+
         # The normals are needed to generate the right colors and if
         # not used some of the glyphs are black.        
         self.normals = vtk.vtkPolyDataNormals()

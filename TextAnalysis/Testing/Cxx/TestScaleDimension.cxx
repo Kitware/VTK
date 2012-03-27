@@ -61,7 +61,7 @@ int TestScaleDimension(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     vtkSmartPointer<vtkScaleDimension> scale = vtkSmartPointer<vtkScaleDimension>::New();
     scale->SetInputConnection(0, array->GetOutputPort());
-    scale->SetInputConnection(1, vector_data->GetProducerPort());
+    scale->SetInputData(1, vector_data);
 
     scale->Update();
     vtkTypedArray<double>* const output = vtkTypedArray<double>::SafeDownCast(scale->GetOutput()->GetArray(0));

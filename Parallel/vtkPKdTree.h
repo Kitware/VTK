@@ -242,12 +242,6 @@ public:
                                           vtkIdList *onBoundaryCells);
 
   // Description:
-  // DO NOT CALL.  Deprecated in VTK 5.2.  Use ViewOrderAllProcessesInDirection
-  // or ViewOrderAllProcessesFromPosition.
-  VTK_LEGACY(int DepthOrderAllProcesses(double *directionOfProjection, 
-                                        vtkIntArray *orderedList));
-
-  // Description:
   // Return a list of all processes in order from front to back given a
   // vector direction of projection.  Use this to do visibility sorts
   // in parallel projection mode. `orderedList' will be resized to the number

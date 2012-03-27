@@ -371,7 +371,7 @@ int TestMath(int,char *[])
     }
   if (!(0 > vtkMath::NegInf()))
     {
-    vtkGenericWarningMacro(<< "Odd comparison for negitive infinity.");
+    vtkGenericWarningMacro(<< "Odd comparison for negative infinity.");
     return 1;
     }
 

@@ -405,7 +405,7 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
                   {
                   sum += *hoodPtr0 * kernel[kernelIdx];
 
-                  // Take the next postion in the kernel
+                  // Take the next position in the kernel
                   kernelIdx++;
                   }
 

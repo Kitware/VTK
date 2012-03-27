@@ -99,7 +99,7 @@ protected:
                            vtkInformationVector* outputVector);
 
    // Description:
-   // Pipeline funtion.
+   // Pipeline function.
    virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 

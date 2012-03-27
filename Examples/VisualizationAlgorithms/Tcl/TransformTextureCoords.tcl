@@ -64,7 +64,7 @@ foreach texture_mapper_type $texture_mapper_types {
 #
 set texture_mapper_type [lindex $texture_mapper_types 0]
 vtkTransformTextureCoords transform_texture
-  transform_texture SetInput [[string tolower $texture_mapper_type] GetOutput]
+  transform_texture SetInputConnection [[string tolower $texture_mapper_type] GetOutputPort]
 
 #
 # Create polydata mapper.

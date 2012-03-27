@@ -50,15 +50,15 @@ public:
   virtual bool CanHandle(const char* NameString) ;
 
   // Description:
-  // Set the endianess - true if Big false is little
+  // Set the endianness - true if Big false is little
   void SetBigEndian(bool) ;
 
   // Description:
-  // Set the endianess - true if Big false is little
+  // Set the endianness - true if Big false is little
   void FindEndianness(istream& InputStream) ;
 
   // Description:
-  // is the given sample valid for this codec? - will take endianess into account
+  // is the given sample valid for this codec? - will take endianness into account
   virtual bool IsValid(istream& InputStream) ;
 
   // Description:

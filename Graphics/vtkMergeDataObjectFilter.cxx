@@ -42,9 +42,9 @@ vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter()
 
 //----------------------------------------------------------------------------
 // Specify a data object at a specified table location.
-void vtkMergeDataObjectFilter::SetDataObject(vtkDataObject *d)
+void vtkMergeDataObjectFilter::SetDataObjectInputData(vtkDataObject *d)
 {
-  this->SetInput(1, d);
+  this->SetInputData(1, d);
 }
 
 //----------------------------------------------------------------------------

@@ -99,7 +99,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   ds->PrintSelf(cout,indent);
   
   vtkGenericOutlineFilter *outline=vtkGenericOutlineFilter::New();
-  outline->SetInput(ds);
+  outline->SetInputData(ds);
   vtkPolyDataMapper *mapOutline=vtkPolyDataMapper::New();
   mapOutline->SetInputConnection(outline->GetOutputPort());
   vtkActor *outlineActor=vtkActor::New();
@@ -110,7 +110,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   
   // Create source for streamtubes
   vtkGenericStreamTracer *streamer=vtkGenericStreamTracer::New();
-  streamer->SetInput(ds);
+  streamer->SetInputData(ds);
   streamer->SetStartPosition(0.1,2.1,0.5);
   streamer->SetMaximumPropagation(0,500);
   streamer->SetMinimumIntegrationStep(1,0.1);
@@ -127,7 +127,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
              vtkAssignAttribute::POINT_DATA);
 
   vtkRibbonFilter *rf1=vtkRibbonFilter::New();
-  rf1->SetInput(aa->GetPolyDataOutput());
+  rf1->SetInputConnection(aa->GetOutputPort());
   rf1->SetWidth(0.1);
   rf1->VaryWidthOff();
   

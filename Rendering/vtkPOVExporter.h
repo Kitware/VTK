@@ -63,7 +63,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // .SECTION Description
 // This Exporter can be attached to a render window in order to generate 
-// scene description files for the Persistance of Vision Raytracer
+// scene description files for the Persistence of Vision Raytracer
 // www.povray.org.
 //
 // .SECTION Thanks

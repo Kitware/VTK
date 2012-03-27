@@ -79,7 +79,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   vtkIdType numCellPoints, *cellPoints;
   double scaledRadius;
   unsigned short atomicNum;
-  double pos[3];
+  vtkVector3f pos;
 
   // Build a sphere for each atom and append it's data to the output
   // arrays.
@@ -88,7 +88,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
     // Extract atomic number, position
     vtkAtom atom = input->GetAtom(atomInd);
     atomicNum = atom.GetAtomicNumber();
-    atom.GetPosition(pos);
+    pos = atom.GetPosition();
 
     // Get scaled radius:
     switch (this->RadiusSource)
@@ -114,7 +114,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
 
     // Update sphere source
     sphereSource->SetRadius(scaledRadius);
-    sphereSource->SetCenter(pos);
+    sphereSource->SetCenter(pos.Cast<double>().GetData());
     sphereSource->Update();
 
     // Extract polydata from sphere
@@ -138,13 +138,14 @@ int vtkMoleculeToAtomBallFilter::RequestData(
     spherePolys->InitTraversal();
     while (spherePolys->GetNextCell(numCellPoints, cellPoints) != 0)
       {
-      vtkIdType newCellPoints[numCellPoints];
+      vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
       for (vtkIdType i = 0; i < numCellPoints; ++i)
         {
         // The new point ids should be offset by the pointOffset above
         newCellPoints[i] = cellPoints[i] + pointOffset;
         }
       polys->InsertNextCell(numCellPoints, newCellPoints);
+      delete [] newCellPoints;
       }
     }
 

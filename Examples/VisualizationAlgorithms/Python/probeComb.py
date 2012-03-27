@@ -8,12 +8,13 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # We create three planes and position them in the correct position
 # using transform filters. They are then appended together and used as
@@ -66,9 +67,9 @@ tpd3Actor.SetMapper(mapTpd3)
 tpd3Actor.GetProperty().SetColor(0, 0, 0)
 
 appendF = vtk.vtkAppendPolyData()
-appendF.AddInput(tpd1.GetOutput())
-appendF.AddInput(tpd2.GetOutput())
-appendF.AddInput(tpd3.GetOutput())
+appendF.AddInputConnection(tpd1.GetOutputPort())
+appendF.AddInputConnection(tpd2.GetOutputPort())
+appendF.AddInputConnection(tpd3.GetOutputPort())
 
 # The vtkProbeFilter takes two inputs. One is a dataset to use as the
 # probe geometry (SetInput); the other is the data to probe
@@ -77,19 +78,19 @@ appendF.AddInput(tpd3.GetOutput())
 # process generates new data values resampled from the source.
 probe = vtk.vtkProbeFilter()
 probe.SetInputConnection(appendF.GetOutputPort())
-probe.SetSource(pl3d.GetOutput())
+probe.SetSourceData(pl3d_output)
 
 contour = vtk.vtkContourFilter()
 contour.SetInputConnection(probe.GetOutputPort())
-contour.GenerateValues(50, pl3d.GetOutput().GetScalarRange())
+contour.GenerateValues(50, pl3d_output.GetScalarRange())
 contourMapper = vtk.vtkPolyDataMapper()
 contourMapper.SetInputConnection(contour.GetOutputPort())
-contourMapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
+contourMapper.SetScalarRange(pl3d_output.GetScalarRange())
 planeActor = vtk.vtkActor()
 planeActor.SetMapper(contourMapper)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

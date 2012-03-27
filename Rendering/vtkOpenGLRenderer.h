@@ -23,6 +23,7 @@
 #include "vtkRenderer.h"
 
 class vtkOpenGLRendererLayerList; // Pimpl
+class vtkRenderPass;
 class vtkShaderProgram2;
 
 class VTK_RENDERING_EXPORT vtkOpenGLRenderer : public vtkRenderer
@@ -70,6 +71,12 @@ public:
   vtkGetObjectMacro(ShaderProgram,vtkShaderProgram2);
   virtual void SetShaderProgram(vtkShaderProgram2 *program);
   //ETX
+
+  // Description:
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass,vtkRenderPass);
   
 protected:
   vtkOpenGLRenderer();
@@ -78,6 +85,9 @@ protected:
   // Description:
   // Check the compilation status of some fragment shader source.
   void CheckCompilation(unsigned int fragmentShader);
+
+  // Internal method to release graphics resources in any derived renderers.
+  virtual void ReleaseGraphicsResources(vtkWindow *w);
   
   //BTX
   // Picking functions to be implemented by sub-classes
@@ -155,6 +165,9 @@ protected:
   int DepthPeelingHigherLayer;
   
   vtkShaderProgram2 *ShaderProgram;
+
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
   
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

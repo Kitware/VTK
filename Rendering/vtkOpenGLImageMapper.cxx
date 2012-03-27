@@ -62,7 +62,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 */
 
 // the bit-shift must be done after the comparison to zero
-// because bit-shift is implemenation dependant for negative numbers
+// because bit-shift is implemenation dependent for negative numbers
 #define vtkClampIntToUnsignedChar(x,y,shift) \
 { \
   val = (y); \

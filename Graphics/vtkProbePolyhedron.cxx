@@ -50,9 +50,9 @@ void vtkProbePolyhedron::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 }
  
 //----------------------------------------------------------------------------
-void vtkProbePolyhedron::SetSource(vtkPolyData *input)
+void vtkProbePolyhedron::SetSourceData(vtkPolyData *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
@@ -230,7 +230,7 @@ int vtkProbePolyhedron::RequestUpdateExtent(
 
   int usePiece = 0;
 
-  // What ever happend to CopyUpdateExtent in vtkDataObject?
+  // What ever happened to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());

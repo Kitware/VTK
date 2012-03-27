@@ -89,9 +89,6 @@ void vtkCardinalSpline::Compute ()
   int size;
   int i;
 
-  // Make sure the function is up to date.
-  this->PiecewiseFunction->Update();
-
   // get the size of the independent variables
   size = this->PiecewiseFunction->GetSize ();
 
@@ -350,7 +347,7 @@ void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
 //----------------------------------------------------------------------------
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
-// spline is continous in value and derivatives.
+// spline is continuous in value and derivatives.
 void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
                         double *work, double coefficients[][4])
 {

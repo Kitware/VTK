@@ -20,6 +20,7 @@
 
 #include "vtkDataRepresentation.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
@@ -34,6 +35,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTrivialProducer.h"
 
 #include <map>
 
@@ -45,11 +47,11 @@ class vtkDataRepresentation::Internals {
 public:
 
   // This is a cache of shallow copies of inputs provided for convenience.
-  // It is a map from (port index, connection index) to (original input data object, shallow copy).
-  // NOTE: The original input data object pointer is not reference counted, so it should
+  // It is a map from (port index, connection index) to (original input data port, shallow copy port).
+  // NOTE: The original input data port pointer is not reference counted, so it should
   // not be assumed to be a valid pointer. It is only used for pointer comparison.
   std::map<std::pair<int, int>,
-              std::pair<vtkDataObject*, vtkSmartPointer<vtkDataObject> > >
+           std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> > >
     InputInternal;
 
   // This is a cache of vtkConvertSelectionDomain filters provided for convenience.
@@ -91,6 +93,22 @@ vtkStandardNewMacro(vtkDataRepresentation);
 vtkCxxSetObjectMacro(vtkDataRepresentation,
   AnnotationLinkInternal, vtkAnnotationLink);
 vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray);
+
+//----------------------------------------------------------------------------
+vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
+{
+  return this->Implementation->InputInternal[
+    std::pair<int, int>(port, conn)].second.GetPointer();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataRepresentation::SetInternalInput(int port, int conn,
+                                             vtkTrivialProducer* producer)
+{
+  this->Implementation->InputInternal[std::pair<int, int>(port, conn)] =
+    std::pair<vtkAlgorithmOutput*, vtkSmartPointer<vtkTrivialProducer> >(
+      this->GetInputConnection(port, conn), producer);
+}
 
 //----------------------------------------------------------------------------
 vtkDataRepresentation::vtkDataRepresentation()
@@ -164,19 +182,24 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   // changed, or the shallow copy modified time is less than the
   // input modified time.
   std::pair<int, int> p(port, conn);
-  vtkDataObject* input = this->GetInputDataObject(port, conn);
+  vtkAlgorithmOutput* input = this->GetInputConnection(port, conn);
+  vtkDataObject* inputDObj = this->GetInputDataObject(port, conn);
   if (this->Implementation->InputInternal.find(p) ==
-    this->Implementation->InputInternal.end() ||
-    this->Implementation->InputInternal[p].first != input ||
-    this->Implementation->InputInternal[p].second->GetMTime() < input->GetMTime())
+      this->Implementation->InputInternal.end() ||
+      this->Implementation->InputInternal[p].first != input ||
+      this->Implementation->InputInternal[p].second->GetMTime() < inputDObj->GetMTime())
     {
     this->Implementation->InputInternal[p].first = input;
-    this->Implementation->InputInternal[p].second.TakeReference(
-      input->NewInstance());
-    this->Implementation->InputInternal[p].second->ShallowCopy(input);
+    vtkDataObject* copy = inputDObj->NewInstance();
+    copy->ShallowCopy(inputDObj);
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(copy);
+    copy->Delete();
+    this->Implementation->InputInternal[p].second = tp;
+    tp->Delete();
     }
 
-  return this->Implementation->InputInternal[p].second->GetProducerPort();
+  return this->Implementation->InputInternal[p].second->GetOutputPort();
 }
 
 //----------------------------------------------------------------------------

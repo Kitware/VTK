@@ -30,7 +30,7 @@ print "leftOver: ", leftOver
 # 6 = vtkDataObject::FIELD_ASSOCIATION_ROWS
 # Mode = ACCEPT_LESS_THAN = 0, ACCEPT_GREATER_THAN = 1, ACCEPT_BETWEEN = 2, ACCEPT_OUTSIDE = 3
 threshold = vtkThresholdTable()
-threshold.SetInput(inputTable)
+threshold.SetInputConnection(databaseToTable.GetOutputPort())
 threshold.SetInputArrayToProcess(0,0,0,6, "id")
 threshold.SetMode(2)
 threshold.SetMinValue(vtkVariant(0))
@@ -67,7 +67,7 @@ print "SubTable4 Rows: " , subTable4.GetNumberOfRows()
 # Calculate offline(non-streaming) descriptive statistics
 print "# Calculate offline descriptive statistics:"
 ds = vtkDescriptiveStatistics()
-ds.SetInput(inputTable)
+ds.SetInputConnection(databaseToTable.GetOutputPort())
 ds.AddColumn("Temp1")
 ds.AddColumn("Temp2")
 ds.Update()
@@ -88,16 +88,16 @@ inter.AddColumn("Temp2")
 print "# Calculate online descriptive statistics:"
 ss = vtkStreamingStatistics()
 ss.SetStatisticsAlgorithm(inter)
-ss.SetInput(subTable1)
+ss.SetInputData(subTable1)
 ss.Update()
 
-ss.SetInput(subTable2)
+ss.SetInputData(subTable2)
 ss.Update()
 
-ss.SetInput(subTable3)
+ss.SetInputData(subTable3)
 ss.Update()
 
-ss.SetInput(subTable4)
+ss.SetInputData(subTable4)
 ss.Update()
 
 sStats = ss.GetOutputDataObject( 1 )

@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <ctype.h>
 
@@ -208,18 +209,10 @@ int vtkSLCReader::RequestInformation (
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
-void vtkSLCReader::ExecuteData(vtkDataObject* )
+void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
+                                              vtkInformation *vtkNotUsed(outInfo))
 { 
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetExtent(output->GetWholeExtent());
-  output->AllocateScalars();
-
-  if (!output->GetPointData()->GetScalars())
-    {
-    return;
-    }
-  output->GetPointData()->GetScalars()->SetName("SLCImage");
+  vtkImageData *output = vtkImageData::SafeDownCast(output_do);
 
   FILE *fp;
 
@@ -290,6 +283,9 @@ void vtkSLCReader::ExecuteData(vtkDataObject* )
     return;
     }
   output->SetDimensions(size);
+
+  output->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
+  output->GetPointData()->GetScalars()->SetName("SLCImage");
 
   // Skip Over bits_per_voxel Field */
   if (fscanf( fp, "%d",   &temp ) != 1)

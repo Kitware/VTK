@@ -22,8 +22,11 @@
 #define __vtkContextActor_h
 
 #include "vtkProp.h"
+#include "vtkNew.h"          // For ivars
+#include "vtkSmartPointer.h" // For ivars
 
 class vtkContext2D;
+class vtkContext3D;
 class vtkContextScene;
 
 class VTK_CHARTS_EXPORT vtkContextActor : public vtkProp
@@ -39,20 +42,16 @@ public:
   virtual int RenderOverlay(vtkViewport *viewport);
 
   // Description:
-  // Set the vtkContext2D for the actor.
-  virtual void SetContext(vtkContext2D *context);
+  // Get the vtkContext2D for the actor.
+  vtkGetNewMacro(Context, vtkContext2D)
 
   // Description:
-  // Set/Get the vtk2DPainter.
-  vtkGetObjectMacro(Context, vtkContext2D);
+  // Get the chart object for the actor.
+  vtkContextScene * GetScene();
 
   // Description:
-  // Get the chart object for the Actor.
-  vtkGetObjectMacro(Scene, vtkContextScene);
-
-  // Description:
-  // Set the chart object for the Actor.
-  virtual void SetScene(vtkContextScene *scene);
+  // Set the scene for the actor.
+  void SetScene(vtkContextScene *scene);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -68,8 +67,9 @@ protected:
   // Initialize the actor - right now we just decide which device to initialize.
   void Initialize(vtkViewport* viewport);
 
-  vtkContextScene *Scene;
-  vtkContext2D *Context;
+  vtkSmartPointer<vtkContextScene> Scene;
+  vtkNew<vtkContext2D> Context;
+  vtkNew<vtkContext3D> Context3D;
   bool Initialized;
 
 private:

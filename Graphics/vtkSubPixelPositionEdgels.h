@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Set/Get the gradient data for doing the position adjustments.
-  void SetGradMaps(vtkStructuredPoints *gm);
+  void SetGradMapsData(vtkStructuredPoints *gm);
   vtkStructuredPoints *GetGradMaps();
 
   // Description:

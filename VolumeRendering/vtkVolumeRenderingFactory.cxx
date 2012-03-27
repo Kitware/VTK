@@ -31,12 +31,6 @@
 #include "vtkOpenGLVolumeTextureMapper3D.h"
 #endif
 
-#if defined(VTK_USE_MANGLED_MESA)
-#include "vtkMesaProjectedTetrahedraMapper.h"
-#include "vtkMesaRayCastImageDisplayHelper.h"
-#include "vtkMesaVolumeTextureMapper2D.h"
-#endif
-
 #include "vtkCriticalSection.h"
 
 #include "stdlib.h"
@@ -67,87 +61,42 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
     // GPU Ray Cast Mapper
     if(strcmp(vtkclassname, "vtkGPUVolumeRayCastMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if (vtkGraphicsFactory::GetUseMesaClasses())
-        {
-        vtkGenericWarningMacro("No support for mesa in vtkGPUVolumeRayCastMapper");
-        return 0;
-        }
-#endif
       return vtkOpenGLGPUVolumeRayCastMapper::New();
       }
 
     // Projected axis-aligned hexahedra mapper
     if(strcmp(vtkclassname, "vtkProjectedAAHexahedraMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if (vtkGraphicsFactory::GetUseMesaClasses())
-        {
-        vtkGenericWarningMacro("No support for mesa in vtkProjectedAAHexahedraMapper");
-        }
-#endif
       return vtkOpenGLProjectedAAHexahedraMapper::New();
       }
 
     // Projected Tetrahedra Mapper
     if(strcmp(vtkclassname, "vtkProjectedTetrahedraMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if (vtkGraphicsFactory::GetUseMesaClasses())
-        {
-        return vtkMesaProjectedTetrahedraMapper::New();
-        }
-#endif
       return vtkOpenGLProjectedTetrahedraMapper::New();
       }
 
     // HAVS Mapper
     if(strcmp(vtkclassname, "vtkHAVSVolumeMapper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if (vtkGraphicsFactory::GetUseMesaClasses())
-        {
-        vtkGenericWarningMacro("No support for mesa in vtkHAVSVolumeMapper");
-        return 0;
-        }
-#endif
       return vtkOpenGLHAVSVolumeMapper::New();
       }
 
     // 2D Volume Texture Mapper
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::GetUseMesaClasses() )
-        {
-        return vtkMesaVolumeTextureMapper2D::New();
-        }
-#endif
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
     
     // 3D Volume Texture Mapper
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper3D") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::GetUseMesaClasses() )
-        {
-        vtkGenericWarningMacro("No support for mesa in vtkVolumeTextureMapper3D");
-        return 0;
-        }
-#endif
       return vtkOpenGLVolumeTextureMapper3D::New();
       }
     
     // Ray Cast Image Display Helper
     if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
       {
-#if defined(VTK_USE_MANGLED_MESA)
-      if ( vtkGraphicsFactory::GetUseMesaClasses() )
-        {
-        return vtkMesaRayCastImageDisplayHelper::New();
-        }
-#endif
       return vtkOpenGLRayCastImageDisplayHelper::New();
       }
     }

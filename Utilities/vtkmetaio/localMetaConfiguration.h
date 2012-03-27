@@ -48,24 +48,12 @@
   #define METAIO_USE_NAMESPACE  1
   #define METAIO_NAMESPACE      vtkmetaio
 
-  #include "vtkConfigure.h"
   #include "vtk_zlib.h"
 
-  #ifdef VTK_NO_STD_NAMESPACE
-    #define METAIO_STL
-  #else
-    #define METAIO_STL  std
-  #endif
-
-  #ifdef VTK_USE_ANSI_STDLIB
-    #define METAIO_STREAM std
-    #include <iostream>
-    #include <fstream>
-  #else
-    #define METAIO_STREAM
-    #include <iostream.h>
-    #include <fstream.h>
-  #endif
+  #define METAIO_STL    std
+  #define METAIO_STREAM std
+  #include <iostream>
+  #include <fstream>
 
   #if (defined(_WIN32) || defined(WIN32)) && defined(vtkmetaio_BUILD_SHARED_LIBS)
     #ifdef vtkmetaio_EXPORTS

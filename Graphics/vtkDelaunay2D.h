@@ -19,7 +19,7 @@
 // type vtkPointSet and subclasses. The output of the filter is a polygonal
 // dataset. Usually the output is a triangle mesh, but if a non-zero alpha
 // distance value is specified (called the "alpha" value), then only
-// triangles, edges, and vertices lying within the alpha radius are
+// triangles, edges, and vertices laying within the alpha radius are
 // output. In other words, non-zero alpha values may result in arbitrary
 // combinations of triangles, lines, and vertices. (The notion of alpha value
 // is derived from Edelsbrunner's work on "alpha shapes".) Also, it is
@@ -149,7 +149,7 @@ public:
   // points in the input point set (i.e. point ids are identical in the
   // input and source).
   // Old style. See SetSourceConnection.
-  void SetSource(vtkPolyData *);
+  void SetSourceData(vtkPolyData *);
 
   // Description:
   // Specify the source object used to specify constrained edges and loops.

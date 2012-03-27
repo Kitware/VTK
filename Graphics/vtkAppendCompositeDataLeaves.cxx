@@ -63,19 +63,6 @@ vtkCompositeDataSet* vtkAppendCompositeDataLeaves::GetInput( int idx )
 }
 
 //----------------------------------------------------------------------------
-// Remove a dataset from the list of data to append.
-void vtkAppendCompositeDataLeaves::RemoveInput( vtkDataSet* ds )
-{
-  vtkAlgorithmOutput* algOutput = 0;
-  if ( ds )
-    {
-    algOutput = ds->GetProducerPort();
-    }
-
-  this->RemoveInputConnection( 0, algOutput );
-}
-
-//----------------------------------------------------------------------------
 int vtkAppendCompositeDataLeaves::RequestDataObject(
   vtkInformation*,
   vtkInformationVector** inputVector,
@@ -101,7 +88,7 @@ int vtkAppendCompositeDataLeaves::RequestDataObject(
       if ( ! output || ! output->IsA( input->GetClassName() ) )
         {
         vtkCompositeDataSet* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation( info );
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }
@@ -237,7 +224,7 @@ void vtkAppendCompositeDataLeaves::AppendUnstructuredGrids(
       vtkUnstructuredGrid* iudset = vtkUnstructuredGrid::SafeDownCast( icdset->GetDataSet( iter ) );
       if ( iudset )
         {
-        this->AppendUG->AddInput( iudset );
+        this->AppendUG->AddInputData( iudset );
         }
       }
     }
@@ -269,7 +256,7 @@ void vtkAppendCompositeDataLeaves::AppendPolyData(
       vtkPolyData* ipdset = vtkPolyData::SafeDownCast( icdset->GetDataSet( iter ) );
       if ( ipdset )
         {
-        this->AppendPD->AddInput( ipdset );
+        this->AppendPD->AddInputData( ipdset );
         }
       }
     }

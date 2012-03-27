@@ -11,8 +11,9 @@ vtkDataSetReader reader
     reader Update
 vtkCastToConcrete toRectilinearGrid
     toRectilinearGrid SetInputConnection [reader GetOutputPort] 
+    toRectilinearGrid Update
 vtkRectilinearGridGeometryFilter plane
-    plane SetInput [toRectilinearGrid GetRectilinearGridOutput]
+    plane SetInputData [toRectilinearGrid GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
 vtkWarpVector warper
     warper SetInputConnection [plane GetOutputPort]
@@ -27,7 +28,7 @@ vtkPlane cutPlane
     eval cutPlane SetOrigin [[reader GetOutput] GetCenter]
     cutPlane SetNormal 1 0 0
 vtkCutter planeCut
-    planeCut SetInput [toRectilinearGrid GetRectilinearGridOutput]
+    planeCut SetInputData [toRectilinearGrid GetRectilinearGridOutput]
     planeCut SetCutFunction cutPlane
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [planeCut GetOutputPort]
@@ -37,7 +38,7 @@ vtkActor cutActor
     cutActor SetMapper cutMapper
 
 vtkContourFilter iso
-    iso SetInput [toRectilinearGrid GetRectilinearGridOutput]
+    iso SetInputData [toRectilinearGrid GetRectilinearGridOutput]
     iso SetValue 0 0.7
 vtkPolyDataNormals normals
     normals SetInputConnection [iso GetOutputPort]
@@ -72,7 +73,7 @@ vtkActor streamTubeActor
     [streamTubeActor GetProperty] BackfaceCullingOn
 
 vtkOutlineFilter outline
-    outline SetInput [toRectilinearGrid GetRectilinearGridOutput]
+    outline SetInputData [toRectilinearGrid GetRectilinearGridOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor

@@ -33,7 +33,7 @@ proc vtkHistogramWidget {widget {width 512} {height 192}} {
 
 proc HistogramWidgetSetInput {widget input} {
     set clip [::vtk::get_widget_variable_value $widget Clip]
-    $clip SetInput $input
+    $clip SetInputConnection $input
 }
 
 # Set the extent
@@ -58,7 +58,7 @@ proc HistogramWidgetRender {widget} {
     set numBins [expr $width / 2]
 
     set data [$accumulate GetInput]
-    $data Update
+    $accumulate Update
 
     set inputRange [[[$data GetPointData] GetScalars] GetRange]
     set origin [lindex $inputRange 0]
@@ -81,7 +81,7 @@ proc HistogramWidgetRender {widget} {
     # Get the histogram data
 
     set data [$accumulate GetOutput]
-    $data Update
+    $accumulate Update
 
     # Scale the histogram max to fit the window
 

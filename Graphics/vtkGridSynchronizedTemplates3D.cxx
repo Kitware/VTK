@@ -492,7 +492,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
       inPtrY = inPtrZ;
       for (j = YMin; j <= YMax; j++)
         {
-        // Should not impact perfomance here/
+        // Should not impact performance here/
         edgePtId = (j-inExt[2])*incY + (k-inExt[4])*incZ;
         // Increments are different for cells.
         // Since the cells are not contoured until the second row of templates,

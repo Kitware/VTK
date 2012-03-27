@@ -100,7 +100,6 @@ int vtkImageFlip::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
-  // This information already copied from input to output in CopyInformationToPipeline?
   vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)

@@ -161,35 +161,35 @@ int TestBoostAlgorithms(int argc, char* argv[])
   // Test biconnected components
   // Only available in Boost 1.33 or later
   VTK_CREATE(vtkBoostBiconnectedComponents, biconn);
-  biconn->SetInput(g);
+  biconn->SetInputData(g);
   RenderGraph(ren, biconn.GetPointer(), 0, 0, "biconnected component", -1, 3, "biconnected component", -1, 3);
 
 
   // Test breadth first search
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs);
-  bfs->SetInput(g);
+  bfs->SetInputData(g);
   RenderGraph(ren, bfs.GetPointer(), 2, 0, "BFS", 0, 3, NULL, 0, 0);
 
   // Test centrality
   VTK_CREATE(vtkBoostBrandesCentrality, centrality);
-  centrality->SetInput(g);
+  centrality->SetInputData(g);
   RenderGraph(ren, centrality.GetPointer(), 0, 2, "centrality", 0, 1, NULL, 0, 0);
 
   // Test connected components
   VTK_CREATE(vtkBoostConnectedComponents, comp);
-  comp->SetInput(g);
+  comp->SetInputData(g);
   RenderGraph(ren, comp.GetPointer(), 2, 2, "component", 0, 2, NULL, 0, 0);
 
   // Test breadth first search tree
   VTK_CREATE(vtkBoostBreadthFirstSearchTree, bfsTree);
-  bfsTree->SetInput(g);
+  bfsTree->SetInputData(g);
   VTK_CREATE(vtkBoostBreadthFirstSearch, bfs2);
   bfs2->SetInputConnection(bfsTree->GetOutputPort());
   RenderGraph(ren, bfs2.GetPointer(), 0, 4, "BFS", 0, 3, NULL, 0, 0);
 
   // Test Prim's MST
   VTK_CREATE(vtkBoostPrimMinimumSpanningTree, prim);
-  prim->SetInput(g2);
+  prim->SetInputData(g2);
   prim->SetOriginVertex(0);
   prim->SetEdgeWeightArrayName("weight");
   RenderGraph(ren, prim.GetPointer(), 2, 4, NULL, 0, 0, NULL, 0, 0);

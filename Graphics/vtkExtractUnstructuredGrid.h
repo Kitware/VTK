@@ -18,7 +18,7 @@
 // extract geometry (and associated data) from an unstructured grid
 // dataset. The extraction process is controlled by specifying a range
 // of point ids, cell ids, or a bounding box (referred to as "Extent").
-// Those cells lying within these regions are sent to the output.
+// Those cells laying within these regions are sent to the output.
 // The user has the choice of merging coincident points (Merging is on)
 // or using the original point set (Merging is off).
 

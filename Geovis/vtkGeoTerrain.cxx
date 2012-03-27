@@ -385,7 +385,7 @@ void vtkGeoTerrain::AddActors(
       // Add the data to the view
       vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
       vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-      mapper->SetInput(cur->GetModel());
+      mapper->SetInputData(cur->GetModel());
       mapper->ScalarVisibilityOff();
       actor->SetMapper(mapper);
       actor->SetPosition(-this->Origin[0], -this->Origin[1], -this->Origin[2] - 0.1);
@@ -518,7 +518,7 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
     char fn[512];
     sprintf(fn, "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
     writer->SetFileName(fn);
-    writer->SetInput(storedData);
+    writer->SetInputData(storedData);
     writer->Write();
 
     if (node->GetLevel() == depth)

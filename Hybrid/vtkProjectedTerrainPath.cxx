@@ -66,10 +66,16 @@ vtkProjectedTerrainPath::~vtkProjectedTerrainPath()
 {
 }
 
-//-----------------------------------------------------------------------------
-void vtkProjectedTerrainPath::SetSource(vtkImageData *source)
+//----------------------------------------------------------------------------
+void vtkProjectedTerrainPath::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
-  this->SetInput(1, source);
+  this->SetInputConnection(1, algOutput);
+}
+
+//-----------------------------------------------------------------------------
+void vtkProjectedTerrainPath::SetSourceData(vtkImageData *source)
+{
+  this->SetInputDataInternal(1, source);
 }
 
 //-----------------------------------------------------------------------------
@@ -451,7 +457,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
             e.tNeg = (flip ? (1-t) : t);
             }
           }
-        } //if lying on image
+        } //if laying on image
       } //for all x-intersection points
     } //if x-intersections
 
@@ -500,7 +506,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
             e.tNeg = (flip ? (1-t) : t);
             }
           }
-        } //if lying on image
+        } //if laying on image
       } //for all x-intersection points
     } //if x-intersections
 

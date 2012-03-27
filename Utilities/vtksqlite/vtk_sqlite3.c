@@ -48984,7 +48984,7 @@ static int vdbeCommit(vtk_sqlite3 *db, Vdbe *p){
     ** deleting or truncating journals. If something goes wrong while
     ** this is happening we don't really care. The integrity of the
     ** transaction is already guaranteed, but some stray 'cold' journals
-    ** may be lying around. Returning an error code won't help matters.
+    ** may be laying around. Returning an error code won't help matters.
     */
     disable_simulated_io_errors();
     vtk_sqlite3BeginBenignMalloc();

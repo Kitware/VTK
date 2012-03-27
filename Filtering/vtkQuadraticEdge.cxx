@@ -245,7 +245,7 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
   double dydt = x0[1]*derivs[0] + x1[1]*derivs[1] + x2[1]*derivs[2];
   double dzdt = x0[2]*derivs[0] + x1[2]*derivs[1] + x2[2]*derivs[2];
   
-  // Compute the psuedo inverse (we are dealing with an overconstrained system,
+  // Compute the pseudo inverse (we are dealing with an overconstrained system,
   // i.e., a non-square Jacobian matrix). The pseudo inverse is ((jT*j)-1)*jT
   // with jT Jacobian transpose, -1 notation means inverse.
   // Compute jT * j

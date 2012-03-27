@@ -17,8 +17,8 @@ vtkImageReader2 reader
   reader UpdateWholeExtent
 
 # Calculate the center of the volume
-[reader GetOutput] UpdateInformation
-set extent [[reader GetOutput] GetWholeExtent]
+reader Update
+set extent [[reader GetExecutive] GetWholeExtent [reader GetOutputInformation 0]]
 set spacing [[reader GetOutput] GetSpacing]
 set origin [[reader GetOutput] GetOrigin]
 
@@ -101,7 +101,7 @@ vtkImageMapToColors color
 
 # Display the image
 vtkImageActor actor
-  actor SetInput [color GetOutput]
+  [actor GetMapper] SetInputConnection [color GetOutputPort]
 
 vtkRenderer renderer
   renderer AddActor actor
@@ -137,7 +137,7 @@ proc MouseMoveCallback {} {
     global action
     if {$action == "Slicing"} {
         set deltaY [expr [lindex $currPos 1] - [lindex $lastPos 1]]
-        [reslice GetOutput] UpdateInformation
+        reslice Update
         set spacing [[reslice GetOutput] GetSpacing]
         set sliceSpacing [lindex $spacing 2]
         set matrix [reslice GetResliceAxes]

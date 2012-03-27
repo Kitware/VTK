@@ -12,7 +12,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # data array as well as the scalar and vector.  (here function 153 is
 # named "Velocity Magnitude").Later this data array will be used to
 # color the isosurface.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
@@ -20,12 +20,13 @@ pl3d.SetVectorFunctionNumber(202)
 pl3d.AddFunction(153)
 pl3d.Update()
 pl3d.DebugOn()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
     
 # The contour filter uses the labeled scalar (function number 100
 # above to generate the contour surface; all other data is
 # interpolated during the contouring process.
 iso = vtk.vtkContourFilter()
-iso.SetInputConnection(pl3d.GetOutputPort())
+iso.SetInputData(pl3d_output)
 iso.SetValue(0, .24)
 
 normals = vtk.vtkPolyDataNormals()
@@ -46,7 +47,7 @@ isoActor.SetMapper(isoMapper)
 isoActor.SetNumberOfCloudPoints(1000)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

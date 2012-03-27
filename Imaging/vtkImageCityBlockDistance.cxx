@@ -31,7 +31,8 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 //----------------------------------------------------------------------------
 void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData,
                                                       int* uExt,
-                                                      int* wholeExtent)
+                                                      int* wholeExtent,
+                                                      vtkInformation* outInfo)
 {
   int updateExtent[6], idx;
   
@@ -42,7 +43,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData,
     updateExtent[idx*2+1] = wholeExtent[idx*2+1];
     }
   outData->SetExtent(updateExtent);
-  outData->AllocateScalars();
+  outData->AllocateScalars(outInfo);
 }
 
 
@@ -66,7 +67,7 @@ int vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
 
 
 //----------------------------------------------------------------------------
-// This is writen as a 1D execute method, but is called several times.
+// This is written as a 1D execute method, but is called several times.
 int vtkImageCityBlockDistance::IterativeRequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
@@ -81,7 +82,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   int *uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   int *wExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-  this->AllocateOutputScalars(outData, uExt, wExt);
+  this->AllocateOutputScalars(outData, uExt, wExt, outInfo);
   
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;

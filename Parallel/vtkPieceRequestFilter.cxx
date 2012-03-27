@@ -44,23 +44,15 @@ vtkDataObject* vtkPieceRequestFilter::GetOutput(int port)
 }
 
 //----------------------------------------------------------------------------
-void vtkPieceRequestFilter::SetInput(vtkDataObject* input)
+void vtkPieceRequestFilter::SetInputData(vtkDataObject* input)
 {
-  this->SetInput(0, input);
+  this->SetInputData(0, input);
 }
 
 //----------------------------------------------------------------------------
-void vtkPieceRequestFilter::SetInput(int index, vtkDataObject* input)
+void vtkPieceRequestFilter::SetInputData(int index, vtkDataObject* input)
 {
-  if(input)
-    {
-    this->SetInputConnection(index, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(index, 0);
-    }
+  this->SetInputDataInternal(index, input);
 }
 
 //----------------------------------------------------------------------------
@@ -113,7 +105,7 @@ int vtkPieceRequestFilter::RequestDataObject(
       if (!output || !output->IsA(input->GetClassName())) 
         {
         vtkDataObject* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation(info);
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }

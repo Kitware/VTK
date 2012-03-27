@@ -45,7 +45,7 @@ public:
     this->Extractor->Update();
     vtkMultiBlockDataSet* outMB = vtkMultiBlockDataSet::SafeDownCast( this->Extractor->GetOutput() );
     vtkUnstructuredGrid* selection = vtkUnstructuredGrid::SafeDownCast( outMB->GetBlock( 0 ) );
-    this->Mapper->SetInput( selection );
+    this->Mapper->SetInputData( selection );
 
     // Update cardinality of selection
     vtksys_ios::ostringstream txt;
@@ -117,7 +117,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   // Create broken line widget, attach it to input mesh
   vtkSmartPointer<vtkBrokenLineWidget> line = vtkSmartPointer<vtkBrokenLineWidget>::New();
   line->SetInteractor( iren );
-  line->SetInput( mesh );
+  line->SetInputData( mesh );
   line->SetPriority( 1. );
   line->KeyPressActivationOff();
   line->PlaceWidget();
@@ -136,7 +136,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkPolyData> linePD = vtkSmartPointer<vtkPolyData>::New();
   line->GetPolyData( linePD );
   vtkSmartPointer<vtkPolyDataMapper> lineMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  lineMapper->SetInput( linePD );
+  lineMapper->SetInputData( linePD );
   vtkSmartPointer<vtkActor> lineActor = vtkSmartPointer<vtkActor>::New();
   lineActor->SetMapper( lineMapper );
   lineActor->GetProperty()->SetColor( 1., 0., 0. );
@@ -145,14 +145,14 @@ int TestBrokenLineWidget( int argc, char *argv[] )
 
   // Create selection along broken line defined by list of points
   vtkSmartPointer<vtkLinearSelector> selector = vtkSmartPointer<vtkLinearSelector>::New();
-  selector->SetInput( meshMB );
+  selector->SetInputData( meshMB );
   selector->SetPoints( points );
   selector->IncludeVerticesOff();
   selector->SetVertexEliminationTolerance( 1.e-12 );
 
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> extractor = vtkSmartPointer<vtkExtractSelection>::New();
-  extractor->SetInput( 0, meshMB );
+  extractor->SetInputData( 0, meshMB );
   extractor->SetInputConnection( 1, selector->GetOutputPort() );
   extractor->Update();
   vtkMultiBlockDataSet* outMB = vtkMultiBlockDataSet::SafeDownCast( extractor->GetOutput() );
@@ -160,7 +160,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
 
   // Create selection actor
   vtkSmartPointer<vtkDataSetMapper> selMapper = vtkSmartPointer<vtkDataSetMapper>::New();
-  selMapper->SetInput( selection );
+  selMapper->SetInputData( selection );
   vtkSmartPointer<vtkActor> selActor = vtkSmartPointer<vtkActor>::New();
   selActor->SetMapper( selMapper );
   selActor->GetProperty()->SetColor( 0., 0., 0. );

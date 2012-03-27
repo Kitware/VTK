@@ -5,7 +5,7 @@ package require vtk
 # This script tests the clamp overflow feature.
 
 vtkImageReader reader
-[reader GetOutput] ReleaseDataFlagOff
+[reader GetExecutive] SetReleaseDataFlag 0 0
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 63 0 63 1 93
 reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"

@@ -33,34 +33,25 @@ class VTK_FILTERING_EXPORT vtkAtom
 
   // Description:
   // Return the Id used to identify this atom in the parent molecule.
-  vtkIdType GetId()
-  {
-    return this->Id;
-  }
+  vtkIdType GetId() const;
 
   // Description:
   // Return the parent molecule of this atom.
-  vtkMolecule * GetMolecule()
-  {
-    return this->Molecule;
-  }
+  vtkMolecule * GetMolecule();
 
   // Description:
   // Get/Set the atomic number of this atom
-  unsigned short GetAtomicNumber();
+  unsigned short GetAtomicNumber() const;
   void SetAtomicNumber(unsigned short atomicNum);
 
   // Description:
   // Get/Set the position of this atom
-  void GetPosition(double pos[3]);
-  void SetPosition(const double pos[3]);
-  void GetPosition(float pos[3]);
+  void GetPosition(float pos[3]) const;
+  void GetPosition(double pos[3]) const;
   void SetPosition(const float pos[3]);
   void SetPosition(float x, float y, float z);
-  vtkVector3f GetPositionAsVector3f();
+  vtkVector3f GetPosition() const;
   void SetPosition(const vtkVector3f &pos);
-  vtkVector3d GetPositionAsVector3d();
-  void SetPosition(const vtkVector3d &pos);
 
  protected:
   friend class vtkMolecule;
@@ -70,5 +61,15 @@ class VTK_FILTERING_EXPORT vtkAtom
   vtkMolecule *Molecule;
   vtkIdType Id;
 };
+
+inline vtkIdType vtkAtom::GetId() const
+{
+  return this->Id;
+}
+
+inline vtkMolecule * vtkAtom::GetMolecule()
+{
+  return this->Molecule;
+}
 
 #endif

@@ -406,7 +406,7 @@ static int pop_buffer();
                      yylval.str = vtkstrndup(yytext, yyleng);
                      return(ISTREAM); }
 
-("vtkStdString"|("vtkstd::"|"std::")?"string"\[^a-zA-Z_]) {
+("vtkStdString"|("vtkstd::"|"std::")?"string")/[^a-zA-Z0-9_] {
                      yylval.str = vtkstrndup(yytext, yyleng);
                      return(StdString); }
 

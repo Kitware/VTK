@@ -319,7 +319,7 @@ void vtkCompositeControlPointsItem::MergeTransferFunctions()
     this->OpacityFunction->GetNodeValue(i, piecewisePoint);
     double rgb[3];
     this->ColorTransferFunction->GetColor(piecewisePoint[0], rgb);
-    // note that we might loose the midpoint/sharpness of the point if any
+    // note that we might lose the midpoint/sharpness of the point if any
     this->ColorTransferFunction->RemovePoint(piecewisePoint[0]);
     this->ColorTransferFunction->AddRGBPoint(piecewisePoint[0], rgb[0], rgb[1], rgb[2], piecewisePoint[2], piecewisePoint[3]);
     }
@@ -330,7 +330,7 @@ void vtkCompositeControlPointsItem::MergeTransferFunctions()
     double xrgbms[6];
     this->ColorTransferFunction->GetNodeValue(i, xrgbms);
     double value = this->OpacityFunction->GetValue(xrgbms[0]);
-    // note that we might loose the midpoint/sharpness of the point if any
+    // note that we might lose the midpoint/sharpness of the point if any
     this->OpacityFunction->RemovePoint(xrgbms[0]);
     this->OpacityFunction->AddPoint(xrgbms[0], value, xrgbms[4], xrgbms[5]);
     }

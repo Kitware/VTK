@@ -41,23 +41,33 @@ void vtkBond::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Molecule: " << this->Molecule
      << " Id: " << this->Id
-     << " Order: " << this->GetBondOrder()
-     << " Length: " << this->GetBondLength()
+     << " Order: " << this->GetOrder()
+     << " Length: " << this->GetLength()
      << " BeginAtomId: " << this->BeginAtomId
      << " EndAtomId: " << this->EndAtomId << endl;
 }
 
 //----------------------------------------------------------------------------
-double vtkBond::GetBondLength()
+double vtkBond::GetLength() const
 {
   // Reimplement here to avoid the potential cost of building the EdgeList
   // (We already know the atomIds, no need to look them up)
-  vtkVector3d pos1 =
-      this->Molecule->GetAtomPositionAsVector3d(this->BeginAtomId);
-  vtkVector3d pos2 =
-      this->Molecule->GetAtomPositionAsVector3d(this->EndAtomId);
+  vtkVector3f pos1 = this->Molecule->GetAtomPosition(this->BeginAtomId);
+  vtkVector3f pos2 = this->Molecule->GetAtomPosition(this->EndAtomId);
 
   return (pos2 - pos1).Norm();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBond::GetBeginAtomId() const
+{
+  return this->BeginAtomId;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBond::GetEndAtomId() const
+{
+  return this->EndAtomId;
 }
 
 //----------------------------------------------------------------------------
@@ -73,115 +83,19 @@ vtkAtom vtkBond::GetEndAtom()
 }
 
 //----------------------------------------------------------------------------
-unsigned short vtkBond::GetBondOrder()
+const vtkAtom vtkBond::GetBeginAtom() const
+{
+  return this->Molecule->GetAtom(this->BeginAtomId);
+}
+
+//----------------------------------------------------------------------------
+const vtkAtom vtkBond::GetEndAtom() const
+{
+  return this->Molecule->GetAtom(this->EndAtomId);
+}
+
+//----------------------------------------------------------------------------
+unsigned short vtkBond::GetOrder()
 {
   return this->Molecule->GetBondOrder(this->Id);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::GetBeginAtomPosition(double pos[3])
-{
-  this->Molecule->GetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetBeginAtomPosition(const double pos[3])
-{
-  this->Molecule->SetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::GetEndAtomPosition(double pos[3])
-{
-  this->Molecule->GetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetEndAtomPosition(const double pos[3])
-{
-  this->Molecule->SetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::GetBeginAtomPosition(float pos[3])
-{
-  this->Molecule->GetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetBeginAtomPosition(const float pos[3])
-{
-  this->Molecule->SetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::GetEndAtomPosition(float pos[3])
-{
-  this->Molecule->GetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetEndAtomPosition(const float pos[3])
-{
-  this->Molecule->SetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetBeginAtomPosition(double x, double y, double z)
-{
-  this->Molecule->SetAtomPosition(this->BeginAtomId, x, y, z);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetEndAtomPosition(double x, double y, double z)
-{
-  this->Molecule->SetAtomPosition(this->EndAtomId, x, y, z);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetBeginAtomPosition(const vtkVector3f &pos)
-{
-  this->Molecule->SetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3f vtkBond::GetBeginAtomPositionAsVector3f()
-{
-  return this->Molecule->GetAtomPositionAsVector3f(this->BeginAtomId);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetEndAtomPosition(const vtkVector3f &pos)
-{
-  this->Molecule->SetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3f vtkBond::GetEndAtomPositionAsVector3f()
-{
-  return this->Molecule->GetAtomPositionAsVector3f(this->EndAtomId);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetBeginAtomPosition(const vtkVector3d &pos)
-{
-  this->Molecule->SetAtomPosition(this->BeginAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3d vtkBond::GetBeginAtomPositionAsVector3d()
-{
-  return this->Molecule->GetAtomPositionAsVector3d(this->BeginAtomId);
-}
-
-//----------------------------------------------------------------------------
-void vtkBond::SetEndAtomPosition(const vtkVector3d &pos)
-{
-  this->Molecule->SetAtomPosition(this->EndAtomId, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3d vtkBond::GetEndAtomPositionAsVector3d()
-{
-  return this->Molecule->GetAtomPositionAsVector3d(this->EndAtomId);
 }

@@ -34,6 +34,7 @@ class vtkTable;
 class vtkAxis;
 class vtkAnnotationLink;
 class vtkTextProperty;
+class vtkTooltipItem;
 class vtkRenderWindowInteractor;
 
 class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
@@ -74,7 +75,13 @@ public:
   // Description:
   // Get the active AnnotationLink from the big chart, which
   // is the only active AnnotationLink in the matrix.
-  vtkAnnotationLink* GetActiveAnnotationLink();
+  // @deprecated Replaced by GetAnnotationLink(), never in a VTK release.
+  VTK_LEGACY(vtkAnnotationLink* GetActiveAnnotationLink());
+
+  // Description:
+  // Get the AnnotationLink for the scatter plot matrix, this gives you access
+  // to the currently selected points in the scatter plot matrix.
+  vtkAnnotationLink* GetAnnotationLink();
 
   // Description:
   // Set the input table for the scatter plot matrix. This will cause all
@@ -220,6 +227,22 @@ public:
   int GetTooltipPrecision(int plotType);
 
   // Description:
+  // Set the vtkTooltipItem object that will be displayed by the active chart.
+  void SetTooltip(vtkTooltipItem *tooltip);
+
+  // Description:
+  // Get the vtkTooltipItem object that will be displayed by the active chart.
+  vtkTooltipItem* GetTooltip() const;
+
+  // Description:
+  // Set indexed labels array.
+  void SetIndexedLabels(vtkStringArray *labels);
+
+  // Description:
+  // Get the indexed labels array.
+  vtkStringArray* GetIndexedLabels() const;
+
+  // Description:
   // Set the scatter plot selected row/column charts' background color.
   void SetScatterPlotSelectedRowColumnColor(const vtkColor4ub& color);
   vtkColor4ub GetScatterPlotSelectedRowColumnColor();
@@ -243,6 +266,14 @@ public:
   // SELECTION_DEFAULT, SELECTION_ADDITION, SELECTION_SUBTRACTION, SELECTION_TOGGLE
   virtual void SetSelectionMode(int);
   vtkGetMacro(SelectionMode, int);
+
+  // Description:
+  // Get the column name for the supplied index.
+  vtkStdString GetColumnName(int column);
+
+  // Description:
+  // Get the column name for the supplied index.
+  vtkStdString GetRowName(int row);
 
 protected:
   vtkScatterPlotMatrix();
@@ -273,8 +304,14 @@ protected:
   // animation path calculated above.
   virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
 
-  class PIMPL;
-  PIMPL *Private;
+  // Description:
+  // Advance the animation in response to the timer events.
+  virtual void AdvanceAnimation();
+
+  // Description:
+  // Process events and dispatch to the appropriate member functions.
+  static void ProcessEvents(vtkObject *caller, unsigned long event,
+                            void *clientData, void *callerData);
 
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
@@ -298,6 +335,15 @@ protected:
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.
   void operator=(const vtkScatterPlotMatrix &); // Not implemented.
+
+  class PIMPL;
+  PIMPL *Private;
+  friend class PIMPL;
+
+  // Go through the process of calculating axis ranges, etc...
+  void UpdateAxes();
+  void ApplyAxisSetting(vtkChart *chart, const vtkStdString &x,
+                        const vtkStdString &y);
 };
 
 #endif //__vtkScatterPlotMatrix_h

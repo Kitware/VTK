@@ -113,7 +113,7 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Storage->SpriteTexture = vtkTexture::New();
         this->Storage->SpriteTexture->SetRepeat(false);
         }
-      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -146,15 +146,15 @@ void vtkOpenGL2ContextDevice2D::DrawImage(float p[2], float scale,
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
-  float points[] = { p[0]                    , p[1],
-                     p[0]+scale*extent[1]+1.0, p[1],
-                     p[0]+scale*extent[1]+1.0, p[1]+scale*extent[3]+1.0,
-                     p[0]                    , p[1]+scale*extent[3]+1.0 };
+  float points[] = { p[0]                     , p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1]+scale*extent[3]+1.0f,
+                     p[0]                     , p[1]+scale*extent[3]+1.0f };
 
-  float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+  float texCoord[] = { 0.0f, 0.0f,
+                       1.0f, 0.0f,
+                       1.0f, 1.0f,
+                       0.0f, 1.0f };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);

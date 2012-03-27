@@ -74,9 +74,9 @@ void vtkProbeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 }
  
 //----------------------------------------------------------------------------
-void vtkProbeFilter::SetSource(vtkDataObject *input)
+void vtkProbeFilter::SetSourceData(vtkDataObject *input)
 {
-  this->SetInput(1, input);
+  this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
@@ -187,19 +187,6 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   // nulls whenever we have a miss when probing.
   this->UseNullPoint = true;
 
-  // BUG FIX: JB.
-  // Output gets setup from input, but when output is imagedata, scalartype
-  // depends on source scalartype not input scalartype
-  if (output->IsA("vtkImageData"))
-    {
-    vtkImageData *out = static_cast<vtkImageData *>(output);
-    vtkDataArray *s = outPD->GetScalars();
-    if (s)
-      {
-      out->SetScalarType(s->GetDataType());
-      out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -397,6 +384,21 @@ int vtkProbeFilter::RequestInformation(
       }
     }
 
+  // A variation of the bug fix from John Biddiscombe.
+  // Make sure that the scalar type and number of components
+  // are propagated from the source not the input.
+  if (vtkImageData::HasScalarType(sourceInfo))
+    {
+    vtkImageData::SetScalarType(vtkImageData::GetScalarType(sourceInfo),
+                                outInfo);
+    }
+  if (vtkImageData::HasNumberOfScalarComponents(sourceInfo))
+    {
+    vtkImageData::SetNumberOfScalarComponents(
+      vtkImageData::GetNumberOfScalarComponents(sourceInfo),
+      outInfo);
+    }
+
   return 1;
 }
 
@@ -413,7 +415,7 @@ int vtkProbeFilter::RequestUpdateExtent(
 
   int usePiece = 0;
 
-  // What ever happend to CopyUpdateExtent in vtkDataObject?
+  // What ever happened to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());

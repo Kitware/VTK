@@ -29,6 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGlyph3D);
@@ -142,7 +143,8 @@ int vtkGlyph3D::RequestData(
   int numberOfSources = this->GetNumberOfInputConnections(1);
   vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
-  vtkPolyData *source = 0;
+  vtkPolyData *source = this->GetSource(0, inputVector[1]);
+;
 
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -208,7 +210,7 @@ int vtkGlyph3D::RequestData(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
-    if ( this->GetSource(0, inputVector[1]) == NULL )
+    if ( !source )
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -228,7 +230,7 @@ int vtkGlyph3D::RequestData(
   outputPD->CopyNormalsOff();
   outputPD->CopyTCoordsOff();
 
-  if (!this->GetSource(0, inputVector[1]))
+  if (!source)
     {
     defaultSource = vtkPolyData::New();
     defaultSource->Allocate();
@@ -241,12 +243,11 @@ int vtkGlyph3D::RequestData(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->SetUpdateExtent(0, 1, 0);
-    this->SetSource(defaultSource);
     defaultSource->Delete();
     defaultSource = NULL;
     defaultPoints->Delete();
     defaultPoints = NULL;
+    source = defaultSource;
     }
   
   if ( this->IndexMode != VTK_INDEXING_OFF )
@@ -275,7 +276,6 @@ int vtkGlyph3D::RequestData(
     }
   else
     {
-    source = this->GetSource(0, inputVector[1]);
     sourcePts = source->GetPoints();
     numSourcePts = sourcePts->GetNumberOfPoints();
     numSourceCells = source->GetNumberOfCells();
@@ -372,7 +372,7 @@ int vtkGlyph3D::RequestData(
     }
   else
     {
-    output->Allocate(this->GetSource(0, inputVector[1]),
+    output->Allocate(source,
                      3*numPts*numSourceCells, numPts*numSourceCells);
     }
 
@@ -476,7 +476,7 @@ int vtkGlyph3D::RequestData(
       index = static_cast<int>((value - this->Range[0])*numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
-      
+
       source = this->GetSource(index, inputVector[1]);
       if ( source != NULL )
         {
@@ -488,7 +488,7 @@ int vtkGlyph3D::RequestData(
       }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->GetSource(index, inputVector[1]) == NULL )
+    if ( !source )
       {
       continue;
       }
@@ -517,7 +517,7 @@ int vtkGlyph3D::RequestData(
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = this->GetSource(index, inputVector[1])->GetCell(cellId);
+      cell = source->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++) 
@@ -732,36 +732,42 @@ void vtkGlyph3D::SetSourceConnection(int id, vtkAlgorithmOutput* algOutput)
 
 //----------------------------------------------------------------------------
 // Specify a source object at a specified table location.
-void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
+void vtkGlyph3D::SetSourceData(int id, vtkPolyData *pd)
 {
-  if (id < 0)
+  int numConnections = this->GetNumberOfInputConnections(1);
+
+  if (id < 0 || id > numConnections)
     {
     vtkErrorMacro("Bad index " << id << " for source.");
     return;
     }
 
-  int numConnections = this->GetNumberOfInputConnections(1);
-  vtkAlgorithmOutput *algOutput = 0;
+  vtkTrivialProducer* tp = 0;
   if (pd)
     {
-    algOutput = pd->GetProducerPort();
-    }
-  else
-    {
-    vtkErrorMacro("Cannot set NULL source.");
-    return;
+    tp = vtkTrivialProducer::New();
+    tp->SetOutput(pd);
     }
 
   if (id < numConnections)
     {
-    if (algOutput)
+    if (tp)
       {
-      this->SetNthInputConnection(1, id, algOutput);
+      this->SetNthInputConnection(1, id, tp->GetOutputPort());
+      }
+    else
+      {
+      this->SetNthInputConnection(1, id, 0);
       }
     }
-  else if (id == numConnections && algOutput)
+  else if (id == numConnections && tp)
     {
-    this->AddInputConnection(1, algOutput);
+    this->AddInputConnection(1, tp->GetOutputPort());
+    }
+
+  if (tp)
+    {
+    tp->Delete();
     }
 }
 

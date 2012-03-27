@@ -73,7 +73,7 @@ vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
 vtkVector2i vtkFreeTypeStringToImage::GetBounds(vtkTextProperty *property,
                                                 const vtkStdString& string)
 {
-  vtkVector2i recti;
+  vtkVector2i recti(0, 0);
   int tmp[4];
   if (!property || string.empty())
     {

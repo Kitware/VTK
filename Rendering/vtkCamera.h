@@ -373,20 +373,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates of a point located inside the frustum are in the
   // range ([-1,+1],[-1,+1],[nearz,farz]).
-  // WARNING: the name of the method is wrong, it should be
-  // GetProjectionTransformMatrix() (it is used also in parallel projection)
-  // @deprecated Replaced by GetProjectionTransformMatrix() as of VTK 5.4.
-  VTK_LEGACY(virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
-                                                                 double nearz,
-                                                                 double farz));
-
-  // Description:
-  // Return the projection transform matrix, which converts from camera
-  // coordinates to viewport coordinates.  The 'aspect' is the
-  // width/height for the viewport, and the nearz and farz are the
-  // Z-buffer values that map to the near and far clipping planes.
-  // The viewport coordinates of a point located inside the frustum are in the
-  // range ([-1,+1],[-1,+1],[nearz,farz]).
    virtual vtkMatrix4x4 *GetProjectionTransformMatrix(double aspect,
                                                       double nearz,
                                                       double farz);
@@ -401,25 +387,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   virtual vtkPerspectiveTransform *GetProjectionTransformObject(double aspect,
                                                                 double nearz,
                                                                 double farz);
-
-
-  // Description:
-  // Return the concatenation of the ViewTransform and the
-  // ProjectionTransform.  This transform will convert world
-  // coordinates to viewport coordinates.  The 'aspect' is the
-  // width/height for the viewport, and the nearz and farz are the
-  // Z-buffer values that map to the near and far clipping planes.
-  // The viewport coordinates of a point located inside the frustum are in the
-  // range ([-1,+1],[-1,+1],[nearz,farz]).
-  // WARNING: the name of the method is wrong, it should be
-  // GetCompositeProjectionTransformMatrix() (it is used also in parallel
-  // projection)
-  // @deprecated Replaced by GetCompositeProjectionTransformMatrix() as of
-  // VTK 5.4.
-  VTK_LEGACY(virtual vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(
-               double aspect,
-               double nearz,
-               double farz));
 
   // Description:
   // Return the concatenation of the ViewTransform and the
@@ -479,12 +446,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   double *GetOrientationWXYZ();
 
   // Description:
-  // @deprecated The view plane normal is automatically set from the
-  // DirectionOfProjection according to the ViewShear.
-  VTK_LEGACY(void SetViewPlaneNormal(double x, double y, double z));
-  VTK_LEGACY(void SetViewPlaneNormal(const double a[3]));
-
-  // Description:
   // This method is called automatically whenever necessary, it
   // should never be used outside of vtkCamera.cxx.
   void ComputeViewPlaneNormal();
@@ -518,6 +479,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // \pre not_this: source!=this
   void DeepCopy(vtkCamera *source);
 
+  // Description:
+  // Set/Get the value of the FreezeDolly instance variable. This
+  // determines if the camera should move the focal point with the camera position.
+  // HACK!!!
+  vtkSetMacro(FreezeFocalPoint,bool);
+  vtkGetMacro(FreezeFocalPoint,bool);
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -526,21 +493,6 @@ protected:
   // These methods should only be used within vtkCamera.cxx.
   void ComputeDistance();
   void ComputeViewTransform();
-
-#ifndef VTK_LEGACY_REMOVE
-  // Description:
-  // @deprecated Replaced by ComputeProjectionTransform() as of VTK 5.4.
-  void ComputePerspectiveTransform(double aspect,
-                                   double nearz,
-                                   double farz);
-
-  // Description:
-  // @deprecated Replaced by ComputeCompositeProjectionTransform() as of
-  // VTK 5.4.
-  void ComputeCompositePerspectiveTransform(double aspect,
-                                            double nearz,
-                                            double farz);
-#endif
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.
@@ -631,7 +583,7 @@ protected:
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
-
+  bool FreezeFocalPoint;
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
   void operator=(const vtkCamera&);  // Not implemented.

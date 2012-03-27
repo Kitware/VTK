@@ -52,16 +52,16 @@ public:
   // Set the input, we are expecting a vtkImageData with just one component,
   // this would normally be a float or a double. It will be passed to the other
   // functions as a double to generate a color.
-  virtual void SetInput(vtkImageData *data, vtkIdType z = 0);
-  virtual void SetInput(vtkTable*) { }
-  virtual void SetInput(vtkTable*, const vtkStdString&, const vtkStdString&) { }
+  virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
+  virtual void SetInputData(vtkTable*) { }
+  virtual void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&) { }
 
   // Description:
   // Get the input table used by the plot.
   vtkImageData * GetInputImageData();
 
   // Description:
-  // Set the color transfer funtion that will be used to generate the 2D
+  // Set the color transfer function that will be used to generate the 2D
   // histogram.
   void SetTransferFunction(vtkScalarsToColors *transfer);
 

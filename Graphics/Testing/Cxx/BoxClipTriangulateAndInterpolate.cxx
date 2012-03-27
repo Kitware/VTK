@@ -219,67 +219,67 @@ int BoxClipTriangulateAndInterpolate(int argc, char *argv[])
   CreateLine(line);
 
   VTK_CREATE(vtkBoxClipDataSet, clip00);
-  clip00->SetInput(hex);
+  clip00->SetInputData(hex);
   clip00->SetBoxClip(0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip00, 0, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip01);
-  clip01->SetInput(hex);
+  clip01->SetInputData(hex);
   clip01->GenerateClippedOutputOn();
   clip01->SetBoxClip(0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip01, 0, 1);
 
   VTK_CREATE(vtkBoxClipDataSet, clip10);
-  clip10->SetInput(hex);
+  clip10->SetInputData(hex);
   SetClipAsHexahedron(clip10, 0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip10, 1, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip11);
-  clip11->SetInput(hex);
+  clip11->SetInputData(hex);
   clip11->GenerateClippedOutputOn();
   SetClipAsHexahedron(clip11, 0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip11, 1, 1);
 
   VTK_CREATE(vtkBoxClipDataSet, clip20);
-  clip20->SetInput(quad);
+  clip20->SetInputData(quad);
   clip20->SetBoxClip(0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip20, 2, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip21);
-  clip21->SetInput(quad);
+  clip21->SetInputData(quad);
   clip21->GenerateClippedOutputOn();
   clip21->SetBoxClip(0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip21, 2, 1);
 
   VTK_CREATE(vtkBoxClipDataSet, clip30);
-  clip30->SetInput(quad);
+  clip30->SetInputData(quad);
   SetClipAsHexahedron(clip30, 0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip30, 3, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip31);
-  clip31->SetInput(quad);
+  clip31->SetInputData(quad);
   clip31->GenerateClippedOutputOn();
   SetClipAsHexahedron(clip31, 0.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip31, 3, 1);
 
   VTK_CREATE(vtkBoxClipDataSet, clip40);
-  clip40->SetInput(line);
+  clip40->SetInputData(line);
   clip40->SetBoxClip(-1.0, 1.0, 0.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip40, 4, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip41);
-  clip41->SetInput(line);
+  clip41->SetInputData(line);
   clip41->GenerateClippedOutputOn();
   clip41->SetBoxClip(-1.0, 1.0, 0.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip41, 4, 1);
 
   VTK_CREATE(vtkBoxClipDataSet, clip50);
-  clip50->SetInput(line);
+  clip50->SetInputData(line);
   SetClipAsHexahedron(clip50, -1.0, 1.0, 0.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip50, 5, 0);
 
   VTK_CREATE(vtkBoxClipDataSet, clip51);
-  clip51->SetInput(line);
+  clip51->SetInputData(line);
   clip51->GenerateClippedOutputOn();
   SetClipAsHexahedron(clip51, -1.0, 1.0, 0.0, 1.0, -1.0, 1.0);
   AddToRenderWindow(renwin, clip51, 5, 1);

@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkExtractLevel.h"
 
-#include "vtkHierarchicalBoxDataSet.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkAMRBox.h"
+#include "vtkUniformGridAMR.h"
 
 #include <set>
 
@@ -61,83 +62,83 @@ void vtkExtractLevel::RemoveAllLevels()
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
+int vtkExtractLevel::FillInputPortInformation(
+    int vtkNotUsed(port), vtkInformation* info )
+{
+  info->Set(
+   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUniformGridAMR");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkExtractLevel::FillOutputPortInformation(
+    int vtkNotUsed(port), vtkInformation *info )
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 int vtkExtractLevel::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+    vtkInformation *vtkNotUsed(request),
+    vtkInformationVector **inputVector,
+    vtkInformationVector *outputVector )
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkHierarchicalBoxDataSet *input = vtkHierarchicalBoxDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) {return 0;}
-
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkHierarchicalBoxDataSet *output = vtkHierarchicalBoxDataSet::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) {return 0;}
-
-  unsigned int numLevels = input->GetNumberOfLevels();
-  output->SetNumberOfLevels(numLevels);
-
-  // copy level meta data.
-  for (unsigned int cc=0; cc < numLevels; cc++)
+  // STEP 0: Get input object
+  vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
+  vtkUniformGridAMR *input =
+   vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if( input == NULL )
     {
-    if (input->HasLevelMetaData(cc))
-      {
-      output->GetLevelMetaData(cc)->Copy(input->GetLevelMetaData(cc));
-      }
+    return( 0 );
     }
 
+  // STEP 1: Get output object
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkMultiBlockDataSet *output =
+      vtkMultiBlockDataSet::SafeDownCast(
+          info->Get(vtkDataObject::DATA_OBJECT()));
+  if( output == NULL )
+    {
+    return( 0 );
+    }
 
-  unsigned int last_level = 0;
+  // STEP 2: Compute the total number of blocks to be loaded
+  unsigned int numBlocksToLoad = 0;
   vtkExtractLevel::vtkSet::iterator iter;
-  for (iter = this->Levels->begin(); iter != this->Levels->end(); ++iter)
+  for( iter =this->Levels->begin(); iter != this->Levels->end(); ++iter )
     {
     unsigned int level = (*iter);
-    last_level = level;
-    unsigned int numDataSets = input->GetNumberOfDataSets(level);
-    output->SetNumberOfDataSets(level, numDataSets);
-    for (unsigned int kk = 0; kk < numDataSets; kk++)
-      {
-      // Copy meta data.
-      if (input->HasMetaData(level, kk))
-        {
-        vtkInformation* copy = output->GetMetaData(level, kk);
-        copy->Copy(input->GetMetaData(level, kk));
-        }
+    numBlocksToLoad += input->GetNumberOfDataSets(level);
+    } // END for all requested levels
+  output->SetNumberOfBlocks( numBlocksToLoad );
 
-      // Copy data object.
-      vtkAMRBox box;
-      vtkUniformGrid* data = input->GetDataSet(level, kk, box);
-      if (data)
-        {
-        vtkUniformGrid* copy = data->NewInstance();
-        copy->ShallowCopy(data);
-        output->SetDataSet(level, kk, box, copy);
-        copy->Delete();
-        }
-      else
-        {
-        output->SetDataSet(level, kk, box, NULL);
-        }
-      }
-    }
-
-  // Last levelfshould not be blanked (uniform grid only)
-  unsigned int numDataSets = output->GetNumberOfDataSets(last_level);
-  for (unsigned int nn=0; nn < numDataSets; nn++)
+  // STEP 3: Load the blocks at the selected levels
+  if( numBlocksToLoad > 0 )
     {
-    vtkAMRBox temp;
-    vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(
-      output->GetDataSet(numLevels-1, nn, temp));
-    if (ug)
+    iter = this->Levels->begin();
+    unsigned int blockIdx = 0;
+    for( ;iter != this->Levels->end(); ++iter )
       {
-      ug->SetCellVisibilityArray(0);
-      }
-    }
+      unsigned int level   = (*iter);
+      unsigned int dataIdx = 0;
+      for(; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx )
+        {
+        vtkUniformGrid* data = input->GetDataSet(level,dataIdx);
+        if( data != NULL )
+          {
+          vtkUniformGrid *copy = data->NewInstance();
+          copy->ShallowCopy( data );
+          output->SetBlock( blockIdx, copy );
+          copy->Delete();
+          ++blockIdx;
+          } // END if data is not NULL
+        } // END for all data at level l
+      } // END for all requested levels
+    } // END if numBlocksToLoad is greater than 0
 
-  return 1;
+  return( 1 );
 }
 
 //----------------------------------------------------------------------------

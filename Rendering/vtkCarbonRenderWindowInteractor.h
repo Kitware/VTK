@@ -29,15 +29,6 @@
 class vtkTDxMacDevice;
 #endif
 
-// The 10.3.9 SDK (and older probably) have a bug in fp.h (in the Carbon
-// umbrella framework) which this works around. Without this, there
-// would be a compile error from the Carbon header if Python wrappings
-// were enabled.
-#include <AvailabilityMacros.h> // Needed for MAC_OS_X_VERSION_MAX_ALLOWED
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
-  #define scalb scalbn
-#endif
-
 #include <Carbon/Carbon.h> // Carbon and Mac specific
 
 class VTK_RENDERING_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor

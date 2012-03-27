@@ -233,7 +233,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
     {
     // Set up a convolution filter.  We are using the Laplacian filter, which
     // is basically an edge detector.  Once vtkgl::CONVOLUTION_2D is enabled,
-    // the filter will be applied any time an image is transfered in the
+    // the filter will be applied any time an image is transferred in the
     // pipeline.
     cout << "Set up convolution filter." << endl;
     vtkgl::ConvolutionFilter2D(vtkgl::CONVOLUTION_2D, GL_LUMINANCE, 3, 3,

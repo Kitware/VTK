@@ -420,7 +420,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
             w->Delete();
             }
           vtkXMLPolyDataWriter::SafeDownCast(this->Internal->Writers[i].GetPointer())
-            ->SetInput(ds);
+            ->SetInputData(ds);
           break;
         case VTK_STRUCTURED_POINTS:
         case VTK_IMAGE_DATA:
@@ -434,7 +434,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
             w->Delete();
             }
           vtkXMLImageDataWriter::SafeDownCast(this->Internal->Writers[i].GetPointer())
-            ->SetInput(ds);
+            ->SetInputData(ds);
           break;
         case VTK_UNSTRUCTURED_GRID:
           if(!this->Internal->Writers[i].GetPointer() ||
@@ -446,7 +446,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
             w->Delete();
             }
           vtkXMLUnstructuredGridWriter::SafeDownCast(
-            this->Internal->Writers[i].GetPointer())->SetInput(ds);
+            this->Internal->Writers[i].GetPointer())->SetInputData(ds);
           break;
         case VTK_STRUCTURED_GRID:
           if(!this->Internal->Writers[i].GetPointer() ||
@@ -458,7 +458,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
             w->Delete();
             }
           vtkXMLStructuredGridWriter::SafeDownCast(
-            this->Internal->Writers[i].GetPointer())->SetInput(ds);
+            this->Internal->Writers[i].GetPointer())->SetInputData(ds);
           break;
         case VTK_RECTILINEAR_GRID:
           if(!this->Internal->Writers[i].GetPointer() ||
@@ -470,7 +470,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
             w->Delete();
             }
           vtkXMLRectilinearGridWriter::SafeDownCast(
-            this->Internal->Writers[i].GetPointer())->SetInput(ds);
+            this->Internal->Writers[i].GetPointer())->SetInputData(ds);
           break;
         default:
           this->Internal->Writers[i] = 0;

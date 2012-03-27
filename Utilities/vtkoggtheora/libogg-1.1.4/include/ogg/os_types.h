@@ -18,7 +18,7 @@
 #define _OS_TYPES_H
 
 /* KITWARE_OGGTHEORA_CHANGE - Added to mangle function names */
-#include "vtk_oggtheora_mangle.h"
+#include <vtkoggtheora/include/vtk_oggtheora_mangle.h>
 
 /* make it easy on the folks that want to compile the libs with a
    different malloc than stdlib */

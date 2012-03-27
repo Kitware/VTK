@@ -135,6 +135,8 @@ vtkCamera::vtkCamera()
   this->ComputeViewTransform();
   this->ComputeDistance();
   this->ComputeCameraLightTransform();
+
+  this->FreezeFocalPoint = false;
 }
 
 //----------------------------------------------------------------------------
@@ -446,7 +448,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
     E[0] += this->EyeSeparation / 2.0;
     }
 
-  // First tranform the eye to new position.
+  // First transform the eye to new position.
   this->EyeTransformMatrix->MultiplyPoint(E, E);
 
   // Now transform the eye and screen corner points into the screen
@@ -983,18 +985,6 @@ void vtkCamera::SetViewShear(double d[3])
   this->SetViewShear(d[0], d[1], d[2]);
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-// Compute the projection transform matrix. This is used in converting
-// between view and world coordinates.
-void vtkCamera::ComputePerspectiveTransform(double aspect,
-                                            double nearz, double farz)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCamera::ComputePerspectiveTransform,"VTK 5.4",vtkCamera::ComputeProjectionTransform);
-  this->ComputeProjectionTransform(aspect,nearz,farz);
-}
-#endif
-
 //----------------------------------------------------------------------------
 // Compute the projection transform matrix. This is used in converting
 // between view and world coordinates.
@@ -1084,19 +1074,6 @@ void vtkCamera::ComputeProjectionTransform(double aspect,
 
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-// Return the projection transform matrix. See ComputeProjectionTransform.
-vtkMatrix4x4 *vtkCamera::GetPerspectiveTransformMatrix(double aspect,
-                                                       double nearz,
-                                                       double farz)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCamera::GetPerspectiveTransformMatrix,"VTK 5.4",
-                           vtkCamera::GetProjectionTransformMatrix);
-  return this->GetProjectionTransformMatrix(aspect,nearz,farz);
-}
-#endif
-
 //----------------------------------------------------------------------------
 // Return the projection transform matrix. See ComputeProjectionTransform.
 vtkMatrix4x4 *vtkCamera::GetProjectionTransformMatrix(double aspect,
@@ -1120,20 +1097,6 @@ vtkPerspectiveTransform *vtkCamera::GetProjectionTransformObject(double aspect,
   // return the transform
   return this->ProjectionTransform;
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-// Return the projection transform matrix. See ComputeProjectionTransform.
-vtkMatrix4x4 *vtkCamera::GetCompositePerspectiveTransformMatrix(double aspect,
-                                                                double nearz,
-                                                                double farz)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkCamera::GetCompositePerspectiveTransformMatrix,
-                           "VTK 5.4",
-                           vtkCamera::GetCompositeProjectionTransformMatrix);
-  return this->GetCompositeProjectionTransformMatrix(aspect,nearz,farz);
-}
-#endif
 
 //----------------------------------------------------------------------------
 // Return the projection transform matrix. See ComputeProjectionTransform.
@@ -1189,24 +1152,6 @@ void vtkCamera::ComputeViewPlaneNormal()
     this->ViewPlaneNormal[2] = -this->DirectionOfProjection[2];
     }
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x),
-                                   double vtkNotUsed(y),
-                                   double vtkNotUsed(z))
-{
-  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
-    "the view plane normal is calculated automatically.");
-}
-
-//----------------------------------------------------------------------------
-void vtkCamera::SetViewPlaneNormal(const double [3])
-{
-  vtkWarningMacro(<< "SetViewPlaneNormal:  This method is deprecated, "
-    "the view plane normal is calculated automatically.");
-}
-#endif
 
 //----------------------------------------------------------------------------
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
@@ -1553,6 +1498,15 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   if (this->UserViewTransform)
     {
     os << this->UserViewTransform << "\n";
+    }
+  else
+    {
+    os << "(none)\n";
+    }
+  os << indent << "FreezeFocalPoint: ";
+  if( this->FreezeFocalPoint )
+    {
+    os << this->FreezeFocalPoint << "\n";
     }
   else
     {

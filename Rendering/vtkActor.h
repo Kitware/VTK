@@ -150,15 +150,6 @@ public:
   virtual unsigned long GetRedrawMTime();
 
   // Description:
-  // The following methods are for compatibility. The methods will be deprecated
-  // in the near future. Use vtkProp::GetNextPath() (and related functionality)
-  // to get the parts in an assembly (or more correctly, the paths in the
-  // assembly).
-  VTK_LEGACY(virtual void InitPartTraversal());
-  VTK_LEGACY(virtual vtkActor *GetNextPart());
-  VTK_LEGACY(virtual int GetNumberOfParts());
-
-  // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Used by vtkHardwareSelector to determine if the prop supports hardware

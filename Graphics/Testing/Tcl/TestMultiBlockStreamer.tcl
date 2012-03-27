@@ -16,7 +16,7 @@ renWin AddRenderer Ren1
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
 
-vtkPLOT3DReader Plot3D0
+vtkMultiBlockPLOT3DReader Plot3D0
 Plot3D0 SetFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 Plot3D0 SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
 Plot3D0 SetBinaryFile 1
@@ -26,9 +26,11 @@ Plot3D0 SetIBlanking 0
 Plot3D0 SetTwoDimensionalGeometry 0
 Plot3D0 SetForceRead 0
 Plot3D0 SetByteOrder 0
+Plot3D0 Update
+set output [[Plot3D0 GetOutput] GetBlock 0]
 
 vtkStructuredGridOutlineFilter Geometry5
-Geometry5 SetInputConnection [Plot3D0 GetOutputPort]
+Geometry5 SetInputData $output
 
 vtkPolyDataMapper Mapper5
 Mapper5 SetInputConnection [Geometry5 GetOutputPort]
@@ -51,19 +53,19 @@ Actor5 SetMapper Mapper5
 Ren1 AddActor Actor5
 
 vtkExtractGrid ExtractGrid0
-ExtractGrid0 SetInputConnection [Plot3D0 GetOutputPort]
+ExtractGrid0 SetInputData $output
 ExtractGrid0 SetVOI 0 14 0 32 0 24 
 ExtractGrid0 SetSampleRate 1 1 1 
 ExtractGrid0 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid1
-ExtractGrid1 SetInputConnection [Plot3D0 GetOutputPort]
+ExtractGrid1 SetInputData $output
 ExtractGrid1 SetVOI 14 29 0 32 0 24 
 ExtractGrid1 SetSampleRate 1 1 1 
 ExtractGrid1 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid2
-ExtractGrid2 SetInputConnection [Plot3D0 GetOutputPort]
+ExtractGrid2 SetInputData $output
 ExtractGrid2 SetVOI 29 56 0 32 0 24 
 ExtractGrid2 SetSampleRate 1 1 1 
 ExtractGrid2 SetIncludeBoundary 0
@@ -85,8 +87,8 @@ for {set i 0} {$i<3} {incr i 1} {
 }
 
 vtkStreamTracer Stream0
-Stream0 SetInput mbds
-Stream0 SetSource [LineSourceWidget0 GetOutput]
+Stream0 SetInputData mbds
+Stream0 SetSourceConnection [LineSourceWidget0 GetOutputPort]
 Stream0 SetIntegrationStepUnit 2
 Stream0 SetMaximumPropagation 20
 Stream0 SetInitialIntegrationStep 0.5

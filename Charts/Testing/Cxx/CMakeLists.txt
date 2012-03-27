@@ -18,6 +18,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestColorTransferFunction.cxx
       TestChartMatrix.cxx
       TestChartsOn3D.cxx
+      TestChartXYZ.cxx
       TestContext.cxx
       TestContextImage.cxx
       TestControlPointsHandleItem.cxx
@@ -39,6 +40,7 @@ IF(VTK_USE_RENDERING AND VTK_USE_VIEWS)
       TestScalarsToColors.cxx
       TestScatterPlot.cxx
       TestScatterPlotMatrix.cxx
+      TestScatterPlotMatrixVehicles.cxx
       TestScatterPlotMatrixVisible.cxx
       TestScientificPlot.cxx
       TestStackedBarGraph.cxx

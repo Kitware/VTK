@@ -101,13 +101,13 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     VTK_CREATE( vtkPolygonalSurfacePointPlacer, pointPlacer );
     pointPlacer->AddProp(demActor);
     pointPlacer->GetPolys()->AddItem( demPolys );
-    pointPlacer->SetDistanceOffset( heightOffsetAboveSurface );    
-    rep->SetPointPlacer(pointPlacer);    
+    pointPlacer->SetDistanceOffset( heightOffsetAboveSurface );
+    rep->SetPointPlacer(pointPlacer);
 
     // Let the surface constrained point-placer be the sole constraint dictating 
     // the placement of handles. Lets not over-constrain it allowing axis 
     // constrained interactions.
-    widget->EnableAxisConstraintOff();    
+    widget->EnableAxisConstraintOff();
     }
 
   double xyz[3] = {x, y, z};
@@ -116,17 +116,17 @@ CreateWidget( vtkRenderWindowInteractor * iren,
   widget->SetRepresentation( rep );
 
   // Set some defaults on the handle widget
-  double color[3] = { ((double)(shape%4))/3.0, 
+  double color[3] = { ((double)(shape%4))/3.0,
                       ((double)((shape+3)%7))/6.0,
-                      shape%2 };
+                      (double)(shape%2) };
   double selectedColor[3] = { 1.0, 0.0, 0.0 };
-                      
-  if (vtkAbstractPolygonalHandleRepresentation3D *arep = 
+
+  if (vtkAbstractPolygonalHandleRepresentation3D *arep =
       vtkAbstractPolygonalHandleRepresentation3D::SafeDownCast(rep))
     {
     arep->GetProperty()->SetColor( color );
     arep->GetProperty()->SetLineWidth(1.0);
-    arep->GetSelectedProperty()->SetColor( selectedColor );  
+    arep->GetSelectedProperty()->SetColor( selectedColor );
 
     if (label)
       {
@@ -140,7 +140,7 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     {
     prep->GetProperty()->SetColor( color );
     prep->GetProperty()->SetLineWidth(1.0);
-    prep->GetSelectedProperty()->SetColor( selectedColor );  
+    prep->GetSelectedProperty()->SetColor( selectedColor );
     }
   
 
@@ -173,7 +173,7 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();
-  resample->SetInput(demReader->GetOutput());
+  resample->SetInputConnection(demReader->GetOutputPort());
   resample->SetDimensionality(2);
   resample->SetAxisMagnificationFactor(0,1);
   resample->SetAxisMagnificationFactor(1,1);
@@ -181,17 +181,17 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
   // Extract geometry
   vtkSmartPointer<vtkImageDataGeometryFilter> surface =
     vtkSmartPointer<vtkImageDataGeometryFilter>::New();
-  surface->SetInput(resample->GetOutput());
+  surface->SetInputConnection(resample->GetOutputPort());
 
   // The Dijkistra interpolator will not accept cells that aren't triangles
   vtkSmartPointer<vtkTriangleFilter> triangleFilter =
     vtkSmartPointer<vtkTriangleFilter>::New();
-  triangleFilter->SetInput( surface->GetOutput() );
+  triangleFilter->SetInputConnection( surface->GetOutputPort() );
   triangleFilter->Update();
 
   vtkSmartPointer<vtkWarpScalar> warp =
     vtkSmartPointer<vtkWarpScalar>::New();
-  warp->SetInput(triangleFilter->GetOutput());
+  warp->SetInputConnection(triangleFilter->GetOutputPort());
   warp->SetScaleFactor(1);
   warp->UseNormalOn();
   warp->SetNormal(0, 0, 1);
@@ -211,7 +211,7 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
   vtkSmartPointer<vtkPolyDataNormals> normals =
     vtkSmartPointer<vtkPolyDataNormals>::New();
 
-  normals->SetInput(warp->GetPolyDataOutput());
+  normals->SetInputConnection(warp->GetOutputPort());
   normals->SetFeatureAngle(60);
   normals->SplittingOff();
 
@@ -223,7 +223,7 @@ int TestPolygonalHandleRepresentations(int argc, char*argv[])
 
   vtkSmartPointer<vtkPolyDataMapper> demMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  demMapper->SetInput(pd);
+  demMapper->SetInputConnection(normals->GetOutputPort());
   demMapper->SetScalarRange(lo, hi);
   demMapper->SetLookupTable(lut);
 

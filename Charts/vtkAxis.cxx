@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -44,8 +43,8 @@ vtkAxis::vtkAxis()
   this->Position = -1;
   this->Point1 = this->Position1.GetData();
   this->Point2 = this->Position2.GetData();
-  this->Position1.SetY(10.0);
-  this->Position2.SetY(10.0);
+  this->Position1.Set(0.0, 10.0);
+  this->Position2.Set(0.0, 10.0);
   this->TickInterval = 1.0;
   this->NumberOfTicks = -1;
   this->LabelProperties = vtkTextProperty::New();
@@ -68,6 +67,7 @@ vtkAxis::vtkAxis()
   this->LogScale = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
+  this->TicksVisible = true;
   this->Precision = 2;
   this->Notation = STANDARD_NOTATION;
   this->Behavior = 0;
@@ -325,8 +325,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      painter->DrawLine(this->Point1[0] - 5, tickPos[i],
-                        this->Point1[0],     tickPos[i]);
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(this->Point1[0] - 5, tickPos[i],
+                          this->Point1[0],     tickPos[i]);
+        }
       if (this->LabelsVisible)
         {
         painter->DrawString(this->Point1[0] - 7, tickPos[i], tickLabel[i]);
@@ -338,8 +341,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      painter->DrawLine(this->Point1[0] + 5, tickPos[i],
-                        this->Point1[0],     tickPos[i]);
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(this->Point1[0] + 5, tickPos[i],
+                          this->Point1[0],     tickPos[i]);
+        }
       if (this->LabelsVisible)
         {
         painter->DrawString(this->Point1[0] + 7, tickPos[i], tickLabel[i]);
@@ -351,8 +357,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      painter->DrawLine(tickPos[i], this->Point1[1] - 5,
-                        tickPos[i], this->Point1[1]);
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(tickPos[i], this->Point1[1] - 5,
+                          tickPos[i], this->Point1[1]);
+        }
       if (this->LabelsVisible)
         {
         painter->DrawString(tickPos[i], int(this->Point1[1] - 7), tickLabel[i]);
@@ -364,8 +373,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
-      painter->DrawLine(tickPos[i], this->Point1[1] + 5,
-                        tickPos[i], this->Point1[1]);
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(tickPos[i], this->Point1[1] + 5,
+                          tickPos[i], this->Point1[1]);
+        }
       if (this->LabelsVisible)
         {
         painter->DrawString(tickPos[i], int(this->Point1[1] + 7), tickLabel[i]);
@@ -658,20 +670,23 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
   float widest = 0.0;
   // Second, calculate the tallest tick label
   float tallest = 0.0;
-  vtkRectf bounds;
-  for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
+  vtkRectf bounds(0, 0, 0, 0);
+  if (this->LabelsVisible)
     {
-    painter->ApplyTextProp(this->LabelProperties);
-    painter->ComputeStringBounds(this->TickLabels->GetValue(i),
-                                 bounds.GetData());
-    widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
-    tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+    for(vtkIdType i = 0; i < this->TickLabels->GetNumberOfTuples(); ++i)
+      {
+      painter->ApplyTextProp(this->LabelProperties);
+      painter->ComputeStringBounds(this->TickLabels->GetValue(i),
+                                   bounds.GetData());
+      widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
+      tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+      }
     }
   this->MaxLabel[0] = widest;
   this->MaxLabel[1] = tallest;
 
   // Then, if there is an axis label, add that in.
-  vtkRectf titleBounds;
+  vtkRectf titleBounds(0, 0, 0, 0);
   if (this->Title && !this->Title.empty())
     {
     painter->ApplyTextProp(this->TitleProperties);
@@ -763,7 +778,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       // When the axis is not initialized
       if(this->Point1[0] == 0 && this->Point2[0] == 0)
         {
-        // 500 is an intial guess for the length of the axis in pixels
+        // 500 is an initial guess for the length of the axis in pixels
         scaling = 500 / (this->Maximum - this->Minimum);
         }
       else

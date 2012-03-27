@@ -47,14 +47,14 @@ vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients()
 
 //----------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::AllocateOutputData(
-  vtkImageData *vtkNotUsed(output), int *vtkNotUsed(uExtent))
+  vtkImageData *vtkNotUsed(output), vtkInformation *vtkNotUsed(outInfo), int *vtkNotUsed(uExtent))
 {
   // turn into a no-op, we allocate our output manually
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageBSplineCoefficients::AllocateOutputData(
-  vtkDataObject *output)
+  vtkDataObject *output, vtkInformation *vtkNotUsed(outInfo))
 {
   // turn into a no-op, we allocate our output manually
   vtkImageData *out = vtkImageData::SafeDownCast(output);
@@ -90,8 +90,8 @@ int vtkImageBSplineCoefficients::RequestData(
     }
 
   // Allocate the output data
-  outData->SetExtent(outData->GetWholeExtent());
-  outData->AllocateScalars();
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->AllocateScalars(outInfo);
 
   if (outData->GetScalarType() != VTK_FLOAT &&
       outData->GetScalarType() != VTK_DOUBLE)
@@ -126,6 +126,17 @@ int vtkImageBSplineCoefficients::RequestData(
     return 1;
     }
 
+  // We are about to call superclass' RequestData which allocates output
+  // based on the update extent. However, we want the output to be the
+  // whole extent. So we temprarily override the update extent to be 
+  // the whole extent.
+  int extentcache[6];
+  memcpy(extentcache, outInfo->Get(
+           vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
+         6*sizeof(int));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+
   // execute over the three directions
   for (int i = 0; i < 3; i++)
     {
@@ -141,6 +152,10 @@ int vtkImageBSplineCoefficients::RequestData(
       }
     }
 
+  // Restore update extent
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+               extentcache,
+               6);
   return 1;
 }
 

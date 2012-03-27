@@ -204,10 +204,11 @@ void vtkMetaImageReader::ExecuteInformation()
 
 }
 
-void vtkMetaImageReader::ExecuteData(vtkDataObject * output)
+void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject * output,
+                                                    vtkInformation *outInfo)
 {
 
-  vtkImageData * data = this->AllocateOutputData(output); 
+  vtkImageData * data = this->AllocateOutputData(output, outInfo);
 
   if(!this->FileName)
     {

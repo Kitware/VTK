@@ -435,7 +435,7 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
   node->Sharpness = sharpness;
   node->Midpoint  = midpoint;
   
-  // Add it, then sort to get everyting in order
+  // Add it, then sort to get everything in order
   this->Internal->Nodes.push_back(node);
   this->SortAndUpdateRange();
   

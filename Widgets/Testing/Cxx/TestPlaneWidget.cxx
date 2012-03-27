@@ -19,7 +19,8 @@
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkPLOT3DReader.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPlaneWidget.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -414,13 +415,14 @@ int TestPlaneWidget( int argc, char *argv[] )
 
   // Start by loading some data.
   //
-  vtkSmartPointer<vtkPLOT3DReader> pl3d =
-    vtkSmartPointer<vtkPLOT3DReader>::New();
+  vtkSmartPointer<vtkMultiBlockPLOT3DReader> pl3d =
+    vtkSmartPointer<vtkMultiBlockPLOT3DReader>::New();
   pl3d->SetXYZFileName(fname);
   pl3d->SetQFileName(fname2);
   pl3d->SetScalarFunctionNumber(100);
   pl3d->SetVectorFunctionNumber(202);
   pl3d->Update();
+  vtkDataSet* pl3d_block0 = vtkDataSet::SafeDownCast(pl3d->GetOutput()->GetBlock(0));
 
   delete [] fname;
   delete [] fname2;
@@ -430,14 +432,14 @@ int TestPlaneWidget( int argc, char *argv[] )
 
   vtkSmartPointer<vtkProbeFilter> probe =
     vtkSmartPointer<vtkProbeFilter>::New();
-  probe->SetInput(plane);
-  probe->SetSource(pl3d->GetOutput());
+  probe->SetInputData(plane);
+  probe->SetSourceData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> probeMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  probeMapper->SetInput(probe->GetPolyDataOutput());
+  probeMapper->SetInputConnection(probe->GetOutputPort());
   double tmp[2];
-  pl3d->GetOutput()->GetScalarRange(tmp);
+  pl3d_block0->GetScalarRange(tmp);
   probeMapper->SetScalarRange(tmp[0], tmp[1]);
   
   vtkSmartPointer<vtkActor> probeActor =
@@ -448,7 +450,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridOutlineFilter> outline =
     vtkSmartPointer<vtkStructuredGridOutlineFilter>::New();
-  outline->SetInputConnection(pl3d->GetOutputPort());
+  outline->SetInputData(pl3d_block0);
 
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -483,7 +485,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkPlaneWidget> planeWidget =
     vtkSmartPointer<vtkPlaneWidget>::New();
   planeWidget->SetInteractor(iren);
-  planeWidget->SetInput(pl3d->GetOutput());
+  planeWidget->SetInputData(pl3d_block0);
   planeWidget->NormalToXAxisOn();
   planeWidget->SetResolution(20);
   planeWidget->SetRepresentationToOutline();

@@ -730,6 +730,11 @@ void vtkContext2D::ApplyId(vtkIdType id)
   this->Device->SetColor4(rgba);
 }
 
+void vtkContext2D::SetContext3D(vtkContext3D *context)
+{
+  this->Context3D = context;
+}
+
 //-----------------------------------------------------------------------------
 vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
@@ -741,7 +746,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
     return vtkVector2f();
     }
 
-  vtkVector2f p;
+  vtkVector2f p(0, 0);
   float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
 
   if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_LEFT)
@@ -773,7 +778,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 }
 
 //-----------------------------------------------------------------------------
-vtkContext2D::vtkContext2D()
+vtkContext2D::vtkContext2D() : Context3D(NULL)
 {
   this->Device = NULL;
   this->Transform = vtkTransform2D::New();

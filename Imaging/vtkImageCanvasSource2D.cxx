@@ -50,7 +50,6 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
   this->SetNumberOfInputPorts(0);
 
   this->ImageData = vtkImageData::New();
-  this->ImageData->SetScalarType(VTK_DOUBLE);
 
   this->WholeExtent[0] = 0;
   this->WholeExtent[1] = 0;
@@ -168,12 +167,12 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     }
 
   vtkImageClip* clip = vtkImageClip::New();
-  clip->SetInput(image);
+  clip->SetInputData(image);
 
   int *extent;
   int ext[6];
   //  int z = this->DefaultZ;
-  image->GetWholeExtent(ext);
+  image->GetExtent(ext);
   if ( sx < 0 )
     {
     sx = ext[0];
@@ -397,7 +396,7 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
       // check to see if pixel is in the tube.
       // project point onto normal vector.
       k = n0 * idx0 + n1 * idx1;
-      // Check that point is inbetween end points.
+      // Check that point is between end points.
       if ( k >= bk && k <= ak)
         {
         // Compute actual projection point.
@@ -1532,7 +1531,9 @@ void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax,
     {
     this->Modified();
     this->ImageData->SetExtent(this->WholeExtent);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      this->ImageData->GetScalarType(),
+      this->ImageData->GetNumberOfScalarComponents());
     }
 }
 
@@ -1542,8 +1543,8 @@ void vtkImageCanvasSource2D::SetScalarType(int t)
   if (this->ImageData->GetScalarType() != t)
     {
     this->Modified();
-    this->ImageData->SetScalarType(t);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      t, this->ImageData->GetNumberOfScalarComponents());
     }
 }
 
@@ -1560,8 +1561,8 @@ void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
   if (this->ImageData->GetNumberOfScalarComponents() != t)
     {
     this->Modified();
-    this->ImageData->SetNumberOfScalarComponents(t);
-    this->ImageData->AllocateScalars();
+    this->ImageData->AllocateScalars(
+      this->ImageData->GetScalarType(), t);
     }
 }
 
@@ -1582,6 +1583,9 @@ int vtkImageCanvasSource2D::RequestInformation (
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent,6);
+
+  outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
+  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
 
   vtkDataObject::SetPointDataActiveScalarInfo
     (outInfo, this->ImageData->GetScalarType(),

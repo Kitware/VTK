@@ -38,8 +38,8 @@ vtkPolyData tip
     tip SetLines lines
 
 vtkAppendPolyData appendPD
-  appendPD AddInput [strip GetOutput]
-  appendPD AddInput tip
+  appendPD AddInputConnection [strip GetOutputPort]
+  appendPD AddInputData tip
 
 # extrude profile to make coverage
 #

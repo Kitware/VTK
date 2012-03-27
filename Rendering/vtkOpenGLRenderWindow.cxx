@@ -238,38 +238,18 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
 
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
-  // When a new OpenGL context is created, force an update
-  // of the extension manager by calling modified on it.
-  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
-  extensions->Modified();
+  OpenGLInitContext();
+  OpenGLInitState();
+}
 
-  this->ContextCreationTime.Modified();
+void vtkOpenGLRenderWindow::OpenGLInitState()
+{
   glMatrixMode( GL_MODELVIEW );
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );
   glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 
   // initialize blending for transparency
-  
-  // We have to set the function pointer to null, otherwise the following
-  // scenario would fail on Windows (and maybe other kind of configurations):
-  // 1. Render onscreen on GPU that supports OpenGL 1.4
-  // 2. Switch to offscreen with GDI Windows implementation (1.1)
-  vtkgl::BlendFuncSeparate=0;
-  
-  // Try to initialize vtkgl::BlendFuncSeparate() if available.
-  if (extensions->ExtensionSupported("GL_VERSION_1_4"))
-    {
-    extensions->LoadExtension("GL_VERSION_1_4");
-    }
-  else
-    {
-    if (extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
-      {
-      extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
-      }
-    }
-  
   if(vtkgl::BlendFuncSeparate!=0)
     {
     vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
@@ -323,6 +303,34 @@ void vtkOpenGLRenderWindow::OpenGLInit()
   glPixelStorei(GL_PACK_ALIGNMENT,1);
 }
 
+void vtkOpenGLRenderWindow::OpenGLInitContext()
+{
+  // When a new OpenGL context is created, force an update
+  // of the extension manager by calling modified on it.
+  vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
+  extensions->Modified();
+
+  this->ContextCreationTime.Modified();
+
+  // We have to set the function pointer to null, otherwise the following
+  // scenario would fail on Windows (and maybe other kind of configurations):
+  // 1. Render onscreen on GPU that supports OpenGL 1.4
+  // 2. Switch to offscreen with GDI Windows implementation (1.1)
+  vtkgl::BlendFuncSeparate=0;
+
+  // Try to initialize vtkgl::BlendFuncSeparate() if available.
+  if (extensions->ExtensionSupported("GL_VERSION_1_4"))
+    {
+    extensions->LoadExtension("GL_VERSION_1_4");
+    }
+  else
+    {
+    if (extensions->ExtensionSupported("GL_EXT_blend_func_separate"))
+      {
+      extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
+      }
+    }
+}
 
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -54,7 +54,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLContextDevice2D);
+vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
@@ -92,7 +92,7 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   float offset = 0.5;
   glOrtho(offset, vp[2]+offset-1.0,
           offset, vp[3]+offset-1.0,
-          -1, 1);
+          -2000, 2000);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -300,7 +300,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Storage->SpriteTexture = vtkTexture::New();
         this->Storage->SpriteTexture->SetRepeat(false);
         }
-      this->Storage->SpriteTexture->SetInput(sprite);
+      this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->Render(this->Renderer);
       }
 
@@ -318,7 +318,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     // Four 2D points on the quad.
     float p[4 * 2] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-    // This will be the same everytime
+    // This will be the same every time
     float texCoord[] = { 0.0, 0.0,
                          1.0, 0.0,
                          1.0, 1.0,
@@ -730,7 +730,7 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
-  float p[] = { floor(point[0]), floor(point[1]) };
+  float p[] = { std::floor(point[0]), std::floor(point[1]) };
 
   // Cache rendered text strings
   vtkTextureImageCache<TextPropertyKey>::CacheData cache =
@@ -760,10 +760,10 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                      p[0] + width, p[1] + height,
                      p[0]        , p[1] + height };
 
-  float texCoord[] = { 0.0, 0.0,
-                       xw,  0.0,
-                       xw,  xh,
-                       0.0, xh };
+  float texCoord[] = { 0.0f, 0.0f,
+                       xw,   0.0f,
+                       xw,   xh,
+                       0.0f, xh };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -823,15 +823,15 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   this->SetTexture(image);
   this->Storage->Texture->Render(this->Renderer);
   int *extent = image->GetExtent();
-  float points[] = { p[0]                    , p[1],
-                     p[0]+scale*extent[1]+1.0, p[1],
-                     p[0]+scale*extent[1]+1.0, p[1]+scale*extent[3]+1.0,
-                     p[0]                    , p[1]+scale*extent[3]+1.0 };
+  float points[] = { p[0]                     , p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1],
+                     p[0]+scale*extent[1]+1.0f, p[1]+scale*extent[3]+1.0f,
+                     p[0]                     , p[1]+scale*extent[3]+1.0f };
 
-  float texCoord[] = { 0.0, 0.0,
-                       1.0, 0.0,
-                       1.0, 1.0,
-                       0.0, 1.0 };
+  float texCoord[] = { 0.0f, 0.0f,
+                       1.0f, 0.0f,
+                       1.0f, 1.0f,
+                       0.0f, 1.0f };
 
   glColor4ub(255, 255, 255, 255);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -914,7 +914,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
     {
     this->Storage->Texture = vtkTexture::New();
     }
-  this->Storage->Texture->SetInput(image);
+  this->Storage->Texture->SetInputData(image);
   this->Storage->TextureProperties = properties;
   this->Storage->Texture->SetRepeat(properties & vtkContextDevice2D::Repeat);
   this->Storage->Texture->SetInterpolate(properties & vtkContextDevice2D::Linear);

@@ -20,6 +20,7 @@
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 
 //----------------------------------------------------------------------------
@@ -54,9 +55,9 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     }
 
   int currentPiece, nPieces;
-  vtkDataObject *input = this->GetInputDataObject(0, 0);
+  vtkInformation *inInfo = this->GetInputInformation();
 
-  if (input == NULL)
+  if (inInfo == NULL)
     {
     vtkErrorMacro("Mapper has no input.");
     return;
@@ -68,23 +69,17 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     // If more than one pieces, render in loop.
     currentPiece = this->NumberOfSubPieces * this->Piece + i;
-    input->SetUpdateExtent(currentPiece, nPieces, this->GhostLevel);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      inInfo,
+      currentPiece, nPieces, this->GhostLevel);
     this->RenderPiece(ren, act);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataMapper::SetInput(vtkPolyData *input)
+void vtkPolyDataMapper::SetInputData(vtkPolyData *input)
 {
-  if(input)
-    {
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -96,26 +91,36 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 }
 
 // Update the network connected to this mapper.
-void vtkPolyDataMapper::Update()
+void vtkPolyDataMapper::Update(int port)
 {
   if (this->Static)
     {
     return;
     }
 
+  this->UpdateInformation();
+
   int currentPiece, nPieces = this->NumberOfPieces;
-  vtkPolyData* input = this->GetInput();
+  vtkInformation* inInfo = this->GetInputInformation();
 
   // If the estimated pipeline memory usage is larger than
   // the memory limit, break the current piece into sub-pieces.
-  if (input)
+  if (inInfo)
     {
     currentPiece = this->NumberOfSubPieces * this->Piece;
-    input->SetUpdateExtent(currentPiece, this->NumberOfSubPieces*nPieces,
-                           this->GhostLevel);
+    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+      inInfo,
+      currentPiece,
+      this->NumberOfSubPieces*nPieces,
+      this->GhostLevel);
     }
 
-  this->vtkMapper::Update();
+  this->vtkMapper::Update(port);
+}
+
+void vtkPolyDataMapper::Update()
+{
+  this->Superclass::Update();
 }
 
 // Get the bounds for the input of this mapper as
@@ -166,7 +171,7 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
   vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
   if ( m != NULL )
     {
-    this->SetInput(m->GetInput());
+    this->SetInputConnection(m->GetInputConnection(0, 0));
     this->SetGhostLevel(m->GetGhostLevel());
     this->SetNumberOfPieces(m->GetNumberOfPieces());
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());

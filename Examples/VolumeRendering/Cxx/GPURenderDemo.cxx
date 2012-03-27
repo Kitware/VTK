@@ -324,11 +324,11 @@ int main(int argc, char *argv[])
     box->SetPlaceFactor(1.01);
     if ( reductionFactor < 1.0 )
       {      
-      box->SetInput(resample->GetOutput());
+      box->SetInputConnection(resample->GetOutputPort());
       }
     else
       {
-      box->SetInput(input);
+      box->SetInputData(input);
       }
     
     box->SetDefaultRenderer(renderer);

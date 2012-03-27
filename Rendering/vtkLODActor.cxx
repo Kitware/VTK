@@ -277,7 +277,7 @@ void vtkLODActor::CreateOwnLODs()
     return;
     }
   
-  // There are ways of getting arround this limitation ...
+  // There are ways of getting around this limitation ...
   if ( this->LODMappers->GetNumberOfItems() > 0 )
     {
     vtkErrorMacro(<<
@@ -331,8 +331,10 @@ void vtkLODActor::UpdateOwnLODs()
     }
   
   // connect the filters to the mapper, and set parameters
-  this->MediumResFilter->SetInput(this->Mapper->GetInput());
-  this->LowResFilter->SetInput(this->Mapper->GetInput());
+  this->MediumResFilter->SetInputConnection(
+    this->Mapper->GetInputConnection(0, 0));
+  this->LowResFilter->SetInputConnection(
+    this->Mapper->GetInputConnection(0, 0));
 
   // If the medium res filter is a vtkMaskPoints, then set the ivar in here.
   // In reality, we should deprecate the vtkLODActor::SetNumberOfCloudPoints
@@ -345,10 +347,12 @@ void vtkLODActor::UpdateOwnLODs()
   
   // copy all parameters including LUTs, scalar range, etc.
   this->MediumMapper->ShallowCopy(this->Mapper);
-  this->MediumMapper->SetInput(this->MediumResFilter->GetOutput());
+  this->MediumMapper->SetInputConnection(
+    this->MediumResFilter->GetOutputPort());
   this->LowMapper->ShallowCopy(this->Mapper);
   this->LowMapper->ScalarVisibilityOff();
-  this->LowMapper->SetInput(this->LowResFilter->GetOutput());
+  this->LowMapper->SetInputConnection(
+    this->LowResFilter->GetOutputPort());
 
   this->BuildTime.Modified();
 }

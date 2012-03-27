@@ -36,19 +36,9 @@ vtkContextMapper2D::~vtkContextMapper2D()
 }
 
 //----------------------------------------------------------------------------
-void vtkContextMapper2D::SetInput(vtkTable *input)
+void vtkContextMapper2D::SetInputData(vtkTable *input)
 {
-  if(input)
-    {
-    vtkDebugMacro(<< "Input table set.");
-    this->SetInputConnection(0, input->GetProducerPort());
-    }
-  else
-    {
-    // Setting a NULL input removes the connection.
-    vtkDebugMacro(<< "Null input table set.");
-    this->SetInputConnection(0, 0);
-    }
+  this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------

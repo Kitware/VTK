@@ -286,7 +286,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid *output)
         }
       }
   }
-  vtkDebugMacro(<< "All BCS read succesfully");
+  vtkDebugMacro(<< "All BCS read successfully");
   if(isUsable)
     {
     output->GetPointData()->AddArray(bcscalar);
@@ -340,7 +340,7 @@ void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid *output)
       vtkErrorMacro(<<"Error reading ENDOFSECTION tag at end of group");
       }
     }
-    vtkDebugMacro(<< "All groups read succesfully");
+    vtkDebugMacro(<< "All groups read successfully");
 
   output->GetCellData()->AddArray(materials);
   if (!output->GetCellData()->GetScalars())

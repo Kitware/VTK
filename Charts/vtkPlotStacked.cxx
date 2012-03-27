@@ -388,7 +388,7 @@ class vtkPlotStackedSegment : public vtkObject {
       low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
 
       // Now consider the y axis.  We only worry about our extent
-      // to the base becuase each segment is called in order and the
+      // to the base because each segment is called in order and the
       // first positive wins.
       while (low != v.end())
         {

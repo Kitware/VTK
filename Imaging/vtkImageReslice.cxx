@@ -380,9 +380,9 @@ const char *vtkImageReslice::GetSlabModeAsString()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::SetStencil(vtkImageStencilData *stencil)
+void vtkImageReslice::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil);
+  this->SetInputData(1, stencil); 
 }
 
 //----------------------------------------------------------------------------
@@ -771,11 +771,12 @@ int vtkImageReslice::FillOutputPortInformation(int port, vtkInformation* info)
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::AllocateOutputData(vtkImageData *output,
+                                         vtkInformation* outInfo,
                                          int *uExtent)
 {
   // set the extent to be the update extent
   output->SetExtent(uExtent);
-  output->AllocateScalars();
+  output->AllocateScalars(outInfo);
 
   vtkImageStencilData *stencil = this->GetStencilOutput();
   if (stencil && this->GenerateStencilOutput)
@@ -786,9 +787,10 @@ void vtkImageReslice::AllocateOutputData(vtkImageData *output,
 }
 
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageReslice::AllocateOutputData(vtkDataObject *output)
+vtkImageData *vtkImageReslice::AllocateOutputData(vtkDataObject *output,
+                                                  vtkInformation* outInfo)
 {
-  return this->Superclass::AllocateOutputData(output);
+  return this->Superclass::AllocateOutputData(output, outInfo);
 }
 
 //----------------------------------------------------------------------------
@@ -968,8 +970,7 @@ int vtkImageReslice::RequestInformation(
 
   if (this->InformationInput)
     {
-    this->InformationInput->UpdateInformation();
-    this->InformationInput->GetWholeExtent(inWholeExt);
+    this->InformationInput->GetExtent(inWholeExt);
     this->InformationInput->GetSpacing(inSpacing);
     this->InformationInput->GetOrigin(inOrigin);
     }
@@ -1100,13 +1101,21 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
+  vtkInformation *outStencilInfo = outputVector->GetInformationObject(1);
   if (this->GenerateStencilOutput)
     {
-    vtkInformation *outStencilInfo = outputVector->GetInformationObject(1);
     outStencilInfo->Set(
       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt,6);
     outStencilInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
     outStencilInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+    }
+  else if (outStencilInfo)
+    {
+    // If we are not generating stencil output, remove all meta-data
+    // that the executives copy from the input by default
+    outStencilInfo->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    outStencilInfo->Remove(vtkDataObject::SPACING());
+    outStencilInfo->Remove(vtkDataObject::ORIGIN());
     }
 
   // get the interpolator
@@ -1405,7 +1414,7 @@ void vtkImageResliceConversion<F, T>::Clamp(
   outPtr0 = outPtr;
 }
 
-// get the convertion function
+// get the conversion function
 template<class F>
 void vtkGetConversionFunc(
   void (**conversion)(void *&out, const F *in, int numscalars, int n),

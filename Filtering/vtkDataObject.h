@@ -35,15 +35,9 @@
 #include "vtkObject.h"
 
 class vtkAbstractArray;
-class vtkAlgorithmOutput;
 class vtkDataSetAttributes;
-class vtkExecutive;
 class vtkFieldData;
 class vtkInformation;
-class vtkProcessObject;
-class vtkSource;
-class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
-class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
@@ -52,7 +46,6 @@ class vtkInformationIntegerPointerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
-class vtkStreamingDemandDrivenPipeline;
 class vtkInformationInformationVectorKey;
 
 #define VTK_PIECES_EXTENT   0
@@ -68,24 +61,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the source object creating this data object.
-  vtkGetObjectMacro(Source,vtkSource);
-  void SetSource(vtkSource *s);
-
-  // Description:
   // Set/Get the information object associated with this data object.
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
-
-  // Description:
-  // Get/Set the pipeline information object that owns this data
-  // object.
-  vtkGetObjectMacro(PipelineInformation, vtkInformation);
-  virtual void SetPipelineInformation(vtkInformation*);
-
-  // Description:
-  // Get the port currently producing this object.
-  virtual vtkAlgorithmOutput* GetProducerPort();
 
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
@@ -104,20 +82,9 @@ public:
   void ReleaseData();
 
   // Description:
-  // Return flag indicating whether data should be released after use  
-  // by a filter.
-  int ShouldIReleaseData();
-
-  // Description:
   // Get the flag indicating the data has been released.
   vtkGetMacro(DataReleased,int);
   
-  // Description:
-  // Turn on/off flag to control whether this object's data is released
-  // after being used by a filter.
-  void SetReleaseDataFlag(int);
-  int GetReleaseDataFlag();
-  vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
   // Turn on/off flag to control whether every object releases its data
@@ -137,80 +104,6 @@ public:
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
-  // Provides opportunity for the data object to insure internal 
-  // consistency before access. Also causes owning source/filter 
-  // (if any) to update itself. The Update() method is composed of 
-  // UpdateInformation(), PropagateUpdateExtent(), 
-  // TriggerAsynchronousUpdate(), and UpdateData().
-  virtual void Update();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // Update all the "easy to update" information about the object such
-  // as the extent which will be used to control the update.
-  // This propagates all the way up then back down the pipeline.
-  // As a by-product the PipelineMTime is updated.
-  virtual void UpdateInformation();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // The update extent for this object is propagated up the pipeline.
-  // This propagation may early terminate based on the PipelineMTime.
-  virtual void PropagateUpdateExtent();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // Propagate back up the pipeline for ports and trigger the update on the
-  // other side of the port to allow for asynchronous parallel processing in
-  // the pipeline.
-  // This propagation may early terminate based on the PipelineMTime.
-  virtual void TriggerAsynchronousUpdate();
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT FOR GENERAL USE. 
-  // THIS METHOD IS PART OF THE PIPELINE UPDATE FUNCTIONALITY.
-  // Propagate the update back up the pipeline, and perform the actual 
-  // work of updating on the way down. When the propagate arrives at a
-  // port, block and wait for the asynchronous update to finish on the
-  // other side.
-  // This propagation may early terminate based on the PipelineMTime.
-  virtual void UpdateData();
-
-  // Description:
-  // Get the estimated size of this data object itself. Should be called
-  // after UpdateInformation() and PropagateUpdateExtent() have both been 
-  // called. Should be overridden in a subclass - otherwise the default
-  // is to assume that this data object requires no memory.
-  // The size is returned in kilobytes.
-  virtual unsigned long GetEstimatedMemorySize();
-
-  // Description:
-  // A generic way of specifying an update extent.  Subclasses
-  // must decide what a piece is.  When the NumberOfPieces is zero, then
-  // no data is requested, and the source will not execute.
-  virtual void SetUpdateExtent(int piece,int numPieces, int ghostLevel);
-  void SetUpdateExtent(int piece, int numPieces)
-    {this->SetUpdateExtent(piece, numPieces, 0);}
-
-  // Description:
-  // Set the update extent for data objects that use 3D extents. Using this
-  // method on data objects that set extents as pieces (such as vtkPolyData or
-  // vtkUnstructuredGrid) has no real effect.
-  // Don't use the set macro to set the update extent
-  // since we don't want this object to be modified just due to
-  // a change in update extent. When the volume of the extent is zero (0, -1,..), 
-  // then no data is requested, and the source will not execute.
-  virtual void SetUpdateExtent(int x0, int x1, int y0, int y1, int z0, int z1);
-  virtual void SetUpdateExtent(int extent[6]);
-  virtual int* GetUpdateExtent();
-  virtual void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
-                               int& z0, int& z1);
-  virtual void GetUpdateExtent(int extent[6]);
-
-  // Description:
   // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
   // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
@@ -223,18 +116,6 @@ public:
   unsigned long GetUpdateTime();
 
   // Description:
-  // If the whole input extent is required to generate the requested output
-  // extent, this method can be called to set the input update extent to the
-  // whole input extent. This method assumes that the whole extent is known
-  // (that UpdateInformation has been called)
-  void SetUpdateExtentToWholeExtent();
-
-  // Description:
-  // Get the cumulative modified time of everything upstream.  Does
-  // not include the MTime of this object.
-  unsigned long GetPipelineMTime();
-
-  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
@@ -243,95 +124,16 @@ public:
   virtual unsigned long GetActualMemorySize();
 
   // Description:
-  // Copy the generic information (WholeExtent ...)
-  void CopyInformation( vtkDataObject *data );
-
-  // Description:
   // By default, there is no type specific information
-  virtual void CopyTypeSpecificInformation( vtkDataObject *data ) 
-    {this->CopyInformation( data );};
-  
-  // Description:
-  // Set / Get the update piece and the update number of pieces. Similar
-  // to update extent in 3D.
-  void SetUpdatePiece(int piece);
-  void SetUpdateNumberOfPieces(int num);
-  virtual int GetUpdatePiece();
-  virtual int GetUpdateNumberOfPieces();
-  
-  // Description:
-  // Set / Get the update ghost level and the update number of ghost levels.
-  // Similar to update extent in 3D.
-  void SetUpdateGhostLevel(int level);
-  virtual int GetUpdateGhostLevel();
-  
-  // Description:
-  // This request flag indicates whether the requester can handle 
-  // more data than requested.  Right now it is used in vtkImageData.
-  // Image filters can return more data than requested.  The the 
-  // consumer cannot handle this (i.e. DataSetToDataSetFitler)
-  // the image will crop itself.  This functionality used to be in 
-  // ImageToStructuredPoints.
-  virtual void SetRequestExactExtent(int flag);
-  virtual int GetRequestExactExtent();
-  vtkBooleanMacro(RequestExactExtent, int);
-  
-  // Description:
-  // Set/Get the whole extent of this data object.  
-  // The whole extent is meta data for structured data sets.
-  // It gets set by the source during the update information call.
-  virtual void SetWholeExtent(int x0, int x1, int y0, int y1, int z0, int z1);
-  virtual void SetWholeExtent(int extent[6]);
-  virtual int* GetWholeExtent();
-  virtual void GetWholeExtent(int& x0, int& x1, int& y0, int& y1,
-                              int& z0, int& z1);
-  virtual void GetWholeExtent(int extent[6]);
-  
-  // Description:
-  // Set/Get the whole bounding box of this data object.  
-  // The whole whole bounding box is meta data for data sets
-  // It gets set by the source during the update information call.
-  virtual void SetWholeBoundingBox(double x0, double x1, double y0, 
-                                   double y1, double z0, double z1);
-  virtual void SetWholeBoundingBox(double bb[6]);
-  virtual double* GetWholeBoundingBox();
-  virtual void GetWholeBoundingBox(double& x0, double& x1, double& y0, 
-                                   double& y1, double& z0, double& z1);
-  virtual void GetWholeBoundingBox(double extent[6]);
-  
-  // Description:
-  // Set/Get the maximum number of pieces that can be requested.  
-  // The maximum number of pieces is meta data for unstructured data sets.
-  // It gets set by the source during the update information call.
-  // A value of -1 indicates that there is no maximum.
-  virtual void SetMaximumNumberOfPieces(int);
-  virtual int GetMaximumNumberOfPieces();
+  virtual void CopyTypeSpecificInformation( vtkDataObject*)
+    {}
 
-  // Description:
-  // Copy information about this data object to the output
-  // information from its own Information for the given
-  // request.  If the second argument is not NULL then it is the
-  // pipeline information object for the input to this data object's
-  // producer. If forceCopy is true, information is copied even
-  // if it exists in the output.
-  virtual void CopyInformationToPipeline(vtkInformation* request,
-                                         vtkInformation* input,
-                                         vtkInformation* output,
-                                         int forceCopy);
-
-  // Description:
-  // Calls CopyInformationToPipeline(request, input, this->PipelineInformation, 0). 
-  // Subclasses should not override this method (not virtual)
-  void CopyInformationToPipeline(vtkInformation* request,
-                                 vtkInformation* input)
-    {
-      this->CopyInformationToPipeline(request, input, this->PipelineInformation, 0);
-    }
-
-  // Description:
-  // Copy information about this data object from the
-  // PipelineInformation to its own Information for the given request.
-  virtual void CopyInformationFromPipeline(vtkInformation* request);
+   // Description:
+   // Copy information about this data object from the
+   // pipeline information to its own Information.
+  // Called right before the main execution pass..
+  virtual void CopyInformationFromPipeline(vtkInformation* vtkNotUsed(info))
+  {}
 
   // Description:
   // Return the information object within the input information object's
@@ -399,11 +201,6 @@ public:
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // An object that will translate pieces into structured extents.
-  void SetExtentTranslator(vtkExtentTranslator* translator);
-  vtkExtentTranslator* GetExtentTranslator();
-
-  // Description:
   // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
   // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
   // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
@@ -413,9 +210,9 @@ public:
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
   // Description:
-  // This method crops the data object (if necesary) so that the extent
+  // This method crops the data object (if necessary) so that the extent
   // matches the update extent.
-  virtual void Crop();
+  virtual void Crop(const int* updateExtent);
 
   //BTX
   // Description:
@@ -547,39 +344,16 @@ protected:
   // General field data associated with data object      
   vtkFieldData  *FieldData;  
 
-  // Who generated this data as output?
-  vtkSource     *Source;     
-
   // Keep track of data release during network execution
   int DataReleased; 
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
 
-  // Get the executive that manages this data object.
-  vtkExecutive* GetExecutive();
-
-  // Get the port number producing this data object.
-  int GetPortNumber();
-
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
-
-  // Reference the pipeline information object that owns this data
-  // object.
-  vtkInformation* PipelineInformation;
-
-  //BTX
-  // Check whether this data object is owned by a vtkStreamingDemandDrivenPipeline.
-  vtkStreamingDemandDrivenPipeline* TrySDDP(const char* method);
-  typedef vtkStreamingDemandDrivenPipeline SDDP;
-  //ETX
-
-  //BTX
-  friend class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
-  //ETX
 
   static const char AssociationNames[NUMBER_OF_ASSOCIATIONS][55];
 

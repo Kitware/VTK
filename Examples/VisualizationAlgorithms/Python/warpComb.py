@@ -18,49 +18,50 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Here we read data from a annular combustor. A combustor burns fuel
 # and air in a gas turbine (e.g., a jet engine) and the hot gas
 # eventually makes its way to the turbine section.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # Planes are specified using a imin,imax, jmin,jmax, kmin,kmax
 # coordinate specification. Min and max i,j,k values are clamped to 0
 # and maximum value.
 plane = vtk.vtkStructuredGridGeometryFilter()
-plane.SetInputConnection(pl3d.GetOutputPort())
+plane.SetInputData(pl3d_output)
 plane.SetExtent(10, 10, 1, 100, 1, 100)
 plane2 = vtk.vtkStructuredGridGeometryFilter()
-plane2.SetInputConnection(pl3d.GetOutputPort())
+plane2.SetInputData(pl3d_output)
 plane2.SetExtent(30, 30, 1, 100, 1, 100)
 plane3 = vtk.vtkStructuredGridGeometryFilter()
-plane3.SetInputConnection(pl3d.GetOutputPort())
+plane3.SetInputData(pl3d_output)
 plane3.SetExtent(45, 45, 1, 100, 1, 100)
 
 # We use an append filter because that way we can do the warping,
 # etc. just using a single pipeline and actor.
 appendF = vtk.vtkAppendPolyData()
-appendF.AddInput(plane.GetOutput())
-appendF.AddInput(plane2.GetOutput())
-appendF.AddInput(plane3.GetOutput())
+appendF.AddInputConnection(plane.GetOutputPort())
+appendF.AddInputConnection(plane2.GetOutputPort())
+appendF.AddInputConnection(plane3.GetOutputPort())
 warp = vtk.vtkWarpScalar()
 warp.SetInputConnection(appendF.GetOutputPort())
 warp.UseNormalOn()
 warp.SetNormal(1.0, 0.0, 0.0)
 warp.SetScaleFactor(2.5)
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(warp.GetPolyDataOutput())
+normals.SetInputConnection(warp.GetOutputPort())
 normals.SetFeatureAngle(60)
 planeMapper = vtk.vtkPolyDataMapper()
 planeMapper.SetInputConnection(normals.GetOutputPort())
-planeMapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
+planeMapper.SetScalarRange(pl3d_output.GetScalarRange())
 planeActor = vtk.vtkActor()
 planeActor.SetMapper(planeMapper)
 
 # The outline provides context for the data and the planes.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

@@ -257,7 +257,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     return false;
     }
 
-  vtkVector2i geometry;
+  vtkVector2i geometry(0, 0);
   bool recalculateTransform = false;
   if (this->LayoutStrategy == vtkChart::FILL_SCENE)
     {
@@ -719,7 +719,7 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
                        this->ChartPrivate->Borders[2],
                        this->ChartPrivate->Borders[3]);
       // Get the screen coordinates for the origin, and move the axes there.
-      vtkVector2f origin;
+      vtkVector2f origin(0.0);
       vtkTransform2D* transform =
           this->ChartPrivate->PlotCorners[0]->GetTransform();
       transform->TransformPoints(origin.GetData(), origin.GetData(), 1);
@@ -801,7 +801,7 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
     }
 
   int padding = 10;
-  vtkVector2i legendSize;
+  vtkVector2i legendSize(0, 0);
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
   this->Legend->Update();
@@ -846,7 +846,7 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
 void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
 {
   // Put the legend in the top corner of the chart
-  vtkVector2f pos;
+  vtkVector2f pos(0, 0);
   int padding = 5;
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
                               this->Legend->GetVerticalAlignment());
@@ -1078,6 +1078,30 @@ vtkChartLegend* vtkChartXY::GetLegend()
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::SetTooltip(vtkTooltipItem *tooltip)
+{
+  if(tooltip == this->Tooltip)
+    {
+    // nothing to change
+    return;
+    }
+
+  if(this->Tooltip)
+    {
+    // remove current tooltip from scene
+    this->RemoveItem(this->Tooltip);
+    }
+
+  this->Tooltip = tooltip;
+
+  if(this->Tooltip)
+    {
+    // add new tooltip to scene
+    this->AddItem(this->Tooltip);
+    }
+}
+
+//-----------------------------------------------------------------------------
 vtkTooltipItem* vtkChartXY::GetTooltip()
 {
   return this->Tooltip;
@@ -1160,8 +1184,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Figure out how much the mouse has moved by in plot coordinates - pan
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
-    vtkVector2d pos(0.0);
-    vtkVector2d last(0.0);
+    vtkVector2d pos(0.0, 0.0);
+    vtkVector2d last(0.0, 0.0);
 
     // Go from screen to scene coordinates to work out the delta
     vtkTransform2D *transform =
@@ -1188,6 +1212,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     if (this->ChartPrivate->PlotCorners.size() > 2)
       {
       // Go from screen to scene coordinates to work out the delta
+      screenPos = vtkVector2d(mouse.GetScreenPos().Cast<double>().GetData());
+      lastScreenPos =
+          vtkVector2d(mouse.GetLastScreenPos().Cast<double>().GetData());
+      pos = vtkVector2d(0.0, 0.0);
+      last = vtkVector2d(0.0, 0.0);
       transform = this->ChartPrivate->PlotCorners[2]->GetTransform();
       transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
       transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
@@ -1225,7 +1254,11 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
-    this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
+
+    if(this->Tooltip)
+      {
+      this->Tooltip->SetVisible(this->LocatePointInPlots(mouse));
+      }
     }
 
   return true;
@@ -1327,6 +1360,11 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
                                 vtkIdType seriesIndex, vtkPlot* plot,
                                 vtkIdType segmentIndex)
 {
+  if(!this->Tooltip)
+    {
+    return;
+    }
+
   // Have the plot generate its tooltip label
   vtkStdString tooltipLabel = plot->GetTooltipLabel(plotPos, seriesIndex,
                                                     segmentIndex);
@@ -1341,14 +1379,23 @@ void vtkChartXY::SetTooltipInfo(const vtkContextMouseEvent& mouse,
 bool vtkChartXY::MouseLeaveEvent(const vtkContextMouseEvent &)
 {
   this->DrawNearestPoint = false;
-  this->Tooltip->SetVisible(false);
+
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
-  this->Tooltip->SetVisible(false);
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   // Iterate through each corner, and check for a nearby point
   for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
     {
@@ -1714,7 +1761,11 @@ void vtkChartXY::ZoomInAxes(vtkAxis *x, vtkAxis *y, float *origin, float *max)
 //-----------------------------------------------------------------------------
 bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
 {
-  this->Tooltip->SetVisible(false);
+  if(this->Tooltip)
+    {
+    this->Tooltip->SetVisible(false);
+    }
+
   // Get the bounds of each plot.
   for (int i = 0; i < 4; ++i)
     {

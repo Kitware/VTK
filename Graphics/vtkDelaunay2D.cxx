@@ -57,9 +57,9 @@ vtkDelaunay2D::~vtkDelaunay2D()
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter. Old style.
-void vtkDelaunay2D::SetSource(vtkPolyData *input)
+void vtkDelaunay2D::SetSourceData(vtkPolyData *input)
 {
-  this->Superclass::SetInput(1, input);
+  this->Superclass::SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3],
     i3 = (i+2) % 3;
 
     // create a 2D edge normal to define a "half-space"; evaluate points (i.e.,
-    // candiate point and other triangle vertex not on this edge).
+    // candidate point and other triangle vertex not on this edge).
     n[0] = -(p[i2][1] - p[i][1]);
     n[1] = p[i2][0] - p[i][0];
     vtkMath::Normalize2D(n);

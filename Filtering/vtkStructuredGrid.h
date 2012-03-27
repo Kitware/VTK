@@ -189,10 +189,17 @@ public:
   unsigned char GetCellBlanking();
 
   // Description:
+  // Given the node dimensions of this grid instance, this method computes the
+  // node dimensions. The value in each dimension can will have a lowest value
+  // of "1" such that computing the total number of cells can be achieved by
+  // simply by cellDims[0]*cellDims[1]*cellDims[2].
+  void GetCellDims( int cellDims[3] );
+
+  // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested, 
   // and the source generated more than the update extent. 
-  virtual void Crop();
+  virtual void Crop(const int* updateExtent);
 
   //BTX
   // Description:

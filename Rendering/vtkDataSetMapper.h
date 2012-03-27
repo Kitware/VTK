@@ -53,7 +53,7 @@ public:
 
   // Description:
   // Set the Input of this mapper.
-  void SetInput(vtkDataSet *input);
+  void SetInputData(vtkDataSet *input);
   vtkDataSet *GetInput();
   
 protected:

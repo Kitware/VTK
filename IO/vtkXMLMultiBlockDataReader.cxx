@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLMultiBlockDataReader.h"
 
+#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -273,7 +274,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
             extent, 6);
           }
         }
-      piece_metadata->Set(vtkCompositeDataPipeline::COMPOSITE_INDEX(), dataSetIndex);
+      piece_metadata->Set(vtkCompositeDataSet::COMPOSITE_INDEX(), dataSetIndex);
       dataSetIndex++;
       }
     // Child is a multiblock dataset itself. Create it.

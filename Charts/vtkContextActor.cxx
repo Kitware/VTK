@@ -15,6 +15,11 @@
 #include "vtkContextActor.h"
 
 #include "vtkContext2D.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGL2ContextDevice2D.h"
+
+#include "vtkContext3D.h"
+#include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGL2ContextDevice2D.h"
@@ -38,12 +43,12 @@ namespace
     class vtkViewportSpecification
       {
     public:
-      vtkViewportSpecification(const T* data)
+      vtkViewportSpecification(const T* input)
         {
-        this->Data[0] = data[0];
-        this->Data[1] = data[1];
-        this->Data[2] = data[2];
-        this->Data[3] = data[3];
+        this->Data[0] = input[0];
+        this->Data[1] = input[1];
+        this->Data[2] = input[2];
+        this->Data[3] = input[3];
         }
 
       vtkViewportSpecification(const vtkViewportSpecification<T> &other)
@@ -114,33 +119,39 @@ namespace
 }
 
 vtkStandardNewMacro(vtkContextActor);
-vtkCxxSetObjectMacro(vtkContextActor, Context, vtkContext2D);
-vtkCxxSetObjectMacro(vtkContextActor, Scene, vtkContextScene);
 
 //----------------------------------------------------------------------------
 vtkContextActor::vtkContextActor()
 {
-  this->Context = vtkContext2D::New();
-  this->Scene = vtkContextScene::New();
   this->Initialized = false;
+  this->Scene = vtkSmartPointer<vtkContextScene>::New();
+
+  this->Context->SetContext3D(this->Context3D.GetPointer());
 }
 
 //----------------------------------------------------------------------------
-// Destroy an actor2D.
 vtkContextActor::~vtkContextActor()
 {
-  if (this->Context)
+  if (this->Context.GetPointer())
     {
     this->Context->End();
-    this->Context->Delete();
-    this->Context = NULL;
     }
-
-  if (this->Scene)
+  if (this->Context3D.GetPointer())
     {
-    this->Scene->Delete();
-    this->Scene = NULL;
+    this->Context3D->End();
     }
+}
+
+//----------------------------------------------------------------------------
+vtkContextScene * vtkContextActor::GetScene()
+{
+  return this->Scene.GetPointer();
+}
+
+//----------------------------------------------------------------------------
+void vtkContextActor::SetScene(vtkContextScene *scene)
+{
+  this->Scene = scene;
 }
 
 //----------------------------------------------------------------------------
@@ -153,7 +164,7 @@ void vtkContextActor::ReleaseGraphicsResources(vtkWindow *window)
     device->ReleaseGraphicsResources(window);
     }
 
-  if(this->Scene)
+  if(this->Scene.GetPointer())
     {
     this->Scene->ReleaseGraphicsResources();
     }
@@ -165,7 +176,7 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkContextActor::RenderOverlay");
 
-  if (!this->Context)
+  if (!this->Context.GetPointer())
     {
     vtkErrorMacro(<< "vtkContextActor::Render - No painter set");
     return 0;
@@ -224,7 +235,7 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   // First initialize the drawing device.
   this->Context->GetDevice()->Begin(viewport);
   this->Scene->SetGeometry(size);
-  this->Scene->Paint(this->Context);
+  this->Scene->Paint(this->Context.GetPointer());
   this->Context->GetDevice()->End();
   return 1;
 }
@@ -237,6 +248,9 @@ void vtkContextActor::Initialize(vtkViewport* viewport)
     {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
     device = vtkOpenGL2ContextDevice2D::New();
+    vtkContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
+    this->Context3D->Begin(dev);
+    dev->Delete();
     }
   else
     {
@@ -262,7 +276,7 @@ void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Context: " << this->Context << "\n";
-  if (this->Context)
+  if (this->Context.GetPointer())
     {
     this->Context->PrintSelf(os, indent.GetNextIndent());
     }

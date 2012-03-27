@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 // .NAME vtkConstrained2DLayoutStrategy - a simple fast 2D graph layout
 // that looks for a 'constraint' array (vtkDoubleArray). Any entry in the 
-// constraint array will indicate the level of impedence a node has to 
+// constraint array will indicate the level of impedance a node has to 
 // the force calculations during the layout optimization. The array is 
 // assumed to be normalized between zero and one, with one being totally 
 // constrained, so no force will be applied to the node (i.e. no movement), 

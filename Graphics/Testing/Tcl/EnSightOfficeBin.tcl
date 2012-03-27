@@ -18,11 +18,15 @@ reader Update
  
 # to add coverage for vtkOnePieceExtentTranslator
 vtkOnePieceExtentTranslator translator
-[reader GetOutput] SetExtentTranslator translator
+#[reader GetOutput] SetExtentTranslator translator
+set OutInfo [reader GetOutputInformation 0]
+vtkStreamingDemandDrivenPipeline sddp
+sddp SetExtentTranslator $OutInfo translator
+
 
 vtkStructuredGridOutlineFilter outline
 #    outline SetInputConnection [reader GetOutputPort]
-outline SetInput [[reader GetOutput] GetBlock 0]
+outline SetInputData [[reader GetOutput] GetBlock 0]
 vtkPolyDataMapper mapOutline
     mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -32,7 +36,7 @@ vtkActor outlineActor
 # Create source for streamtubes
 vtkStreamPoints streamer
 #    streamer SetInputConnection [reader GetOutputPort]
-streamer SetInput [[reader GetOutput] GetBlock 0]
+streamer SetInputData [[reader GetOutput] GetBlock 0]
     streamer SetStartPosition 0.1 2.1 0.5
     streamer SetMaximumPropagationTime 500
     streamer SetTimeIncrement 0.5
@@ -42,7 +46,7 @@ vtkConeSource cone
     cone SetResolution 8
 vtkGlyph3D cones
     cones SetInputConnection [streamer GetOutputPort]
-    cones SetSource [cone GetOutput]
+    cones SetSourceConnection [cone GetOutputPort]
     cones SetScaleFactor 0.9
     cones SetScaleModeToScaleByVector
 vtkPolyDataMapper mapCones

@@ -21,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSliceMapper.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageActor);
 
@@ -65,13 +67,24 @@ vtkImageActor::~vtkImageActor()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageActor::SetInput(vtkImageData *input)
+void vtkImageActor::SetInputData(vtkImageData *input)
 {
   if (this->Mapper && input != this->Mapper->GetInput())
     {
-    this->Mapper->SetInput(input);
+    this->Mapper->SetInputData(input);
     this->Modified();
     }
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithm *vtkImageActor::GetInputAlgorithm()
+{
+  if (!this->Mapper)
+    {
+    return 0;
+    }
+
+  return this->Mapper->GetInputAlgorithm();
 }
 
 //----------------------------------------------------------------------------
@@ -240,23 +253,33 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkImageActor::GetDisplayBounds()
 {
-  vtkImageData *input = 0;
+  vtkAlgorithm* inputAlg = this->Mapper->GetInputAlgorithm();
 
   if (this->Mapper)
     {
-    input = this->Mapper->GetInput();
+    inputAlg = this->Mapper->GetInputAlgorithm();
     }
 
-  if (!this->Mapper || !input)
+  if (!this->Mapper || !inputAlg)
     {
     return this->DisplayBounds;
     }
 
-  input->UpdateInformation();
+  inputAlg->UpdateInformation();
   int extent[6];
-  input->GetWholeExtent(extent);
-  double *spacing = input->GetSpacing();
-  double *origin = input->GetOrigin();
+  vtkInformation* inputInfo =
+    this->Mapper->GetInputInformation();
+  inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+  double spacing[3] = {1, 1, 1};
+  if (inputInfo->Has(vtkDataObject::SPACING()))
+    {
+    inputInfo->Get(vtkDataObject::SPACING(), spacing);
+    }
+  double origin[3] = {0, 0, 0};
+  if (inputInfo->Has(vtkDataObject::ORIGIN()))
+    {
+    inputInfo->Get(vtkDataObject::ORIGIN(), origin);
+    }
 
   // if the display extent has not been set, use first slice
   extent[5] = extent[4];
@@ -419,12 +442,13 @@ int vtkImageActor::GetWholeZMin()
 {
   int *extent;
 
-  if ( ! this->GetInput())
+  if ( ! this->GetInputAlgorithm())
     {
     return 0;
     }
-  this->GetInput()->UpdateInformation();
-  extent = this->GetInput()->GetWholeExtent();
+  this->GetInputAlgorithm()->UpdateInformation();
+  extent = this->Mapper->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
 
@@ -433,12 +457,13 @@ int vtkImageActor::GetWholeZMax()
 {
   int *extent;
 
-  if ( ! this->GetInput())
+  if ( ! this->GetInputAlgorithm())
     {
     return 0;
     }
-  this->GetInput()->UpdateInformation();
-  extent = this->GetInput()->GetWholeExtent();
+  this->GetInputAlgorithm()->UpdateInformation();
+  extent = this->Mapper->GetInputInformation()->Get(
+    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }
 

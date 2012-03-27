@@ -247,9 +247,10 @@ void vtkDICOMImageReader::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
+void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
+                                                     vtkInformation *outInfo)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
   if (!this->FileName && this->DICOMFileNames->size() == 0)
     {

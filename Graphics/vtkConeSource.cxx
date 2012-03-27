@@ -76,12 +76,12 @@ int vtkConeSource::RequestData(
   int start, end;
   int createBottom;
   
-  piece = output->GetUpdatePiece();
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   if (piece >= this->Resolution && !(piece == 0 && this->Resolution == 0))
     {
     return 1;
     }
-  numPieces = output->GetUpdateNumberOfPieces();
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   maxPieces = this->Resolution != 0 ? this->Resolution : 1;
   if (numPieces > maxPieces)
     {

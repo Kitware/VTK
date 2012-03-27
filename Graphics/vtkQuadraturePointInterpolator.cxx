@@ -167,7 +167,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
   // interpolate the arrays
   for (int arrayId=0; arrayId<nArrays; ++arrayId)
     {
-    // Grab the next array, proccess it only if we have floating
+    // Grab the next array, process it only if we have floating
     // point data.
     vtkDataArray *V=usgOut->GetPointData()->GetArray(arrayId);
     int V_type=V->GetDataType();

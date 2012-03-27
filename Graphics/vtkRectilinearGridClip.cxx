@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkRectilinearGridClip.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
 #include "vtkExtentTranslator.h"
 #include "vtkRectilinearGrid.h"
@@ -22,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkInformationExecutivePortKey.h"
 
 vtkStandardNewMacro(vtkRectilinearGridClip);
 
@@ -163,13 +165,13 @@ int vtkRectilinearGridClip::RequestInformation (
 // Sets the output whole extent to be the input whole extent.
 void vtkRectilinearGridClip::ResetOutputWholeExtent()
 {
-  if ( ! this->GetInput())
+  if ( ! this->GetInputConnection(0, 0) )
     {
     vtkWarningMacro("ResetOutputWholeExtent: No input");
     return;
     }
 
-  this->GetInput()->UpdateInformation();
+  this->GetInputConnection(0, 0)->GetProducer()->UpdateInformation();
   vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   this->SetOutputWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 }
@@ -200,7 +202,8 @@ int vtkRectilinearGridClip::RequestData(vtkInformation *vtkNotUsed(request),
 
   if (this->ClipData)
     {
-    outData->Crop();
+    outData->Crop(
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
     } 
 
   return 1;
@@ -228,14 +231,18 @@ void vtkRectilinearGridClip::SetOutputWholeExtent(int piece, int numPieces)
     vtkErrorMacro("We must have an output to set the output extent by piece.");
     return;
     }
-  translator = output->GetExtentTranslator();
+  translator = vtkExtentTranslator::SafeDownCast(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
   if (translator == NULL)
     {
     vtkErrorMacro("Output does not have an extent translator.");
     return;
     }
 
-  input->UpdateInformation();
+  vtkDemandDrivenPipeline* inputExec =
+    vtkDemandDrivenPipeline::SafeDownCast(
+      vtkExecutive::PRODUCER()->GetExecutive(inInfo));
+  inputExec->UpdateInformation();
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
   translator->SetWholeExtent(ext);
   translator->SetPiece(piece);

@@ -31,18 +31,21 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 2 "Points" 2 
     do2ds SetCellTypeComponent "CellTypes" 0
     do2ds SetCellConnectivityComponent "Cells" 0
+    do2ds Update
+
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInput [do2ds GetUnstructuredGridOutput]
+    fd2ad SetInputData [do2ds GetUnstructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad SetVectorComponent 0 "displacement9" 0 
     fd2ad SetVectorComponent 1 "displacement9" 1 
     fd2ad SetVectorComponent 2 "displacement9" 2 
     fd2ad SetScalarComponent 0 "thickness9" 0 
-    
+    fd2ad Update
+
 # Now start visualizing
 vtkWarpVector warp
-    warp SetInput [fd2ad GetUnstructuredGridOutput]
+    warp SetInputData [fd2ad GetUnstructuredGridOutput]
 
 # extract mold from mesh using connectivity
 vtkConnectivityFilter connect

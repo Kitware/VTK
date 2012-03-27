@@ -18,8 +18,8 @@
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
-#include "vtkImageProgressIterator.h"
 #include "vtkImageStencilIterator.h"
+#include "vtkImageIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkImageStencilData.h"
@@ -60,7 +60,6 @@ vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
   this->ActiveComponent = -1;
 
   this->ImageMask = vtkImageData::New();
-  this->ImageMask->SetScalarTypeToUnsignedChar();
 
   this->NumberOfInVoxels = 0;
 
@@ -156,9 +155,9 @@ int vtkImageThresholdConnectivity::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThresholdConnectivity::SetStencil(vtkImageStencilData *stencil)
+void vtkImageThresholdConnectivity::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInput(1, stencil);
+  this->SetInputData(1, stencil);
 }
 
 //----------------------------------------------------------------------------
@@ -334,7 +333,7 @@ void vtkImageThresholdConnectivityExecute(
 
   // Set the "outside" with either the input or the OutValue
   vtkImageIterator<IT> inIt(inData, outExt);
-  vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
+  vtkImageIterator<OT> outIt(outData, outExt);
   while (!outIt.IsAtEnd())
     {
     IT* inSI = inIt.BeginSpan();
@@ -430,13 +429,16 @@ void vtkImageThresholdConnectivityExecute(
                         static_cast<vtkIdType>(extent[3] - extent[2] + 1)*
                         static_cast<vtkIdType>(extent[5] - extent[4] + 1));
 
+  // for the progress meter
+  double progress = 0.0;
+  vtkIdType target = static_cast<vtkIdType>(fullsize/50.0);
+  target++;
 
   // Setup the mask
-  maskData->SetWholeExtent(inData->GetWholeExtent());
   maskData->SetOrigin(inData->GetOrigin());
   maskData->SetSpacing(inData->GetSpacing());
   maskData->SetExtent(extent);
-  maskData->AllocateScalars();
+  maskData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   unsigned char *maskPtr =
     static_cast<unsigned char *>(maskData->GetScalarPointerForExtent(extent));
@@ -502,8 +504,8 @@ void vtkImageThresholdConnectivityExecute(
     }
 
   double point[3];
-  int nPoints = points->GetNumberOfPoints();
-  for (int p = 0; p < nPoints; p++)
+  vtkIdType nPoints = points->GetNumberOfPoints();
+  for (vtkIdType p = 0; p < nPoints; p++)
     {
     points->GetPoint(p,point);
     vtkFloodFillSeed seed = vtkFloodFillSeed(
@@ -519,7 +521,8 @@ void vtkImageThresholdConnectivityExecute(
       }
     }
 
-  int counter = 0;
+  vtkIdType counter = 0;
+  vtkIdType fullcount = 0;
 
   while (!seedStack.empty())
     {
@@ -535,6 +538,18 @@ void vtkImageThresholdConnectivityExecute(
       continue;
       }
     *maskPtr1 = 255;
+
+    fullcount++;
+    if (id == 0 && (fullcount % target) == 0)
+      {
+      double v = counter/(10.0*fullcount);
+      double p = fullcount/(v*fullsize + (1.0 - v)*fullcount);
+      if (p > progress)
+        {
+        progress = p;
+        self->UpdateProgress(progress);
+        }
+      }
 
     IT *inPtr1 = inPtr + (seed[0]*inInc[0] +
                           seed[1]*inInc[1] +
@@ -652,6 +667,11 @@ void vtkImageThresholdConnectivityExecute(
       }
     }
 
+  if (id == 0)
+    {
+    self->UpdateProgress(1.0);
+    }
+
   voxelCount = counter;
 }
 
@@ -721,7 +741,7 @@ int vtkImageThresholdConnectivity::RequestData(
 
   int outExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
-  this->AllocateOutputData(outData, outExt);
+  this->AllocateOutputData(outData, outInfo, outExt);
 
   // get scalar pointers
   void *inPtr = inData->GetScalarPointerForExtent(outExt);

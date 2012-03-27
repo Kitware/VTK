@@ -2,6 +2,7 @@
 SET(KIT QVTK)
 # add tests that do not require data
 SET(MyTests
+  TestQtDebugLeaksView.cxx
   TestQtInitialization.cxx
   TestQtSQLDatabase.cxx
   TestQtTableModelAdapter.cxx
@@ -40,57 +41,3 @@ FOREACH (test ${TestsToRun})
     ADD_TEST(QVTK-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
   ENDIF (VTK_DATA_ROOT)
 ENDFOREACH (test)
-
-
-# testing of vtkQtChart
-if(VTK_USE_QTCHARTS)
-  SET(Tests
-    TestLineSeries.cxx
-    TestBarChart.cxx
-    TestBarSeriesColors.cxx
-    TestStackedChart.cxx
-    TestStackedChartAnimate.cxx
-    TestStatisticalBoxChart.cxx
-    PolylineItem.cxx
-    PointMarkerItems.cxx
-    Test1.cxx
-    TestChartWidget.cxx
-    )
-  IF(VTK_USE_INFOVIS)
-    SET(Tests ${Tests} TestOrderStatisticsBoxChart.cxx)
-  ENDIF(VTK_USE_INFOVIS)
-
-  ## Optionally add tests for vtkView subclasses
-  IF(VTK_USE_VIEWS)
-    SET(Tests ${Tests}
-      TestVtkBarChartView.cxx
-      TestVtkLineChartView.cxx
-      TestVtkStackedChartView.cxx
-      TestVtkStatisticalBoxChartView.cxx)
-  ENDIF(VTK_USE_VIEWS)
-
-  INCLUDE_DIRECTORIES(${vtkQtChart_SOURCE_DIR} ${vtkQtChart_BINARY_DIR})
-
-  CREATE_TEST_SOURCELIST(TestSrcs QtChartCxxTests.cxx ${Tests} )
-
-  ADD_EXECUTABLE(QtChartCxxTests ${TestSrcs} QTestApp.cxx)
-  TARGET_LINK_LIBRARIES(QtChartCxxTests
-    vtkQtChart
-    vtkFiltering
-    vtkCommon)
-
-  IF(VTK_USE_INFOVIS)
-    TARGET_LINK_LIBRARIES(QtChartCxxTests vtkInfovis)
-  ENDIF(VTK_USE_INFOVIS)
-
-  ## Optionally link against vtkViews
-  IF(VTK_USE_VIEWS)
-    TARGET_LINK_LIBRARIES(QtChartCxxTests QVTK vtkViews)
-  ENDIF(VTK_USE_VIEWS)
-
-  FOREACH(test ${Tests})
-    GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
-    ADD_TEST(QtChart-${testname} ${CXX_TEST_PATH}/QtChartCxxTests ${testname} --exit)
-  ENDFOREACH(test)
-
-endif()

@@ -401,7 +401,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
         w2if.Update();
 
         vtkTIFFWriter writer = new vtkTIFFWriter();
-        writer.SetInput(w2if.GetOutput());
+        writer.SetInputConnection(w2if.GetOutputPort());
         writer.SetFileName(filename);
         writer.Write();
 

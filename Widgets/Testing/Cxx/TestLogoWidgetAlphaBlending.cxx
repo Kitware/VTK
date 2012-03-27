@@ -77,6 +77,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
   */
   image1->SetOrientationType( 4 );
   delete [] fname;
+  image1->Update();
 
   // Create a test pipeline
   //
@@ -84,7 +85,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
     vtkSmartPointer<vtkSphereSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInput(ss->GetOutput());
+  mapper->SetInputConnection(ss->GetOutputPort());
 
   vtkSmartPointer<vtkActor> sph =
     vtkSmartPointer<vtkActor>::New();
@@ -100,7 +101,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
     vtkSmartPointer<vtkCylinderSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> csMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  csMapper->SetInput(cs->GetOutput());
+  csMapper->SetInputConnection(cs->GetOutputPort());
 
   vtkSmartPointer<vtkActor> cyl =
     vtkSmartPointer<vtkActor>::New();
@@ -111,7 +112,7 @@ int TestLogoWidgetAlphaBlending( int argc, char *argv[] )
     vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> coneMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  coneMapper->SetInput(coneSource->GetOutput());
+  coneMapper->SetInputConnection(coneSource->GetOutputPort());
 
   vtkSmartPointer<vtkActor> cone =
     vtkSmartPointer<vtkActor>::New();

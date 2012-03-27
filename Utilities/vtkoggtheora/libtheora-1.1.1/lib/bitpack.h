@@ -17,7 +17,7 @@
 #if !defined(_bitpack_H)
 # define _bitpack_H (1)
 /* KITWARE_OGGTHEORA_CHANGE - Added to mangle function names */
-#include "vtk_oggtheora_mangle.h"
+#include <vtkoggtheora/include/vtk_oggtheora_mangle.h>
 
 # include <limits.h>
 

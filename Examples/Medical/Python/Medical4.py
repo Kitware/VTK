@@ -36,7 +36,7 @@ v16.SetDataSpacing(3.2, 3.2, 1.5)
 rayCastFunction = vtk.vtkVolumeRayCastCompositeFunction()
 
 volumeMapper = vtk.vtkVolumeRayCastMapper()
-volumeMapper.SetInput(v16.GetOutput())
+volumeMapper.SetInputConnection(v16.GetOutputPort())
 volumeMapper.SetVolumeRayCastFunction(rayCastFunction)
 
 # The color transfer function maps voxel intensities to colors.

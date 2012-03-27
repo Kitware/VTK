@@ -23,7 +23,7 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET ( Kit_SRCS
-vtkBranchExtentTranslator.cxx
+vtkAMRUtilities.cxx
 vtkCachingInterpolatedVelocityField.cxx
 vtkClientServerSynchronizedRenderers.cxx
 vtkCollectGraph.cxx
@@ -54,6 +54,7 @@ vtkPCellDataToPointData.cxx
 vtkPChacoReader.cxx
 vtkPCosmoHaloFinder.cxx
 vtkPCosmoReader.cxx
+vtkPDataSetGhostGenerator.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPExtractArraysOverTime.cxx
@@ -64,7 +65,6 @@ vtkPKdTree.cxx
 vtkPLinearExtrusionFilter.cxx
 vtkPMaskPoints.cxx
 vtkPNrrdReader.cxx
-vtkPOPReader.cxx
 vtkPOpenFOAMReader.cxx
 vtkPOutlineCornerFilter.cxx
 vtkPOutlineFilter.cxx
@@ -129,9 +129,11 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkAMRUtilities
 vtkCommunicator 
 vtkMultiProcessController
 vtkMultiProcessStream
+vtkPDataSetGhostGenerator
 vtkPStreamTracer
 vtkProcess
 ABSTRACT
@@ -161,27 +163,15 @@ IF (VTK_USE_MPI)
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkPNetCDFPOPReader.cxx
+    vtkPStructuredGridConnectivity.cxx
+    vtkPUniformGridGhostDataGenerator.cxx
+    vtkPStructuredGridGhostDataGenerator.cxx
     )
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
 ELSE (VTK_USE_MPI)
   ADD_DEFINITIONS("-DUSE_SERIAL_COSMO")
 ENDIF (VTK_USE_MPI)
-
-IF (NOT VTK_LEGACY_REMOVE)
-  SET(Kit_Deprecated_SRCS
-    )
-  IF (VTK_USE_MPI)
-    SET(Kit_Deprecated_SRCS ${Kit_Deprecated_SRCS}
-      )
-  ENDIF (VTK_USE_MPI)
-  SET (Kit_SRCS ${Kit_SRCS} ${Kit_Deprecated_SRCS})
-  IF (CMAKE_COMPILER_IS_GNUCXX)
-    SET_SOURCE_FILES_PROPERTIES(${Kit_Deprecated_SRCS}
-      PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations
-      )
-  ENDIF (CMAKE_COMPILER_IS_GNUCXX)
-ENDIF (NOT VTK_LEGACY_REMOVE)
 
 IF (VTK_USE_PARALLEL_BGL)
   SET(KIT_LIBS ${KIT_LIBS} ${Boost_LIBRARIES})

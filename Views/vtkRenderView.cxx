@@ -430,7 +430,7 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   if (this->SelectionMode == FRUSTUM)
     {
     // Do a frustum selection.
-    int displayRectangle[4] = {screenMinX, screenMinY, screenMaxX, screenMaxY};
+    double displayRectangle[4] = {screenMinX, screenMinY, screenMaxX, screenMaxY};
     vtkSmartPointer<vtkDoubleArray> frustcorners =
       vtkSmartPointer<vtkDoubleArray>::New();
     frustcorners->SetNumberOfComponents(4);
@@ -439,49 +439,49 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
     vtkRenderer *renderer = this->GetRenderer();
     double worldP[32];
     int index=0;
-    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 0);
+    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 0.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 1);
+    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[1], 1.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 0);
+    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 0.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 1);
+    renderer->SetDisplayPoint(displayRectangle[0], displayRectangle[3], 1.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 0);
+    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 0.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 1);
+    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[1], 1.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 0);
+    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 0.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],
       worldP[index*4+2], worldP[index*4+3]);
     index++;
-    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 1);
+    renderer->SetDisplayPoint(displayRectangle[2], displayRectangle[3], 1.0);
     renderer->DisplayToWorld();
     renderer->GetWorldPoint(&worldP[index*4]);
     frustcorners->SetTuple4(index,  worldP[index*4], worldP[index*4+1],

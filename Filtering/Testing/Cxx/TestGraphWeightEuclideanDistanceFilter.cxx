@@ -39,7 +39,7 @@ int TestGraphWeightEuclideanDistanceFilter(int, char *[])
 
   vtkSmartPointer<vtkGraphWeightEuclideanDistanceFilter> weightFilter =
     vtkSmartPointer<vtkGraphWeightEuclideanDistanceFilter>::New();
-  weightFilter->SetInputConnection(g->GetProducerPort());
+  weightFilter->SetInputData(g);
   weightFilter->Update();
 
   vtkFloatArray* weights = vtkFloatArray::SafeDownCast(weightFilter->GetOutput()->GetEdgeData()->GetArray("Weights"));

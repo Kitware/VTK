@@ -19,7 +19,7 @@ profile.SetPoints(points)
 
 # Perform a 2D Delaunay triangulation on them.
 delny = vtk.vtkDelaunay2D()
-delny.SetInput(profile)
+delny.SetInputData(profile)
 delny.SetTolerance(0.001)
 mapMesh = vtk.vtkPolyDataMapper()
 mapMesh.SetInputConnection(delny.GetOutputPort())

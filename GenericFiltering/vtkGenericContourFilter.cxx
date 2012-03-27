@@ -94,7 +94,7 @@ unsigned long vtkGenericContourFilter::GetMTime()
     }
     
   // mTime should also take into account the fact that tesselator is view 
-  // dependant
+  // dependent
 
   return mTime;
 }

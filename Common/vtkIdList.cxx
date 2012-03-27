@@ -108,7 +108,7 @@ void vtkIdList::DeleteId(vtkIdType vtkid)
 {
   vtkIdType i=0;
 
-  // while loop is necessary to delete all occurences of vtkid
+  // while loop is necessary to delete all occurrences of vtkid
   while ( i < this->NumberOfIds )
     {
     for ( ; i < this->NumberOfIds; i++)

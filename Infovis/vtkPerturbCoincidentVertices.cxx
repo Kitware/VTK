@@ -91,7 +91,7 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
   // the average point distance assuming the points are uniformly distributed. The smallest of these
   // two metrics will be used to scale the spiral.
 
-  // Compute shortest edge comming to/from the coincident points.
+  // Compute shortest edge coming to/from the coincident points.
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
   while(coincidentPointsList != NULL)
     {
@@ -221,7 +221,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   int numPoints = points->GetNumberOfPoints();
 
   // Temporary abort as this perturbation method
-  // calculates N^2 distances which doesnt scale well.
+  // calculates N^2 distances which doesn't scale well.
   if(numPoints > 1000)
     {
     return;

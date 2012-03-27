@@ -254,7 +254,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
     int dimensions[4];
     vtkVector2f position(mouse.GetScreenPos().Cast<float>().GetData());
     vtkVector2f tolerance(5, 5);
-    vtkVector2f plotPos;
+    vtkVector2f plotPos(0, 0);
     this->Private->Plot->GetDimensions(dimensions);
 
     vtkVector2i pos(mouse.GetScreenPos());

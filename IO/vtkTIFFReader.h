@@ -58,7 +58,7 @@ public:
     }
 
   // Description:
-  // Auxilary methods used by the reader internally.
+  // Auxiliary methods used by the reader internally.
   void InitializeColors();
 
   // Description:
@@ -129,7 +129,7 @@ protected:
 
   unsigned int  GetFormat();
   virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *out);
+  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
 
 private:
   vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.

@@ -11,12 +11,13 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Create a PLOT3D reader and load the data.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # Create three the line source to use for the probe lines.
 line = vtk.vtkLineSource()
@@ -34,7 +35,7 @@ tf.SetInputConnection(line.GetOutputPort())
 tf.SetTransform(transL1)
 probe = vtk.vtkProbeFilter()
 probe.SetInputConnection(tf.GetOutputPort())
-probe.SetSource(pl3d.GetOutput())
+probe.SetSourceData(pl3d_output)
 
 # Move the line again and create another probe filter.
 transL2 = vtk.vtkTransform()
@@ -46,7 +47,7 @@ tf2.SetInputConnection(line.GetOutputPort())
 tf2.SetTransform(transL2)
 probe2 = vtk.vtkProbeFilter()
 probe2.SetInputConnection(tf2.GetOutputPort())
-probe2.SetSource(pl3d.GetOutput())
+probe2.SetSourceData(pl3d_output)
 
 # Move the line again and create a third probe filter.
 transL3 = vtk.vtkTransform()
@@ -58,14 +59,14 @@ tf3.SetInputConnection(line.GetOutputPort())
 tf3.SetTransform(transL3)
 probe3 = vtk.vtkProbeFilter()
 probe3.SetInputConnection(tf3.GetOutputPort())
-probe3.SetSource(pl3d.GetOutput())
+probe3.SetSourceData(pl3d_output)
 
 # Create a vtkAppendPolyData to merge the output of the three probe
 # filters into one data set.
 appendF = vtk.vtkAppendPolyData()
-appendF.AddInput(probe.GetPolyDataOutput())
-appendF.AddInput(probe2.GetPolyDataOutput())
-appendF.AddInput(probe3.GetPolyDataOutput())
+appendF.AddInputConnection(probe.GetOutputPort())
+appendF.AddInputConnection(probe2.GetOutputPort())
+appendF.AddInputConnection(probe3.GetOutputPort())
 
 # Create a tube filter to represent the lines as tubes.  Set up the
 # associated mapper and actor.
@@ -80,9 +81,9 @@ lineActor.SetMapper(lineMapper)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are arc length.
 xyplot = vtk.vtkXYPlotActor()
-xyplot.AddInput(probe.GetOutput())
-xyplot.AddInput(probe2.GetOutput())
-xyplot.AddInput(probe3.GetOutput())
+xyplot.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot.GetPositionCoordinate().SetValue(0.0, 0.67, 0)
 xyplot.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot.SetXValuesToArcLength()
@@ -104,9 +105,9 @@ xyplot.SetAxisLabelTextProperty(tprop)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are normalized arc length.
 xyplot2 = vtk.vtkXYPlotActor()
-xyplot2.AddInput(probe.GetOutput())
-xyplot2.AddInput(probe2.GetOutput())
-xyplot2.AddInput(probe3.GetOutput())
+xyplot2.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot2.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot2.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot2.GetPositionCoordinate().SetValue(0.00, 0.33, 0)
 xyplot2.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot2.SetXValuesToNormalizedArcLength()
@@ -128,9 +129,9 @@ xyplot2.SetAxisLabelTextProperty(tprop)
 # Create an xy-plot using the output of the 3 probe filters as input.
 # The x-values we are plotting are the underlying point data values.
 xyplot3 = vtk.vtkXYPlotActor()
-xyplot3.AddInput(probe.GetOutput())
-xyplot3.AddInput(probe2.GetOutput())
-xyplot3.AddInput(probe3.GetOutput())
+xyplot3.AddDataSetInputConnection(probe.GetOutputPort())
+xyplot3.AddDataSetInputConnection(probe2.GetOutputPort())
+xyplot3.AddDataSetInputConnection(probe3.GetOutputPort())
 xyplot3.GetPositionCoordinate().SetValue(0.0, 0.0, 0)
 xyplot3.GetPosition2Coordinate().SetValue(1.0, 0.33, 0) #relative to Position
 xyplot3.SetXValuesToIndex()
@@ -150,7 +151,7 @@ xyplot3.SetAxisLabelTextProperty(tprop)
 
 # Draw an outline of the PLOT3D data set.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

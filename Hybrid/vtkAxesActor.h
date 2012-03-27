@@ -18,7 +18,7 @@
 // The user can define the geometry to use for the shaft or the tip, and the
 // user can set the text for the three axes. The text will appear to follow the
 // camera since it is implemented by means of vtkCaptionActor2D.  All of the
-// functionality of the underlying vtkCaptionActor2D objects are accessable so
+// functionality of the underlying vtkCaptionActor2D objects are accessible so
 // that, for instance, the font attributes of the axes text can be manipulated
 // through vtkTextProperty. Since this class inherits from vtkProp3D, one can
 // apply a user transform to the underlying geometry and the positioning of the

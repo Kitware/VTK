@@ -7,12 +7,13 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Read the data and specify which scalars and vectors to read.
-pl3d = vtk.vtkPLOT3DReader()
+pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
 pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
+pl3d_output = pl3d.GetOutput().GetBlock(0)
 
 # We use a rake to generate a series of streamline starting points
 # scattered along a line. Each point will generate a streamline. These
@@ -29,8 +30,8 @@ rakeActor.SetMapper(rakeMapper)
 
 integ = vtk.vtkRungeKutta4()
 sl = vtk.vtkStreamLine()
-sl.SetInputConnection(pl3d.GetOutputPort())
-sl.SetSource(rake.GetOutput())
+sl.SetInputData(pl3d_output)
+sl.SetSourceConnection(rake.GetOutputPort())
 sl.SetIntegrator(integ)
 sl.SetMaximumPropagationTime(0.1)
 sl.SetIntegrationStepLength(0.1)
@@ -49,13 +50,13 @@ scalarSurface.SetRuledModeToPointWalk()
 scalarSurface.SetDistanceFactor(30)
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(scalarSurface.GetOutputPort())
-mapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
+mapper.SetScalarRange(pl3d_output.GetScalarRange())
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
 # Put an outline around for context.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInputConnection(pl3d.GetOutputPort())
+outline.SetInputData(pl3d_output)
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()

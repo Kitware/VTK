@@ -343,7 +343,7 @@ int TestLODActor( int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   vtkLoopSubdivisionFilter *subdivide = vtkLoopSubdivisionFilter::New();
-    subdivide->SetInput (model);
+    subdivide->SetInputData (model);
     subdivide->SetNumberOfSubdivisions(6);
 
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();

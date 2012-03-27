@@ -26,7 +26,7 @@ v16 SetDataSpacing 3.2 3.2 1.5
 vtkVolumeRayCastCompositeFunction rayCastFunction
 
 vtkVolumeRayCastMapper volumeMapper
-volumeMapper SetInput [v16 GetOutput]
+volumeMapper SetInputConnection [v16 GetOutputPort]
 volumeMapper SetVolumeRayCastFunction rayCastFunction
 
 vtkColorTransferFunction volumeColor
@@ -97,10 +97,9 @@ table SetSaturationRange 0 0
 vtkImageMapToColors mapToColors
 mapToColors SetInputConnection [v16 GetOutputPort]
 mapToColors SetLookupTable table
-[mapToColors GetOutput] Update
 
 vtkImageActor imageActor
-imageActor SetInput [mapToColors GetOutput]
+[imageActor GetMapper] SetInputConnection [mapToColors GetOutputPort]
 imageActor SetDisplayExtent 32 32 0 63 0 92
 
 #---------------------------------------------------------

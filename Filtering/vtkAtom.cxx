@@ -38,11 +38,11 @@ void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Molecule: " << this->Molecule
      << " Id: " << this->Id
      << " Element: " << this->GetAtomicNumber()
-     << " Position: " << this->GetPositionAsVector3f() << endl;
+     << " Position: " << this->GetPosition() << endl;
 }
 
 //----------------------------------------------------------------------------
-unsigned short vtkAtom::GetAtomicNumber()
+unsigned short vtkAtom::GetAtomicNumber() const
 {
   return this->Molecule->GetAtomAtomicNumber(this->Id);
 }
@@ -54,27 +54,24 @@ void vtkAtom::SetAtomicNumber(unsigned short atomicNum)
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::GetPosition(double pos[3])
-{
-  return this->Molecule->GetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkAtom::SetPosition(const double pos[3])
-{
-  this->Molecule->SetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
-void vtkAtom::GetPosition(float pos[3])
+void vtkAtom::GetPosition(float pos[3]) const
 {
   this->Molecule->GetAtomPosition(this->Id, pos);
 }
 
 //----------------------------------------------------------------------------
+void vtkAtom::GetPosition(double pos[3]) const
+{
+  vtkVector3f position = this->GetPosition();
+  pos[0] = position.X();
+  pos[1] = position.Y();
+  pos[2] = position.Z();
+}
+
+//----------------------------------------------------------------------------
 void vtkAtom::SetPosition(const float pos[3])
 {
-  this->Molecule->SetAtomPosition(this->Id, pos);
+  this->Molecule->SetAtomPosition(this->Id, vtkVector3f(pos));
 }
 
 //----------------------------------------------------------------------------
@@ -84,25 +81,13 @@ void vtkAtom::SetPosition(float x, float y, float z)
 }
 
 //----------------------------------------------------------------------------
-vtkVector3f vtkAtom::GetPositionAsVector3f()
+vtkVector3f vtkAtom::GetPosition() const
 {
-  return this->Molecule->GetAtomPositionAsVector3f(this->Id);
+  return this->Molecule->GetAtomPosition(this->Id);
 }
 
 //----------------------------------------------------------------------------
 void vtkAtom::SetPosition(const vtkVector3f &pos)
-{
-  this->Molecule->SetAtomPosition(this->Id, pos);
-}
-
-//----------------------------------------------------------------------------
-vtkVector3d vtkAtom::GetPositionAsVector3d()
-{
-  return this->Molecule->GetAtomPositionAsVector3d(this->Id);
-}
-
-//----------------------------------------------------------------------------
-void vtkAtom::SetPosition(const vtkVector3d &pos)
 {
   this->Molecule->SetAtomPosition(this->Id, pos);
 }

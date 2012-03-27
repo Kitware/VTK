@@ -76,6 +76,7 @@ public:
   // Description:
   // Override Update to handle some tricky details.
   virtual void Update();
+  virtual void Update(int port);
 
   // Description:
   // This should only be called by the renderer.

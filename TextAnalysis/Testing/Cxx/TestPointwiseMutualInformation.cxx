@@ -65,7 +65,7 @@ int TestPointwiseMutualInformation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
     a_data->AddArray(a);
 
     vtkSmartPointer<vtkPointwiseMutualInformation> pmi = vtkSmartPointer<vtkPointwiseMutualInformation>::New();
-    pmi->SetInputConnection(0, a_data->GetProducerPort());
+    pmi->SetInputData(0, a_data);
     pmi->Update();
 
     test_expression(pmi->GetOutput());

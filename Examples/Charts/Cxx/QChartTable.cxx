@@ -82,16 +82,16 @@ int main( int argc, char * argv [] )
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     }
 
-  table->Update();
+//   table->Update();
 
   // Add multiple line plots, setting the colors etc
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
   view->GetScene()->AddItem(chart);
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(255, 0, 0, 255);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInput(table, 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(2.0);
 

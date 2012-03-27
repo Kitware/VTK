@@ -32,19 +32,10 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkCarbonRenderWindow_h
 
 #if defined(__LP64__) && __LP64__
-  #error vtkCarbonRenderWindow does not work in 64 bit
+  #error VTK_USE_CARBON cannot work in 64 bit, use VTK_USE_COCOA instead.
 #endif
 
 #include "vtkOpenGLRenderWindow.h"
-
-// The 10.3.9 SDK (and older probably) have a bug in fp.h (in the Carbon
-// umbrella framework) which this works around. Without this, there
-// would be a compile error from the Carbon header if Python wrappings
-// were enabled.
-#include <AvailabilityMacros.h> // Needed for MAC_OS_X_VERSION_MAX_ALLOWED
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
-  #define scalb scalbn
-#endif
 
 #include <Carbon/Carbon.h> // Carbon and Mac specific
 #include <AGL/agl.h> // Carbon and Mac specific

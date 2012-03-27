@@ -380,7 +380,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
     this->ClearImage();
     }
   
-  // Tranform the points. As a by product, compute the ViewToWorldMatrix
+  // Transform the points. As a by product, compute the ViewToWorldMatrix
   // that will be used later
   this->TransformPoints();   
 

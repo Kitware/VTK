@@ -100,7 +100,7 @@ vtkTextProperty tprop
 # Create a vtkCubeAxesActor2D.  Use the outer edges of the bounding box to
 # draw the axes.  Add the actor to the renderer.
 vtkCubeAxesActor2D axes
-    axes SetInput [normals GetOutput]
+    axes SetInputConnection [normals GetOutputPort]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.4g"
     axes SetFlyModeToClosestTriad

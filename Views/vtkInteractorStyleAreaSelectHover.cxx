@@ -64,7 +64,7 @@ vtkInteractorStyleAreaSelectHover::vtkInteractorStyleAreaSelectHover()
 
   this->HighlightData = vtkPolyData::New();
   vtkPolyDataMapper *highMap = vtkPolyDataMapper::New();
-  highMap->SetInput(this->HighlightData);
+  highMap->SetInputData(this->HighlightData);
   this->HighlightActor = vtkActor::New();
   this->HighlightActor->SetMapper(highMap);
   this->HighlightActor->VisibilityOff();
@@ -201,7 +201,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
     this->GetBoundingAreaForItem(id,sinfo);
     }
 
-  double loc[2] = {x, y};
+  double loc[2] = {static_cast<double>(x), static_cast<double>(y)};
   this->Balloon->EndWidgetInteraction(loc);
 
   if (this->Layout && this->Layout->GetOutput())
@@ -259,10 +259,10 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
           sector->Update();
           
           VTK_CREATE(vtkExtractEdges, extract);
-          extract->SetInput(sector->GetOutput());
+          extract->SetInputConnection(sector->GetOutputPort());
           
           VTK_CREATE(vtkAppendPolyData, append);
-          append->AddInput(extract->GetOutput());
+          append->AddInputConnection(extract->GetOutputPort());
           append->Update();
           
           this->HighlightData->ShallowCopy(append->GetOutput());

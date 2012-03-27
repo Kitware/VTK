@@ -347,7 +347,7 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
   lonClipPlane->SetNormal(-1.0, 0.0, 0.0);
   lonClip->SetClipFunction(lonClipPlane);
   lonClip->GenerateClippedOutputOn();
-  lonClip->SetInput(parent->GetModel());
+  lonClip->SetInputData(parent->GetModel());
 
   vtkSmartPointer<vtkPlane> latClipPlane = vtkSmartPointer<vtkPlane>::New();
   latClipPlane->SetOrigin(center);
@@ -443,7 +443,7 @@ bool vtkGeoProjectionSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTree
     finalClip->SetClipFunction(plane);
     vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
     pd->DeepCopy(child->GetModel());
-    finalClip->SetInput(pd);
+    finalClip->SetInputData(pd);
     finalClip->Update();
     child->GetModel()->DeepCopy(finalClip->GetOutput());
     }

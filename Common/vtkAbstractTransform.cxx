@@ -1122,10 +1122,3 @@ void vtkTransformConcatenationStack::DeepCopy(
     this->StackBottom[k]->DeepCopy(stack->StackBottom[k]);
     }
 }
-
-#ifndef VTK_LEGACY_REMOVE
-void vtkAbstractTransform::Identity()
-{
-  vtkWarningMacro("vtkAbstractTransform::Identity() is deprecated");
-}
-#endif

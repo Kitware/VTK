@@ -135,7 +135,6 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
     vtkSmartPointer<vtkImageData> image =
       vtkSmartPointer<vtkImageData>::New();
     image->SetDimensions(80, 80, 1);
-    image->SetScalarTypeToUnsignedChar();
     vtkUnsignedCharArray *colors =
       table2->MapScalars(outputs[i], VTK_COLOR_MODE_DEFAULT, outputc);
     image->GetPointData()->SetScalars(colors);
@@ -149,7 +148,7 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
       vtkSmartPointer<vtkImageMapper>::New();
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInput(image);
+    mapper->SetInputData(image);
 
     vtkSmartPointer<vtkActor2D> actor =
       vtkSmartPointer<vtkActor2D>::New();

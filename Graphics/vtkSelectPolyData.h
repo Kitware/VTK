@@ -52,8 +52,8 @@
 // controls the output of the filter. If on, then scalar values are
 // generated based on distance to the loop lines. Otherwise, the cells
 // laying inside the selection loop are output. By default, the mesh
-// lying within the loop is output; however, if InsideOut is on, then
-// the portion of the mesh lying outside of the loop is output.
+// laying within the loop is output; however, if InsideOut is on, then
+// the portion of the mesh laying outside of the loop is output.
 //
 // The filter can be configured to generate the unselected portions of
 // the mesh as output by setting GenerateUnselectedOutput. Use the
