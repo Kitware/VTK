@@ -44,6 +44,69 @@ void vtkFieldDataSerializer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+void vtkFieldDataSerializer::SerializeMetaData(
+    vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
+{
+  if( fieldData == NULL )
+    {
+    vtkGenericWarningMacro("Field data is NULL!");
+    return;
+    }
+
+  // STEP 0: Write the number of arrays
+  bytestream << fieldData->GetNumberOfArrays();
+
+  // STEP 1: Loop through each array and write the metadata
+  for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
+    {
+    vtkDataArray *dataArray = fieldData->GetArray( array );
+    assert("pre: data array should not be NULL!" && (dataArray != NULL));
+
+    int dataType  = dataArray->GetDataType();
+    int numComp   = dataArray->GetNumberOfComponents();
+    int numTuples = dataArray->GetNumberOfTuples();
+
+    // serialize array information
+    bytestream << dataType << numTuples << numComp;
+    bytestream << std::string( dataArray->GetName() );
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
+void vtkFieldDataSerializer::DeserializeMetaData(
+    vtkMultiProcessStream& bytestream,
+    std::string* &names,
+    int* &datatypes,
+    int* &dimensions,
+    int &NumberOfArrays)
+{
+  if( bytestream.Empty() )
+    {
+    vtkGenericWarningMacro("ByteStream is empty");
+    return;
+    }
+
+  // STEP 0: Extract the number of arrays
+  bytestream >> NumberOfArrays;
+  if( NumberOfArrays == 0 )
+    {
+    return;
+    }
+
+  // STEP 1: Allocate output arrays
+  names      = new std::string[NumberOfArrays];
+  datatypes  = new int[NumberOfArrays];
+  dimensions = new int[2*NumberOfArrays];
+
+  // STEP 2: Extract metadata for each array in corresponding output arrays
+  for( int arrayIdx=0; arrayIdx < NumberOfArrays; ++arrayIdx )
+    {
+    bytestream >> datatypes[ arrayIdx ] >> dimensions[arrayIdx*2] >>
+                  dimensions[arrayIdx*2+1] >> names[ arrayIdx ];
+    } // END for all arrays
+}
+
+//------------------------------------------------------------------------------
 void vtkFieldDataSerializer::Serialize(
     vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
 {
@@ -61,7 +124,7 @@ void vtkFieldDataSerializer::Serialize(
     return;
     }
 
-  // STEP 1: Loop through each array and serialize it
+  // STEP 1: Loop through each array and serialize its metadata
   for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
     {
     vtkDataArray *dataArray = fieldData->GetArray( array );

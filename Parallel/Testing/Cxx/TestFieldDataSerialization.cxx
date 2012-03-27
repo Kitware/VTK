@@ -282,12 +282,74 @@ bool AreFieldsEqual(vtkFieldData *F1, vtkFieldData *F2)
 }
 
 //------------------------------------------------------------------------------
-int TestFieldDataSerialization(int argc, char *argv[])
+int TestFieldDataMetaData()
 {
-  // Resolve compiler warnings about unused vars
-  static_cast<void>(argc);
-  static_cast<void>(argv);
+  int rc = 0;
 
+  // STEP 0: Construct the field data
+  vtkPointData *field = GetSamplePointData(5);
+  assert("pre: field is NULL!" && (field != NULL) );
+
+  // STEP 1: Serialize the field data in a bytestream
+  vtkMultiProcessStream bytestream;
+  vtkFieldDataSerializer::SerializeMetaData( field, bytestream );
+
+  // STEP 2: De-serialize the metadata
+  std::string *names = NULL;
+  int *datatypes     = NULL;
+  int *dimensions    = NULL;
+  int NumberOfArrays = 0;
+  vtkFieldDataSerializer::DeserializeMetaData(
+      bytestream, names, datatypes, dimensions, NumberOfArrays );
+
+  // STEP 3: Check deserialized data with expected values
+  if( NumberOfArrays != field->GetNumberOfArrays() )
+    {
+    ++rc;
+    cerr << "ERROR: NumberOfArrays=" << NumberOfArrays
+         << " expected val=" << field->GetNumberOfArrays() << "\n";
+    }
+  assert("pre: names arrays is NULL" && (names != NULL) );
+  assert("pre: datatypes is NULL" && (datatypes != NULL) );
+  assert("pre: dimensions is NULL" && (dimensions != NULL) );
+
+  for( int i=0; i < NumberOfArrays; ++i )
+    {
+    vtkDataArray *dataArray = field->GetArray( i );
+    if( strcmp(dataArray->GetName(), names[i].c_str()) != 0 )
+      {
+      rc++;
+      cerr << "ERROR: Array name mismatch!\n";
+      }
+    if( dataArray->GetDataType() != datatypes[i] )
+      {
+      rc++;
+      cerr << "ERROR: Array data type mismatch!\n";
+      }
+    if( dataArray->GetNumberOfTuples() != dimensions[i*2] )
+      {
+      rc++;
+      cerr << "ERROR: Array number of tuples mismatch!\n";
+      }
+    if( dataArray->GetNumberOfComponents() != dimensions[i*2+1] )
+      {
+      rc++;
+      cerr << "ERROR: Array number of components mismatch!\n";
+      }
+    } // END for all arrays
+
+  // STEP 4: Clean up memory
+  delete [] names;
+  delete [] datatypes;
+  delete [] dimensions;
+  field->Delete();
+
+  return( rc );
+}
+
+//------------------------------------------------------------------------------
+int TestFieldData()
+{
   int rc = 0;
 
   vtkPointData *field = GetSamplePointData(5);
@@ -296,27 +358,43 @@ int TestFieldDataSerialization(int argc, char *argv[])
   vtkMultiProcessStream bytestream;
   vtkFieldDataSerializer::Serialize( field, bytestream );
   if( bytestream.Empty() )
-    {
-    cerr << "ERROR: failed to serialize field data, bytestream is empty!\n";
-    rc++;
-    return( rc );
-    }
+   {
+   cerr << "ERROR: failed to serialize field data, bytestream is empty!\n";
+   rc++;
+   return( rc );
+   }
 
   vtkPointData *field2 = vtkPointData::New();
   vtkFieldDataSerializer::Deserialize( bytestream, field2 );
   if( !AreFieldsEqual(field,field2) )
-    {
-    cerr << "ERROR: fields are not equal!\n";
-    rc++;
-    return( rc );
-    }
+   {
+   cerr << "ERROR: fields are not equal!\n";
+   rc++;
+   return( rc );
+   }
   else
-    {
-    cout << "Fields are equal!\n";
-    cout.flush();
-    }
+   {
+   cout << "Fields are equal!\n";
+   cout.flush();
+   }
 
   field->Delete();
   field2->Delete();
   return(rc);
+}
+
+//------------------------------------------------------------------------------
+int TestFieldDataSerialization(int argc, char *argv[])
+{
+  // Resolve compiler warnings about unused vars
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+
+  int rc = 0;
+  rc += TestFieldData();
+
+  cout << "Testing metadata serialization...";
+  rc += TestFieldDataMetaData();
+  cout << "[DONE]\n";
+  return( rc );
 }
