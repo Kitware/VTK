@@ -121,8 +121,10 @@ void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget *w)
     int pos[2];
     self->Interactor->GetEventPosition(pos);
   
-    double motionVector[2] = { pos[0] - self->LastEventPosition[0],
-                               pos[1] - self->LastEventPosition[1] };
+    int delta0 = pos[0] - self->LastEventPosition[0];
+    int delta1 = pos[1] - self->LastEventPosition[1];
+    double motionVector[2] = { static_cast<double>(delta0),
+                               static_cast<double>(delta1) };
 
     self->LastEventPosition[0] = pos[0];
     self->LastEventPosition[1] = pos[1];

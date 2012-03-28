@@ -239,7 +239,8 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
     this->GetBoundingBoxForTreeMapItem(id,binfo);
     }
 
-  double loc[2] = {x, y};
+  double loc[2] = {static_cast<double>(x),
+                   static_cast<double>(y)};
   this->Balloon->EndWidgetInteraction(loc);
   
   if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
