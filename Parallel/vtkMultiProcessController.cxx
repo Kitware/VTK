@@ -25,11 +25,6 @@
 #include "vtkSubCommunicator.h"
 #include "vtkToolkits.h"
 #include "vtkProcess.h"
-
-#ifdef VTK_USE_MPI
-#include "vtkMPIController.h"
-#endif
-
 #include "vtkSmartPointer.h"
 #include "vtkWeakPointer.h"
 #define VTK_CREATE(type, name) \
