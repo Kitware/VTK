@@ -280,14 +280,12 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         # y is flipped upside down
         y = self.winfo_height() - y
 
-        # make sure point is in the whole extent of the image.
-        (xMin,xMax,yMin,yMax,zMin,zMax) = input.GetWholeExtent()
+        # make sure point is in the extent of the image.
+        (xMin,xMax,yMin,yMax,zMin,zMax) = input.GetExtent()
         if (x < xMin or x > xMax or y < yMin or \
             y > yMax or z < zMin or z > zMax):
             return
 
-        input.SetUpdateExtent(x,x,y,y,z,z)
-        input.Update()
         numComps = input.GetNumberOfScalarComponents()
         text = ""
         for i in xrange(numComps):
@@ -348,7 +346,7 @@ if __name__ == "__main__":
 
     widget = vtkTkImageViewerWidget(frame,width=512,height=512,double=1)
     viewer = widget.GetImageViewer()
-    viewer.SetInput(canvas.GetOutput())
+    viewer.SetInputConnection(canvas.GetOutputPort())
     viewer.SetColorWindow(256)
     viewer.SetColorLevel(127.5)
 

@@ -47,7 +47,7 @@ def vtkRegressionTestImage( renWin ):
         else:
             rt_pngw = vtk.vtkPNGWriter()
             rt_pngw.SetFileName(fname)
-            rt_pngw.SetInput(rt_w2if.GetOutput())
+            rt_pngw.SetInputConnection(rt_w2if.GetOutputPort())
             rt_pngw.Write()
             rt_pngw = None
 
@@ -55,8 +55,8 @@ def vtkRegressionTestImage( renWin ):
         rt_png.SetFileName(fname)
 
         rt_id = vtk.vtkImageDifference()
-        rt_id.SetInput(rt_w2if.GetOutput())
-        rt_id.SetImage(rt_png.GetOutput())
+        rt_id.SetInputConnection(rt_w2if.GetOutputPort())
+        rt_id.SetImageConnection(rt_png.GetOutputPort())
         rt_id.Update()
 
         if rt_id.GetThresholdedError() <= 10:
