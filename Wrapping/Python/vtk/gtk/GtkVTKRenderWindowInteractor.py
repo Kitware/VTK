@@ -273,7 +273,7 @@ def main():
     cone = vtk.vtkConeSource()
     cone.SetResolution(80)
     coneMapper = vtk.vtkPolyDataMapper()
-    coneMapper.SetInput(cone.GetOutput())
+    coneMapper.SetInputConnection(cone.GetOutputPort())
     #coneActor = vtk.vtkLODActor()
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
