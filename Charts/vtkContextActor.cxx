@@ -220,13 +220,6 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     this->Initialize(viewport);
     }
 
-  if (this->Scene->GetScaleTiles())
-    {
-    int scale[2];
-    viewport->GetVTKWindow()->GetTileScale(scale);
-    transform->Scale(scale[0], scale[1]);
-    }
-
   int size[2];
   size[0] = view_viewport_pixels.width();
   size[1] = view_viewport_pixels.height();
