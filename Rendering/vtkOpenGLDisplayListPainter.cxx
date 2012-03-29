@@ -23,15 +23,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#  include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include <map>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLDisplayListPainter);
-#endif
 
 class vtkOpenGLDisplayListPainter::vtkInternals
 {

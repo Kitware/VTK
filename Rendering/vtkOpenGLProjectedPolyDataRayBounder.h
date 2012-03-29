@@ -31,12 +31,10 @@
 #define __vtkOpenGLProjectedPolyDataRayBounder_h
 
 #include "vtkProjectedPolyDataRayBounder.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
-  #ifdef __APPLE__
-    #include <OpenGL/gl.h> //Needed for GLUint
-  #else
-    #include <GL/gl.h> //Needed for GLUint
-  #endif
+#ifdef __APPLE__
+# include <OpenGL/gl.h> //Needed for GLUint
+#else
+# include <GL/gl.h> //Needed for GLUint
 #endif
 
 class vtkWindow;

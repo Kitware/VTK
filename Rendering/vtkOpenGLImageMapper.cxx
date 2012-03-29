@@ -27,9 +27,7 @@
 #include "vtkOpenGL.h"
 #include <limits.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLImageMapper);
-#endif
 
 vtkOpenGLImageMapper::vtkOpenGLImageMapper()
 {

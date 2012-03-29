@@ -23,9 +23,7 @@
 #include "vtkOpenGL.h"
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLActor);
-#endif
 
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)

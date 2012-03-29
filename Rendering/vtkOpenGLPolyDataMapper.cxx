@@ -32,15 +32,11 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkImageData.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
-#endif
 
 // some definitions for what the polydata has in it
 #define VTK_PDM_NORMALS            0x01

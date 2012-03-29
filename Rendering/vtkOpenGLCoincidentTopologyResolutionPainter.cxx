@@ -22,14 +22,10 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
-#endif
+
 //-----------------------------------------------------------------------------
 vtkOpenGLCoincidentTopologyResolutionPainter::
 vtkOpenGLCoincidentTopologyResolutionPainter()

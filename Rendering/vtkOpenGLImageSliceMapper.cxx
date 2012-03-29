@@ -41,9 +41,7 @@
 #include "vtkOpenGL.h"
 #include "vtkgl.h" // vtkgl namespace
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLImageSliceMapper);
-#endif
 
 //----------------------------------------------------------------------------
 // Initializes an instance, generates a unique index.

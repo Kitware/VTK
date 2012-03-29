@@ -25,9 +25,7 @@
 
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLCamera);
-#endif
 
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
