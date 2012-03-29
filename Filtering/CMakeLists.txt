@@ -227,6 +227,7 @@ vtkThreadedImageAlgorithm.cxx
 vtkThreadedStreamingPipeline.cxx
 vtkTreeAlgorithm.cxx
 vtkTree.cxx
+vtkTreeBasedAMRGrid.cxx
 vtkTreeBFSIterator.cxx
 vtkTreeDFSIterator.cxx
 vtkTreeIterator.cxx
