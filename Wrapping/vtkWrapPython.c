@@ -653,12 +653,12 @@ static void vtkWrapPython_DeclareVariables(
   if (theFunc->ReturnValue)
     {
     /* the size for a one-dimensional array */
-    if (vtkWrap_IsArray(theFunc->ReturnValue))
+    if (vtkWrap_IsArray(theFunc->ReturnValue) &&
+        !theFunc->ReturnValue->CountHint)
       {
       fprintf(fp,
               "  int sizer = %d;\n",
-              (theFunc->ReturnValue->CountHint ?
-               0 : theFunc->ReturnValue->Count));
+              theFunc->ReturnValue->Count);
       }
     }
 
@@ -724,20 +724,6 @@ static void vtkWrapPython_GetSizesForArrays(
               ndnt, i, i, i);
         }
       }
-    }
-  if (theFunc->ReturnValue && theFunc->ReturnValue->CountHint)
-    {
-    if (j == 1)
-      {
-      fprintf(fp,
-              "  if (op)\n"
-              "    {\n");
-      }
-    j += 2;
-    fprintf(fp,
-            "  %ssizer = op->%s;\n",
-            ((j & 1) != 0 ? "  " : ""),
-            theFunc->ReturnValue->CountHint);
     }
   if (j > 1)
     {
@@ -2415,6 +2401,14 @@ void vtkWrapPython_GenerateOneMethod(
       /* finished getting all the arguments */
       fprintf(fp, ")\n"
               "    {\n");
+
+      /* get size for variable-size return arrays */
+      if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
+        {
+        fprintf(fp,
+            "    int sizer = op->%s;\n",
+            theOccurrence->ReturnValue->CountHint);
+        }
 
       /* save a copy of all non-const array arguments */
       vtkWrapPython_SaveArrayArgs(fp, theOccurrence);
