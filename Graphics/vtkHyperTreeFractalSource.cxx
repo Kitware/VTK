@@ -98,10 +98,13 @@ vtkHyperTree* vtkHyperTreeFractalSource::NewHyperTree()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeFractalSource::Subdivide(vtkHyperTreeCursor *cursor,
-                                            int level, vtkHyperTree *output,
-                                            double* origin, double* size,
-                                            int idx[3])
+void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
+                                           int level, 
+                                           vtkHyperTree*
+                                           output,
+                                           double* origin, 
+                                           double* size,
+                                           int idx[3] )
 {
   // Determine whether to subdivide.
   int subdivide = 1;
