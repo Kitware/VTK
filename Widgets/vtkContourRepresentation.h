@@ -470,8 +470,8 @@ protected:
   virtual void Initialize( vtkPolyData *, vtkIdList *);
 
   // Description:
-  // Overloaded initialize method, that calls the above with a NULL idList
-  // argument.
+  // Overloaded initialize method, that is called when the vtkIdList is NULL
+  // to mantain backwards compatibility.
   virtual void Initialize( vtkPolyData *);
 
   // Description:
