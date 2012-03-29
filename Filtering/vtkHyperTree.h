@@ -13,9 +13,9 @@
 
 =========================================================================*/
 // .NAME vtkHyperTree - A dataset structured as a tree where each node has
-// exactly 2^n children.
+// exactly either 2^n or 3^n children.
 // .SECTION Description
-// An hyperoctree is a dataset where each node has either exactly 2^n children
+// An hypertree is a dataset where each node has either exactly 2^n or 3^n children
 // or no child at all if the node is a leaf. `n' is the dimension of the
 // dataset (1 (binary tree), 2 (quadtree) or 3 (octree) ).
 // The class name comes from the following paper:
@@ -42,13 +42,13 @@
 // attributes can be computed on none-leaf nodes by computing the average
 // values from its children (which can be leaves or not).
 //
-// By construction, an hyperoctree is efficient in memory usage when the
+// By construction, an hypertree is efficient in memory usage when the
 // geometry is sparse. The LOD feature allows to cull quickly part of the
 // dataset.
 //
-// A couple of filters can be applied on this dataset: contour, outline,
-// geometry.
+// Some filters can be applied on this dataset: contour, outline, geometry.
 //
+// .SECTION Case with 2^n children
 // * 3D case (octree)
 // for each node, each child index (from 0 to 7) is encoded in the following
 // orientation. It is easy to access each child as a cell of a grid.
@@ -107,11 +107,8 @@
 // \endverbatim
 //
 // .SECTION Caveats
-// It is not a spatial search object! If you looking for this kind of
+// It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
-
-// .SECTION See Also
-// vtkHyperTreeAlgorithm
 
 #ifndef __vtkHyperTree_h
 #define __vtkHyperTree_h
