@@ -491,16 +491,16 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
 
   // Iterate over successively growing boxes.
   // They recursively call the base case to handle single pixels.
-  int disp_pos[2] = {in_display_position[0], in_display_position[1]};
+  unsigned int disp_pos[2] = {in_display_position[0], in_display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
   PixelInformation info;
   for (int dist = 0; dist < maxDist; ++dist)
     {
     // Vertical sides of box.
-    for (int y = disp_pos[1] - dist; y <= disp_pos[1] + dist; ++y)
+    for (unsigned int y = disp_pos[1] - dist; y <= disp_pos[1] + dist; ++y)
       {
-      cur_pos[0] = static_cast<unsigned int>(disp_pos[0] - dist);
-      cur_pos[1] = static_cast<unsigned int>(y);
+      cur_pos[0] = disp_pos[0] - dist;
+      cur_pos[1] = y;
 
       info = this->GetPixelInformation(cur_pos, 0);
       if (info.Valid)
@@ -515,10 +515,10 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
         }
       }
     // Horizontal sides of box.
-    for (int x = disp_pos[0] - (dist-1); x <= disp_pos[0] + (dist-1); ++x)
+    for (unsigned int x = disp_pos[0] - (dist-1); x <= disp_pos[0] + (dist-1); ++x)
       {
-      cur_pos[0] = static_cast<unsigned int>(x);
-      cur_pos[1] = static_cast<unsigned int>(disp_pos[1] - dist);
+      cur_pos[0] = x;
+      cur_pos[1] = disp_pos[1] - dist;
       info = this->GetPixelInformation(cur_pos, 0);
       if (info.Valid)
         {
@@ -598,9 +598,18 @@ vtkSelection* vtkHardwareSelector::GenerateSelection(
   unsigned int x1, unsigned int y1,
   unsigned int x2, unsigned int y2)
 {
-  int extent[6] = { x1, x2, y1, y2, 0, 0};
-  int whole_extent[6] = {this->Area[0], this->Area[2], this->Area[1],
-    this->Area[3], 0, 0};
+  int extent[6] = { static_cast<int>(x1),
+                    static_cast<int>(x2),
+                    static_cast<int>(y1),
+                    static_cast<int>(y2),
+                    0,
+                    0};
+  int whole_extent[6] = {static_cast<int>(this->Area[0]),
+                         static_cast<int>(this->Area[2]),
+                         static_cast<int>(this->Area[1]),
+                         static_cast<int>(this->Area[3]),
+                         0,
+                         0};
   vtkStructuredExtent::Clamp(extent, whole_extent);
 
   typedef std::map<PixelInformation, std::set<vtkIdType>,
