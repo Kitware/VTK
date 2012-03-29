@@ -467,12 +467,17 @@ protected:
   // a contour widget that uses a vtkPolygonalSurfacePointPlacer. This stores
   // the point id's of the nodes, since the contour is drawn on the vertices
   // of a surface mesh.
-  void Initialize( vtkPolyData *, vtkIdList *);
+  virtual void Initialize( vtkPolyData *, vtkIdList *);
 
   // Description:
-  // Overloaded initialize method, that calls the above with a NULL idList
-  // argument.
+  // Overloaded initialize method, that is called when the vtkIdList is NULL
+  // to mantain backwards compatibility.
   virtual void Initialize( vtkPolyData *);
+
+  // Description:
+  // Internal implementation, delegated to another method, so that users who
+  // override the method Initialize that takes in one argument are supported.
+  virtual void InitializeContour( vtkPolyData *, vtkIdList * );
 
   //Description:
   // Adding a point locator to the representation to speed
