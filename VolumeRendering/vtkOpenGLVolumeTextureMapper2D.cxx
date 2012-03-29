@@ -19,16 +19,9 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
-#endif
-
-
 
 vtkOpenGLVolumeTextureMapper2D::vtkOpenGLVolumeTextureMapper2D()
 {

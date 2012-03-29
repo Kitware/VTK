@@ -37,9 +37,7 @@
 
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
-#endif
 
 void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)

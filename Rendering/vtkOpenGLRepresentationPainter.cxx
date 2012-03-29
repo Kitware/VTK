@@ -22,13 +22,9 @@
 #include "vtkPrimitivePainter.h"
 #include "vtkProperty.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#  include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRepresentationPainter);
-#endif
 
 //-----------------------------------------------------------------------------
 vtkOpenGLRepresentationPainter::vtkOpenGLRepresentationPainter()
