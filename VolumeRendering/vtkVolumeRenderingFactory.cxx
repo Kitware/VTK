@@ -16,7 +16,6 @@
 
 #include "vtkVolumeRenderingFactory.h"
 #include "vtkToolkits.h"
-#include "vtkVolumeRenderingToolkit.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
 

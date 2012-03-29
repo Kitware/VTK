@@ -153,15 +153,9 @@ foreach(file ${shader_files})
   set(shader_h_files ${shader_h_files} ${resh})
 endforeach(file)
 
-# needed by some external projects
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h )
-
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${shader_h_files}
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
