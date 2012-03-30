@@ -1160,5 +1160,3 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
      << extent[5] << endl;
 
 }
-
-

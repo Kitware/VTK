@@ -107,6 +107,7 @@ vtkHyperOctreeCursor.cxx
 vtkHyperOctreePointsGrabber.cxx
 vtkHyperTree.cxx
 vtkHyperTreeCursor.cxx
+vtkHyperTreeGrid.cxx
 vtkImageAlgorithm.cxx
 vtkImageBSplineInternals.cxx
 vtkImageBSplineInterpolator.cxx
