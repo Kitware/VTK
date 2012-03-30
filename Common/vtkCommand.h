@@ -208,7 +208,7 @@
 // Define all types of events here.
 // Using this macro makes it possible to avoid mismatches between the event
 // enums and their string counterparts.
-#define VTK_EVENT_TYPES \
+#define vtkAllEventsMacro() \
     _vtk_add_event(AnyEvent)\
     _vtk_add_event(DeleteEvent)\
     _vtk_add_event(StartEvent)\
@@ -309,10 +309,10 @@
     _vtk_add_event(WindowIsDirectEvent)\
     _vtk_add_event(UncheckedPropertyModifiedEvent)
 
-#define VTK_DECLARE_EVENTIDS(_enum_name)\
+#define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
     NoEvent = 0,\
-    VTK_EVENT_TYPES \
+    vtkAllEventsMacro() \
     UserEvent = 1000\
   };
 
@@ -382,9 +382,9 @@ public:
   // All the currently defined events are listed here.  Developers can
   // use -- vtkCommand::UserEvent + int to specify their own event
   // ids.
-  // Add new events by updating VTK_EVENT_TYPES macro.
+  // Add new events by updating vtkAllEventsMacro.
 #define _vtk_add_event(Enum)  Enum,
-  VTK_DECLARE_EVENTIDS(EventIds);
+  vtkEventDeclarationMacro(EventIds);
 #undef _vtk_add_event
 //ETX
 

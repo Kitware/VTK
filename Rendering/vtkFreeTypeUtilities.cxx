@@ -918,7 +918,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       double newLineMovement[2] =
-        {-currentWidth, -currentHeight * tprop->GetLineSpacing()};
+        {static_cast<double>(-currentWidth), -currentHeight * tprop->GetLineSpacing()};
       vtkFreeTypeUtilitiesRotate2D(c, s, newLineMovement);
       newLineMovement[0] -= adjustedX;
       newLineMovement[1] -= adjustedY;
@@ -1145,7 +1145,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       this->GetWidthHeightDescender(
         currentLine, tprop, &currentWidth, &currentHeight, &notUsed);
       double newLineMovement[2] =
-        {-currentWidth, -currentHeight * tprop->GetLineSpacing()};
+        {static_cast<double>(-currentWidth), -currentHeight * tprop->GetLineSpacing()};
       vtkFreeTypeUtilitiesRotate2D(c, s, newLineMovement);
       newLineMovement[0] -= adjustedX;
       newLineMovement[1] -= adjustedY;
@@ -1955,7 +1955,7 @@ void vtkFreeTypeUtilities::JustifyLine(const char *str, vtkTextProperty *tprop,
       str, tprop, &currentWidth, &currentHeight, &notUsed);
     if(currentWidth < totalWidth)
       {
-      double movement[2] = {0, 0};
+      double movement[2] = {0.0, 0.0};
       if(tprop->GetJustification() == VTK_TEXT_CENTERED)
         {
         movement[0] += ((totalWidth - currentWidth) / 2);

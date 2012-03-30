@@ -49,7 +49,7 @@ vtkStandardNewMacro(vtkCorrelativeStatistics);
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues( 3 );
-  this->AssessNames->SetValue( 0, "Mahalanobis^2" );
+  this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
   this->AssessNames->SetValue( 1, "Residual Y/X" );
   this->AssessNames->SetValue( 2, "Residual X/Y" );
 }

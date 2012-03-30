@@ -49,7 +49,7 @@ int TestNamedComponents(int , char *[])
   points->SetNumberOfPoints(numPoints);
   for(i=0;i<numPoints;i++)
     {
-    double loc[3] = {i, i*i, 0};
+    double loc[3] = {static_cast<double>(i), static_cast<double>(i*i), 0.0};
     points->InsertPoint(i, loc);
     pointCoords->InsertTuple(i,loc);
     }
