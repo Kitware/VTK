@@ -141,12 +141,12 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 
     // Description:
     // Determines if a plane intersects with an AMR box
-    bool PlaneIntersectsAMRBox( double bounds[6] );
+    bool PlaneIntersectsAMRBox( vtkPlane* pl, double bounds[6] );
     bool PlaneIntersectsAMRBox( double plane[4], double bounds[6] );
 
     // Description:
     // Determines if a plane intersects with a grid cell
-    bool PlaneIntersectsCell( vtkCell *cell );
+    bool PlaneIntersectsCell( vtkPlane *pl, vtkCell *cell );
 
     // Description:
     // A utility function that checks if the input AMR data is 2-D.
@@ -155,6 +155,7 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     // Description:
     // Applies cutting to an AMR block
     void CutAMRBlock(
+        vtkPlane *cutPlane,
         unsigned int blockIdx,
         vtkUniformGrid *grid, vtkMultiBlockDataSet *dataSet );
 
@@ -164,7 +165,6 @@ class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
     bool initialRequest;
     bool UseNativeCutter;
     vtkMultiProcessController *Controller;
-    vtkPlane *Plane;
 
 // BTX
     std::vector<int> blocksToLoad;

@@ -58,7 +58,6 @@ vtkAMRCutPlane::vtkAMRCutPlane()
     this->Normal[i] = 0.0;
     }
   this->Controller       = vtkMultiProcessController::GetGlobalController();
-  this->Plane            = NULL;
   this->UseNativeCutter  = 1;
 }
 
@@ -66,11 +65,6 @@ vtkAMRCutPlane::vtkAMRCutPlane()
 vtkAMRCutPlane::~vtkAMRCutPlane()
 {
   this->blocksToLoad.clear();
-  if( this->Plane != NULL )
-    {
-    this->Plane->Delete();
-    }
-  this->Plane = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -131,10 +125,11 @@ int vtkAMRCutPlane::RequestInformation(
         vtkOverlappingAMR::SafeDownCast(
           input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
 
-    this->Plane = this->GetCutPlane( metadata );
-    assert( "Cut plane is NULL" && (this->Plane != NULL) );
+    vtkPlane *cutPlane = this->GetCutPlane( metadata );
+    assert( "Cut plane is NULL" && (cutPlane != NULL) );
 
-    this->ComputeAMRBlocksToLoad(this->Plane, metadata);
+    this->ComputeAMRBlocksToLoad(cutPlane, metadata);
+    cutPlane->Delete();
     }
 
   this->Modified();
@@ -182,10 +177,8 @@ int vtkAMRCutPlane::RequestData(
     return 1;
     }
 
-  if( this->Plane == NULL )
-    {
-    this->Plane = this->GetCutPlane( inputAMR );
-    }
+  vtkPlane *cutPlane = this->GetCutPlane( inputAMR );
+  assert("pre: cutPlane should not be NULL!" && (cutPlane != NULL) );
 
   unsigned int blockIdx = 0;
   unsigned int level    = 0;
@@ -201,7 +194,7 @@ int vtkAMRCutPlane::RequestData(
           {
           vtkCutter *myCutter = vtkCutter::New();
           myCutter->SetInputData( grid );
-          myCutter->SetCutFunction( this->Plane );
+          myCutter->SetCutFunction( cutPlane );
           myCutter->Update();
           mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );
           ++blockIdx;
@@ -217,7 +210,7 @@ int vtkAMRCutPlane::RequestData(
         {
         if( grid != NULL )
           {
-          this->CutAMRBlock( blockIdx, grid, mbds );
+          this->CutAMRBlock( cutPlane, blockIdx, grid, mbds );
           ++blockIdx;
           }
         else
@@ -229,11 +222,13 @@ int vtkAMRCutPlane::RequestData(
       } // END for all data
     } // END for all levels
 
+  cutPlane->Delete();
   return 1;
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRCutPlane::CutAMRBlock(
+    vtkPlane *cutPlane,
     unsigned int blockIdx, vtkUniformGrid *grid, vtkMultiBlockDataSet *output )
 {
   assert("pre: multiblock output object is NULL!" && (output != NULL));
@@ -242,7 +237,6 @@ void vtkAMRCutPlane::CutAMRBlock(
   vtkUnstructuredGrid *mesh       = vtkUnstructuredGrid::New();
   vtkPoints *meshPts      = vtkPoints::New();
   meshPts->SetDataTypeToDouble();
-//  vtkCellArray *meshVerts = vtkCellArray::New();
   vtkCellArray *cells     = vtkCellArray::New();
 
   // Maps points from the input grid to the output grid
@@ -253,7 +247,7 @@ void vtkAMRCutPlane::CutAMRBlock(
   for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
     {
     if( grid->IsCellVisible( cellIdx ) &&
-        this->PlaneIntersectsCell( grid->GetCell(cellIdx) ) )
+        this->PlaneIntersectsCell( cutPlane, grid->GetCell(cellIdx) ) )
       {
       extractedCells.push_back( cellIdx );
       this->ExtractCellFromGrid(
@@ -516,24 +510,25 @@ void vtkAMRCutPlane::InitializeCenter( double min[3], double max[3] )
 }
 
 //------------------------------------------------------------------------------
-bool vtkAMRCutPlane::PlaneIntersectsCell( vtkCell *cell )
+bool vtkAMRCutPlane::PlaneIntersectsCell( vtkPlane *pl, vtkCell *cell )
 {
+  assert( "pre: plane is NULL" && (pl != NULL) );
   assert( "pre: cell is NULL!" && (cell != NULL) );
-  return( this->PlaneIntersectsAMRBox( cell->GetBounds() ) );
+  return( this->PlaneIntersectsAMRBox( pl, cell->GetBounds() ) );
 }
 //------------------------------------------------------------------------------
-bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double bounds[6] )
+bool vtkAMRCutPlane::PlaneIntersectsAMRBox(vtkPlane *pl, double bounds[6] )
 {
-  assert( "pre: plane is NULL" && (this->Plane != NULL) );
+  assert( "pre: plane is NULL" && (pl != NULL) );
 
   // Store A,B,C,D from the plane equation
   double plane[4];
-  plane[0] = this->Plane->GetNormal()[0];
-  plane[1] = this->Plane->GetNormal()[1];
-  plane[2] = this->Plane->GetNormal()[2];
-  plane[3] = this->Plane->GetNormal()[0]*this->Plane->GetOrigin()[0] +
-             this->Plane->GetNormal()[1]*this->Plane->GetOrigin()[1] +
-             this->Plane->GetNormal()[2]*this->Plane->GetOrigin()[2];
+  plane[0] = pl->GetNormal()[0];
+  plane[1] = pl->GetNormal()[1];
+  plane[2] = pl->GetNormal()[2];
+  plane[3] = pl->GetNormal()[0]*pl->GetOrigin()[0] +
+             pl->GetNormal()[1]*pl->GetOrigin()[1] +
+             pl->GetNormal()[2]*pl->GetOrigin()[2];
 
  return( this->PlaneIntersectsAMRBox( plane,bounds) );
 }
