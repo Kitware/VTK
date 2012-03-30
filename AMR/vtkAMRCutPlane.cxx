@@ -27,7 +27,7 @@
 #include "vtkAMRUtilities.h"
 #include "vtkUniformGrid.h"
 #include "vtkCutter.h"
-#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
 #include "vtkPointData.h"
@@ -122,11 +122,6 @@ int vtkAMRCutPlane::RequestInformation(
 {
   this->blocksToLoad.clear();
 
-  if( this->Plane != NULL )
-    {
-    this->Plane->Delete();
-    }
-
   vtkInformation *input = inputVector[0]->GetInformationObject(0);
   assert( "pre: input information object is NULL" && (input != NULL) );
 
@@ -187,6 +182,11 @@ int vtkAMRCutPlane::RequestData(
     return 1;
     }
 
+  if( this->Plane == NULL )
+    {
+    this->Plane = this->GetCutPlane( inputAMR );
+    }
+
   unsigned int blockIdx = 0;
   unsigned int level    = 0;
   for( ; level < inputAMR->GetNumberOfLevels(); ++level )
@@ -229,7 +229,6 @@ int vtkAMRCutPlane::RequestData(
       } // END for all data
     } // END for all levels
 
-  this->Modified();
   return 1;
 }
 
@@ -240,10 +239,10 @@ void vtkAMRCutPlane::CutAMRBlock(
   assert("pre: multiblock output object is NULL!" && (output != NULL));
   assert("pre: grid is NULL" && (grid != NULL) );
 
-  vtkPolyData *mesh       = vtkPolyData::New();
+  vtkUnstructuredGrid *mesh       = vtkUnstructuredGrid::New();
   vtkPoints *meshPts      = vtkPoints::New();
   meshPts->SetDataTypeToDouble();
-  vtkCellArray *meshVerts = vtkCellArray::New();
+//  vtkCellArray *meshVerts = vtkCellArray::New();
   vtkCellArray *cells     = vtkCellArray::New();
 
   // Maps points from the input grid to the output grid
@@ -272,18 +271,20 @@ void vtkAMRCutPlane::CutAMRBlock(
   mesh->SetPoints( meshPts );
   meshPts->Delete();
 
-  // Insert mesh vertices
-  vtkIdType idx = 0;
-  for( ;idx < meshPts->GetNumberOfPoints(); ++idx )
+  std::vector<int> types;
+  if( grid->GetDataDimension() == 3 )
     {
-    meshVerts->InsertNextCell(1);
-    meshVerts->InsertCellPoint(idx);
-    } // END for all points
-  mesh->SetVerts( meshVerts );
-  meshVerts->Delete();
+    types.resize( cells->GetNumberOfCells(), VTK_VOXEL );
+    }
+  else
+    {
+    vtkErrorMacro("Cannot cut a grid of dimension=" << grid->GetDataDimension());
+    output->SetBlock( blockIdx, NULL );
+    return;
+    }
 
   // Insert the cells
-  mesh->SetPolys( cells );
+  mesh->SetCells( &types[0], cells );
   cells->Delete();
 
   // Extract fields
@@ -327,10 +328,12 @@ void vtkAMRCutPlane::ExtractCellFromGrid(
       {
       // Push point to the end of the list
       vtkIdType nidx = nodes->GetNumberOfPoints();
-      nodes->InsertPoint( nidx, grid->GetPoint(meshPntIdx) );
+      double *pnt    = grid->GetPoint(meshPntIdx);
+      nodes->InsertPoint( nidx, pnt );
       assert("post: number of points should be increased by 1" &&
              (nodes->GetNumberOfPoints()==(nidx+1)));
       grdPntMapping[ meshPntIdx ] = nidx;
+      cells->InsertCellPoint( nidx );
       }
     } // END for all nodes
 
