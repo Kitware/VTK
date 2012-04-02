@@ -1032,6 +1032,11 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->LeafCornerIds = 0;
   this->Links = 0;
 
+  // By default, own a unique root cell
+  this->NumberOfRootCells[0] = 1;
+  this->NumberOfRootCells[1] = 1;
+  this->NumberOfRootCells[2] = 1;
+
   this->DualGridFlag = 1;
   this->Dimension = 1; // invalid
   this->NumberOfChildren = 1; // invalid set by SetDimensions

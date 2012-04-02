@@ -25,7 +25,7 @@
 #include "vtkObject.h"
 
 class vtkImplicitFunction;
-class vtkHyperTree;
+class vtkHyperTreeGrid;
 class vtkHyperTreeCursor;
 
 class VTK_EXPORT vtkHyperTreeFractalSource : public vtkObject
@@ -50,14 +50,14 @@ public:
   vtkBooleanMacro(Dual, int);
 
   // Bypass the pipeline
-  vtkHyperTree* NewHyperTree();
+  vtkHyperTreeGrid* NewHyperTreeGrid();
 
 protected:
   vtkHyperTreeFractalSource();
   ~vtkHyperTreeFractalSource();
 
   void Subdivide(vtkHyperTreeCursor *cursor,
-                 int level, vtkHyperTree *output,
+                 int level, vtkHyperTreeGrid *output,
                  double* origin, double* size,
                  int idx[3]);
 

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkHyperTreeFractalSource.h"
 
-#include "vtkHyperTree.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeCursor.h"
 #include "vtkObjectFactory.h"
 #include "vtkInformationVector.h"
@@ -46,12 +46,12 @@ vtkHyperTreeFractalSource::~vtkHyperTreeFractalSource()
 
 
 //----------------------------------------------------------------------------
-vtkHyperTree* vtkHyperTreeFractalSource::NewHyperTree()
+vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 {
-  vtkHyperTree* output = vtkHyperTree::New();
+  vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
-  output->SetDimension(this->Dimension);
-  output->SetAxisBranchFactor(this->AxisBranchFactor);
+  output->SetDimension( this->Dimension );
+  output->SetAxisBranchFactor( this->AxisBranchFactor );
   int ii;
   for (ii = 0; ii < 3; ++ii)
     {
@@ -80,7 +80,7 @@ vtkHyperTree* vtkHyperTreeFractalSource::NewHyperTree()
   output->GetLeafData()->SetScalars(scalars);
   scalars->UnRegister(this);
 
-  vtkHyperTreeCursor *cursor=output->NewCellCursor();
+  vtkHyperTreeCursor* cursor = output->NewCellCursor( 0 );
   cursor->ToRoot();
 
   int idx[3];
@@ -100,7 +100,7 @@ vtkHyperTree* vtkHyperTreeFractalSource::NewHyperTree()
 //----------------------------------------------------------------------------
 void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
                                            int level, 
-                                           vtkHyperTree*
+                                           vtkHyperTreeGrid*
                                            output,
                                            double* origin, 
                                            double* size,
@@ -122,7 +122,7 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
 
   if (subdivide)
     {
-    output->SubdivideLeaf(cursor);
+      output->SubdivideLeaf( cursor, 0 );
     double newOrigin[3];
     double newSize[3];
     newSize[0] = size[0] / this->AxisBranchFactor;
