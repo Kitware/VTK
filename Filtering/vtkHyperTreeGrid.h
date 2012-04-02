@@ -474,7 +474,7 @@ public:
   vtkHyperTreeInternal* GetTree() { return this->Tree; }
   unsigned short GetLevel() {return this->Level;}
 private:
-  vtkHyperTreeInternal *Tree;
+  vtkHyperTreeInternal* Tree;
   int Index;
   unsigned short IsLeaf;
   unsigned short Level;
