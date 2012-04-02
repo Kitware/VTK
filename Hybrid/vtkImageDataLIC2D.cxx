@@ -202,17 +202,15 @@ int vtkImageDataLIC2D::RequestInformation(vtkInformation* vtkNotUsed(request),
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
 
-  vtkStreamingDemandDrivenPipeline* sddp = 
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-  // Setup ExtentTranslator 
-  vtkImageDataLIC2DExtentTranslator* extTranslator = 
+  // Setup ExtentTranslator
+  vtkImageDataLIC2DExtentTranslator* extTranslator =
     vtkImageDataLIC2DExtentTranslator::SafeDownCast(
-    sddp->GetExtentTranslator(outInfo));
+      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo));
 
   if (!extTranslator)
     {
     extTranslator = vtkImageDataLIC2DExtentTranslator::New();
-    sddp->SetExtentTranslator(outInfo, extTranslator);
+    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, extTranslator);
     extTranslator->Delete();
     }
   extTranslator->SetAlgorithm(this);

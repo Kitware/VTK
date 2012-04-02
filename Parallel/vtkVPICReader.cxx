@@ -292,9 +292,7 @@ int vtkVPICReader::RequestInformation(
     extentTable->SetWholeExtent(this->WholeExtent);
     extentTable->SetExtent(this->SubExtent);
 
-    vtkStreamingDemandDrivenPipeline* pipeline =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-    pipeline->SetExtentTranslator(outInfo, extentTable);
+    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, extentTable);
     extentTable->Delete();
 
     // Reset the SubExtent on this processor to include ghost cells
@@ -381,9 +379,7 @@ int vtkVPICReader::RequestData(
 
   // Even if the pipeline asks for a smaller subextent, give it the
   // full subextent with ghosts
-  vtkStreamingDemandDrivenPipeline* pipeline =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-  pipeline->SetUpdateExtent(outInfo, this->SubExtent);
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(outInfo, this->SubExtent);
 
   // Set the subextent for this processor
   output->SetExtent(this->SubExtent);
