@@ -95,8 +95,9 @@ public:
                         vtkIdList *cellIds);
 
   // Description:
-  // Returns the points for this instance of rectilinear grid.
-  vtkPoints* GetPoints();
+  // Given a user-supplied vtkPoints container object, this method fills in all
+  // the points of the RectilinearGrid.
+  void GetPoints(vtkPoints* pnts);
 
   // Description:
   // Set dimensions of rectilinear grid dataset.
