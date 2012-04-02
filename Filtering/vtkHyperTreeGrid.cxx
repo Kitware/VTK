@@ -103,10 +103,10 @@ private:
 // I am changing the template value to be the number of children (instead of
 // the dimensions) to support 27 trees in addition to octrees.
 
-template<unsigned int N> class vtkCompactHyperTree;
-template<unsigned int N> class vtkCompactHyperTreeNode;
+template<int N> class vtkCompactHyperTree;
+template<int N> class vtkCompactHyperTreeNode;
 
-template<unsigned int N> class vtkCompactHyperTreeCursor
+template<int N> class vtkCompactHyperTreeCursor
   :public vtkHyperTreeCursor
 {
 public:
@@ -620,7 +620,7 @@ private:
 // Expected template values: 4, 8, 9, 27.
 // Description:
 // A node of the Tree which is not a leaf.
-template<unsigned int N> class vtkCompactHyperTreeNode
+template<int N> class vtkCompactHyperTreeNode
 {
 public:
   //---------------------------------------------------------------------------
@@ -714,7 +714,7 @@ protected:
   int Children[N];
 };
 
-template<unsigned int N> class vtkCompactHyperTree
+template<int N> class vtkCompactHyperTree
   : public vtkHyperTreeInternal
 {
 public:
@@ -1325,9 +1325,9 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfLevels( vtkIdType i )
 // Description:
 // Create a new cursor: an object that can traverse
 // hyperTree cells.
-vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor()
+vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( vtkIdType i )
 {
-  vtkHyperTreeCursor *result=this->CellTree->NewCursor();
+  vtkHyperTreeCursor *result=this->CellTree[i]->NewCursor();
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -1338,11 +1338,11 @@ vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor()
 // At the end, cursor points on the node that used to be leaf.
 // \pre leaf_exists: leaf!=0
 // \pre is_a_leaf: leaf->CurrentIsLeaf()
-void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor *leaf)
+void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor *leaf,vtkIdType i)
 {
   assert("pre: leaf_exists" && leaf!=0);
   assert("pre: is_a_leaf" && leaf->CurrentIsLeaf() );
-  this->CellTree->SubdivideLeaf(leaf);
+  this->CellTree[i]->SubdivideLeaf(leaf);
   this->DeleteInternalArrays();
 }
 
@@ -1352,7 +1352,14 @@ void vtkHyperTreeGrid::SubdivideLeaf(vtkHyperTreeCursor *leaf)
 // THIS METHOD IS NOT THREAD SAFE.
 void vtkHyperTreeGrid::Initialize()
 {
-  this->CellTree->Initialize();
+  vtkIdType nCells = this->NumberOfRootCells[0]
+    * this->NumberOfRootCells[1]
+    * this->NumberOfRootCells[2];
+  
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+    this->CellTree[i]->Initialize();
+    }
 
   int i=0;
   while(i<3 )
@@ -1415,7 +1422,17 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject *src)
 //-----------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfLeaves()
 {
-  return this->CellTree->GetNumberOfLeaves();
+  vtkIdType nCells = this->NumberOfRootCells[0]
+    * this->NumberOfRootCells[1]
+    * this->NumberOfRootCells[2];
+
+  vtkIdType nLeaves = 0;
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+    nLeaves += this->CellTree[i]->GetNumberOfLeaves();
+    }
+
+  return nLeaves;
 }
 
 //=============================================================================
@@ -1435,7 +1452,17 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfCells()
     }
   else
     {
-    return this->CellTree->GetNumberOfLeaves();
+    vtkIdType nCells = this->NumberOfRootCells[0]
+      * this->NumberOfRootCells[1]
+      * this->NumberOfRootCells[2];
+    
+    vtkIdType nLeaves = 0;
+    for ( vtkIdType i = 0; i < nCells; ++ i )
+      {
+      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
+      }
+
+    return nLeaves;
     }
 }
 
@@ -1447,7 +1474,17 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 {
   if ( this->DualGridFlag)
     {
-    return this->CellTree->GetNumberOfLeaves();
+    vtkIdType nCells = this->NumberOfRootCells[0]
+      * this->NumberOfRootCells[1]
+      * this->NumberOfRootCells[2];
+    
+    vtkIdType nLeaves = 0;
+    for ( vtkIdType i = 0; i < nCells; ++ i )
+      {
+      nLeaves += this->CellTree[i]->GetNumberOfLeaves();
+      }
+
+    return nLeaves;
     }
   else
     {
@@ -2002,7 +2039,15 @@ void vtkHyperTreeGrid::SetDualGridFlag(int flag)
 unsigned long vtkHyperTreeGrid::GetActualMemorySize()
 {
   unsigned long size=this->vtkDataSet::GetActualMemorySize();
-  size += this->CellTree->GetActualMemorySize();
+  vtkIdType nCells = this->NumberOfRootCells[0]
+    * this->NumberOfRootCells[1]
+    * this->NumberOfRootCells[2];
+  
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+    size += this->CellTree[i]->GetActualMemorySize();
+    }
+
   if ( this->LeafCenters)
     {
     size += this->LeafCenters->GetActualMemorySize();
@@ -2049,7 +2094,16 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 // post: Generate LeafCenters and CornerLeafIds.
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
-  int numLeaves = this->CellTree->GetNumberOfLeaves();
+  vtkIdType numLeaves = 0;
+  vtkIdType nCells = this->NumberOfRootCells[0]
+    * this->NumberOfRootCells[1]
+    * this->NumberOfRootCells[2];
+  
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+    numLeaves += this->CellTree[i]->GetNumberOfLeaves();
+    }
+
   if ( this->LeafCenters)
     {
     if ( this->LeafCenters->GetNumberOfPoints() == numLeaves)
@@ -2426,7 +2480,16 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::UpdateGridArrays()
 {
-  int numLeaves = this->CellTree->GetNumberOfLeaves();
+  vtkIdType numLeaves = 0;
+  vtkIdType nCells = this->NumberOfRootCells[0]
+    * this->NumberOfRootCells[1]
+    * this->NumberOfRootCells[2];
+  
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+    numLeaves += this->CellTree[i]->GetNumberOfLeaves();
+    }
+
   if ( this->LeafCornerIds)
     {
     if ( this->LeafCornerIds->GetNumberOfTuples() == numLeaves)
@@ -2638,13 +2701,10 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
   int xNewCursor, yNewCursor, zNewCursor;
   int xNewChild, yNewChild, zNewChild;
 
-  int midCursorIdx;
-  int numCursors;
   int xChildDim, yChildDim, zChildDim;
   int xCursorDim, yCursorDim, zCursorDim;
   xChildDim = yChildDim = zChildDim = 1;
   xCursorDim = yCursorDim = zCursorDim = 1;
-  numCursors = 1;
 
   assert("Dimension cannot be 0." && this->GetDimension() );
 
@@ -2653,17 +2713,14 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
     case 1:
       xChildDim = this->AxisBranchFactor;
       xCursorDim = 3;
-      midCursorIdx = 1;
       break;
     case 2:
       xChildDim = yChildDim = this->AxisBranchFactor;
       xCursorDim = yCursorDim = 3;
-      midCursorIdx = 4;
       break;
     case 3:
       xChildDim = yChildDim = zChildDim = this->AxisBranchFactor;
       xCursorDim = yCursorDim = zCursorDim = 3;
-      midCursorIdx = 13;
       break;
     }
 
@@ -2771,7 +2828,7 @@ vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
 
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeLightWeightCursor::Initialize(vtkHyperTreeGrid* tree)
+void vtkHyperTreeLightWeightCursor::Initialize(vtkHyperTreeInternal* tree)
 {
   //if ( this->Tree)
   //  {

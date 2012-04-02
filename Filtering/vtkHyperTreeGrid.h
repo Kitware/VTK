@@ -194,7 +194,7 @@ public:
   vtkIdType GetNumberOfCells();
   
   // Description:
-  // Get the number of leaves in the tree.
+  // Get the number of leaves in the tree grid.
   vtkIdType GetNumberOfLeaves();
   
   // Description:
@@ -226,16 +226,16 @@ public:
   // Description:
   // Law: I feel this is internal and should not be exposed in the API.
   // Create a new cursor: an object that can traverse
-  // the cell of an hyperoctree.
+  // the cells of an hypertree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor *NewCellCursor();
+  vtkHyperTreeCursor *NewCellCursor( vtkIdType );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperTreeCursor *leaf);
+  void SubdivideLeaf(vtkHyperTreeCursor *leaf, vtkIdType);
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -466,15 +466,15 @@ public:
   vtkHyperTreeLightWeightCursor();
   ~vtkHyperTreeLightWeightCursor();
 
-  void Initialize(vtkHyperTreeGrid* tree);
+  void Initialize(vtkHyperTreeInternal* tree);
   void ToRoot();
   void ToChild(int child);
   unsigned short GetIsLeaf();
   int GetLeafIndex() {return this->Index;} // Only valid for leaves.
-  vtkHyperTreeGrid* GetTree() { return this->Tree; }
+  vtkHyperTreeInternal* GetTree() { return this->Tree; }
   unsigned short GetLevel() {return this->Level;}
 private:
-  vtkHyperTreeGrid *Tree;
+  vtkHyperTreeInternal *Tree;
   int Index;
   unsigned short IsLeaf;
   unsigned short Level;
