@@ -10,7 +10,7 @@
 #include "vtksys/Glob.hxx"
 #include <vtksys/Process.h>
 #include <vtkstd/string>
-#include "vtkHyperTree.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeFractalSource.h"
 
 #include "vtkContourFilter.h"
@@ -37,7 +37,7 @@ int TestHyperTree(int argc, char** argv)
   fractal->DualOn();
   fractal->SetDimension(3);
   fractal->SetAxisBranchFactor(2);
-  vtkHyperTree* tree = fractal->NewHyperTree();
+  vtkHyperTreeGrid* tree = fractal->NewHyperTreeGrid();
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
@@ -66,7 +66,7 @@ int TestHyperTree(int argc, char** argv)
 
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
-  shrink->SetShrinkFactor(1);
+  shrink->SetShrinkFactor(.8);
   vtkUnstructuredGridWriter* writer3 = vtkUnstructuredGridWriter::New();
   writer3->SetFileName("./hyperTreeShrink.vtk");
   writer3->SetInputConnection(shrink->GetOutputPort());
