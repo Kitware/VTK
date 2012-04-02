@@ -36,6 +36,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TestHyperOctreeSurfaceFilter.cxx
     TestHyperOctreeToUniformGrid.cxx
     TestHyperTree.cxx
+    TestBinaryHyperTreeGrid.cxx
     TestImageDataToPointSet.cxx
     TestLineSource.cxx
     TestMapVectorsAsRGBColors.cxx

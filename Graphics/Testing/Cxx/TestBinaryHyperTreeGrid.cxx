@@ -1,9 +1,20 @@
 /*=========================================================================
 
-  Copyright (c) Kitware Inc.
+  Program:   Visualization Toolkit
+  Module:    TestQuadRotationalExtrusionMultiBlock.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .SECTION Thanks
+// This test was written by Philippe Pebay, Kitware SAS 2012
+
 #include "vtksys/CommandLineArguments.hxx"
 #include "vtksys/Directory.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -30,13 +41,13 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSetWriter.h"
 
-int TestHyperTree(int argc, char** argv)
+int TestBinaryHyperTreeGrid(int argc, char** argv)
 {
   vtkNew<vtkHyperTreeFractalSource> fractal;
-  fractal->SetMaximumLevel(3);
+  fractal->SetMaximumLevel( 4 );
   fractal->DualOn();
-  fractal->SetDimension(3);
-  fractal->SetAxisBranchFactor(3);
+  fractal->SetDimension( 3 );
+  fractal->SetAxisBranchFactor( 2 );
   vtkHyperTreeGrid* tree = fractal->NewHyperTreeGrid();
 
   vtkNew<vtkCutter> cut;
@@ -46,7 +57,7 @@ int TestHyperTree(int argc, char** argv)
   cut->SetInputData(tree);
   cut->SetCutFunction(plane.GetPointer());
   vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
-  writer->SetFileName("./hyperTreeCut.vtk");
+  writer->SetFileName("./binaryHyperTreeCut.vtk");
   writer->SetInputConnection(cut->GetOutputPort());
   writer->Write();
   writer->Delete();
@@ -54,21 +65,21 @@ int TestHyperTree(int argc, char** argv)
   vtkNew<vtkContourFilter> contour;
   contour->SetInputData( tree );
   contour->SetNumberOfContours( 2 );
-  contour->SetValue( 0, 2. );
-  contour->SetValue( 1, 3. );
+  contour->SetValue( 0, 1.5 );
+  contour->SetValue( 1, 2.5 );
   contour->SetInputArrayToProcess(
     0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Test");
   vtkPolyDataWriter* writer2 = vtkPolyDataWriter::New();
-  writer2->SetFileName("./hyperTreeContour.vtk");
+  writer2->SetFileName("./binaryHyperTreeContour.vtk");
   writer2->SetInputConnection(contour->GetOutputPort());
   writer2->Write();
   writer2->Delete();
 
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
-  shrink->SetShrinkFactor(.8);
+  shrink->SetShrinkFactor( .8 );
   vtkUnstructuredGridWriter* writer3 = vtkUnstructuredGridWriter::New();
-  writer3->SetFileName("./hyperTreeShrink.vtk");
+  writer3->SetFileName("./binaryHyperTreeShrink.vtk");
   writer3->SetInputConnection(shrink->GetOutputPort());
   writer3->Write();
   writer3->Delete();
