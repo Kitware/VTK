@@ -2863,7 +2863,7 @@ void vtkHyperTreeLightWeightCursor::ToRoot()
     return;
     }
   this->Level = 0;
-  if ( this->Tree->CellTree->GetNumberOfLeaves() == 1)
+  if ( this->Tree->GetNumberOfLeaves() == 1)
     { // Root is a leaf.
     this->Index = 0;
     this->IsLeaf = 1;
@@ -2894,8 +2894,8 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
       case 2:
         {
         vtkCompactHyperTree<8>* tree3;
-        tree3 = static_cast<vtkCompactHyperTree<8>*>( this->Tree->CellTree);
-        vtkCompactHyperTreeNode<8> *node=tree3->GetNode( this->Index);
+        tree3 = static_cast<vtkCompactHyperTree<8>*>( this->Tree );
+        vtkCompactHyperTreeNode<8> *node=tree3->GetNode( this->Index );
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
         break;
@@ -2903,8 +2903,8 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
       case 3:
         {
         vtkCompactHyperTree<27>* tree3;
-        tree3 = static_cast<vtkCompactHyperTree<27>*>( this->Tree->CellTree);
-        vtkCompactHyperTreeNode<27> *node=tree3->GetNode( this->Index);
+        tree3 = static_cast<vtkCompactHyperTree<27>*>( this->Tree );
+        vtkCompactHyperTreeNode<27> *node=tree3->GetNode( this->Index );
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
         break;
@@ -2931,7 +2931,7 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
       case 2:
         {
         vtkCompactHyperTree<4>* tree2;
-        tree2 = static_cast<vtkCompactHyperTree<4>*>( this->Tree->CellTree);
+        tree2 = static_cast<vtkCompactHyperTree<4>*>( this->Tree );
         vtkCompactHyperTreeNode<4> *node=tree2->GetNode( this->Index);
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
@@ -2940,7 +2940,7 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
       case 3:
         {
         vtkCompactHyperTree<9>* tree2;
-        tree2 = static_cast<vtkCompactHyperTree<9>*>( this->Tree->CellTree);
+        tree2 = static_cast<vtkCompactHyperTree<9>*>( this->Tree );
         vtkCompactHyperTreeNode<9> *node=tree2->GetNode( this->Index);
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
@@ -2953,12 +2953,12 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
     }
   else if ( this->Tree->Dimension == 1)
     {
-    switch ( this->Tree->AxisBranchFactor)
+    switch ( this->AxisBranchFactor )
       {
       case 2:
         {
         vtkCompactHyperTree<2>* tree1;
-        tree1 = static_cast<vtkCompactHyperTree<2>*>( this->Tree->CellTree);
+        tree1 = static_cast<vtkCompactHyperTree<2>*>( this->Tree );
         vtkCompactHyperTreeNode<2> *node=tree1->GetNode( this->Index);
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
@@ -2967,7 +2967,7 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
       case 3:
         {
         vtkCompactHyperTree<3>* tree1;
-        tree1 = static_cast<vtkCompactHyperTree<3>*>( this->Tree->CellTree);
+        tree1 = static_cast<vtkCompactHyperTree<3>*>( this->Tree );
         vtkCompactHyperTreeNode<3> *node=tree1->GetNode( this->Index);
         this->Index=node->GetChild(child);
         this->IsLeaf=node->IsChildLeaf(child);
