@@ -18,6 +18,8 @@
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkStructuredData.h"
+#include "vtkStringArray.h"
+#include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"
 
 #include <cassert> // For assert()
@@ -75,10 +77,9 @@ void vtkFieldDataSerializer::SerializeMetaData(
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::DeserializeMetaData(
     vtkMultiProcessStream& bytestream,
-    std::string* &names,
-    int* &datatypes,
-    int* &dimensions,
-    int &NumberOfArrays)
+    vtkStringArray *names,
+    vtkIntArray *datatypes,
+    vtkIntArray *dimensions)
 {
   if( bytestream.Empty() )
     {
@@ -86,23 +87,36 @@ void vtkFieldDataSerializer::DeserializeMetaData(
     return;
     }
 
+  if( (names == NULL) || (datatypes == NULL) || (dimensions == NULL) )
+    {
+    vtkGenericWarningMacro(
+        "ERROR: caller must pre-allocation names/datatypes/dimensions!");
+    return;
+    }
+
   // STEP 0: Extract the number of arrays
+  int NumberOfArrays;
   bytestream >> NumberOfArrays;
   if( NumberOfArrays == 0 )
     {
     return;
     }
 
-  // STEP 1: Allocate output arrays
-  names      = new std::string[NumberOfArrays];
-  datatypes  = new int[NumberOfArrays];
-  dimensions = new int[2*NumberOfArrays];
+  // STEP 1: Allocate output data-structures
+  names->SetNumberOfValues(NumberOfArrays);
+  datatypes->SetNumberOfValues(NumberOfArrays);
+  dimensions->SetNumberOfComponents(2);
+  dimensions->SetNumberOfValues(NumberOfArrays);
+
+  std::string *namesPtr = static_cast<std::string*>(names->GetVoidPointer(0));
+  int *datatypesPtr     = static_cast<int*>(datatypes->GetVoidPointer(0));
+  int *dimensionsPtr    = static_cast<int*>(dimensions->GetVoidPointer(0));
 
   // STEP 2: Extract metadata for each array in corresponding output arrays
   for( int arrayIdx=0; arrayIdx < NumberOfArrays; ++arrayIdx )
     {
-    bytestream >> datatypes[ arrayIdx ] >> dimensions[arrayIdx*2] >>
-                  dimensions[arrayIdx*2+1] >> names[ arrayIdx ];
+    bytestream >> datatypesPtr[ arrayIdx ] >> dimensionsPtr[arrayIdx*2] >>
+                  dimensionsPtr[arrayIdx*2+1] >> namesPtr[ arrayIdx ];
     } // END for all arrays
 }
 

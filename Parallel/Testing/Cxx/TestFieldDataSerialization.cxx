@@ -25,6 +25,8 @@
 #include "vtkMultiProcessStream.h"
 #include "vtkFieldDataSerializer.h"
 #include "vtkMathUtilities.h"
+#include "vtkStringArray.h"
+#include "vtkIntArray.h"
 
 #include <sstream>
 #include <cassert>
@@ -295,12 +297,18 @@ int TestFieldDataMetaData()
   vtkFieldDataSerializer::SerializeMetaData( field, bytestream );
 
   // STEP 2: De-serialize the metadata
-  std::string *names = NULL;
-  int *datatypes     = NULL;
-  int *dimensions    = NULL;
-  int NumberOfArrays = 0;
+  vtkStringArray *namesArray      = vtkStringArray::New();
+  vtkIntArray    *datatypesArray  = vtkIntArray::New();
+  vtkIntArray    *dimensionsArray = vtkIntArray::New();
+
+
   vtkFieldDataSerializer::DeserializeMetaData(
-      bytestream, names, datatypes, dimensions, NumberOfArrays );
+      bytestream, namesArray, datatypesArray, dimensionsArray);
+
+  vtkIdType NumberOfArrays =  namesArray->GetNumberOfValues();
+  std::string *names = static_cast<std::string*>(namesArray->GetVoidPointer(0));
+  int *datatypes     = static_cast<int*>(datatypesArray->GetVoidPointer(0));
+  int *dimensions    = static_cast<int*>(dimensionsArray->GetVoidPointer(0));
 
   // STEP 3: Check deserialized data with expected values
   if( NumberOfArrays != field->GetNumberOfArrays() )
@@ -339,9 +347,9 @@ int TestFieldDataMetaData()
     } // END for all arrays
 
   // STEP 4: Clean up memory
-  delete [] names;
-  delete [] datatypes;
-  delete [] dimensions;
+  namesArray->Delete();
+  datatypesArray->Delete();
+  dimensionsArray->Delete();
   field->Delete();
 
   return( rc );

@@ -32,6 +32,8 @@
 class vtkIdList;
 class vtkFieldData;
 class vtkDataArray;
+class vtkStringArray;
+class vtkIntArray;
 class vtkMultiProcessStream;
 
 class VTK_PARALLEL_EXPORT vtkFieldDataSerializer : public vtkObject
@@ -50,25 +52,19 @@ class VTK_PARALLEL_EXPORT vtkFieldDataSerializer : public vtkObject
     // Description:
     // Given the serialized field metadata in a bytestream, this method extracts
     // the name, datatype and dimensions of each array. The metadata is
-    // deserialized on user-supplied arrays, names, datatypes and dimensions.
-    // On input these are arrays should be NULL. Upon successful completion, the
-    // arrays are allocated internally as follows:
-    // (1) names -- an array of strings of size NumberOfArrays, wherein, each
-    // element names[i] corresponds to the name of array i.
-    // (2) datatypes -- an array of ints of size NumberOfArrray that corresponds
+    // deserialized on user-supplied, pre-allocated data structures.
+    // (1) names -- an array of strings wherein, each element, names[i],
+    // corresponds to the name of array i.
+    // (2) datatypes -- an array of ints where each element corresponds
     // to the actual primitive type of each array, e.g.,VTK_DOUBLE,VTK_INT, etc.
-    // (3) dimensions -- an array of ints of size 2*NumberOfArray, wherein,
-    // dimensions[i*2] corresponds to the number of tuples of array i and
-    // dimensions[i*2+1] corresponds to the number components of array i.
-    // NOTE: Since the array are allocated internally, ownership of the memory
-    // that is allocated and the responsibility of proper de-allocation is propagated
-    // to the caller.
+    // (3) dimensions -- a 2-component array of  integers where the first
+    // component corresponds to the number of tuples of and the second component
+    // corresponds to the number components of array i.
     static void DeserializeMetaData(
         vtkMultiProcessStream& bytestream,
-        std::string* &names,
-        int* &datatypes,
-        int* &dimensions,
-        int &NumberOfArrays);
+        vtkStringArray *names,
+        vtkIntArray *datatypes,
+        vtkIntArray *dimensions);
 
     // Description:
     // Serializes the given field data (all the field data) into a bytestream.
