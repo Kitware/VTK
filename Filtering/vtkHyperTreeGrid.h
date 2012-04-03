@@ -110,6 +110,10 @@
 // It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
 
+//
+// .SECTION Thanks
+// This class was written by Charles Law and Philippe Pebay, Kitware 2012
+
 #ifndef __vtkHyperTreeGrid_h
 #define __vtkHyperTreeGrid_h
 
@@ -119,12 +123,9 @@ class vtkHyperTreeLightWeightCursor;
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
 
-class vtkHyperTreeIdSet; // Pimpl idiom
-class vtkPolygon;
+class vtkDataArray;
 class vtkIdTypeArray;
 class vtkPoints;
-class vtkPointLocator;
-class vtkOrderedTriangulator;
 class vtkDataSetAttributes;
 
 class vtkLine;
@@ -208,8 +209,21 @@ public:
   // \post result_greater_or_equal_to_one: result>=1
   vtkIdType GetNumberOfLevels( vtkIdType );
 
-  // Measurement: geometry
-  
+  // Description:
+  // Specify the grid coordinates in the x-direction.
+  virtual void SetXCoordinates(vtkDataArray*);
+  vtkGetObjectMacro(XCoordinates,vtkDataArray);
+
+  // Description:
+  // Specify the grid coordinates in the y-direction.
+  virtual void SetYCoordinates(vtkDataArray*);
+  vtkGetObjectMacro(YCoordinates,vtkDataArray);
+
+  // Description:
+  // Specify the grid coordinates in the z-direction.
+  virtual void SetZCoordinates(vtkDataArray*);
+  vtkGetObjectMacro(ZCoordinates,vtkDataArray);
+
   // Description:
   // Set the size on each axis.
   vtkSetVector3Macro(Size,double);
@@ -384,6 +398,10 @@ protected:
   int NumberOfRootCells[3];
   int AxisBranchFactor;
   int NumberOfChildren;
+
+  vtkDataArray *XCoordinates;
+  vtkDataArray *YCoordinates;
+  vtkDataArray *ZCoordinates;
 
   vtkHyperTreeInternal** CellTree;
 

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkHyperTreeFractalSource);
@@ -49,16 +49,16 @@ vtkHyperTreeFractalSource::~vtkHyperTreeFractalSource()
 //----------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 {
+  // Instantiate hyper tree grid 
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
   output->SetNumberOfRootCells( this->NumberOfRootCells );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
-  int ii;
-  for (ii = 0; ii < 3; ++ii)
+  for ( int i = 0; i < 3; ++i )
     {
-    this->Size[ii] = 1.0;
-    this->Origin[ii] = 0.0;
+    this->Size[i] = 1.0;
+    this->Origin[i] = 0.0;
     }
   if (this->Dimension == 2)
     {
@@ -67,11 +67,39 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   output->SetSize(this->Size);
   output->SetOrigin(this->Origin);
 
-  vtkFloatArray *scalars=vtkFloatArray::New();
-  scalars->SetNumberOfComponents(1);
+  // Create geometry
+  for ( int i = 0; i < 3; ++ i )
+    {
+    vtkDoubleArray *coords = vtkDoubleArray::New();
+    int n = this->NumberOfRootCells[i] + 1;
+    coords->SetNumberOfValues( n );
+    for ( int j = 0; j < n; ++ j ) 
+      {
+      coords->SetValue( j, static_cast<double>( j ) );
+      }
+
+    if ( i == 0 )
+      {
+      output->SetXCoordinates( coords );
+      }
+    else if ( i == 1 )
+      {
+      output->SetYCoordinates( coords );
+      }
+    else // i must be 2 here
+      {
+      output->SetZCoordinates( coords );
+      }
+
+    // Clean up
+    coords->Delete();
+    }
+
+  vtkDoubleArray *scalars = vtkDoubleArray::New();
+  scalars->SetNumberOfComponents( 1 );
 
   vtkIdType fact = 1;
-  for (int i = 1; i < this->MaximumLevel; ++i)
+  for ( int i = 1; i < this->MaximumLevel; ++ i )
     {
     fact *= this->AxisBranchFactor;
     }
@@ -87,11 +115,11 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 
   int idx[3];
   idx[0] = idx[1] = idx[2] = 0;
-  this->Subdivide(cursor,1,output, this->Origin,this->Size, idx);
+  this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
 
-  cursor->UnRegister(this);
+  cursor->UnRegister( this );
 
-  output->SetDualGridFlag(this->Dual);
+  output->SetDualGridFlag( this->Dual );
 
   scalars->Squeeze();
   assert("post: dataset_and_data_size_match" && output->CheckAttributes()==0);
@@ -111,20 +139,20 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
   // Determine whether to subdivide.
   int subdivide = 1;
 
-  if (idx[0] != 0 || idx[1] != 0 || idx[2] != 0)
+  if ( idx[0] || idx[1] || idx[2] )
     {
     subdivide = 0;
     }
 
   // Check for hard coded minimum and maximum level restrictions.
-  if (level >= this->MaximumLevel)
+  if ( level >= this->MaximumLevel )
     {
     subdivide = 0;
     }
 
   if (subdivide)
     {
-      output->SubdivideLeaf( cursor, 0 );
+    output->SubdivideLeaf( cursor, 0 );
     double newOrigin[3];
     double newSize[3];
     newSize[0] = size[0] / this->AxisBranchFactor;
@@ -134,15 +162,15 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     // Now traverse to children.
     int xDim, yDim, zDim;
     xDim = yDim = zDim = 1;
-    if (this->Dimension == 1)
+    if ( this->Dimension == 1 )
       {
       xDim = this->AxisBranchFactor;
       }
-    else if (this->Dimension == 2)
+    else if ( this->Dimension == 2 )
       {
       xDim = yDim = this->AxisBranchFactor;
       }
-    else if (this->Dimension == 3)
+    else if ( this->Dimension == 3 )
       {
       xDim = yDim = zDim = this->AxisBranchFactor;
       }
@@ -157,14 +185,18 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
         for (int x = 0; x < xDim; ++x)
           {
           newIdx[0] = idx[0] * xDim + x;
-          newOrigin[0] = origin[0] + static_cast<double>(x)*newSize[0];
-          newOrigin[1] = origin[1] + static_cast<double>(y)*newSize[1];
-          newOrigin[2] = origin[2] + static_cast<double>(z)*newSize[2];
+          newOrigin[0] = origin[0] + static_cast<double>( x ) * newSize[0];
+          newOrigin[1] = origin[1] + static_cast<double>( y ) * newSize[1];
+          newOrigin[2] = origin[2] + static_cast<double>( z ) * newSize[2];
           cursor->ToChild(childIdx);
-          this->Subdivide(cursor,level+1,output,
-                          newOrigin,newSize,newIdx);
+          this->Subdivide( cursor,
+                           level + 1,
+                           output,
+                           newOrigin,
+                           newSize,
+                           newIdx);
           cursor->ToParent();
-          ++childIdx;
+          ++ childIdx;
           }
         }
       }
@@ -173,8 +205,8 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     {
     float val = idx[0] + idx[1] + idx[2];
     // Weight cell values for smoother iso surface.
-    vtkIdType id=cursor->GetLeafId();
-    output->GetLeafData()->GetScalars()->InsertTuple1(id,val);
+    vtkIdType id = cursor->GetLeafId();
+    output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
     }
 }
 

@@ -30,23 +30,24 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSetWriter.h"
 
-int TestHyperTree(int argc, char** argv)
+int TestHyperTree( int argc, char** argv )
 {
   vtkNew<vtkHyperTreeFractalSource> fractal;
-  fractal->SetMaximumLevel(3);
+  fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
-  fractal->SetDimension(3);
-  fractal->SetAxisBranchFactor(3);
+  fractal->SetNumberOfRootCells( 1, 1, 1 );
+  fractal->SetDimension( 3 );
+  fractal->SetAxisBranchFactor( 3 );
   vtkHyperTreeGrid* tree = fractal->NewHyperTreeGrid();
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
-  plane->SetOrigin(0.5, 0.5, 0.3333333);
-  plane->SetNormal(0,0,1);
+  plane->SetOrigin( 0.5, 0.5, 0.3333333 );
+  plane->SetNormal( 0, 0, 1 );
   cut->SetInputData(tree);
   cut->SetCutFunction(plane.GetPointer());
   vtkNew<vtkPolyDataWriter> writer;
-  writer->SetFileName("./hyperTreeCut.vtk");
+  writer->SetFileName( "./hyperTreeCut.vtk" );
   writer->SetInputConnection(cut->GetOutputPort());
   writer->Write();
 
@@ -55,10 +56,11 @@ int TestHyperTree(int argc, char** argv)
   contour->SetNumberOfContours( 2 );
   contour->SetValue( 0, 2. );
   contour->SetValue( 1, 3. );
-  contour->SetInputArrayToProcess(
-    0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Test");
+  contour->SetInputArrayToProcess( 0, 0, 0,
+                                   vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                                   "Test" );
   vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName("./hyperTreeContour.vtk");
+  writer2->SetFileName( "./hyperTreeContour.vtk" );
   writer2->SetInputConnection(contour->GetOutputPort());
   writer2->Write();
 
@@ -66,7 +68,7 @@ int TestHyperTree(int argc, char** argv)
   shrink->SetInputData(tree);
   shrink->SetShrinkFactor(1);
   vtkNew<vtkUnstructuredGridWriter> writer3;
-  writer3->SetFileName("./hyperTreeShrink.vtk");
+  writer3->SetFileName( "./hyperTreeShrink.vtk" );
   writer3->SetInputConnection(shrink->GetOutputPort());
   writer3->Write();
 

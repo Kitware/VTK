@@ -17,6 +17,7 @@
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
 #include "vtkCellType.h"
+#include "vtkDoubleArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
 #include "vtkHyperTreeCursor.h"
@@ -26,8 +27,8 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOrderedTriangulator.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -365,7 +366,7 @@ public:
   // \post valid_result: result>=0 && result<(1<<GetCurrentLevel() )
   virtual int GetIndex(int d)
     {
-      assert("pre: valid_range" &&  d>=0 && d<this->Dimension);
+      assert("pre: valid_range" &&  d>=0 && d<this->Dimension );
       int result=this->Index[d];
       return result;
     }
@@ -519,7 +520,7 @@ protected:
       this->IsLeaf=0;
       this->ChildIndex=0;
       unsigned int i=0;
-      while(i<this->Dimension)
+      while(i<this->Dimension )
         {
         this->Index[i]=0;
         ++i;
@@ -1021,6 +1022,10 @@ private:
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
 
+vtkCxxSetObjectMacro(vtkHyperTreeGrid,XCoordinates,vtkDataArray);
+vtkCxxSetObjectMacro(vtkHyperTreeGrid,YCoordinates,vtkDataArray);
+vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
+
 //-----------------------------------------------------------------------------
 // Default constructor.
 vtkHyperTreeGrid::vtkHyperTreeGrid()
@@ -1041,6 +1046,18 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->NumberOfChildren = 1; // invalid set by SetDimensions
   this->AxisBranchFactor = 2;
   this->Dimension =  3;
+
+  this->XCoordinates=vtkDoubleArray::New();
+  this->XCoordinates->SetNumberOfTuples( 1 );
+  this->XCoordinates->SetComponent(0, 0, 0.0);
+
+  this->YCoordinates=vtkDoubleArray::New();
+  this->YCoordinates->SetNumberOfTuples( 1 );
+  this->YCoordinates->SetComponent(0, 0, 0.0);
+
+  this->ZCoordinates=vtkDoubleArray::New();
+  this->ZCoordinates->SetNumberOfTuples( 1 );
+  this->ZCoordinates->SetComponent(0, 0, 0.0);
 
   for(int i = 0; i<3; ++i)
     {
@@ -1080,6 +1097,25 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
       }
     delete [] this->CellTree;
     }
+
+  if ( this->XCoordinates ) 
+    {
+    this->XCoordinates->UnRegister(this);
+    this->XCoordinates = NULL;
+    }
+
+  if ( this->YCoordinates ) 
+    {
+    this->YCoordinates->UnRegister(this);
+    this->YCoordinates = NULL;
+    }
+
+  if ( this->ZCoordinates ) 
+    {
+    this->ZCoordinates->UnRegister(this);
+    this->ZCoordinates = NULL;
+    }
+
   this->DeleteInternalArrays();
   this->Voxel->Delete();
   this->Voxel = 0;
@@ -1109,6 +1145,10 @@ void vtkHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->NumberOfRootCells[0] <<","
      << this->NumberOfRootCells[1] <<","
      << this->NumberOfRootCells[2] << endl;
+
+  os << indent << "X Coordinates: " << this->XCoordinates << "\n";
+  os << indent << "Y Coordinates: " << this->YCoordinates << "\n";
+  os << indent << "Z Coordinates: " << this->ZCoordinates << "\n";
 
   os << indent << "DualGridFlag: " << this->DualGridFlag << endl;
 
@@ -1174,6 +1214,10 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataSet *ds)
     this->Origin[i] = ho->Origin[i];
     this->NumberOfRootCells[i] = ho->NumberOfRootCells[i];
     }
+
+  this->SetXCoordinates(ho->XCoordinates);
+  this->SetYCoordinates(ho->YCoordinates);
+  this->SetZCoordinates(ho->ZCoordinates);
 
   this->Modified();
 }
@@ -1260,7 +1304,7 @@ void vtkHyperTreeGrid::UpdateTree()
 
   if ( this->AxisBranchFactor == 2 )
     {
-    switch( this->Dimension)
+    switch( this->Dimension )
       {
       case 3:
         this->NumberOfChildren = 8;
@@ -1290,7 +1334,7 @@ void vtkHyperTreeGrid::UpdateTree()
     }
   else if ( this->AxisBranchFactor == 3 )
     {
-    switch( this->Dimension)
+    switch( this->Dimension )
       {
       case 3:
         this->NumberOfChildren = 27;
@@ -1329,26 +1373,42 @@ void vtkHyperTreeGrid::UpdateTree()
 //----------------------------------------------------------------------------
 void vtkHyperTreeGrid::ComputeBounds()
 {
-  this->Bounds[0] = this->Origin[0];
-  this->Bounds[2] = this->Origin[1];
-  this->Bounds[4] = this->Origin[2];
+  double tmp;
 
-  this->Bounds[1] = this->Bounds[0]+this->Size[0];
-  if( this->Dimension >= 2)
+  if (this->XCoordinates == NULL || this->YCoordinates == NULL || 
+      this->ZCoordinates == NULL)
     {
-    this->Bounds[3] = this->Bounds[2]+this->Size[1];
+    vtkMath::UninitializeBounds(this->Bounds);
+    return;
     }
-  else
+
+  if ( this->XCoordinates->GetNumberOfTuples() == 0 || 
+       this->YCoordinates->GetNumberOfTuples() == 0 || 
+       this->ZCoordinates->GetNumberOfTuples() == 0 )
     {
-    this->Bounds[3] = this->Bounds[2];
+    vtkMath::UninitializeBounds(this->Bounds);
+    return;
     }
-  if( this->Dimension == 3 )
+
+  this->Bounds[0] = this->XCoordinates->GetComponent(0, 0);
+  this->Bounds[2] = this->YCoordinates->GetComponent(0, 0);
+  this->Bounds[4] = this->ZCoordinates->GetComponent(0, 0);
+
+  this->Bounds[1] = this->XCoordinates->GetComponent(
+                        this->XCoordinates->GetNumberOfTuples()-1, 0);
+  this->Bounds[3] = this->YCoordinates->GetComponent(
+                        this->YCoordinates->GetNumberOfTuples()-1, 0);
+  this->Bounds[5] = this->ZCoordinates->GetComponent(
+                        this->ZCoordinates->GetNumberOfTuples()-1, 0);
+  // ensure that the bounds are increasing
+  for (int i = 0; i < 5; i += 2)
     {
-    this->Bounds[5] = this->Bounds[4]+this->Size[2];
-    }
-  else
-    {
-    this->Bounds[5] = this->Bounds[4];
+    if (this->Bounds[i + 1] < this->Bounds[i])
+      {
+      tmp = this->Bounds[i + 1];
+      this->Bounds[i + 1] = this->Bounds[i];
+      this->Bounds[i] = tmp;
+      }
     }
 }
 
@@ -1424,7 +1484,7 @@ void vtkHyperTreeGrid::Initialize()
 int vtkHyperTreeGrid::GetMaxCellSize()
 {
   int result;
-  switch( this->Dimension)
+  switch( this->Dimension )
     {
     case 3:
       result=8; // hexahedron=8 points
@@ -1718,7 +1778,7 @@ void vtkHyperTreeGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 int vtkHyperTreeGrid::GetCellType(vtkIdType vtkNotUsed(cellId) )
 {
   int result;
-  switch( this->Dimension)
+  switch( this->Dimension )
     {
     case 3:
       result=VTK_VOXEL; // hexahedron=8 points
@@ -1789,7 +1849,7 @@ void vtkHyperTreeGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
            cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
-    npts = static_cast<vtkIdType>(1) << this->GetDimension();
+    npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
     pts = cornerLeafIds->GetPointer( 0 ) + cellId*npts;
     }
   else
@@ -1800,7 +1860,7 @@ void vtkHyperTreeGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
            cellId >= 0 && cellId < leafCornerIds->GetNumberOfTuples() );
     // Casting of 1 is necessary to remove 64bit Compiler warning C4334 on
     // Visual Studio 2005.
-    npts = static_cast<vtkIdType>(1) << this->GetDimension();
+    npts = static_cast<vtkIdType>( 1 ) << this->GetDimension();
     pts = leafCornerIds->GetPointer( 0 ) + cellId*npts;
     }
 }
@@ -2091,6 +2151,21 @@ unsigned long vtkHyperTreeGrid::GetActualMemorySize()
     size += this->CellTree[i]->GetActualMemorySize();
     }
 
+  if ( this->XCoordinates ) 
+    {
+    size += this->XCoordinates->GetActualMemorySize();
+    }
+
+  if ( this->YCoordinates ) 
+    {
+    size += this->YCoordinates->GetActualMemorySize();
+    }
+
+  if ( this->ZCoordinates ) 
+    {
+    size += this->ZCoordinates->GetActualMemorySize();
+    }
+
   if ( this->LeafCenters)
     {
     size += this->LeafCenters->GetActualMemorySize();
@@ -2284,7 +2359,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
         {
         // Compute the cursor index into the superCursor.
         int cursorIdx = 0;
-        switch ( this->Dimension)
+        switch ( this->Dimension )
           { // run through is intended
           case 3:
             cursorIdx += 9*(((cornerIdx>>2)&1) + ((leafIdx>>2)&1) );
