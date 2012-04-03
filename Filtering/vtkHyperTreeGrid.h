@@ -165,8 +165,8 @@ public:
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
-  vtkSetVector3Macro(NumberOfRootCells,vtkIdType);
-  vtkGetVector3Macro(NumberOfRootCells,vtkIdType);
+  vtkSetVector3Macro(NumberOfRootCells,int);
+  vtkGetVector3Macro(NumberOfRootCells,int);
 
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
@@ -384,7 +384,7 @@ protected:
   // Useful values
   int AxisBranchFactor;
   int NumberOfChildren;
-  vtkIdType NumberOfRootCells[3];
+  int NumberOfRootCells[3];
 
   vtkHyperTreeInternal** CellTree;
 

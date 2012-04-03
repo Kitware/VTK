@@ -1041,7 +1041,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->Dimension = 1; // invalid
   this->NumberOfChildren = 1; // invalid set by SetDimensions
   this->AxisBranchFactor = 2;
-  this->SetDimension( 3 );
+  this->Dimension =  3;
 
   for(int i = 0; i<3; ++i)
     {
