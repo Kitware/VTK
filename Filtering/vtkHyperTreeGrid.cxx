@@ -1981,13 +1981,50 @@ void vtkHyperTreeGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 // tree.
 // Since dual points are leaves, use the structure of the Tree instead
 // of a point locator.
-vtkIdType vtkHyperTreeGrid::FindPoint(double x[3])
+vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 {
   assert("Not tested for 27 trees, or normal grid" && 0);
 
+  // Find cell to which this point belongs, or at least closest one
+  vtkIdType ix = 0;
+  vtkIdType nx = this->XCoordinates->GetNumberOfTuples();
+  while ( ix < nx && x[0] > this->XCoordinates->GetTuple1( ix ) )
+    {
+    ++ ix;
+    }
+  if ( ix )
+    {
+    -- ix;
+    }
+
+  vtkIdType iy = 0;
+  vtkIdType ny = this->YCoordinates->GetNumberOfTuples();
+  while ( iy < ny && x[0] > this->YCoordinates->GetTuple1( iy ) )
+    {
+    ++ iy;
+    }
+  if ( iy )
+    {
+    -- iy;
+    }
+
+  vtkIdType iz = 0;
+  vtkIdType nz = this->ZCoordinates->GetNumberOfTuples();
+  while ( iz < nz && x[0] > this->ZCoordinates->GetTuple1( iz ) )
+    {
+    ++ iz;
+    }
+  if ( iz )
+    {
+    -- iz;
+    }
+
+  cerr << "Point " << x[0] << " " << x[1] << " " << x[2] << ": "
+       << ix << " " << iy << " " << iz << endl;
+
   vtkHyperTreeLightWeightCursor cursor;
-  cursor.Initialize( this->CellTree[0] ); //FIXME: find actual i-j-k cell
-  return this->RecursiveFindPoint(x, &cursor, this->Origin, this->Size);
+  cursor.Initialize( this->CellTree[0] );
+  return this->RecursiveFindPoint(x, &cursor, this->Origin, this->Size );
 }
 
 //----------------------------------------------------------------------------

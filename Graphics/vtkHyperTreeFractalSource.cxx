@@ -60,7 +60,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     this->Size[i] = 1.0;
     this->Origin[i] = 0.0;
     }
-  if (this->Dimension == 2)
+  if ( this->Dimension == 2 )
     {
     this->Size[2] = 0.0;
     }
@@ -103,24 +103,29 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     {
     fact *= this->AxisBranchFactor;
     }
-  vtkIdType maxNumberOfCells=fact*fact*fact;
 
-  scalars->Allocate(maxNumberOfCells/fact);
-  scalars->SetName("Test");
-  output->GetLeafData()->SetScalars(scalars);
-  scalars->UnRegister(this);
+  scalars->Allocate( fact * fact );
+  scalars->SetName( "Test" );
+  output->GetLeafData()->SetScalars( scalars );
+  scalars->UnRegister( this );
 
-  vtkHyperTreeCursor* cursor = output->NewCellCursor( 0 );
-  cursor->ToRoot();
+  int n[3];
+  output->GetNumberOfRootCells( n );
+  int nCells = n[0] * n[1] * n[2];
+  for ( vtkIdType i = 0; i < nCells; ++ i )
+    {
+      vtkHyperTreeCursor* cursor = output->NewCellCursor( i );
+      cursor->ToRoot();
 
-  int idx[3];
-  idx[0] = idx[1] = idx[2] = 0;
-  this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
-
-  cursor->UnRegister( this );
+      int idx[3];
+      idx[0] = idx[1] = idx[2] = 0;
+      this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
+      
+      cursor->UnRegister( this );
+    }
 
   output->SetDualGridFlag( this->Dual );
-
+  
   scalars->Squeeze();
   assert("post: dataset_and_data_size_match" && output->CheckAttributes()==0);
 
@@ -130,8 +135,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 //----------------------------------------------------------------------------
 void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
                                            int level, 
-                                           vtkHyperTreeGrid*
-                                           output,
+                                           vtkHyperTreeGrid* output,
                                            double* origin, 
                                            double* size,
                                            int idx[3] )
