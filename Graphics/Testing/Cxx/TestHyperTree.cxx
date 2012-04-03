@@ -42,7 +42,7 @@ int TestHyperTree( int argc, char** argv )
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
-  plane->SetOrigin( 0.5, 0.5, 0.3333333 );
+  plane->SetOrigin( .5, .5, .3333333 );
   plane->SetNormal( 0, 0, 1 );
   cut->SetInputData(tree);
   cut->SetCutFunction(plane.GetPointer());
@@ -66,7 +66,7 @@ int TestHyperTree( int argc, char** argv )
 
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
-  shrink->SetShrinkFactor(1);
+  shrink->SetShrinkFactor( 1 );
   vtkNew<vtkUnstructuredGridWriter> writer3;
   writer3->SetFileName( "./hyperTreeShrink.vtk" );
   writer3->SetInputConnection(shrink->GetOutputPort());
@@ -78,13 +78,13 @@ int TestHyperTree( int argc, char** argv )
   treeActor->SetMapper( treeMapper.GetPointer() );
 
   // Create a renderer, add actors to it
-  vtkNew<vtkRenderer> ren1;
-  ren1->AddActor( treeActor.GetPointer() );
-  ren1->SetBackground( 1., 1., 1. );
+  vtkNew<vtkRenderer> renderer;
+  renderer->AddActor( treeActor.GetPointer() );
+  renderer->SetBackground( 1., 1., 1. );
 
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( ren1.GetPointer() );
+  renWin->AddRenderer( renderer.GetPointer() );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
 
