@@ -45,11 +45,10 @@ int TestHyperTree(int argc, char** argv)
   plane->SetNormal(0,0,1);
   cut->SetInputData(tree);
   cut->SetCutFunction(plane.GetPointer());
-  vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
+  vtkNew<vtkPolyDataWriter> writer;
   writer->SetFileName("./hyperTreeCut.vtk");
   writer->SetInputConnection(cut->GetOutputPort());
   writer->Write();
-  writer->Delete();
 
   vtkNew<vtkContourFilter> contour;
   contour->SetInputData( tree );
@@ -58,20 +57,18 @@ int TestHyperTree(int argc, char** argv)
   contour->SetValue( 1, 3. );
   contour->SetInputArrayToProcess(
     0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Test");
-  vtkPolyDataWriter* writer2 = vtkPolyDataWriter::New();
+  vtkNew<vtkPolyDataWriter> writer2;
   writer2->SetFileName("./hyperTreeContour.vtk");
   writer2->SetInputConnection(contour->GetOutputPort());
   writer2->Write();
-  writer2->Delete();
 
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
-  shrink->SetShrinkFactor(.8);
-  vtkUnstructuredGridWriter* writer3 = vtkUnstructuredGridWriter::New();
+  shrink->SetShrinkFactor(1);
+  vtkNew<vtkPolyDataWriter> writer3;
   writer3->SetFileName("./hyperTreeShrink.vtk");
   writer3->SetInputConnection(shrink->GetOutputPort());
   writer3->Write();
-  writer3->Delete();
 
   vtkNew<vtkDataSetMapper> treeMapper;
   treeMapper->SetInputConnection( shrink->GetOutputPort() );
