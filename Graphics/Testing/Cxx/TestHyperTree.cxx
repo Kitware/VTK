@@ -65,7 +65,7 @@ int TestHyperTree(int argc, char** argv)
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
   shrink->SetShrinkFactor(1);
-  vtkNew<vtkPolyDataWriter> writer3;
+  vtkNew<vtkUnstructuredGridWriter> writer3;
   writer3->SetFileName("./hyperTreeShrink.vtk");
   writer3->SetInputConnection(shrink->GetOutputPort());
   writer3->Write();

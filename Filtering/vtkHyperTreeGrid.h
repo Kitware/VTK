@@ -165,8 +165,8 @@ public:
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
-  //vtkSetVector3Macro(NumberOfRootCells,int);
-  //vtkGetVector3Macro(NumberOfRootCells,int);
+  void SetNumberOfRootCells( int[3] );
+  vtkGetVector3Macro(NumberOfRootCells,int);
 
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
@@ -178,7 +178,7 @@ public:
   // Set the dimension of the tree with `dim'. See GetDimension() for details.
   // \pre valid_dim: dim>=1 && dim<=3
   // \post dimension_is_set: GetDimension()==dim
-  void SetDimension(int dim);
+  void SetDimension(int);
 
   // Description:
   // Branch factor can be 2 or 3. (Octree, quadtree) or (nontree or 27tree)
@@ -381,10 +381,9 @@ protected:
   double Size[3];   // size on each axis of the root
   double Origin[3]; // position of corner (0,0,0) of the root.
   int Dimension;    // 1, 2 or 3.
-  // Useful values
+  int NumberOfRootCells[3];
   int AxisBranchFactor;
   int NumberOfChildren;
-  int NumberOfRootCells[3];
 
   vtkHyperTreeInternal** CellTree;
 

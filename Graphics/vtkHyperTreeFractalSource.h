@@ -61,6 +61,7 @@ protected:
                  double* origin, double* size,
                  int idx[3]);
 
+  int NumberOfRootCells[3];
   int MaximumLevel;
   int Dimension;
   int AxisBranchFactor;

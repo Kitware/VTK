@@ -1032,10 +1032,9 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->LeafCornerIds = 0;
   this->Links = 0;
 
-  // By default, own a unique root cell
-  this->NumberOfRootCells[0] = 1;
-  this->NumberOfRootCells[1] = 1;
-  this->NumberOfRootCells[2] = 1;
+  this->NumberOfRootCells[0] = 0;
+  this->NumberOfRootCells[1] = 0;
+  this->NumberOfRootCells[2] = 0;
 
   this->DualGridFlag = 1;
   this->Dimension = 1; // invalid
@@ -1173,9 +1172,27 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataSet *ds)
     {
     this->Size[i] = ho->Size[i];
     this->Origin[i] = ho->Origin[i];
+    this->NumberOfRootCells[i] = ho->NumberOfRootCells[i];
     }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+// Set the number of root cells of the tree.
+void vtkHyperTreeGrid::SetNumberOfRootCells( int n[3] )
+{
+  if( this->NumberOfRootCells[0] == n[0]
+      && this->NumberOfRootCells[1] == n[1]
+      && this->NumberOfRootCells[2] == n[2] )
+    {
+    return;
+    }
+  this->NumberOfRootCells[0] = n[0];
+  this->NumberOfRootCells[1] = n[1];
+  this->NumberOfRootCells[2] = n[2];
+  this->Modified();
+  this->UpdateTree();
 }
 
 //-----------------------------------------------------------------------------

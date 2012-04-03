@@ -32,6 +32,9 @@ vtkStandardNewMacro(vtkHyperTreeFractalSource);
 //----------------------------------------------------------------------------
 vtkHyperTreeFractalSource::vtkHyperTreeFractalSource()
 {
+  this->NumberOfRootCells[0] = 1;
+  this->NumberOfRootCells[1] = 1;
+  this->NumberOfRootCells[2] = 1;
   this->AxisBranchFactor = 2;
   this->MaximumLevel = 1;
   this->Dimension = 3;
@@ -43,13 +46,12 @@ vtkHyperTreeFractalSource::~vtkHyperTreeFractalSource()
 {
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 {
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
+  output->SetNumberOfRootCells( this->NumberOfRootCells );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
   int ii;
