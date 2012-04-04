@@ -170,3 +170,17 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
     }
   delete [] n_g;
 }
+
+// ----------------------------------------------------------------------
+void vtkPCorrelativeStatistics::Test( vtkTable* inData,
+                                      vtkMultiBlockDataSet* inMeta,
+                                      vtkTable* outMeta )
+{
+  if ( this->Controller->GetNumberOfProcesses() > 1 )
+    {
+    vtkWarningMacro( "Parallel correlative statistics: Hypothesis testing not implemented for more than 1 process." );
+    return;
+    }
+
+  this->Superclass::Test( inData, inMeta, outMeta );
+}

@@ -77,3 +77,17 @@ void vtkPPCAStatistics::Learn( vtkTable* inData,
 
   vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
 }
+
+// ----------------------------------------------------------------------
+void vtkPPCAStatistics::Test( vtkTable* inData,
+                              vtkMultiBlockDataSet* inMeta,
+                              vtkTable* outMeta )
+{
+  if ( this->Controller->GetNumberOfProcesses() > 1 )
+    {
+    vtkWarningMacro( "Parallel PCA: Hypothesis testing not implemented for more than 1 process." );
+    return;
+    }
+
+  this->Superclass::Test( inData, inMeta, outMeta );
+}
