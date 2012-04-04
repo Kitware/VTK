@@ -153,6 +153,7 @@ ENDIF(VTK_LIBRARY_PROPERTIES)
 TARGET_LINK_LIBRARIES(QVTK
   ${QT_LIBRARIES}
   vtkRendering
+  vtkIO
   vtkGraphics
   vtkImaging
   vtkCommon)
