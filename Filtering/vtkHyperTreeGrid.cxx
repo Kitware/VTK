@@ -1045,13 +1045,13 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   // Grid geometry
   this->XCoordinates=vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples( 1 );
-  this->XCoordinates->SetComponent( 0., 0., 0. );
+  this->XCoordinates->SetComponent( 0, 0, 0. );
   this->YCoordinates=vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples( 1 );
-  this->YCoordinates->SetComponent( 0., 0., 0. );
+  this->YCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates=vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples( 1 );
-  this->ZCoordinates->SetComponent( 0., 0., 0. );
+  this->ZCoordinates->SetComponent( 0, 0, 0. );
 
   for(int i = 0; i<3; ++ i)
     {
@@ -2297,9 +2297,19 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     
         // Location and sixe of the middle cursor/node
         double origin[3];
+        this->XCoordinates->GetTuple( i, origin );
+        this->YCoordinates->GetTuple( i, origin + 1);
+        this->ZCoordinates->GetTuple( i, origin + 2);
+
+        double extreme[3];
+        this->XCoordinates->GetTuple( i + 1, extreme );
+        this->YCoordinates->GetTuple( i + 1, extreme + 1);
+        this->ZCoordinates->GetTuple( i + 1, extreme + 2);
+
         double size[3];
-        this->GetOrigin(origin);
-        this->GetSize(size);
+        size[0] = extreme[0] - origin[0];
+        size[1] = extreme[1] - origin[1];
+        size[2] = extreme[2] - origin[2];
         
         // Normal grid API (leaves as hex cells) will be removed soon.
         this->TraverseDualRecursively(superCursor, origin, size, 0);

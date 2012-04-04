@@ -75,7 +75,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     coords->SetNumberOfValues( n );
     for ( int j = 0; j < n; ++ j ) 
       {
-      coords->SetValue( j, static_cast<double>( j ) );
+      coords->SetValue( j, static_cast<double>( ( i + 1 ) * j ) );
       }
 
     if ( i == 0 )
