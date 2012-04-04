@@ -1016,34 +1016,42 @@ vtkCxxSetObjectMacro(vtkHyperTreeGrid,ZCoordinates,vtkDataArray);
 // Default constructor.
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
+  // Grid of hyper trees
   this->CellTree = 0;
-  this->LeafCenters = 0;
-  this->CornerLeafIds = 0;
+  
+  // Primal grid
   this->CornerPoints = 0;
   this->LeafCornerIds = 0;
+
+  // Dual grid
+  this->LeafCenters = 0;
+  this->CornerLeafIds = 0;
+
+  // Internal links
   this->Links = 0;
 
+  // Grid topology
   this->GridSize[0] = 0;
   this->GridSize[1] = 0;
   this->GridSize[2] = 0;
 
+  // Grid parameters
   this->DualGridFlag = 1;
   this->Dimension = 1; // invalid
   this->NumberOfChildren = 1; // invalid set by SetDimensions
   this->AxisBranchFactor = 2;
   this->Dimension =  3;
 
+  // Grid geometry
   this->XCoordinates=vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples( 1 );
-  this->XCoordinates->SetComponent(0, 0, 0.0);
-
+  this->XCoordinates->SetComponent( 0., 0., 0. );
   this->YCoordinates=vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples( 1 );
-  this->YCoordinates->SetComponent(0, 0, 0.0);
-
+  this->YCoordinates->SetComponent( 0., 0., 0. );
   this->ZCoordinates=vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples( 1 );
-  this->ZCoordinates->SetComponent(0, 0, 0.0);
+  this->ZCoordinates->SetComponent( 0., 0., 0. );
 
   for(int i = 0; i<3; ++ i)
     {
@@ -1051,15 +1059,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
     this->Origin[i]=0;
     }
 
-  // For dual
-  this->LeafCenters = 0;
-  this->CornerLeafIds = 0;
-  // For non dual
-  this->CornerPoints = 0;
-  this->LeafCornerIds = 0;
-
-  this->Links = 0;
-
+  // For data set API
   this->Voxel = vtkVoxel::New();
   this->Pixel = vtkPixel::New();
   this->Line = vtkLine::New();
