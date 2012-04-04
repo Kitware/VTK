@@ -138,7 +138,7 @@ class vtkCellLinks;
 class vtkSuperCursorEntry
 {
 public:
-  // For the new node, start with thie node in super cursor as parent.
+  // For the new node, start with the node in super cursor as parent.
   unsigned char Parent;
   // Traverse to this child.
   unsigned char Child;
@@ -439,17 +439,7 @@ protected:
   // Output: root, child
   // It is easier to abstract dimensions when we use a single array.
   vtkSuperCursorEntry SuperCursorTraversalTable[729]; // 27*27
-
-  // This is a table for traversing a 3x3x3 superCursor down an octree.
-  // 8 children x 27 cursors
-  // First three bits encode the child,  rest encode the cursor id.
-  // 8xCursorId + childId.
-  // This will be shorter when we get rid of the 3x3x3 neighborhood.
-  // I was using unsigned char, but VS60 optimized build had a problem.
-  //int NeighborhoodTraversalTable[216];
   void GenerateSuperCursorTraversalTable();
-  // Legacy 2x2x2: No longer used.
-  void GenerateDualNeighborhoodTraversalTable();
 
   // for the GetCell method
   vtkLine *Line;
