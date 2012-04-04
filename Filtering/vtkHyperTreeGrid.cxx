@@ -2245,9 +2245,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     numLeaves += this->CellTree[i]->GetNumberOfLeaves();
     }
 
-  if ( this->LeafCenters)
+  if ( this->LeafCenters )
     {
-    if ( this->LeafCenters->GetNumberOfPoints() == numLeaves)
+    if ( this->LeafCenters->GetNumberOfPoints() == numLeaves )
       {
       return;
       }
@@ -2261,13 +2261,13 @@ void vtkHyperTreeGrid::UpdateDualArrays()
   timer->StartTimer();
 
   this->LeafCenters = vtkPoints::New();
-  this->LeafCenters->Allocate(numLeaves);
+  this->LeafCenters->Allocate( numLeaves );
 
   this->CornerLeafIds = vtkIdTypeArray::New();
   int dim = this->GetDimension();
   int numComps = 1 << dim;
-  this->CornerLeafIds->SetNumberOfComponents(numComps);
-  this->CornerLeafIds->Allocate(numLeaves*numComps); // who knows how many corners.
+  this->CornerLeafIds->SetNumberOfComponents( numComps );
+  this->CornerLeafIds->Allocate( numLeaves * numComps ); // who knows how many corners.
 
   // Create an array of cursors that occupy 1 3x3x3 neighborhhod.  This
   // will traverse the tree as one.
@@ -2836,16 +2836,12 @@ void vtkHyperTreeGrid::TraverseGridRecursively(
 // This table is used to move a 3x3x3 neighborhood of cursors through the tree.
 void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
 {
-  int xChild, yChild, zChild;
-  int xCursor, yCursor, zCursor;
-  int xNeighbor, yNeighbor, zNeighbor;
-  int xNewCursor, yNewCursor, zNewCursor;
-  int xNewChild, yNewChild, zNewChild;
-
-  int xChildDim, yChildDim, zChildDim;
-  int xCursorDim, yCursorDim, zCursorDim;
-  xChildDim = yChildDim = zChildDim = 1;
-  xCursorDim = yCursorDim = zCursorDim = 1;
+  int xChildDim = 1;
+  int yChildDim = 1;
+  int zChildDim = 1;
+  int xCursorDim = 1;
+  int yCursorDim = 1;
+  int zCursorDim = 1;
 
   assert( "Dimension cannot be 0." && this->GetDimension() );
 
@@ -2866,41 +2862,42 @@ void vtkHyperTreeGrid::GenerateSuperCursorTraversalTable()
     }
 
   int childIdx = 0;
-  for (zChild = 0; zChild < zChildDim; ++zChild)
+  for ( int zChild = 0; zChild < zChildDim; ++ zChild )
     {
-    for (yChild = 0; yChild < yChildDim; ++yChild)
+    for ( int yChild = 0; yChild < yChildDim; ++ yChild )
       {
-      for (xChild = 0; xChild < xChildDim; ++xChild)
+      for ( int xChild = 0; xChild < xChildDim; ++ xChild )
         {
         int cursorIdx = 0;
-        for (zCursor = 0; zCursor < zCursorDim; ++zCursor)
+        for (int zCursor = 0; zCursor < zCursorDim; ++ zCursor )
           {
-          for (yCursor = 0; yCursor < yCursorDim; ++yCursor)
+          for ( int yCursor = 0; yCursor < yCursorDim; ++ yCursor )
             {
-            for (xCursor = 0; xCursor < xCursorDim; ++xCursor)
+            for ( int xCursor = 0; xCursor < xCursorDim; ++ xCursor )
               {
               // Compute the x, y, z index into the
               // 6x6x6 (9x9x9) neighborhood of children.
-              xNeighbor = xCursor + xChild + xChildDim - 1;
-              yNeighbor = yCursor + yChild + yChildDim - 1;
-              zNeighbor = zCursor + zChild + zChildDim - 1;
+              int xNeighbor = xCursor + xChild + xChildDim - 1;
+              int yNeighbor = yCursor + yChild + yChildDim - 1;
+              int zNeighbor = zCursor + zChild + zChildDim - 1;
+
               // Separate neighbor index into Cursor/Child index.
-              xNewCursor = xNeighbor / this->AxisBranchFactor;
-              yNewCursor = yNeighbor / this->AxisBranchFactor;
-              zNewCursor = zNeighbor / this->AxisBranchFactor;
-              xNewChild = xNeighbor - xNewCursor*this->AxisBranchFactor;
-              yNewChild = yNeighbor - yNewCursor*this->AxisBranchFactor;
-              zNewChild = zNeighbor - zNewCursor*this->AxisBranchFactor;
+              int xNewCursor = xNeighbor / this->AxisBranchFactor;
+              int yNewCursor = yNeighbor / this->AxisBranchFactor;
+              int zNewCursor = zNeighbor / this->AxisBranchFactor;
+              int xNewChild = xNeighbor - xNewCursor*this->AxisBranchFactor;
+              int yNewChild = yNeighbor - yNewCursor*this->AxisBranchFactor;
+              int zNewChild = zNeighbor - zNewCursor*this->AxisBranchFactor;
               int tableIdx = childIdx*27+cursorIdx;
               this->SuperCursorTraversalTable[tableIdx].Parent
                 = xNewCursor + 3*(yNewCursor + 3*zNewCursor);
               this->SuperCursorTraversalTable[tableIdx].Child
                 = xNewChild + this->AxisBranchFactor*(yNewChild + this->AxisBranchFactor*zNewChild);
-              ++cursorIdx;
+              ++ cursorIdx;
               }
             }
           }
-        ++childIdx;
+        ++ childIdx;
         }
       }
     }
@@ -3136,16 +3133,13 @@ void vtkHyperTreeLightWeightCursor::ToChild(int child)
 // This table is used to move a 2x2x2 neighborhood of cursors through the tree.
 void vtkHyperTreeGrid::GenerateDualNeighborhoodTraversalTable()
 {
-  int xChild, yChild, zChild;
-  int xCursor, yCursor, zCursor;
-  int xNeighbor, yNeighbor, zNeighbor;
-  int xNewCursor, yNewCursor, zNewCursor;
-  int xNewChild, yNewChild, zNewChild;
+  int xChildDim = 1;
+  int yChildDim = 1;
+  int zChildDim = 1;
+  int xCursorDim = 1;
+  int yCursorDim = 1;
+  int zCursorDim = 1;
 
-  int xChildDim, yChildDim, zChildDim;
-  int xCursorDim, yCursorDim, zCursorDim;
-  xChildDim = yChildDim = zChildDim = 1;
-  xCursorDim = yCursorDim = zCursorDim = 1;
 
   assert( "Dimension cannot be 0." && this->GetDimension() );
 
@@ -3168,41 +3162,42 @@ void vtkHyperTreeGrid::GenerateDualNeighborhoodTraversalTable()
     }
 
   int childIdx = 0;
-  for (zChild = 0; zChild < zChildDim; ++zChild)
+  for ( int zChild = 0; zChild < zChildDim; ++ zChild )
     {
-    for (yChild = 0; yChild < yChildDim; ++yChild)
+    for ( int yChild = 0; yChild < yChildDim; ++ yChild )
       {
-      for (xChild = 0; xChild < xChildDim; ++xChild)
+      for ( int xChild = 0; xChild < xChildDim; ++ xChild )
         {
         int cursorIdx = 0;
-        for (zCursor = 0; zCursor < zCursorDim; ++zCursor)
+        for ( int zCursor = 0; zCursor < zCursorDim; ++ zCursor )
           {
-          for (yCursor = 0; yCursor < yCursorDim; ++yCursor)
+          for ( int yCursor = 0; yCursor < yCursorDim; ++ yCursor )
             {
-            for (xCursor = 0; xCursor < xCursorDim; ++xCursor)
+            for ( int xCursor = 0; xCursor < xCursorDim; ++ xCursor )
               {
               // Compute the x, y, z index into the
               // 4x4x4 neighborhood of children.
-              xNeighbor = xCursor + xChild;
-              yNeighbor = yCursor + yChild;
-              zNeighbor = zCursor + zChild;
+              int xNeighbor = xCursor + xChild;
+              int yNeighbor = yCursor + yChild;
+              int zNeighbor = zCursor + zChild;
+
               // Separate neighbor index into Cursor/Child index.
-              xNewCursor = xNeighbor / this->AxisBranchFactor;
-              yNewCursor = yNeighbor / this->AxisBranchFactor;
-              zNewCursor = zNeighbor / this->AxisBranchFactor;
-              xNewChild = xNeighbor - xNewCursor*this->AxisBranchFactor;
-              yNewChild = yNeighbor - yNewCursor*this->AxisBranchFactor;
-              zNewChild = zNeighbor - zNewCursor*this->AxisBranchFactor;
+              int xNewCursor = xNeighbor / this->AxisBranchFactor;
+              int yNewCursor = yNeighbor / this->AxisBranchFactor;
+              int zNewCursor = zNeighbor / this->AxisBranchFactor;
+              int xNewChild = xNeighbor - xNewCursor*this->AxisBranchFactor;
+              int yNewChild = yNeighbor - yNewCursor*this->AxisBranchFactor;
+              int zNewChild = zNeighbor - zNewCursor*this->AxisBranchFactor;
               int tableIdx = childIdx*27+cursorIdx; // We could offset by 8 instead of 27
               this->SuperCursorTraversalTable[tableIdx].Parent
                 = xNewCursor + 2*(yNewCursor + 2*zNewCursor);
               this->SuperCursorTraversalTable[tableIdx].Child
                 = xNewChild + this->AxisBranchFactor*(yNewChild + this->AxisBranchFactor*zNewChild);
-              ++cursorIdx;
+              ++ cursorIdx;
               }
             }
           }
-        ++childIdx;
+        ++ childIdx;
         }
       }
     }
