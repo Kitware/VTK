@@ -53,6 +53,13 @@ public:
                       vtkTable* inParameters,
                       vtkMultiBlockDataSet* outMeta );
 
+  // Description:
+  // Execute the calculations required by the Test option.
+  // NB: Not implemented for more than 1 processor
+  virtual void Test( vtkTable*,
+                     vtkMultiBlockDataSet*,
+                     vtkTable* );
+
 protected:
   vtkPCorrelativeStatistics();
   ~vtkPCorrelativeStatistics();
