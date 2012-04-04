@@ -1414,10 +1414,13 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfLevels( vtkIdType i )
 // Description:
 // Create a new cursor: an object that can traverse
 // hyperTree cells.
-vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( vtkIdType i )
+vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( int i, int j, int k )
 {
-  vtkHyperTreeCursor *result = this->CellTree[i]->NewCursor();
+  int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+  vtkHyperTreeCursor *result = this->CellTree[index]->NewCursor();
+
   assert( "post: result_exists" && result!=0);
+
   return result;
 }
 
@@ -2007,7 +2010,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
   cerr << "Point " << x[0] << " " << x[1] << " " << x[2] << ": "
        << ix << " " << iy << " " << iz << endl;
 
-  vtkIdType index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
+  int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeLightWeightCursor cursor;
   cursor.Initialize( this->CellTree[index] );
   return this->RecursiveFindPoint(x, &cursor, this->Origin, this->Size );

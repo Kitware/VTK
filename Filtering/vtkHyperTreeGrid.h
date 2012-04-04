@@ -240,9 +240,9 @@ public:
   // Description:
   // Law: I feel this is internal and should not be exposed in the API.
   // Create a new cursor: an object that can traverse
-  // the cells of an hypertree.
+  // the cells of an individual hyper tree.
   // \post result_exists: result!=0
-  vtkHyperTreeCursor *NewCellCursor( vtkIdType );
+  vtkHyperTreeCursor *NewCellCursor( int, int, int );
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.

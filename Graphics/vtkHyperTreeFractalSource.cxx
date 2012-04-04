@@ -111,18 +111,23 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 
   int n[3];
   output->GetGridSize( n );
-  int nCells = n[0] * n[1] * n[2];
-  for ( vtkIdType i = 0; i < nCells; ++ i )
+  for ( int i = 0; i < n[0]; ++ i )
     {
-    vtkHyperTreeCursor* cursor = output->NewCellCursor( i );
-    cursor->ToRoot();
+    for ( int j = 0; j < n[1]; ++ j )
+      {
+      for ( int k = 0; k < n[2]; ++ k )
+        {
+        vtkHyperTreeCursor* cursor = output->NewCellCursor( i, j, k );
+        cursor->ToRoot();
 
-    int idx[3];
-    idx[0] = idx[1] = idx[2] = 0;
-    this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
-    
-    cursor->UnRegister( this );
-    }
+        int idx[3];
+        idx[0] = idx[1] = idx[2] = 0;
+        this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
+        
+        cursor->UnRegister( this );
+        } // k
+      } // j
+    } // i
 
   output->SetDualGridFlag( this->Dual );
   
