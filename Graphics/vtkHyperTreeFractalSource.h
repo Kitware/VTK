@@ -36,8 +36,8 @@ public:
   
   static vtkHyperTreeFractalSource *New();
 
-  vtkSetVector3Macro(NumberOfRootCells, int);
-  vtkGetVector3Macro(NumberOfRootCells, int);
+  vtkSetVector3Macro(GridSize, int);
+  vtkGetVector3Macro(GridSize, int);
 
   vtkSetMacro(MaximumLevel, int);
   vtkGetMacro(MaximumLevel, int);
@@ -64,7 +64,7 @@ protected:
                  double* origin, double* size,
                  int idx[3]);
 
-  int NumberOfRootCells[3];
+  int GridSize[3];
   int MaximumLevel;
   int Dimension;
   int AxisBranchFactor;

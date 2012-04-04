@@ -166,8 +166,8 @@ public:
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
-  void SetNumberOfRootCells( int[3] );
-  vtkGetVector3Macro(NumberOfRootCells,int);
+  void SetGridSize( int[3] );
+  vtkGetVector3Macro(GridSize,int);
 
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
@@ -395,7 +395,7 @@ protected:
   double Size[3];   // size on each axis of the root
   double Origin[3]; // position of corner (0,0,0) of the root.
   int Dimension;    // 1, 2 or 3.
-  int NumberOfRootCells[3];
+  int GridSize[3];
   int AxisBranchFactor;
   int NumberOfChildren;
 

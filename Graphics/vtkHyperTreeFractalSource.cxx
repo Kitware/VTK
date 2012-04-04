@@ -32,9 +32,9 @@ vtkStandardNewMacro(vtkHyperTreeFractalSource);
 //----------------------------------------------------------------------------
 vtkHyperTreeFractalSource::vtkHyperTreeFractalSource()
 {
-  this->NumberOfRootCells[0] = 1;
-  this->NumberOfRootCells[1] = 1;
-  this->NumberOfRootCells[2] = 1;
+  this->GridSize[0] = 1;
+  this->GridSize[1] = 1;
+  this->GridSize[2] = 1;
   this->AxisBranchFactor = 2;
   this->MaximumLevel = 1;
   this->Dimension = 3;
@@ -52,7 +52,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   // Instantiate hyper tree grid 
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
-  output->SetNumberOfRootCells( this->NumberOfRootCells );
+  output->SetGridSize( this->GridSize );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
   for ( int i = 0; i < 3; ++i )
@@ -71,7 +71,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   for ( int i = 0; i < 3; ++ i )
     {
     vtkDoubleArray *coords = vtkDoubleArray::New();
-    int n = this->NumberOfRootCells[i] + 1;
+    int n = this->GridSize[i] + 1;
     coords->SetNumberOfValues( n );
     for ( int j = 0; j < n; ++ j ) 
       {
@@ -110,7 +110,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   scalars->UnRegister( this );
 
   int n[3];
-  output->GetNumberOfRootCells( n );
+  output->GetGridSize( n );
   int nCells = n[0] * n[1] * n[2];
   for ( vtkIdType i = 0; i < nCells; ++ i )
     {
