@@ -77,7 +77,6 @@ my %default =
             "../../IO",
             "../../Parallel",
             "../../Rendering",
-            "../../TextAnalysis",
             "../../Views",
             "../../VolumeRendering",
             "../../Widgets"],
