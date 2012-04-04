@@ -2295,7 +2295,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         vtkHyperTreeLightWeightCursor superCursor[27];
         superCursor[midCursorId].Initialize( this->CellTree[index] );
     
-        // Location and sixe of the middle cursor/node
+        // Location and size of the middle cursor/node
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
         this->YCoordinates->GetTuple( i, origin + 1);
@@ -2618,16 +2618,9 @@ void vtkHyperTreeGrid::UpdateGridArrays()
   this->LeafCornerIds->SetNumberOfComponents(numComps);
   this->LeafCornerIds->SetNumberOfTuples(numLeaves);
 
-  // Create a mask array to keep a record of which leaves have already
-  // generated their corner cell entries.
-  unsigned char* leafMask = new unsigned char[numLeaves];
-  // Initialize to 0.
-  memset(leafMask, 0, numLeaves);
-
   // Create an array of cursors that occupy 1 3x3x3 neighborhhood.  This
   // will traverse the tree as one.
   // Lower dimensions will not use them all.
-  vtkHyperTreeLightWeightCursor superCursor[27];
   this->GenerateSuperCursorTraversalTable();
 
   // 3x3x3 has nothing to do with octree or 27tree
@@ -2644,17 +2637,47 @@ void vtkHyperTreeGrid::UpdateGridArrays()
     {
     midCursorId = 13;
     }
-  superCursor[midCursorId].Initialize( this->CellTree[0] ); //FIXME: find actual i-j-k cell
 
-  // Needed as points for non-dual dataset API.
-  double origin[3];
-  double size[3];
-  this->GetOrigin(origin);
-  this->GetSize(size);
-  // Normal grid API (leaves as hex cells) will be removed soon.
-  this->TraverseGridRecursively(superCursor, leafMask, origin, size);
+  // Iterate over all hyper trees
+  for ( int i = 0; i < this->GridSize[0]; ++ i )
+    {
+    for ( int j = 0; j < this->GridSize[1]; ++ j )
+      {
+      for ( int k = 0; k < this->GridSize[2]; ++ k )
+        {
+        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+        vtkHyperTreeLightWeightCursor superCursor[27];
+        superCursor[midCursorId].Initialize( this->CellTree[index] );
 
-  delete [] leafMask;
+        // Location and size for primal dataset API.
+        double origin[3];
+        this->XCoordinates->GetTuple( i, origin );
+        this->YCoordinates->GetTuple( i, origin + 1);
+        this->ZCoordinates->GetTuple( i, origin + 2);
+        
+        double extreme[3];
+        this->XCoordinates->GetTuple( i + 1, extreme );
+        this->YCoordinates->GetTuple( i + 1, extreme + 1);
+        this->ZCoordinates->GetTuple( i + 1, extreme + 2);
+        
+        double size[3];
+        size[0] = extreme[0] - origin[0];
+        size[1] = extreme[1] - origin[1];
+        size[2] = extreme[2] - origin[2];
+        
+        // Create a mask array to keep a record of which leaves have already
+        // generated their corner cell entries.
+        unsigned char* leafMask = new unsigned char[numLeaves];
+        // Initialize to 0.
+        memset(leafMask, 0, numLeaves);
+        
+        // Normal grid API (leaves as hex cells) will be removed soon.
+        this->TraverseGridRecursively(superCursor, leafMask, origin, size);
+
+        delete [] leafMask;
+        } // k
+      } // j
+    } // i
 
   timer->StopTimer();
   cerr << "Internal grid update : " << timer->GetElapsedTime() << endl;
