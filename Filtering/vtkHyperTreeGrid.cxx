@@ -157,7 +157,7 @@ public:
   // \post positive_result: result>=0
   virtual int GetCurrentLevel()
     {
-      int result=this->GetChildHistorySize();
+      int result = this->GetChildHistorySize();
       assert( "post: positive_result" && result>=0);
       return result;
     }
@@ -179,11 +179,11 @@ public:
   // \post compatible: result implies !CurrentIsLeaf()
   virtual int CurrentIsTerminalNode()
     {
-      int result=!this->IsLeaf;
+      int result = !this->IsLeaf;
       if(result)
         {
         vtkCompactHyperTreeNode<N> *node=this->Tree->GetNode( this->Cursor);
-        result=node->IsTerminalNode();
+        result = node->IsTerminalNode();
         }
       // A=>B: notA or B
       assert( "post: compatible" && (!result || !this->IsLeaf) );
@@ -307,7 +307,7 @@ public:
 
       vtkCompactHyperTreeCursor<N> *o=static_cast<vtkCompactHyperTreeCursor<N> *>(other);
 
-      int result=this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
+      int result = this->Cursor==o->Cursor && this->ChildIndex==o->ChildIndex
         && this->IsLeaf==o->IsLeaf && this->ChildHistory==o->ChildHistory;
 
       unsigned int i=0;
@@ -326,7 +326,7 @@ public:
   // \post same_tree: result->SameTree( this)
   virtual vtkHyperTreeCursor *Clone()
     {
-      vtkCompactHyperTreeCursor<N> *result=this->NewInstance();
+      vtkCompactHyperTreeCursor<N> *result = this->NewInstance();
       result->Tree=this->Tree;
       assert( "post: results_exists" && result!=0);
       assert( "post: same_tree" && result->SameTree( this) );
@@ -341,10 +341,10 @@ public:
     {
       assert( "pre: other_exists" && other!=0);
       vtkCompactHyperTreeCursor<N> *o=vtkCompactHyperTreeCursor<N>::SafeDownCast(other);
-      int result=o!=0;
+      int result = o!=0;
       if(result)
         {
-        result=this->Tree==o->Tree;
+        result = this->Tree==o->Tree;
         }
       return result;
     }
@@ -358,7 +358,7 @@ public:
   virtual int GetIndex(int d)
     {
       assert( "pre: valid_range" &&  d>=0 && d<this->Dimension );
-      int result=this->Index[d];
+      int result = this->Index[d];
       return result;
     }
 
@@ -756,7 +756,7 @@ public:
   //---------------------------------------------------------------------------
   virtual vtkHyperTreeCursor *NewCursor()
     {
-      vtkCompactHyperTreeCursor<N> *result=vtkCompactHyperTreeCursor<N>::New();
+      vtkCompactHyperTreeCursor<N> *result = vtkCompactHyperTreeCursor<N>::New();
       result->Init( this);
       return result;
     }
@@ -1404,7 +1404,7 @@ void vtkHyperTreeGrid::ComputeBounds()
 // \post result_greater_or_equal_to_one: result>=1
 vtkIdType vtkHyperTreeGrid::GetNumberOfLevels( vtkIdType i )
 {
-  vtkIdType result=this->CellTree[i]->GetNumberOfLevels();
+  vtkIdType result = this->CellTree[i]->GetNumberOfLevels();
   assert( "post: result_greater_or_equal_to_one" && result>=1);
   return result;
 }
@@ -1416,7 +1416,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfLevels( vtkIdType i )
 // hyperTree cells.
 vtkHyperTreeCursor *vtkHyperTreeGrid::NewCellCursor( vtkIdType i )
 {
-  vtkHyperTreeCursor *result=this->CellTree[i]->NewCursor();
+  vtkHyperTreeCursor *result = this->CellTree[i]->NewCursor();
   assert( "post: result_exists" && result!=0);
   return result;
 }
@@ -1473,16 +1473,16 @@ int vtkHyperTreeGrid::GetMaxCellSize()
   switch( this->Dimension )
     {
     case 3:
-      result=8; // hexahedron=8 points
+      result = 8; // hexahedron=8 points
       break;
     case 2:
-      result=4; // quad=4 points
+      result = 4; // quad=4 points
       break;
     case 1:
-      result=2; // line=2 points
+      result = 2; // line=2 points
       break;
     default:
-      result=0; // useless, just to avoid a warning
+      result = 0; // useless, just to avoid a warning
       assert( "check: impossible_case" && 0);
       break;
     }
@@ -1767,16 +1767,16 @@ int vtkHyperTreeGrid::GetCellType(vtkIdType vtkNotUsed(cellId) )
   switch( this->Dimension )
     {
     case 3:
-      result=VTK_VOXEL; // hexahedron=8 points
+      result = VTK_VOXEL; // hexahedron=8 points
       break;
     case 2:
-      result=VTK_PIXEL; // quad=4 points
+      result = VTK_PIXEL; // quad=4 points
       break;
     case 1:
-      result=VTK_LINE; // line=2 points
+      result = VTK_LINE; // line=2 points
       break;
     default:
-      result=0; // useless, just to avoid a warning
+      result = 0; // useless, just to avoid a warning
       assert( "check: impossible_case" && 0);
       break;
     }
@@ -1892,8 +1892,9 @@ void vtkHyperTreeGrid::BuildLinks()
 
 //-----------------------------------------------------------------------------
 // This is exactly the same as GetCellNeighbors in unstructured grid.
-void vtkHyperTreeGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                                           vtkIdList *cellIds)
+void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId, 
+                                         vtkIdList* ptIds,
+                                         vtkIdList* cellIds )
 {
   int i, j, k;
   int numPts, minNumCells, numCells;
@@ -1961,8 +1962,6 @@ void vtkHyperTreeGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 
 
 //----------------------------------------------------------------------------
-// Note: This only works for dual grid.  I expecte to get rid of the
-// grid API, so it will not make a difference.
 // Note: This always returns the closest point, even if the point is outside
 // tree.
 // Since dual points are leaves, use the structure of the Tree instead
@@ -2015,9 +2014,10 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkHyperTreeGrid::RecursiveFindPoint(double x[3],
-  vtkHyperTreeLightWeightCursor* cursor,
-  double *origin, double *size)
+vtkIdType vtkHyperTreeGrid::RecursiveFindPoint( double x[3],
+                                                vtkHyperTreeLightWeightCursor* cursor,
+                                                double* origin, 
+                                                double* size )
 {
   if ( cursor->GetIsLeaf() )
     {
@@ -2028,16 +2028,15 @@ vtkIdType vtkHyperTreeGrid::RecursiveFindPoint(double x[3],
   newCursor = *cursor;
   double newSize[3];
   double newOrigin[3];
-  int ii;
   unsigned char child = 0;
-  for (ii = 0; ii < 3; ++ ii)
+  for ( int i = 0; i < 3; ++ i)
     {
-    newSize[ii] = size[ii] * 0.5;
-    newOrigin[ii] = origin[ii];
-    if (x[ii] >= origin[ii] + newSize[ii])
+    newSize[i] = size[i] * 0.5;
+    newOrigin[i] = origin[i];
+    if ( x[i] >= origin[i] + newSize[i] )
       {
-      child = child | (1 << ii);
-      newOrigin[ii] += newSize[ii];
+      child = child | ( 1 << i );
+      newOrigin[i] += newSize[i];
       }
     }
   newCursor.ToChild( child );
