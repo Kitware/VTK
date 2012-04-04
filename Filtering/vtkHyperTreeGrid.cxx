@@ -48,14 +48,9 @@
 // 2: Default cell interface creates connectivity arrays (effectively unstructured grid) to support random
 //    access to cells.  A serial iterator would be much more efficient.
 
-
-
-
 vtkInformationKeyMacro(vtkHyperTreeGrid, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperTreeGrid, DIMENSION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
-
-
 
 //===================================================
 // This internal class is used as a supperclass
@@ -100,15 +95,11 @@ private:
   void operator=(const vtkHyperTreeInternal &);    // Not implemented.
 };
 
-
-
-
-// I am changing the template value to be the number of children (instead of
-// the dimensions) to support 27 trees in addition to octrees.
-
+// Description:
+// The template value N describes the number of children to binary and
+// ternary trees.
 template<int N> class vtkCompactHyperTree;
 template<int N> class vtkCompactHyperTreeNode;
-
 template<int N> class vtkCompactHyperTreeCursor
   :public vtkHyperTreeCursor
 {
@@ -618,11 +609,9 @@ private:
 };
 
 
-// I am changing the template from dimensions to number of children.
-// It needs to support 2d and 3d, octree and 27 trees.
-// Expected template values: 4, 8, 9, 27.
 // Description:
 // A node of the Tree which is not a leaf.
+// Expected template values: 4, 8, 9, 27.
 template<int N> class vtkCompactHyperTreeNode
 {
 public:
