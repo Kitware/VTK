@@ -225,19 +225,6 @@ public:
   vtkGetObjectMacro(ZCoordinates,vtkDataArray);
 
   // Description:
-  // Set the size on each axis.
-  vtkSetVector3Macro(Size,double);
-  // Description:
-  // Return the size on each axis.
-  vtkGetVector3Macro(Size,double);
-  
-  // Description:
-  // Set the origin (position of corner (0,0,0) of the root.
-  vtkSetVector3Macro(Origin,double);
-  // Return the origin (position of corner (0,0,0) ) of the root.
-  vtkGetVector3Macro(Origin,double);
-  
-  // Description:
   // Law: I feel this is internal and should not be exposed in the API.
   // Create a new cursor: an object that can traverse
   // the cells of an individual hyper tree.
@@ -391,9 +378,6 @@ protected:
   void ComputeBounds();
   void UpdateTree();
 
-
-  double Size[3];   // size on each axis of the root
-  double Origin[3]; // position of corner (0,0,0) of the root.
   int Dimension;    // 1, 2 or 3.
   int GridSize[3];
   int AxisBranchFactor;

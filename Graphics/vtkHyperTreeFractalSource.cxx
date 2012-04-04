@@ -55,17 +55,6 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   output->SetGridSize( this->GridSize );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
-  for ( int i = 0; i < 3; ++i )
-    {
-    this->Size[i] = 1.0;
-    this->Origin[i] = 0.0;
-    }
-  if ( this->Dimension == 2 )
-    {
-    this->Size[2] = 0.0;
-    }
-  output->SetSize(this->Size);
-  output->SetOrigin(this->Origin);
 
   // Create geometry
   for ( int i = 0; i < 3; ++ i )

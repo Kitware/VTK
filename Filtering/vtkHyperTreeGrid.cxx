@@ -1053,12 +1053,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->ZCoordinates->SetNumberOfTuples( 1 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
 
-  for(int i = 0; i<3; ++ i)
-    {
-    this->Size[i]=1;
-    this->Origin[i]=0;
-    }
-
   // For data set API
   this->Voxel = vtkVoxel::New();
   this->Pixel = vtkPixel::New();
@@ -1117,14 +1111,6 @@ void vtkHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Dimension: "<<this->Dimension<<endl;
-  os << indent << "Size: " 
-     << this->Size[0] << "," 
-     << this->Size[1] << "," 
-     << this->Size[2] << endl;
-  os << indent << "Origin: "
-     << this->Origin[0] <<","
-     << this->Origin[1] <<","
-     << this->Origin[2] << endl;
   os << indent << "GridSize: "
      << this->GridSize[0] <<","
      << this->GridSize[1] <<","
@@ -1194,8 +1180,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataSet *ds)
 
   for ( int i = 0; i < 3; ++ i )
     {
-    this->Size[i] = ho->Size[i];
-    this->Origin[i] = ho->Origin[i];
     this->GridSize[i] = ho->GridSize[i];
     }
 
@@ -1449,14 +1433,6 @@ void vtkHyperTreeGrid::Initialize()
   for ( vtkIdType i = 0; i < nCells; ++ i )
     {
     this->CellTree[i]->Initialize();
-    }
-
-  int i=0;
-  while(i<3 )
-    {
-    this->Size[i]=1;
-    this->Origin[i]=0;
-    ++ i;
     }
 
   this->DeleteInternalArrays();
@@ -2011,7 +1987,24 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeLightWeightCursor cursor;
   cursor.Initialize( this->CellTree[index] );
-  return this->RecursiveFindPoint(x, &cursor, this->Origin, this->Size );
+
+  // Geometry of the cell
+  double origin[3];
+  this->XCoordinates->GetTuple( ix, origin );
+  this->YCoordinates->GetTuple( iy, origin + 1);
+  this->ZCoordinates->GetTuple( iz, origin + 2);
+
+  double extreme[3];
+  this->XCoordinates->GetTuple( ix + 1, extreme );
+  this->YCoordinates->GetTuple( iy + 1, extreme + 1);
+  this->ZCoordinates->GetTuple( iz + 1, extreme + 2);
+
+  double size[3];
+  size[0] = extreme[0] - origin[0];
+  size[1] = extreme[1] - origin[1];
+  size[2] = extreme[2] - origin[2];
+        
+  return this->RecursiveFindPoint(x, &cursor, origin, size );
 }
 
 //----------------------------------------------------------------------------
@@ -2298,13 +2291,13 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         // Location and size of the middle cursor/node
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
-        this->YCoordinates->GetTuple( i, origin + 1);
-        this->ZCoordinates->GetTuple( i, origin + 2);
+        this->YCoordinates->GetTuple( j, origin + 1);
+        this->ZCoordinates->GetTuple( k, origin + 2);
 
         double extreme[3];
         this->XCoordinates->GetTuple( i + 1, extreme );
-        this->YCoordinates->GetTuple( i + 1, extreme + 1);
-        this->ZCoordinates->GetTuple( i + 1, extreme + 2);
+        this->YCoordinates->GetTuple( j + 1, extreme + 1);
+        this->ZCoordinates->GetTuple( k + 1, extreme + 2);
 
         double size[3];
         size[0] = extreme[0] - origin[0];
