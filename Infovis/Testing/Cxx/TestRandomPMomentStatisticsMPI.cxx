@@ -639,10 +639,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pmcs->RequestSelectedColumns();
 
     // Test (in parallel) with Learn, Derive, and Assess operations turned on
+    // Test is not implemented for multi-correlative
     pmcs->SetLearnOption( true );
     pmcs->SetDeriveOption( true );
     pmcs->SetAssessOption( true );
-    pmcs->SetTestOption( false );
+    pmcs->SetTestOption( true );
     pmcs->Update();
 
     // Get output meta tables
@@ -708,11 +709,11 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     pcas->SetColumnStatus( columnNames[3], true );
     pcas->RequestSelectedColumns();
 
-    // Test (in parallel) with all operations turned on (because Test for parallel PCA allows to detect problems)
+    // Test (in parallel) with all operations except for Test (not implemented in parallel for PCA)
     pcas->SetLearnOption( true );
     pcas->SetDeriveOption( true );
     pcas->SetAssessOption( true );
-    pcas->SetTestOption( true );
+    pcas->SetTestOption( false );
     pcas->Update();
 
     // Get output meta tables
