@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeFractalSource - Create an Tree from a fractal.
+// .NAME vtkHyperTreeFractalSource - Create a hyper tree grid from a fractal.
 // hyperTree
 // .SECTION Description
 //
@@ -59,17 +59,16 @@ protected:
   vtkHyperTreeFractalSource();
   ~vtkHyperTreeFractalSource();
 
-  void Subdivide(vtkHyperTreeCursor *cursor,
-                 int level, vtkHyperTreeGrid *output,
-                 double* origin, double* size,
-                 int idx[3]);
+  void Subdivide( vtkHyperTreeCursor *cursor,
+                  int level,
+                  vtkHyperTreeGrid *output,
+                  int index,
+                  int idx[3] );
 
   int GridSize[3];
   int MaximumLevel;
   int Dimension;
   int AxisBranchFactor;
-  double Size[3];
-  double Origin[3];
 
   int Dual;
 

@@ -42,7 +42,7 @@ int TestHyperTree( int argc, char** argv )
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
-  plane->SetOrigin( .5, .5, .3333333 );
+  plane->SetOrigin( .5, .5, .15 );
   plane->SetNormal( 0, 0, 1 );
   cut->SetInputData(tree);
   cut->SetCutFunction(plane.GetPointer());

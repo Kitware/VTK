@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeFractalSource.cxx
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeFractalSource.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeFractalSource.h"
@@ -56,6 +56,12 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
 
+  // Per-axis scaling
+  double scale[3];
+  scale[0] = 1.5;
+  scale[1] = 1.;
+  scale[2] = .7;
+
   // Create geometry
   for ( int i = 0; i < 3; ++ i )
     {
@@ -64,7 +70,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     coords->SetNumberOfValues( n );
     for ( int j = 0; j < n; ++ j ) 
       {
-      coords->SetValue( j, static_cast<double>( ( i + 1 ) * j ) );
+      coords->SetValue( j, scale[i] * static_cast<double>( j ) );
       }
 
     if ( i == 0 )
@@ -106,14 +112,16 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
       {
       for ( int k = 0; k < n[2]; ++ k )
         {
+        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+
         vtkHyperTreeCursor* cursor = output->NewCellCursor( i, j, k );
         cursor->ToRoot();
 
         int idx[3];
         idx[0] = idx[1] = idx[2] = 0;
-        this->Subdivide( cursor, 1, output, this->Origin, this->Size, idx );
-        
+        this->Subdivide( cursor, 1, output, index, idx );
         cursor->UnRegister( this );
+        cerr << " Created cell " << i << " " << j << " " << k << endl;
         } // k
       } // j
     } // i
@@ -130,8 +138,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
                                            int level, 
                                            vtkHyperTreeGrid* output,
-                                           double* origin, 
-                                           double* size,
+                                           int index,
                                            int idx[3] )
 {
   // Determine whether to subdivide.
@@ -150,12 +157,7 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
 
   if (subdivide)
     {
-    output->SubdivideLeaf( cursor, 0 );
-    double newOrigin[3];
-    double newSize[3];
-    newSize[0] = size[0] / this->AxisBranchFactor;
-    newSize[1] = size[1] / this->AxisBranchFactor;
-    newSize[2] = size[2] / this->AxisBranchFactor;
+    output->SubdivideLeaf( cursor, index );
 
     // Now traverse to children.
     int xDim, yDim, zDim;
@@ -174,25 +176,21 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
       }
     int childIdx = 0;
     int newIdx[3];
-    for (int z = 0; z < zDim; ++z)
+    for ( int z = 0; z < zDim; ++ z )
       {
       newIdx[2] = idx[2] * zDim + z;
-      for (int y = 0; y < yDim; ++y)
+      for ( int y = 0; y < yDim; ++ y )
         {
         newIdx[1] = idx[1] * yDim + y;
-        for (int x = 0; x < xDim; ++x)
+        for ( int x = 0; x < xDim; ++ x )
           {
           newIdx[0] = idx[0] * xDim + x;
-          newOrigin[0] = origin[0] + static_cast<double>( x ) * newSize[0];
-          newOrigin[1] = origin[1] + static_cast<double>( y ) * newSize[1];
-          newOrigin[2] = origin[2] + static_cast<double>( z ) * newSize[2];
           cursor->ToChild(childIdx);
           this->Subdivide( cursor,
                            level + 1,
                            output,
-                           newOrigin,
-                           newSize,
-                           newIdx);
+                           index,
+                           newIdx );
           cursor->ToParent();
           ++ childIdx;
           }
