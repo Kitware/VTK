@@ -59,11 +59,12 @@ protected:
   vtkHyperTreeFractalSource();
   ~vtkHyperTreeFractalSource();
 
-  void Subdivide( vtkHyperTreeCursor *cursor,
+  void Subdivide( vtkHyperTreeCursor* cursor,
                   int level,
-                  vtkHyperTreeGrid *output,
+                  vtkHyperTreeGrid* output,
                   int index,
-                  int idx[3] );
+                  int idx[3],
+                  int offset );
 
   int GridSize[3];
   int MaximumLevel;

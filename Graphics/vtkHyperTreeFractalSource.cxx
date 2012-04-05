@@ -119,9 +119,11 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 
         int idx[3];
         idx[0] = idx[1] = idx[2] = 0;
-        this->Subdivide( cursor, 1, output, index, idx );
+        int offset = output->GetLeafData()->GetScalars()->GetNumberOfTuples();
+        cerr << " Creating cell " << i << " " << j << " " << k 
+             << " with scalar offset " << offset << endl;
+        this->Subdivide( cursor, 1, output, index, idx, offset );
         cursor->UnRegister( this );
-        cerr << " Created cell " << i << " " << j << " " << k << endl;
         } // k
       } // j
     } // i
@@ -139,7 +141,8 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
                                            int level, 
                                            vtkHyperTreeGrid* output,
                                            int index,
-                                           int idx[3] )
+                                           int idx[3],
+                                           int offset )
 {
   // Determine whether to subdivide.
   int subdivide = 1;
@@ -190,7 +193,8 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
                            level + 1,
                            output,
                            index,
-                           newIdx );
+                           newIdx,
+                           offset );
           cursor->ToParent();
           ++ childIdx;
           }
@@ -199,9 +203,11 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     }
   else
     {
+    // Cell value
     float val = idx[0] + idx[1] + idx[2];
-    // Weight cell values for smoother iso surface.
-    vtkIdType id = cursor->GetLeafId();
+
+    // Offset cell index as needed
+    vtkIdType id = offset + cursor->GetLeafId();
     output->GetLeafData()->GetScalars()->InsertTuple1( id, val );
     }
 }
