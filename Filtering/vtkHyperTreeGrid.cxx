@@ -2473,27 +2473,30 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
       x = child%3;
       }
     // Compute origin for child
-    childOrigin[0] = origin[0] + (x*childSize[0]);
-    childOrigin[1] = origin[1] + (y*childSize[1]);
-    childOrigin[2] = origin[2] + (z*childSize[2]);
+    childOrigin[0] = origin[0] + ( x * childSize[0] );
+    childOrigin[1] = origin[1] + ( y * childSize[1] );
+    childOrigin[2] = origin[2] + ( z * childSize[2] );
     // Move each cursor in the superCursor down to a child.
-    for (int cursorIdx = 0; cursorIdx < numCursors; ++cursorIdx)
+    for ( int cursorIdx = 0; cursorIdx < numCursors; ++ cursorIdx )
       {
       // Extract the parent and child of the new node from the traversal table.
       // Child is encoded in the first three bits for all dimensions.
       int tChild = cursorPtr[cursorIdx].Child;
       int tParent = cursorPtr[cursorIdx].Parent;
-      if (superCursor[tParent].GetTree() == 0)
-        { // No node for this cursor.
+      if ( ! superCursor[tParent].GetTree() )
+        {
+        // No node for this cursor.
         newSuperCursor[cursorIdx] = superCursor[tParent];
         }
       else if (superCursor[tParent].GetIsLeaf() )
-        { // Parent is a leaf.  Can't traverse anymore.
+        {
+        // Parent is a leaf.  Can't traverse anymore.
         // equal operator should work for this class.
         newSuperCursor[cursorIdx] = superCursor[tParent];
         }
       else
-        { // Move to child.
+        {
+        // Move to child.
         // equal operator should work for this class.
         newSuperCursor[cursorIdx] = superCursor[tParent];
         newSuperCursor[cursorIdx].ToChild(tChild);
@@ -2535,17 +2538,18 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner(
   cornerId = this->CornerPoints->GetNumberOfPoints();
 
   // Loop through the leaves to determine which use this point.
-  int leafId, sideLeaf;
-  for (leaf = 0; leaf < numLeaves; ++leaf)
+  for ( leaf = 0; leaf < numLeaves; ++ leaf )
     {
     if (superCursor[cornerCursorIds[leaf]].GetTree() )
-      { // We know it is a leaf from the previous check.
+      {
+      // We know it is a leaf from the previous check.
       // use bitwise exculsive or to find cursors of leaf.
-      leafId = superCursor[cornerCursorIds[leaf]].GetLeafIndex();
-      sideLeaf = leaf^1;
+      int leafId = superCursor[cornerCursorIds[leaf]].GetLeafIndex();
+      int sideLeaf = leaf^1;
       if (superCursor[cornerCursorIds[sideLeaf]].GetTree() &&
           leafId == superCursor[cornerCursorIds[sideLeaf]].GetLeafIndex() )
-        { // Two cursors are the same.
+        {
+        // Two cursors are the same.
         // We are not inserting face or edge points.
         continue;
         }
@@ -2554,7 +2558,8 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner(
         sideLeaf = leaf^2;
         if (superCursor[cornerCursorIds[sideLeaf]].GetTree() &&
             leafId == superCursor[cornerCursorIds[sideLeaf]].GetLeafIndex() )
-          { // Two cursors are the same.
+          {
+          // Two cursors are the same.
           // We are not inserting face or edge points.
           continue;
           }
@@ -2564,14 +2569,16 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner(
         sideLeaf = leaf^4;
         if (superCursor[cornerCursorIds[sideLeaf]].GetTree() &&
             leafId == superCursor[cornerCursorIds[sideLeaf]].GetLeafIndex() )
-          { // Two cursors are the same.
+          {
+          // Two cursors are the same.
           // We are not inserting face or edge points.
           continue;
           }
         }
       // Center point is opposite to the leaf position in supercursor.
-      this->LeafCornerIds->InsertComponent(leafId, numLeaves-leaf-1,
-                                           static_cast<double>(cornerId) );
+      this->LeafCornerIds->InsertComponent( leafId, 
+                                            numLeaves-leaf-1,
+                                            static_cast<double>( cornerId ) );
       }
     }
 
