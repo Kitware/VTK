@@ -31,6 +31,7 @@
 #include "fonts/vtkEmbeddedFonts.h"
 
 #include <sys/stat.h>
+#include <stdint.h>
 
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
