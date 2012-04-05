@@ -15,7 +15,6 @@
 
 #include "vtkActor.h"
 #include "vtkChartXY.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkContextActor.h"
 #include "vtkCubeSource.h"
@@ -24,7 +23,6 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
-#include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
