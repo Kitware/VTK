@@ -90,7 +90,7 @@ void CvtkDLGDlg::ExecutePipeline()
 {
   if (pvtkDataSetReader)  // have file
   {
-    this->pvtkDataSetMapper->SetInput(pvtkDataSetReader->GetOutput());
+    this->pvtkDataSetMapper->SetInputConnection(pvtkDataSetReader->GetOutputPort());
     this->pvtkActor->SetMapper(this->pvtkDataSetMapper);
 
     this->pvtkTextMapper->SetInput(pvtkDataSetReader->GetFileName());

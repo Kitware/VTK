@@ -139,10 +139,10 @@ void __fastcall TVTK_Form::bc1Click(TObject *Sender)
 
   shrink = vtkShrinkPolyData::New();
     shrink->SetShrinkFactor( ShrinkScroll->Position/100.0 );
-    shrink->SetInput( sphere->GetOutput() );
+    shrink->SetInputConnection( sphere->GetOutputPort() );
 
   vtkElevationFilter *elev = vtkElevationFilter::New();
-    elev->SetInput( shrink->GetOutput() );
+    elev->SetInputConnection( shrink->GetOutputPort() );
     elev->SetLowPoint(-1,-1,-1);
     elev->SetHighPoint( 1, 1, 1);
     elev->SetScalarRange(0,1);
