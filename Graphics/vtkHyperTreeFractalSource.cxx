@@ -151,6 +151,10 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     {
     subdivide = 0;
     }
+  if ( index && ! idx[1] && ! idx[2] )
+    {
+    subdivide = 1;
+    }
 
   // Check for hard coded minimum and maximum level restrictions.
   if ( level >= this->MaximumLevel )
@@ -158,7 +162,7 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     subdivide = 0;
     }
 
-  if (subdivide)
+  if ( subdivide )
     {
     output->SubdivideLeaf( cursor, index );
 

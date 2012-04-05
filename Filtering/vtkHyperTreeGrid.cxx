@@ -2287,7 +2287,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
         vtkHyperTreeLightWeightCursor superCursor[27];
         superCursor[midCursorId].Initialize( this->CellTree[index] );
-    
+
         // Location and size of the middle cursor/node
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
@@ -2419,6 +2419,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
           }
         // Collect the leaf indexes for the dual cell.
         leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
+
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != midCursorId )
           {
@@ -2446,6 +2447,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
     // Middle cursor was a leaf,  terminate recursion
     return;
     }
+
   // Middle cursor is not leaf, must recurse deeper
   double childOrigin[3];
   double childSize[3];
@@ -2940,10 +2942,8 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
 }
 
 //=============================================================================
-// Lightweight cursor stuf.
-// I needed to include it into this file
-// because it needs access to the internal classes.
-
+// Lightweight cursor
+// Implemented here because it needs access to the internal classes.
 
 //-----------------------------------------------------------------------------
 // Constructor.
@@ -2956,6 +2956,7 @@ vtkHyperTreeLightWeightCursor::vtkHyperTreeLightWeightCursor()
 }
 
 //-----------------------------------------------------------------------------
+// Destructor.
 vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
 {
   this->Level = 0;
@@ -3021,12 +3022,13 @@ void vtkHyperTreeLightWeightCursor::ToRoot()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeLightWeightCursor::ToChild(int child)
 {
-  if ( this->Tree == 0)
+  if ( this->Tree == 0 )
     {
     return;
     }
-  if ( this->IsLeaf)
-    { // Leaves do not have children.
+  if ( this->IsLeaf )
+    {
+    // Leaves do not have children.
     return;
     }
 
