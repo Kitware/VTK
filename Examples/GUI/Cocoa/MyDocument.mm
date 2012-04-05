@@ -29,7 +29,7 @@
         cone->SetRadius(1.0);
         cone->SetResolution(100);
     vtkSmartPointer<vtkPolyDataMapper>  coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-        coneMapper->SetInput(cone->GetOutput());
+        coneMapper->SetInputConnection(cone->GetOutputPort());
     vtkSmartPointer<vtkActor>   coneActor = vtkSmartPointer<vtkActor>::New();
         coneActor->SetMapper(coneMapper);
     [leftVTKView getRenderer]->AddActor(coneActor);
@@ -53,7 +53,7 @@
     vtkSmartPointer<vtkCylinderSource>  cylinder = vtkSmartPointer<vtkCylinderSource>::New();
         cylinder->SetResolution(100);
     vtkSmartPointer<vtkPolyDataMapper>  cylinderMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-        cylinderMapper->SetInput(cylinder->GetOutput());
+        cylinderMapper->SetInputConnection(cylinder->GetOutputPort());
     vtkSmartPointer<vtkActor>   cylinderActor = vtkSmartPointer<vtkActor>::New();
         cylinderActor->SetMapper(cylinderMapper);
     [rightVTKView getRenderer]->AddActor(cylinderActor);
