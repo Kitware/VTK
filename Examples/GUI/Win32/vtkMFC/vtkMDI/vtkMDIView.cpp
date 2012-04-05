@@ -112,7 +112,7 @@ void CvtkMDIView::ExecutePipeline()
 
   if (pDoc->pvtkDataSetReader)  // have file
   {
-    this->pvtkDataSetMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetOutput());
+    this->pvtkDataSetMapper->SetInputConnection(this->GetDocument()->pvtkDataSetReader->GetOutputPort());
     this->pvtkActor->SetMapper(this->pvtkDataSetMapper);
 
     this->pvtkTextMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetFileName());

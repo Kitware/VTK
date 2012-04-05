@@ -111,7 +111,7 @@ BOOL CSampleDoc::OnOpenDocument(LPCTSTR lpszPathName)
   
   // TODO: Add your specialized creation code here
   this->Reader->SetFileName(lpszPathName);
-  this->Mapper->SetInput(this->Reader->GetOutput());
+  this->Mapper->SetInputConnection(this->Reader->GetOutputPort());
   this->Actor->VisibilityOn();
 	
   return TRUE;
