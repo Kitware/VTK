@@ -1567,7 +1567,7 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfPoints()
 // THIS METHOD IS NOT THREAD SAFE.
 double *vtkHyperTreeGrid::GetPoint(vtkIdType ptId)
 {
-  if ( this->DualGridFlag)
+  if ( this->DualGridFlag )
     {
     this->UpdateDualArrays();
     vtkPoints* leafCenters = this->GetLeafCenters();
@@ -2304,8 +2304,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         size[1] = extreme[1] - origin[1];
         size[2] = extreme[2] - origin[2];
         
-        // Normal grid API (leaves as hex cells) will be removed soon.
-        this->TraverseDualRecursively(superCursor, origin, size, 0);
+        // Figure out necessary point insertion offset
+        int ptOffset =  this->LeafCenters->GetNumberOfPoints();
+        this->TraverseDualRecursively( superCursor, ptOffset, origin, size, 0 );
         } // k
       } // j
     } // i
@@ -2320,11 +2321,11 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 // owns the corner and generates that dual cell.
 // Note: The recursion here is the same as TraversGridRecursively.  The only
 // difference is which arrays are generated.  We should merge the two.
-void vtkHyperTreeGrid::TraverseDualRecursively(
-  vtkHyperTreeLightWeightCursor* superCursor,
-  double* origin,
-  double* size,
-  int level)
+void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* superCursor,
+                                                int ptOffset,
+                                                double* origin,
+                                                double* size,
+                                                int level )
 {
   int midCursorId = 0;
   int numCursors = 1;
@@ -2377,7 +2378,8 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
       { // Move to maximum boundary of cell
       pt[2] += size[2];
       }
-    this->LeafCenters->InsertPoint(superCursor[midCursorId].GetLeafIndex(), pt);
+    int index =  ptOffset + superCursor[midCursorId].GetLeafIndex();
+    this->LeafCenters->InsertPoint( index, pt );
 
     // Now see if the center leaf owns any of the corners.
     // If it does, create the dual cell.
@@ -2393,7 +2395,8 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
         // Compute the cursor index into the superCursor.
         int cursorIdx = 0;
         switch ( this->Dimension )
-          { // run through is intended
+          {
+          // Run through is intended
           case 3:
             cursorIdx += 9*(((cornerIdx>>2)&1) + ((leafIdx>>2)&1) );
           case 2:
@@ -2408,12 +2411,14 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
           {
           vtkHyperTreeLightWeightCursor* cursor = superCursor+cursorIdx;
           if (cursor->GetTree() == 0 || ! cursor->GetIsLeaf() )
-            { // If neighbor leaf is out of bounds or has not been
+            {
+            // If neighbor leaf is out of bounds or has not been
             // refined to a leaf, this leaf does not own the corner.
             owner = false;
             }
           else if (cursor->GetLevel() == midLevel && midCursorId < cursorIdx)
-            { // A level tie is broken by index
+            {
+            // A level tie is broken by index
             // The larger index wins.  We want all points set before
             // defining the cell.
             owner = false;
@@ -2438,10 +2443,10 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
   vtkHyperTreeLightWeightCursor newSuperCursor[27];
   int child;
   vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable;
-  for (child = 0; child < this->NumberOfChildren; ++child, cursorPtr += 27)
+  for ( child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
     {
     int x,y,z;
-    if ( this->AxisBranchFactor == 2)
+    if ( this->AxisBranchFactor == 2 )
       {
       x = child&1;
       y = (child&2)>>1;
@@ -2480,7 +2485,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively(
         newSuperCursor[cursorIdx].ToChild(tChild);
         }
       }
-    this->TraverseDualRecursively(newSuperCursor, childOrigin, childSize, level+1);
+    this->TraverseDualRecursively( newSuperCursor, ptOffset, childOrigin, childSize, level + 1 );
     }
 }
 

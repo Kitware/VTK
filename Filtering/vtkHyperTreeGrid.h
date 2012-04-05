@@ -408,8 +408,11 @@ protected:
 
   void DeleteInternalArrays();
 
-  void TraverseDualRecursively(vtkHyperTreeLightWeightCursor* neighborhood,
-                               double origin[3], double size[3], int level);
+  void TraverseDualRecursively( vtkHyperTreeLightWeightCursor* neighborhood,
+                                int ptOffset,
+                                double origin[3], 
+                                double size[3], 
+                                int level );
   void TraverseGridRecursively(vtkHyperTreeLightWeightCursor* neighborhood, 
                                unsigned char* visited,
                                double* origin, double* size);
