@@ -2306,6 +2306,8 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         
         // Figure out necessary point insertion offset
         int ptOffset =  this->LeafCenters->GetNumberOfPoints();
+
+        // Traverse and populate dual recursively
         this->TraverseDualRecursively( superCursor, ptOffset, origin, size, 0 );
         } // k
       } // j
@@ -2319,7 +2321,7 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 //-----------------------------------------------------------------------------
 // Iterate over leaves.  Generate dual point.  Highest level (smallest leaf)
 // owns the corner and generates that dual cell.
-// Note: The recursion here is the same as TraversGridRecursively.  The only
+// Note: The recursion here is the same as TraverseGridRecursively.  The only
 // difference is which arrays are generated.  We should merge the two.
 void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* superCursor,
                                                 int ptOffset,
@@ -2347,37 +2349,48 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
   // Level of the middle cursor.
   int midLevel = superCursor[midCursorId].GetLevel();
   if (superCursor[midCursorId].GetIsLeaf() )
-    { // Center is a leaf. Make a dual point.
+    { 
+    // Center is a leaf. Make a dual point.
     double pt[3];
+
     // Start at minimum boundary of cell.
     pt[0] = origin[0];
     pt[1] = origin[1];
     pt[2] = origin[2];
+
     // Adjust point so the boundary of the dataset does not shrink.
     if (superCursor[midCursorId-1].GetTree() && superCursor[midCursorId+1].GetTree() )
-      { // Middle of cell
+      {
+      // Middle of cell
       pt[0] += size[0] * 0.5;
       }
     else if (superCursor[midCursorId+1].GetTree() == 0)
-      { // Move to maximum boundary of cell
+      {
+      // Move to maximum boundary of cell
       pt[0] += size[0];
       }
     if ( this->Dimension > 1 && superCursor[midCursorId-3].GetTree() && superCursor[midCursorId+3].GetTree() )
-      { // Middle of cell
+      {
+      // Middle of cell
       pt[1] += size[1] * 0.5;
       }
     else if ( this->Dimension > 1 && superCursor[midCursorId+3].GetTree() == 0)
-      { // Move to maximum boundary of cell
+      {
+      // Move to maximum boundary of cell
       pt[1] += size[1];
       }
     if ( this->Dimension > 2 && superCursor[midCursorId-9].GetTree() && superCursor[midCursorId+9].GetTree() )
-      { // Middle of cell
+      {
+      // Middle of cell
       pt[2] += size[2] * 0.5;
       }
     else if ( this->Dimension > 2 && superCursor[midCursorId+9].GetTree() == 0)
-      { // Move to maximum boundary of cell
+      {
+      // Move to maximum boundary of cell
       pt[2] += size[2];
       }
+
+    // Insert point with given offset into leaf centers array
     int index =  ptOffset + superCursor[midCursorId].GetLeafIndex();
     this->LeafCenters->InsertPoint( index, pt );
 
@@ -2385,12 +2398,12 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
     // If it does, create the dual cell.
     // Iterate over the corners around the middle leaf.
     int numLeavesCorners = 1 << this->Dimension;
-    for (int cornerIdx = 0; cornerIdx < numLeavesCorners; ++cornerIdx)
+    for ( int cornerIdx = 0; cornerIdx < numLeavesCorners; ++ cornerIdx )
       {
       bool owner = true;
       vtkIdType leaves[8];
       // Iterate over every leaf touching the corner.
-      for (int leafIdx = 0; leafIdx < numLeavesCorners && owner; ++leafIdx)
+      for ( int leafIdx = 0; leafIdx < numLeavesCorners && owner; ++ leafIdx )
         {
         // Compute the cursor index into the superCursor.
         int cursorIdx = 0;
@@ -2398,25 +2411,25 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
           {
           // Run through is intended
           case 3:
-            cursorIdx += 9*(((cornerIdx>>2)&1) + ((leafIdx>>2)&1) );
+            cursorIdx += 9 * (((cornerIdx>>2)&1) + ((leafIdx>>2)&1) );
           case 2:
-            cursorIdx += 3*(((cornerIdx>>1)&1) + ((leafIdx>>1)&1) );
+            cursorIdx += 3 * (((cornerIdx>>1)&1) + ((leafIdx>>1)&1) );
           case 1:
             cursorIdx += (cornerIdx&1) + (leafIdx&1);
           }
         // Collect the leaf indexes for the dual cell.
-        leaves[leafIdx] = superCursor[cursorIdx].GetLeafIndex();
+        leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
         // Compute if the mid leaf owns the corner.
-        if (cursorIdx != midCursorId)
+        if ( cursorIdx != midCursorId )
           {
           vtkHyperTreeLightWeightCursor* cursor = superCursor+cursorIdx;
-          if (cursor->GetTree() == 0 || ! cursor->GetIsLeaf() )
+          if ( cursor->GetTree() == 0 || ! cursor->GetIsLeaf() )
             {
             // If neighbor leaf is out of bounds or has not been
             // refined to a leaf, this leaf does not own the corner.
             owner = false;
             }
-          else if (cursor->GetLevel() == midLevel && midCursorId < cursorIdx)
+          else if ( cursor->GetLevel() == midLevel && midCursorId < cursorIdx )
             {
             // A level tie is broken by index
             // The larger index wins.  We want all points set before
@@ -2425,21 +2438,22 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
             }
           }
         }
-      if (owner)
+      if ( owner )
         {
-        this->CornerLeafIds->InsertNextTupleValue(leaves);
+        this->CornerLeafIds->InsertNextTupleValue( leaves );
         }
       }
-    // Middle cursor was a leaf.  Terminate recursion.
+    // Middle cursor was a leaf,  terminate recursion
     return;
     }
-  // Middle cursor is not leaf. Recurse deeper.
+  // Middle cursor is not leaf, must recurse deeper
   double childOrigin[3];
   double childSize[3];
-  childSize[0] = size[0]/double( this->AxisBranchFactor);
-  childSize[1] = size[1]/double( this->AxisBranchFactor);
-  childSize[2] = size[2]/double( this->AxisBranchFactor);
-  // We will not use all of these if dim < 3.
+  childSize[0] = size[0] / double( this->AxisBranchFactor );
+  childSize[1] = size[1] / double( this->AxisBranchFactor );
+  childSize[2] = size[2] / double( this->AxisBranchFactor );
+
+  // We will not use all of these if dim < 3
   vtkHyperTreeLightWeightCursor newSuperCursor[27];
   int child;
   vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable;
