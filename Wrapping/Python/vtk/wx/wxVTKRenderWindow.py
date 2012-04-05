@@ -748,7 +748,7 @@ def wxVTKRenderWindowConeExample():
     cone.SetResolution(8)
 
     coneMapper = vtk.vtkPolyDataMapper()
-    coneMapper.SetInput(cone.GetOutput())
+    coneMapper.SetInputConnection(cone.GetOutputPort())
 
     coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
