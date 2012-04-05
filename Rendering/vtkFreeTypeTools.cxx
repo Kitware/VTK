@@ -31,7 +31,9 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
-#include <stdint.h>
+#ifndef _MSC_VER
+# include <stdint.h>
+#endif
 
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
