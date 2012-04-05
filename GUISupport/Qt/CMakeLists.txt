@@ -127,6 +127,7 @@ ENDIF(VTK_LIBRARY_PROPERTIES)
 TARGET_LINK_LIBRARIES(QVTK
   ${QT_LIBRARIES}
   vtkRendering
+  vtkIO
   vtkGraphics
   vtkImaging
   vtkCommon)
@@ -163,22 +164,27 @@ if(VTK_WRAP_PYTHON_SIP)
   set(QVTK_PythonHeaders
     QVTKInteractor.h
     vtkEventQtSlotConnect.h
-    vtkQtAnnotationView.h
-    vtkQtListView.h
     vtkQtSQLDatabase.h
     vtkQtSQLQuery.h
-    vtkQtRecordView.h
-    vtkQtTableRepresentation.h
-    vtkQtTableView.h
     vtkQtTimePointUtility.h
-    vtkQtTreeView.h
-    vtkQtView.h
     )
-  IF(VTK_QT_USE_WEBKIT)
+  if(VTK_USE_VIEWS)
+    set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
+      vtkQtAnnotationView.h
+      vtkQtListView.h
+      vtkQtRecordView.h
+      vtkQtTableRepresentation.h
+      vtkQtTableView.h
+      vtkQtTreeView.h
+      vtkQtView.h
+      )
+  endif(VTK_USE_VIEWS)
+
+  IF(VTK_USE_VIEWS AND VTK_QT_USE_WEBKIT)
     set(QVTK_PythonHeaders ${QVTK_PythonHeaders}
     vtkQtRichTextView.h
     )
-  ENDIF(VTK_QT_USE_WEBKIT)
+  ENDIF(VTK_USE_VIEWS AND VTK_QT_USE_WEBKIT)
 
   # GUISupport/Qt doesn't have a hierarchy file, use Rendering
   IF(VTK_IGNORE_BTX)
@@ -188,7 +194,11 @@ if(VTK_WRAP_PYTHON_SIP)
 
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
   VTK_ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
-  TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK vtkViewsPythonD vtkRenderingPythonD vtkPythonCore)
+  TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK)
+  IF(VTK_USE_VIEWS)
+    TARGET_LINK_LIBRARIES(vtkQtPythonD vtkViewsPythonD)
+  ENDIF(VTK_USE_VIEWS)
+  TARGET_LINK_LIBRARIES(vtkQtPythonD vtkRenderingPythonD vtkPythonCore)
 
   PYTHON_ADD_MODULE(vtkQtPython vtkQtPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkQtPython vtkQtPythonD)
