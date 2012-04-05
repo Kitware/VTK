@@ -2667,7 +2667,8 @@ void vtkKdTree::FindClosestNPoints(int N, const double x[3],
     }
   int *ids = this->LocatorIds + where;
   float* pt = this->LocatorPoints + (where*3);
-  float xfloat[3] = {x[0], x[1], x[2]};
+  float xfloat[3] = {static_cast<float>(x[0]), static_cast<float>(x[1]),
+                     static_cast<float>(x[2])};
   OrderPoints orderedPoints(N);
   for (int i=0; i<numPoints; i++)
     {

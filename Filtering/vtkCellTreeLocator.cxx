@@ -651,7 +651,8 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
   double closestPoint[3], dist2;
   int subId;
 
-  const float _pos[3] = { pos[0], pos[1], pos[2] };
+  const float _pos[3] = { static_cast<float>(pos[0]), static_cast<float>(pos[1]),
+                          static_cast<float>(pos[2]) };
   vtkCellPointTraversal pt( *(this->Tree), _pos );
 
   //bool found = false;
