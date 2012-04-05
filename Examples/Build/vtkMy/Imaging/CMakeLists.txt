@@ -30,6 +30,10 @@ IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
   ADD_LIBRARY (vtkmyImagingPython MODULE vtkmyImagingPythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtkmyImagingPythonD vtkmyImaging vtkmyCommonPythonD vtkImaging vtkImagingPythonD)
   TARGET_LINK_LIBRARIES(vtkmyImagingPython vtkmyImagingPythonD)
+  SET_TARGET_PROPERTIES(vtkmyImagingPython PROPERTIES PREFIX "")
+  IF(WIN32 AND NOT CYGWIN)
+    SET_TARGET_PROPERTIES(vtkmyImagingPython PROPERTIES SUFFIX ".pyd")
+  ENDIF(WIN32 AND NOT CYGWIN)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
 # Create the vtkmyImaging Java library.
