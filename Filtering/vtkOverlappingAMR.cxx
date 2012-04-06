@@ -57,7 +57,7 @@ vtkOverlappingAMR::vtkOverlappingAMR()
   this->ScalarRange[1]    = VTK_DOUBLE_MIN;
   this->PadCellVisibility = false;
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
-  this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = 
+  this->Bounds[0] = this->Bounds[1] = this->Bounds[2] =
   this->Bounds[3] = this->Bounds[4] = this->Bounds[5] = 0.0;
   this->ParentInformation = NULL;
   this->ParentInformationMap = NULL;
@@ -464,10 +464,10 @@ void vtkOverlappingAMR::GetHigherResolutionCoarsenedBoxes(
       vtkGenericWarningMacro("No MetaData associated with this instance!\n" );
       continue;
       }
-    
+
     vtkAMRBox coarsebox;
     this->GetMetaData( levelIdx+1, dataSetIdx, coarsebox );
-    
+
     coarsebox.Coarsen(refinementRatio);
     boxes.push_back(coarsebox);
     } // END for all datasets
@@ -489,9 +489,18 @@ void vtkOverlappingAMR::GetBoxesFromLevel(
       vtkGenericWarningMacro( "No MetaData associated with this instance!\n" );
       continue;
       }
-    this->GetMetaData( levelIdx, dataSetIdx, box );    
+    this->GetMetaData( levelIdx, dataSetIdx, box );
     boxes.push_back(box);
     } // END for all datasets
+}
+
+//----------------------------------------------------------------------------
+
+bool vtkOverlappingAMR::
+HasChildrenInformation()
+{
+  bool hasChildrenInfo = this->ChildrenInformation!=NULL;
+  return hasChildrenInfo;
 }
 
 //----------------------------------------------------------------------------
@@ -508,7 +517,7 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
 
   // Get the boxes for the next level
   this->GetBoxesFromLevel(levelIdx+1, nlboxes);
-  
+
   vtkAMRBoxList::iterator it, end=lboxes.end(), nit, nend=nlboxes.end();
 
   // Get the refinement ratio between this and the next level
@@ -525,7 +534,7 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
   parentsVec.resize(n);
   parentsVec.assign(0, n);
   unsigned int lbid, nlbid;
-  // For each block determine which of the higher res blocks intersect it 
+  // For each block determine which of the higher res blocks intersect it
   // (they will be considered its children)
   for (it = lboxes.begin(), lbid = 0; it != end; ++it, ++lbid)
     {
@@ -560,8 +569,8 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
     }
 
   // At this point the Parent and Children Maps should be the same size
-  assert("Children and Parent Maps are not the same size!" && 
-         (this->ChildrenInformationMap->GetNumberOfTuples() == 
+  assert("Children and Parent Maps are not the same size!" &&
+         (this->ChildrenInformationMap->GetNumberOfTuples() ==
           this->ParentInformationMap->GetNumberOfTuples()));
 
   // Store where the next level blocks will begin
@@ -628,12 +637,12 @@ void vtkOverlappingAMR::BlankGridsAtLevel(
     assert( "Empty AMR box!" && !box.Empty()  );
     box.GetNumberOfCells(cellDims);
     N = box.GetNumberOfCells();
-    
+
     vtkUnsignedCharArray* vis = vtkUnsignedCharArray::New();
     vis->SetNumberOfTuples( N );
     vis->FillComponent(0,static_cast<char>(1));
     numBlankedPts = 0;
-    
+
     // For each higher res box fill in the cells that
     // it covers
     for (it = boxes.begin(); it != end; ++it)
@@ -646,7 +655,7 @@ void vtkOverlappingAMR::BlankGridsAtLevel(
         // We know that this higher res box does not intersect this one
         continue;
         }
-      
+
       const int *loCorner=ibox.GetLoCorner();
       const int *hiCorner=ibox.GetHiCorner();
       for( int iz=loCorner[2]; iz<=hiCorner[2]; iz++ )
@@ -664,7 +673,7 @@ void vtkOverlappingAMR::BlankGridsAtLevel(
           } // END for y
         } // END for z
       } // Processing all higher boxes for a specific coarse grid
-     
+
     grid->SetCellVisibilityArray(vis);
     vis->Delete();
     if( this->PadCellVisibility == true )
@@ -679,7 +688,7 @@ void vtkOverlappingAMR::BlankGridsAtLevel(
       vtkInformation* infotmp =
         this->GetMetaData(levelIdx,dataSetIdx);
       infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
-      } 
+      }
     } // END for all datasets
 }
 
@@ -700,7 +709,7 @@ void vtkOverlappingAMR::GenerateVisibilityArrays()
 //----------------------------------------------------------------------------
 void vtkOverlappingAMR::GenerateParentChildInformation()
 {
-  // Note that we do not add the  the 
+  // Note that we do not add the  the
   // children of the max level to our arrays - hence the
   // GetChildren() methods must take this into consideration
   AssignUnsignedIntArray(&(this->LevelMap), NULL);
@@ -720,7 +729,7 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
   this->ChildrenInformationMap = vtkUnsignedIntArray::New();
   this->ParentInformation = vtkUnsignedIntArray::New();
   this->ParentInformationMap = vtkUnsignedIntArray::New();
- 
+
 
   this->LevelMap->SetNumberOfTuples(numLevels);
   // Set the first block of level 0 is the first entry in the map arrays
@@ -737,13 +746,13 @@ void vtkOverlappingAMR::GenerateParentChildInformation()
   // so that the LevelMap can be used for both the parent and children information (else we
   // would need to separate maps) - since the number of blocks in level 0 is very small this
   // does not seem to be a big deal
- 
+
   vtkAMRBoxList::iterator it, end=boxes[0].end();
   // Insert 0 parents into the Parent Information array
   this->ParentInformation->InsertNextValue(0);
   for (it = boxes[0].begin(); it != end; ++it)
     {
-    // Have all the blocks in level 0 point to 0th entry in the Parent Information 
+    // Have all the blocks in level 0 point to 0th entry in the Parent Information
     this->ParentInformationMap->InsertNextValue(0);
     }
 
@@ -1057,7 +1066,7 @@ GetChildren(unsigned int level, unsigned int index)
 {
   // If there is no level map or if the level is the max level
   // there is no children information
-  if ((this->LevelMap == NULL) || 
+  if ((this->LevelMap == NULL) ||
       (this->LevelMap->GetNumberOfTuples() == (level+1)))
     {
     return NULL;
