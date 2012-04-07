@@ -462,7 +462,7 @@ int vtkAMRSliceFilter::GetDonorCellIdx( double x[3], vtkUniformGrid *ug )
   int ijk[3];
   for( int i=0; i < 3; ++i )
     {
-    ijk[ i ] = floor( (x[i]-x0[i])/h[i] );
+    ijk[ i ] = static_cast<int>(floor( (x[i]-x0[i])/h[i] ));
     }
 
   int dims[3];
