@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pébay, Kitware SAS 2011
+// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkCamera.h"
 #include "vtkLineSource.h"
