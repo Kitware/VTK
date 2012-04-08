@@ -34,7 +34,7 @@ int TestHyperTree( int argc, char** argv )
 {
   vtkNew<vtkHyperTreeFractalSource> fractal;
   fractal->SetMaximumLevel( 3 );
-  fractal->DualOn();
+  fractal->DualOff();
   fractal->SetGridSize( 2, 1, 1 );
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );

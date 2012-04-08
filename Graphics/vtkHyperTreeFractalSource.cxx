@@ -120,8 +120,6 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
         int idx[3];
         idx[0] = idx[1] = idx[2] = 0;
         int offset = output->GetLeafData()->GetScalars()->GetNumberOfTuples();
-        cerr << " Creating cell " << i << " " << j << " " << k 
-             << " with scalar offset " << offset << endl;
         this->Subdivide( cursor, 1, output, index, idx, offset );
         cursor->UnRegister( this );
         } // k

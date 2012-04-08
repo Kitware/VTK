@@ -413,12 +413,17 @@ protected:
                                 double origin[3], 
                                 double size[3], 
                                 int level );
-  void TraverseGridRecursively(vtkHyperTreeLightWeightCursor* neighborhood, 
-                               unsigned char* visited,
-                               double* origin, double* size);
-  void EvaluateDualCorner(vtkHyperTreeLightWeightCursor* neighborhood);
-  vtkIdType EvaluateGridCorner(int level,vtkHyperTreeLightWeightCursor* neighborhood,
-                               unsigned char* visited, int* cornerNeighborIds);
+  void TraverseGridRecursively( vtkHyperTreeLightWeightCursor* neighborhood, 
+                                int lfOffset,
+                                unsigned char* visited,
+                                double* origin,
+                                double* size );
+  void EvaluateDualCorner( vtkHyperTreeLightWeightCursor* neighborhood );
+  vtkIdType EvaluateGridCorner( int level,
+                                vtkHyperTreeLightWeightCursor* neighborhood,
+                                int lfOffset,
+                                unsigned char* visited, 
+                                int* cornerNeighborIds );
 
 
   // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
