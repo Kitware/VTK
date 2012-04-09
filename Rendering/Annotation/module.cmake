@@ -1,7 +1,6 @@
 vtk_module(vtkRenderingAnnotation
   GROUPS
     Rendering
-    StandAlone
   DEPENDS
     vtkRenderingFreeType
     vtkImagingColor

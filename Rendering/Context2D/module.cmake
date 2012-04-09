@@ -1,7 +1,6 @@
 vtk_module(vtkRenderingContext2D
   GROUPS
     Rendering
-    StandAlone
   DEPENDS
     vtkCommonDataModel
     vtkCommonMath

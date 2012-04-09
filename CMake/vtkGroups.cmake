@@ -11,7 +11,7 @@ set(VTK_Group_StandAlone_DOCS "Request building of all stand alone modules (no e
 foreach(group ${VTK_GROUPS})
   message(STATUS "Group ${group} modules: ${VTK_GROUP_${group}_MODULES}")
   # Set the default group option - Rendering ON, and all others OFF.
-  if(${group} MATCHES "^Rendering")
+  if(${group} MATCHES "^Rendering|^StandAlone")
     set(_default ON)
   else()
     set(_default OFF)
