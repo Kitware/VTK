@@ -216,11 +216,13 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(output);
   rgrid->SetExtent(subext);
   //setup extents for netcdf library to read the netcdf data file
-  size_t start[]= {subext[4]*this->Stride[2], subext[2]*this->Stride[1],
-                   subext[0]*this->Stride[0]};
+  size_t start[]= { static_cast<size_t>(subext[4]*this->Stride[2]),
+                    static_cast<size_t>(subext[2]*this->Stride[1]),
+                    static_cast<size_t>(subext[0]*this->Stride[0]) };
 
-  size_t count[]= {subext[5]-subext[4]+1, subext[3]-subext[2]+1,
-                   subext[1]-subext[0]+1};
+  size_t count[]= { static_cast<size_t>(subext[5]-subext[4]+1),
+                    static_cast<size_t>(subext[3]-subext[2]+1),
+                    static_cast<size_t>(subext[1]-subext[0]+1) };
 
   ptrdiff_t rStride[3] = { (ptrdiff_t)this->Stride[2], (ptrdiff_t)this->Stride[1],
                            (ptrdiff_t)this->Stride[0] };
