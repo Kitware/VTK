@@ -4,8 +4,6 @@ set(vtkalglib_THIRD_PARTY 1)
 set(vtkalglib_LIBRARIES vtkalglib)
 vtk_module_impl()
 
-cmake_minimum_required( VERSION 2.4 )
-
 if ( NOT LIBRARY_OUTPUT_PATH )
   set( LIBRARY_OUTPUT_PATH ${alglib_BINARY_DIR}/bin CACHE INTERNAL "" FORCE )
 endif ( NOT LIBRARY_OUTPUT_PATH )
