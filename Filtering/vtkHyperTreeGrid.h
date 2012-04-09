@@ -153,7 +153,7 @@ public:
   static vtkHyperTreeGrid *New();
   
   vtkTypeMacro(vtkHyperTreeGrid,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf( ostream& os, vtkIndent indent );
   
   // Description:
   // Return what type of dataset this is.
@@ -196,7 +196,7 @@ public:
   
   // Description:
   // Get the number of leaves in the tree grid.
-  vtkIdType GetNumberOfLeaves();
+  int GetNumberOfLeaves();
   
   // Description:
   // Return the number of points in the dual grid or grid.
@@ -207,21 +207,21 @@ public:
   // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
-  vtkIdType GetNumberOfLevels( vtkIdType );
+  int GetNumberOfLevels( int );
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  virtual void SetXCoordinates(vtkDataArray*);
+  virtual void SetXCoordinates( vtkDataArray* );
   vtkGetObjectMacro(XCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  virtual void SetYCoordinates(vtkDataArray*);
+  virtual void SetYCoordinates( vtkDataArray* );
   vtkGetObjectMacro(YCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
-  virtual void SetZCoordinates(vtkDataArray*);
+  virtual void SetZCoordinates( vtkDataArray* );
   vtkGetObjectMacro(ZCoordinates,vtkDataArray);
 
   // Description:
