@@ -51,3 +51,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkSimpleImageFilterExample.h

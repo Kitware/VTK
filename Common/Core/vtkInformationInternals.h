@@ -70,3 +70,4 @@ public:
 #undef VTK_INFORMATION_USE_HASH_MAP
 
 #endif
+// VTK-HeaderTest-Exclude: vtkInformationInternals.h

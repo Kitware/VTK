@@ -206,3 +206,4 @@ public:
 //                     Class  vtkFlashReaderInternal ( end )
 // ----------------------------------------------------------------------------
 #endif /* VTKAMRFLASHREADERINTERNAL_HPP_ */
+// VTK-HeaderTest-Exclude: vtkAMRFlashReaderInternal.h

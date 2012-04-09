@@ -46,3 +46,4 @@ private:
 static vtkExecutionSchedulerManager vtkExecutionSchedulerManagerInstance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkExecutionSchedulerManager.h

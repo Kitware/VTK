@@ -133,3 +133,4 @@ inline vtkActor2D *vtkActor2DCollection::GetLastItem()
 
 
 
+// VTK-HeaderTest-Exclude: vtkActor2DCollection.h

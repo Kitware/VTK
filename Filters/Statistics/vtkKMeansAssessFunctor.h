@@ -17,3 +17,4 @@ public:
 };
 
 #endif // __vtkKMeansAssessFunctor_h
+// VTK-HeaderTest-Exclude: vtkKMeansAssessFunctor.h

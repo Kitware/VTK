@@ -29,3 +29,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkGPUInfoListArray.h

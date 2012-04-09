@@ -49,3 +49,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageMapToRGBA.h

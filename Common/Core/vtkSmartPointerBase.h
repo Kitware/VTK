@@ -117,3 +117,4 @@ VTKCOMMONCORE_EXPORT ostream& operator << (ostream& os,
                                         const vtkSmartPointerBase& p);
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSmartPointerBase.h

@@ -63,3 +63,4 @@ protected:
 #endif
 
 #endif
+// VTK-HeaderTest-Exclude: vtkImageProgressIterator.h

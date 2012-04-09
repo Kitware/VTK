@@ -151,3 +151,4 @@ protected:
 };
 
 #endif // __vtkContextMouseEvent_h
+// VTK-HeaderTest-Exclude: vtkContextMouseEvent.h

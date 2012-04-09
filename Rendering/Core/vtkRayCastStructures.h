@@ -77,3 +77,4 @@ typedef struct
 } vtkRayCastRayInfo;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkRayCastStructures.h

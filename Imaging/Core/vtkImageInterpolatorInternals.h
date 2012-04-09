@@ -199,3 +199,4 @@ inline int vtkInterpolationMath::Mirror(int a, int b, int c)
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkImageInterpolatorInternals.h

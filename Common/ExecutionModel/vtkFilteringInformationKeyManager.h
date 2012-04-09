@@ -54,3 +54,4 @@ private:
 static vtkFilteringInformationKeyManager vtkFilteringInformationKeyManagerInstance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkFilteringInformationKeyManager.h

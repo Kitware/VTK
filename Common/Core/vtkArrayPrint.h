@@ -49,3 +49,4 @@ void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector);
 #include "vtkArrayPrint.txx"
 
 #endif
+// VTK-HeaderTest-Exclude: vtkArrayPrint.h

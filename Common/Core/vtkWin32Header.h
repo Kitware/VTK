@@ -295,3 +295,4 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #define VTK_TK_EXPORT VTK_ABI_EXPORT
 
 #endif
+// VTK-HeaderTest-Exclude: vtkWin32Header.h

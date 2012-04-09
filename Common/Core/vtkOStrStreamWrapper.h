@@ -67,3 +67,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOStrStreamWrapper.h

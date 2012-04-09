@@ -52,3 +52,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTDxMotionEventInfo.h

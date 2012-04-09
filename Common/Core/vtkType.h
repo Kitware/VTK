@@ -269,3 +269,4 @@ typedef int vtkIdType;
 typedef double vtkFloatingPointType;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkType.h

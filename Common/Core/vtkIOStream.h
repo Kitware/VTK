@@ -109,3 +109,4 @@ inline ostream& operator << (ostream& os, vtkIOStreamULL value)
 #endif
 
 #endif // __vtkIOStream_h
+// VTK-HeaderTest-Exclude: vtkIOStream.h

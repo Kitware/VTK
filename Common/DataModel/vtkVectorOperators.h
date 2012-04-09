@@ -195,3 +195,4 @@ vtkVectorOperatorMacro(vtkVector3f, float,  3)
 vtkVectorOperatorMacro(vtkVector3d, double, 3)
 
 #endif
+// VTK-HeaderTest-Exclude: vtkVectorOperators.h

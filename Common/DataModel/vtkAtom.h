@@ -74,3 +74,4 @@ inline vtkMolecule * vtkAtom::GetMolecule()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkAtom.h

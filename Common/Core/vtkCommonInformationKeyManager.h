@@ -54,3 +54,4 @@ private:
 static vtkCommonInformationKeyManager vtkCommonInformationKeyManagerInstance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkCommonInformationKeyManager.h

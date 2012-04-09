@@ -172,3 +172,4 @@ typedef struct {
 
 
 
+// VTK-HeaderTest-Exclude: vtk3DS.h

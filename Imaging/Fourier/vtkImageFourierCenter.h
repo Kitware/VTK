@@ -64,3 +64,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageFourierCenter.h

@@ -59,3 +59,4 @@ protected:
 };
 
 #endif // __vtkContextKeyEvent_h
+// VTK-HeaderTest-Exclude: vtkContextKeyEvent.h

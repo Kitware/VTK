@@ -180,3 +180,4 @@ bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, vtkObject* source3, 
   return succeeded;
 }
 
+// VTK-HeaderTest-Exclude: vtkTryDowncast.h

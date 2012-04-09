@@ -46,3 +46,4 @@ public:
 };
 
 #endif // #ifndef __vtkBreakPoint_h
+// VTK-HeaderTest-Exclude: vtkBreakPoint.h

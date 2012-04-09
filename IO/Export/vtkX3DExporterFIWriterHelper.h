@@ -395,3 +395,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkX3DExporterFIWriterHelper.h

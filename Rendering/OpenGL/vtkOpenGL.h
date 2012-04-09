@@ -28,3 +28,4 @@
 #endif
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOpenGL.h

@@ -50,3 +50,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageMirrorPad.h

@@ -60,3 +60,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageDotProduct.h

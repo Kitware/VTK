@@ -205,3 +205,4 @@ inline ostream& operator << (ostream& os, const vtkSmartPointer<T>& p)
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSmartPointer.h

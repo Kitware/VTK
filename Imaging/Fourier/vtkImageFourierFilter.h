@@ -130,3 +130,4 @@ private:
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkImageFourierFilter.h

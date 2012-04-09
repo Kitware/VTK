@@ -476,3 +476,4 @@ public:
 //ETX
 
 #endif
+// VTK-HeaderTest-Exclude: vtkVariant.h

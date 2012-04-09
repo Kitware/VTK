@@ -174,3 +174,4 @@ inline ostream& operator << (ostream& os, const vtkWeakPointer<T>& p)
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkWeakPointer.h

@@ -471,3 +471,4 @@ MakeDistributedEdgePropertyMap(vtkGraph* graph, DataArray* array)
 }
 
 #endif // __vtkPBGLGraphAdapter_h
+// VTK-HeaderTest-Exclude: vtkPBGLGraphAdapter.h

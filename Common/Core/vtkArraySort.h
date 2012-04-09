@@ -107,3 +107,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArraySort.h

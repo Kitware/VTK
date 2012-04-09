@@ -76,3 +76,4 @@ inline vtkOverrideInformation *vtkOverrideInformationCollection::GetNextItem()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOverrideInformationCollection.h

@@ -34,3 +34,4 @@
 // If using vtkDynamicLoader, we need to know where the libraries are.
 #define OPENGL_LIBRARIES "@OPENGL_LIBRARIES@"
 
+// VTK-HeaderTest-Exclude: vtkOpenGLExtensionManagerConfigure.h.in

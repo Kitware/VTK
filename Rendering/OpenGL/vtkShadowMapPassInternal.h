@@ -35,3 +35,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkShadowMapPassInternal.h

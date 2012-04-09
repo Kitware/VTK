@@ -509,3 +509,4 @@ inline void vtkAMRBox::Invalidate()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkAMRBox.h

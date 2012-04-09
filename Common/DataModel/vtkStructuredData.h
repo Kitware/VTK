@@ -282,3 +282,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkStructuredData.h

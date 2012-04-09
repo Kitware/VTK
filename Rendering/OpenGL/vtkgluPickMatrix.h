@@ -47,3 +47,4 @@ inline void vtkgluPickMatrix( GLdouble x, GLdouble y,
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkgluPickMatrix.h

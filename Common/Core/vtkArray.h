@@ -267,3 +267,4 @@ void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, cons
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArray.h

@@ -154,3 +154,4 @@ inline vtkVariant vtkVariantCreate<vtkVariant>(const vtkVariant& value)
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkVariantCreate.h

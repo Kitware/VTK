@@ -112,3 +112,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArrayCoordinates.h

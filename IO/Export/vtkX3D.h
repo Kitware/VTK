@@ -542,3 +542,4 @@ namespace vtkX3D
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkX3D.h

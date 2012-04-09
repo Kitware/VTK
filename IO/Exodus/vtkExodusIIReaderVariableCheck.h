@@ -119,3 +119,4 @@ protected:
 };
 
 #endif // __vtkExodusIIReaderVariableCheck_h
+// VTK-HeaderTest-Exclude: vtkExodusIIReaderVariableCheck.h

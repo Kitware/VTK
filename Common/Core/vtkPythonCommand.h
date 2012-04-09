@@ -39,3 +39,4 @@ protected:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonCommand.h

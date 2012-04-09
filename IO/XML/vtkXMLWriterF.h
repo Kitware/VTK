@@ -505,3 +505,4 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_stop, VTKXMLWRITERF_STOP)(
             *self);
     }
 }
+// VTK-HeaderTest-Exclude: vtkXMLWriterF.h

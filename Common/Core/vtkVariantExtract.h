@@ -178,3 +178,4 @@ inline vtkVariant vtkVariantExtract<vtkVariant>(const vtkVariant& value, bool& v
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkVariantExtract.h

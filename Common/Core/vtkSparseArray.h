@@ -232,3 +232,4 @@ private:
 #include "vtkSparseArray.txx"
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSparseArray.h

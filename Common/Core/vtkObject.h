@@ -369,3 +369,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkObject.h

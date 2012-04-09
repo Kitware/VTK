@@ -208,3 +208,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkDenseArray.h

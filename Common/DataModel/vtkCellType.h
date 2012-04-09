@@ -104,3 +104,4 @@ typedef enum {
 } VTKCellType;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkCellType.h

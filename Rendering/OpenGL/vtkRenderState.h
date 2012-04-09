@@ -141,3 +141,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkRenderState.h

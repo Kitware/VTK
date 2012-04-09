@@ -334,3 +334,4 @@ private:
 # endif
 # undef VTK_DATA_ARRAY_TEMPLATE_TYPE
 #endif
+// VTK-HeaderTest-Exclude: vtkDataArrayTemplate.h

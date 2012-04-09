@@ -61,3 +61,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkStdString.h

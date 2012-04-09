@@ -97,3 +97,4 @@ protected:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArrayWeights.h

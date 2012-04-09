@@ -1562,3 +1562,4 @@ static const unsigned char *file_noise200x200_vtk_sections[4] = {
 };
 
 static const unsigned int file_noise200x200_vtk_nb_sections = 4;
+// VTK-HeaderTest-Exclude: vtkNoise200x200.h

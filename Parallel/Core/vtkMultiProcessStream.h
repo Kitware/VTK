@@ -123,3 +123,4 @@ private:
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkMultiProcessStream.h

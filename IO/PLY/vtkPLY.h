@@ -215,3 +215,4 @@ public:
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkPLY.h

@@ -85,3 +85,4 @@ inline vtkMolecule * vtkBond::GetMolecule()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkBond.h

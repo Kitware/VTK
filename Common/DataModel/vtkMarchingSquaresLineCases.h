@@ -28,3 +28,4 @@ struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingSquaresLineCases
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkMarchingSquaresLineCases.h

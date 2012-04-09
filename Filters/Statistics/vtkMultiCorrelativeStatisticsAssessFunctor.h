@@ -37,3 +37,4 @@ public:
 };
 
 #endif // __vtkMultiCorrelativeStatisticsAssessFunctor_h
+// VTK-HeaderTest-Exclude: vtkMultiCorrelativeStatisticsAssessFunctor.h

@@ -674,3 +674,4 @@ PROTO WorldInfo [ \n\
 ] { }",""
 };
 #endif
+// VTK-HeaderTest-Exclude: vtkVRML.h

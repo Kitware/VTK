@@ -62,3 +62,4 @@ void vtkInterpolate(
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArrayInterpolate.h

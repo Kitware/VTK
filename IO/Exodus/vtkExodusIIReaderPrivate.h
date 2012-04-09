@@ -836,3 +836,4 @@ private:
 };
 
 #endif // __vtkExodusIIReaderPrivate_h
+// VTK-HeaderTest-Exclude: vtkExodusIIReaderPrivate.h

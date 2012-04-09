@@ -153,3 +153,4 @@ public:
 // ----------------------------------------------------------------------------
 
 #endif /* VTKAMRENZOREADERINTERNAL_HPP_ */
+// VTK-HeaderTest-Exclude: vtkAMREnzoReaderInternal.h

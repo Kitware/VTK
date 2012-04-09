@@ -119,3 +119,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkProgrammableSource.h

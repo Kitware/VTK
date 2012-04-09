@@ -315,3 +315,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkFreeTypeUtilities.h

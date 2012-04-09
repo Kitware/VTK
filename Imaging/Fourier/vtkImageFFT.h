@@ -82,3 +82,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageFFT.h

@@ -284,3 +284,4 @@ vtkVariant::operator>=(const vtkVariant &other) const
   return (!this->operator<(other));
 }
 
+// VTK-HeaderTest-Exclude: vtkVariantInlineOperators.h

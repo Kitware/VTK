@@ -42,3 +42,4 @@ public:
 static vtkGarbageCollectorManager vtkGarbageCollectorManagerInstance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkGarbageCollectorManager.h

@@ -87,3 +87,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageAppendComponents.h

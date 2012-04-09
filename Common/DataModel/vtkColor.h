@@ -236,3 +236,4 @@ public:
 };
 
 #endif // __vtkColor_h
+// VTK-HeaderTest-Exclude: vtkColor.h

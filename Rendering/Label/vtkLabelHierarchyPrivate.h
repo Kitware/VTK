@@ -257,3 +257,4 @@ inline void vtkLabelHierarchy::Implementation::LabelSet::AddChildren( octree<Lab
 }
 
 #endif // __vtkLabelHierarchyPrivate_h
+// VTK-HeaderTest-Exclude: vtkLabelHierarchyPrivate.h

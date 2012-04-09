@@ -18,3 +18,4 @@
 #ifndef VTK_LEGACY_REMOVE
 # include "vtkMarchingSquaresLineCases.h"
 #endif
+// VTK-HeaderTest-Exclude: vtkMarchingSquaresCases.h

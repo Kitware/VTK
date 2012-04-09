@@ -57,3 +57,4 @@
 #endif
 
 #endif // __vtkABI_h
+// VTK-HeaderTest-Exclude: vtkABI.h

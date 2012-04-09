@@ -113,3 +113,4 @@ inline ostream& operator << (ostream& os, const vtkNew<T>& p)
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkNew.h

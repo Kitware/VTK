@@ -38,3 +38,4 @@ vtkTesting::Test(argc, argv, rw, 10)
 vtkTesting::Test(argc, argv, rw, t)
 
 #endif // __vtkRegressionTestImage_h
+// VTK-HeaderTest-Exclude: vtkRegressionTestImage.h
