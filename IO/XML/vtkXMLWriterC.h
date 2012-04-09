@@ -267,3 +267,4 @@ void vtkXMLWriterC_Stop(vtkXMLWriterC* self);
 #endif /*cplusplus*/
 
 #endif
+// VTK-HeaderTest-Exclude: vtkXMLWriterC.h

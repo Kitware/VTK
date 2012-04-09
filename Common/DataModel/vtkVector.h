@@ -328,3 +328,4 @@ public:
 };
 
 #endif // __vtkVector_h
+// VTK-HeaderTest-Exclude: vtkVector.h

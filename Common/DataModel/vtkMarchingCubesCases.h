@@ -18,3 +18,4 @@
 #ifndef VTK_LEGACY_REMOVE
 # include "vtkMarchingCubesTriangleCases.h"
 #endif
+// VTK-HeaderTest-Exclude: vtkMarchingCubesCases.h

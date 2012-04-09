@@ -70,3 +70,4 @@
 @end
 
 #endif /* __vtkCocoaGLView_h */
+// VTK-HeaderTest-Exclude: vtkCocoaGLView.h

@@ -82,3 +82,4 @@ class vtkPostgreSQLDatabasePrivate
 };
 
 #endif // __vtkPostgreSQLDatabasePrivate_h
+// VTK-HeaderTest-Exclude: vtkPostgreSQLDatabasePrivate.h

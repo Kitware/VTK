@@ -118,3 +118,4 @@
   vtkTemplateAliasMacroCase(UNSIGNED_CHAR, call)
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTemplateAliasMacro.h

@@ -64,3 +64,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkPipelineGraphSource.h

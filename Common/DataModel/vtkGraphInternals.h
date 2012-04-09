@@ -96,3 +96,4 @@ private:
 
 #endif // __vtkGraphInternals_h
 
+// VTK-HeaderTest-Exclude: vtkGraphInternals.h

@@ -40,3 +40,4 @@
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArrayIteratorIncludes.h

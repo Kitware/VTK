@@ -141,3 +141,4 @@ vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkIdType rank)
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkBlockDistribution.h

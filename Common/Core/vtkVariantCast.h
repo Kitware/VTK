@@ -174,3 +174,4 @@ inline vtkVariant vtkVariantCast<vtkVariant>(const vtkVariant& value, bool* vali
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkVariantCast.h

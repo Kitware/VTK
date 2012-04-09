@@ -126,3 +126,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkTypedArray.h

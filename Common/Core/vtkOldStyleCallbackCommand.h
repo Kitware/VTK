@@ -68,3 +68,4 @@ protected:
 
 #endif /* __vtkOldStyleCallbackCommand_h */
 
+// VTK-HeaderTest-Exclude: vtkOldStyleCallbackCommand.h

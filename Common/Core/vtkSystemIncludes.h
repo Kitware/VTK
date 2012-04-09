@@ -157,3 +157,4 @@
 #define VTK_ENCODING_UNKNOWN      20  // leave this one at the end
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSystemIncludes.h

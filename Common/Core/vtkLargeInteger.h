@@ -113,3 +113,4 @@ private:
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkLargeInteger.h

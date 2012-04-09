@@ -78,3 +78,4 @@ inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkImplicitFunctionCollection.h

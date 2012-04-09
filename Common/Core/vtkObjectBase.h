@@ -189,3 +189,4 @@ protected:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkObjectBase.h

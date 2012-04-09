@@ -28,3 +28,4 @@ struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingCubesTriangleCases
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkMarchingCubesTriangleCases.h

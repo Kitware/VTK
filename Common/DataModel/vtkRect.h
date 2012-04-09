@@ -120,3 +120,4 @@ public:
 };
 
 #endif // __vtkRect_h
+// VTK-HeaderTest-Exclude: vtkRect.h

@@ -66,3 +66,4 @@ class fstream;
 
 
 #endif // __vtkIOStreamFwd_h
+// VTK-HeaderTest-Exclude: vtkIOStreamFwd.h

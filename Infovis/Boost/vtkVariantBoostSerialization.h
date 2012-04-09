@@ -215,3 +215,4 @@ void load(Archiver& ar, vtkVariantArray& array,
 BOOST_SERIALIZATION_SPLIT_FREE(vtkVariantArray)
 
 #endif
+// VTK-HeaderTest-Exclude: vtkVariantBoostSerialization.h

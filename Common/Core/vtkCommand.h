@@ -405,3 +405,4 @@ protected:
 
 #endif /* __vtkCommand_h */
 
+// VTK-HeaderTest-Exclude: vtkCommand.h

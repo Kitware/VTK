@@ -53,3 +53,4 @@ public:
 
 #endif /* __vtkErrorCode_h */
 
+// VTK-HeaderTest-Exclude: vtkErrorCode.h

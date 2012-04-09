@@ -69,3 +69,4 @@ public:
 
 
 #endif // __vtkMPI_h
+// VTK-HeaderTest-Exclude: vtkMPI.h

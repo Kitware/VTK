@@ -58,6 +58,7 @@ include(${QT_USE_FILE})
 
 qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
 
+set(${vtk-module}_NO_HeaderTest 1)
 vtk_module_library(${vtk-module} ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 
 target_link_libraries(${vtk-module} ${QT_LIBRARIES})

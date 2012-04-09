@@ -164,3 +164,4 @@ VTK_TYPE_TRAITS(unsigned __int64, UNSIGNED___INT64, 0, UInt64,
 #undef VTK_TYPE_TRAITS
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTypeTraits.h

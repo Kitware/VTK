@@ -160,3 +160,4 @@ public:
 };
 
 #endif //__vtkContextScenePrivate_h
+// VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

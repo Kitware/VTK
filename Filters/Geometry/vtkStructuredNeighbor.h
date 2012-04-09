@@ -124,3 +124,4 @@ inline vtkStructuredNeighbor& vtkStructuredNeighbor::operator=(
 }
 
 #endif /* VTKSTRUCTUREDNEIGHBOR_H_ */
+// VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h

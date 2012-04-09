@@ -78,3 +78,4 @@ private:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkDataObjectCollection.h

@@ -49,3 +49,4 @@ bool FuzzyCompare(A a, A b, A epsilon)
 } // End vtkMathUtilities namespace.
 
 #endif // __vtkMathUtilities_h
+// VTK-HeaderTest-Exclude: vtkMathUtilities.h

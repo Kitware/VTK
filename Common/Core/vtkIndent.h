@@ -51,3 +51,4 @@ protected:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkIndent.h

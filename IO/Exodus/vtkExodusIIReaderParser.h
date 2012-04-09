@@ -167,3 +167,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkExodusIIReaderParser.h

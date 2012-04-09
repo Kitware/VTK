@@ -927,3 +927,4 @@ protected:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOpenGLState.h

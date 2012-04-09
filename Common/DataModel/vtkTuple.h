@@ -121,3 +121,4 @@ protected:
 };
 
 #endif // __vtkTuple_h
+// VTK-HeaderTest-Exclude: vtkTuple.h

@@ -62,3 +62,4 @@ class vtkCompositeDataSetIndex : public std::vector<unsigned int>
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkCompositeDataSetInternals.h

@@ -195,3 +195,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkDijkstraGraphInternals.h

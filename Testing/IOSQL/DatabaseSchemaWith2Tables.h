@@ -33,3 +33,5 @@ class VTKTESTINGIOSQL_EXPORT DatabaseSchemaWith2Tables
     int TableAHandle;
     int TableBHandle;
 };
+
+// VTK-HeaderTest-Exclude: DatabaseSchemaWith2Tables.h

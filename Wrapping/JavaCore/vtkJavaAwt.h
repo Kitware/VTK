@@ -251,3 +251,4 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
 
   return 0;
 }
+// VTK-HeaderTest-Exclude: vtkJavaAwt.h

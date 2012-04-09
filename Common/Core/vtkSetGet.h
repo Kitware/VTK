@@ -849,3 +849,4 @@ virtual double *Get##name() \
 #define VTK_WRAP_EXTERN
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSetGet.h

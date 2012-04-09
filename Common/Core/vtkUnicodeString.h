@@ -241,3 +241,4 @@ VTKCOMMONCORE_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicod
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkUnicodeString.h

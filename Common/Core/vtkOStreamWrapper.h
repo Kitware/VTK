@@ -142,3 +142,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOStreamWrapper.h

@@ -95,3 +95,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkArrayExtentsList.h

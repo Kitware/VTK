@@ -34,3 +34,4 @@
   struct M##_AutoInit { M##_AutoInit(); ~M##_AutoInit(); }; static M##_AutoInit M##_AutoInit_Instance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkAutoInit.h

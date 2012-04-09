@@ -109,3 +109,4 @@ VTKCOMMONCORE_EXPORT ostream& operator << (ostream& os,
                                         const vtkWeakPointerBase& p);
 
 #endif
+// VTK-HeaderTest-Exclude: vtkWeakPointerBase.h

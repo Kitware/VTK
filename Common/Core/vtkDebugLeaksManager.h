@@ -39,3 +39,4 @@ public:
 static vtkDebugLeaksManager vtkDebugLeaksManagerInstance;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkDebugLeaksManager.h

@@ -12354,3 +12354,4 @@ int vtkPythagoreanQuadruples[] = {
 };
 
 static int vtkMaxPythagoreanQuadrupleId = sizeof(vtkPythagoreanQuadruples)/sizeof(vtkPythagoreanQuadruples[0])/4 - 1;
+// VTK-HeaderTest-Exclude: vtkPythagoreanQuadruples.h

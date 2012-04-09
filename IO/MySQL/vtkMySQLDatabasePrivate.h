@@ -22,3 +22,4 @@ public:
 };
 
 #endif // __vtkMySQLDatabasePrivate_h
+// VTK-HeaderTest-Exclude: vtkMySQLDatabasePrivate.h

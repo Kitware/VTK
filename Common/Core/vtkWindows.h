@@ -84,3 +84,4 @@ http://msdn.microsoft.com/library/en-us/vccore/html/_core_faster_builds_and_smal
 #endif /* defined(_WIN32) && !defined(VTK_INCLUDE_WINDOWS_H) */
 
 #endif
+// VTK-HeaderTest-Exclude: vtkWindows.h

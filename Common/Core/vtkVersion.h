@@ -63,3 +63,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkVersion.h

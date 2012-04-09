@@ -173,3 +173,4 @@ public:
 
 #endif // __vtkStatisticsAlgorithmPrivate_h
 
+// VTK-HeaderTest-Exclude: vtkStatisticsAlgorithmPrivate.h

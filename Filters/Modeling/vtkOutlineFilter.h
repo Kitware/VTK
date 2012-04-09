@@ -54,3 +54,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOutlineFilter.h

@@ -333,9 +333,13 @@ find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping
   NO_CMAKE_FIND_ROOT_PATH)
 mark_as_advanced(VTK_WRAP_HINTS)
 
-if(VTK_WRAP_PYTHON)
+if(BUILD_TESTING OR VTK_WRAP_PYTHON)
+  # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
   find_package(PythonInterp QUIET)
   mark_as_advanced(PYTHON_EXECUTABLE)
+endif()
+
+if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
   set(VTK_PYTHON_EXE vtkpython)

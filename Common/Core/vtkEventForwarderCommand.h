@@ -61,3 +61,4 @@ protected:
 
 #endif /* __vtkEventForwarderCommand_h */
 
+// VTK-HeaderTest-Exclude: vtkEventForwarderCommand.h

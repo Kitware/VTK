@@ -46,3 +46,4 @@ private:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkOnePieceExtentTranslator.h

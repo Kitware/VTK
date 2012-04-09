@@ -42,3 +42,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkStructuredPointsGeometryFilter.h

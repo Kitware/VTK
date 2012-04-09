@@ -140,3 +140,4 @@ protected:
 #endif
 
 #endif
+// VTK-HeaderTest-Exclude: vtkImageStencilIterator.h

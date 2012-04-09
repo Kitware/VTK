@@ -30,3 +30,4 @@ PURPOSE.  See the above copyright notice for more information.
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
   #error VTK requires a deployment target of Mac OS X 10.5 or later
 #endif
+// VTK-HeaderTest-Exclude: vtkCocoaMacOSXSDKCompatibility.h

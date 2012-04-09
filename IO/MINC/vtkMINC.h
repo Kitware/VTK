@@ -407,3 +407,4 @@ POSSIBILITY OF SUCH DAMAGES.
 
 /* End ifndef vtkMINC_h */
 #endif
+// VTK-HeaderTest-Exclude: vtkMINC.h

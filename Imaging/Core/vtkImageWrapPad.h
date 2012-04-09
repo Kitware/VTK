@@ -55,3 +55,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageWrapPad.h

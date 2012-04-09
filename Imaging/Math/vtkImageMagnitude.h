@@ -56,3 +56,4 @@ private:
 
 
 
+// VTK-HeaderTest-Exclude: vtkImageMagnitude.h

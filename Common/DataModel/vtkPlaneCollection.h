@@ -78,3 +78,4 @@ inline vtkPlane *vtkPlaneCollection::GetNextItem()
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPlaneCollection.h

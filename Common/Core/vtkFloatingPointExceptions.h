@@ -44,3 +44,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkFloatingPointExceptions.h

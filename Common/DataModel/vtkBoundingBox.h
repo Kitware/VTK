@@ -371,3 +371,4 @@ inline int vtkBoundingBox::ContainsPoint(double p[3]) const
 }
 
 #endif
+// VTK-HeaderTest-Exclude: vtkBoundingBox.h

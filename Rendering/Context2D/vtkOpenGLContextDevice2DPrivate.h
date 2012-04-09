@@ -500,3 +500,4 @@ public:
 };
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
+// VTK-HeaderTest-Exclude: vtkOpenGLContextDevice2DPrivate.h

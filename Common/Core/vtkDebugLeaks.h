@@ -105,3 +105,4 @@ public:
 //ETX
 
 #endif // __vtkDebugLeaks_h
+// VTK-HeaderTest-Exclude: vtkDebugLeaks.h

@@ -108,3 +108,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkBase64Utilities.h

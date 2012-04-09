@@ -85,3 +85,4 @@ protected:
 #endif
 
 #endif
+// VTK-HeaderTest-Exclude: vtkImageIterator.h

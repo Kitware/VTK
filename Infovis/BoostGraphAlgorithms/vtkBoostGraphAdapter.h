@@ -1139,3 +1139,4 @@ namespace boost {
 
 
 #endif // __vtkBoostGraphAdapter_h
+// VTK-HeaderTest-Exclude: vtkBoostGraphAdapter.h

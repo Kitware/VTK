@@ -144,3 +144,4 @@ private:
 #endif
 
 
+// VTK-HeaderTest-Exclude: vtkXMLUtilities.h

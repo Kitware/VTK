@@ -93,3 +93,4 @@ protected:
 
 #endif
 
+// VTK-HeaderTest-Exclude: vtkCallbackCommand.h

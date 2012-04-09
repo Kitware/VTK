@@ -86,3 +86,4 @@ protected:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkJavaUtil.h
