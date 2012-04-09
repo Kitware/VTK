@@ -1,6 +1,6 @@
 vtk_module(vtkRenderingImage
   GROUPS
-    StandAlone
+    Imaging
   DEPENDS
     vtkRenderingCore
     vtkRenderingFreeType

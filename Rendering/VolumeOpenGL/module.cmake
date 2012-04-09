@@ -1,7 +1,6 @@
 vtk_module(vtkRenderingVolumeOpenGL
   GROUPS
     Rendering
-    StandAlone
   IMPLEMENTS
     vtkRenderingVolume
   DEPENDS

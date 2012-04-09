@@ -1,6 +1,6 @@
 vtk_module(vtkRenderingLOD
   GROUPS
-    StandAlone
+    Rendering
   DEPENDS
     vtkRenderingCore
     vtkFiltersModeling
