@@ -76,6 +76,7 @@ endforeach()
 
 # Provide an option for all modules.
 option(VTK_BUILD_ALL_MODULES "Request to build all modules" OFF)
+mark_as_advanced(VTK_BUILD_ALL_MODULES)
 
 # Provide an option for each module.
 foreach(vtk-module ${VTK_MODULES_ALL})
