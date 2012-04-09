@@ -126,6 +126,15 @@ include(vtkBuildPath)
 include(CTest)
 
 #-----------------------------------------------------------------------------
+if(APPLE)
+  mark_as_advanced(
+    CMAKE_OSX_ARCHITECTURES
+    CMAKE_OSX_DEPLOYMENT_TARGET
+    CMAKE_OSX_SYSROOT
+    )
+endif()
+
+#-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
 INCLUDE(CheckCXXSourceRuns)
 FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
