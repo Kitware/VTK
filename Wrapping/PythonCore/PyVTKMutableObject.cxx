@@ -33,11 +33,7 @@
 
 //--------------------------------------------------------------------
 // methods for adding this type to a module
-#if defined(WIN32)
-extern "C" { __declspec( dllexport ) void PyVTKAddFile_mutable(PyObject *, const char *); }
-#else
-extern "C" { void PyVTKAddFile_mutable(PyObject *, const char *); }
-#endif
+extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *, const char *); }
 
 //--------------------------------------------------------------------
 

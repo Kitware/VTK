@@ -297,7 +297,7 @@ VTK_AUTOINIT(${vtk-module})
   generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
   add_compiler_export_flags(my_abi_flags)
   set_property(TARGET ${vtk-module} APPEND
-    PROPERTY COMPILE_FLAGS "${VTK_ABI_CXX_FLAGS}")
+    PROPERTY COMPILE_FLAGS "${my_abi_flags}")
 
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}")
