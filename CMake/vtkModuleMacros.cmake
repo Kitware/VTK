@@ -46,10 +46,7 @@ macro(vtk_module _name)
       list(APPEND VTK_MODULE_${vtk-module}_DEPENDS "${arg}")
       list(APPEND VTK_MODULE_${vtk-module}_IMPLEMENTS "${arg}")
     elseif("${_doing}" MATCHES "^DEFAULT")
-      #message(FATAL_ERROR "Invalid argument [DEFAULT]")
-      # Ignore the default again - this should go once groups work.
-      #set(VTK_MODULE_${vtk-module}_DEFAULT "${arg}")
-      set(_doing "")
+      message(FATAL_ERROR "Invalid argument [DEFAULT]")
     elseif("${_doing}" MATCHES "^GROUPS")
       # Groups control larger groups of modules.
       if(NOT DEFINED VTK_GROUP_${arg}_MODULES)
