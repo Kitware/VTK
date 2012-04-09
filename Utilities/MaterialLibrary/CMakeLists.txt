@@ -11,6 +11,7 @@ set(VTK_MATERIALS_DIRS
   ${VTK_DEFAULT_SHADERS_DIR}
   CACHE STRING
   "A ; separated list of directories to search for materials/shaders.")
+mark_as_advanced(VTK_MATERIALS_DIRS)
 
 include_directories("${VTK_SOURCE_DIR}/Common/Core"
   "${VTK_BINARY_DIR}/Common/Core")

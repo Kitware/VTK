@@ -69,3 +69,7 @@ foreach(lib
     )
   vtk_target(${lib} NO_INSTALL)
 endforeach()
+
+if(APPLE)
+  mark_as_advanced(HDF5_BUILD_WITH_INSTALL_NAME)
+endif()
