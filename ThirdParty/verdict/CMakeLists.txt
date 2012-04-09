@@ -24,6 +24,7 @@ endif ( VERDICT_MANGLE )
 mark_as_advanced( VERDICT_MANGLE )
 
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
+mark_as_advanced(VERDICT_BUILD_DOC VERDICT_ENABLE_TESTING)
 
 include_directories(
   ${verdict_BINARY_DIR}
