@@ -32,7 +32,6 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkPolygon.h"
 #include "vtkTimerLog.h"
 #include "vtkVoxel.h"
 
