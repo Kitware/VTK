@@ -17,20 +17,6 @@
 #include "vtkVolumeRenderingFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
-#include "vtkGraphicsFactory.h"
-
-// if using some sort of opengl, then include these files
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
-#include "vtkOpenGLHAVSVolumeMapper.h"
-#include "vtkOpenGLProjectedAAHexahedraMapper.h"
-#include "vtkOpenGLProjectedTetrahedraMapper.h"
-#include "vtkOpenGLRayCastImageDisplayHelper.h"
-#include "vtkOpenGLVolumeTextureMapper2D.h"
-#include "vtkOpenGLVolumeTextureMapper3D.h"
-
-#include "vtkCriticalSection.h"
-
-#include "stdlib.h"
 
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
@@ -49,52 +35,6 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::DestructClass(vtkclassname);
 #endif
-  const char *rl = vtkGraphicsFactory::GetRenderLibrary();
-
-//  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
-    {
-    // GPU Ray Cast Mapper
-    if(strcmp(vtkclassname, "vtkGPUVolumeRayCastMapper") == 0)
-      {
-      return vtkOpenGLGPUVolumeRayCastMapper::New();
-      }
-
-    // Projected axis-aligned hexahedra mapper
-    if(strcmp(vtkclassname, "vtkProjectedAAHexahedraMapper") == 0)
-      {
-      return vtkOpenGLProjectedAAHexahedraMapper::New();
-      }
-
-    // Projected Tetrahedra Mapper
-    if(strcmp(vtkclassname, "vtkProjectedTetrahedraMapper") == 0)
-      {
-      return vtkOpenGLProjectedTetrahedraMapper::New();
-      }
-
-    // HAVS Mapper
-    if(strcmp(vtkclassname, "vtkHAVSVolumeMapper") == 0)
-      {
-      return vtkOpenGLHAVSVolumeMapper::New();
-      }
-
-    // 2D Volume Texture Mapper
-    if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
-      {
-      return vtkOpenGLVolumeTextureMapper2D::New();
-      }
-
-    // 3D Volume Texture Mapper
-    if(strcmp(vtkclassname, "vtkVolumeTextureMapper3D") == 0)
-      {
-      return vtkOpenGLVolumeTextureMapper3D::New();
-      }
-
-    // Ray Cast Image Display Helper
-    if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
-      {
-      return vtkOpenGLRayCastImageDisplayHelper::New();
-      }
-    }
 
   return 0;
 }

@@ -29,7 +29,6 @@
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkMaskFields.h"
 #include "vtkMergeFields.h"
-#include "vtkOpenGLProjectedTetrahedraMapper.h"
 #include "vtkProjectedAAHexahedraMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
@@ -40,6 +39,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolumeProperty.h"
+#include "vtkProjectedTetrahedraMapper.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
