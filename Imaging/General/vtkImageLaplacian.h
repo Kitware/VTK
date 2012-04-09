@@ -27,9 +27,10 @@
 #define __vtkImageLaplacian_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageLaplacian : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageLaplacian : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageLaplacian *New();

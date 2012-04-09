@@ -36,10 +36,11 @@
 #ifndef __vtkButtonRepresentation_h
 #define __vtkButtonRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 
-class VTK_WIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

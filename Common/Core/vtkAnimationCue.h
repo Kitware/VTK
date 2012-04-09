@@ -35,9 +35,10 @@
 #ifndef __vtkAnimationCue_h
 #define __vtkAnimationCue_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkAnimationCue: public vtkObject
+class VTKCOMMONCORE_EXPORT vtkAnimationCue: public vtkObject
 {
 public:
   vtkTypeMacro(vtkAnimationCue,vtkObject);

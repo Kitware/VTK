@@ -25,12 +25,13 @@
 #ifndef __vtkHyperOctreeLimiter_h
 #define __vtkHyperOctreeLimiter_h
 
+#include "vtkFiltersHyperOctreeModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkHyperOctree;
 class vtkHyperOctreeCursor;
 
-class VTK_GRAPHICS_EXPORT vtkHyperOctreeLimiter : public vtkDataSetAlgorithm
+class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeLimiter : public vtkDataSetAlgorithm
 {
 public:
   static vtkHyperOctreeLimiter *New();

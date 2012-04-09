@@ -32,12 +32,13 @@
 #ifndef __vtkPExtractArraysOverTime_h
 #define __vtkPExtractArraysOverTime_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkExtractArraysOverTime.h"
 
 class vtkMultiProcessController;
 class vtkTable;
 
-class VTK_PARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkExtractArraysOverTime
+class VTKFILTERSPARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkExtractArraysOverTime
 {
 public:
   static vtkPExtractArraysOverTime *New();

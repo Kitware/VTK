@@ -43,6 +43,7 @@
 #ifndef __vtkHyperOctreeCutter_h
 #define __vtkHyperOctreeCutter_h
 
+#include "vtkFiltersHyperOctreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -64,7 +65,7 @@ class vtkTetra;
 class vtkDataSetAttributes;
 class vtkHyperOctreeClipCutPointsGrabber;
 
-class VTK_GRAPHICS_EXPORT vtkHyperOctreeCutter : public vtkPolyDataAlgorithm
+class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeCutter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCutter,vtkPolyDataAlgorithm);

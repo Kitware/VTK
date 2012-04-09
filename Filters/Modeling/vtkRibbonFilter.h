@@ -33,6 +33,7 @@
 #ifndef __vtkRibbonFilter_h
 #define __vtkRibbonFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_TCOORDS_OFF                    0
@@ -47,7 +48,7 @@ class vtkFloatArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkRibbonFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkRibbonFilter,vtkPolyDataAlgorithm);

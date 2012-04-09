@@ -32,6 +32,7 @@
 #ifndef __vtkUnstructuredGridVolumeZSweepMapper_h
 #define __vtkUnstructuredGridVolumeZSweepMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 class vtkRenderer;
@@ -64,7 +65,7 @@ namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 };
 //ETX
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);

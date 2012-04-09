@@ -39,6 +39,7 @@
 #ifndef __vtkExecutionScheduler_h
 #define __vtkExecutionScheduler_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkExecutionSchedulerManager.h" // For singleton instantiation/cleanup
 
@@ -51,7 +52,7 @@ class vtkInformation;
 class vtkInformationIntegerKey;
 class vtkExecutiveCollection;
 
-class VTK_FILTERING_EXPORT vtkExecutionScheduler : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutionScheduler : public vtkObject
 {
 public:
   static vtkExecutionScheduler* New();

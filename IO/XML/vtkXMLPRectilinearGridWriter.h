@@ -27,11 +27,12 @@
 #ifndef __vtkXMLPRectilinearGridWriter_h
 #define __vtkXMLPRectilinearGridWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
 class vtkRectilinearGrid;
 
-class VTK_IO_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStructuredDataWriter
+class VTKIOXML_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStructuredDataWriter
 {
 public:
   static vtkXMLPRectilinearGridWriter* New();

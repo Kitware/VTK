@@ -16,13 +16,14 @@
 #ifndef __vtkCompositeTransferFunctionItem_h
 #define __vtkCompositeTransferFunctionItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferFunctionItem.h"
 
 class vtkPiecewiseFunction;
 
 // Description:
 // vtkPlot::Color and vtkPlot::Brush have no effect here.
-class VTK_CHARTS_EXPORT vtkCompositeTransferFunctionItem: public vtkColorTransferFunctionItem
+class VTKCHARTSCORE_EXPORT vtkCompositeTransferFunctionItem: public vtkColorTransferFunctionItem
 {
 public:
   static vtkCompositeTransferFunctionItem* New();

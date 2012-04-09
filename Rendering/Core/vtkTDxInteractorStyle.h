@@ -29,13 +29,14 @@
 #ifndef __vtkTDxInteractorStyle_h
 #define __vtkTDxInteractorStyle_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkTDxMotionEventInfo;
 class vtkRenderer;
 class vtkTDxInteractorStyleSettings;
 
-class VTK_RENDERING_EXPORT vtkTDxInteractorStyle : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyle : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTDxInteractorStyle,vtkObject);

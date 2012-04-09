@@ -20,6 +20,7 @@
 #ifndef __vtkTriangle_h
 #define __vtkTriangle_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
 #include "vtkMath.h" // Needed for inline methods
@@ -28,7 +29,7 @@ class vtkLine;
 class vtkQuadric;
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkTriangle : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkTriangle : public vtkCell
 {
 public:
   static vtkTriangle *New();

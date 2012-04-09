@@ -27,6 +27,7 @@
 #ifndef __vtkAxisFollower_h
 #define __vtkAxisFollower_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkFollower.h"
 
 #include "vtkWeakPointer.h" // For vtkWeakPointer
@@ -35,7 +36,7 @@
 class vtkAxisActor;
 class vtkRenderer;
 
-class VTK_HYBRID_EXPORT vtkAxisFollower : public vtkFollower
+class VTKRENDERINGANNOTATION_EXPORT vtkAxisFollower : public vtkFollower
 {
 public:
  vtkTypeMacro(vtkAxisFollower,vtkFollower);

@@ -23,12 +23,13 @@
 #ifndef __vtkChartMatrix_h
 #define __vtkChartMatrix_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
 #include "vtkVector.h" // For ivars
 
 class vtkChart;
 
-class VTK_CHARTS_EXPORT vtkChartMatrix : public vtkAbstractContextItem
+class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkChartMatrix, vtkAbstractContextItem);

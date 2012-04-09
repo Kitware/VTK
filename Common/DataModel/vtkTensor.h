@@ -26,9 +26,10 @@
 #ifndef __vtkTensor_h
 #define __vtkTensor_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkTensor : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkTensor : public vtkObject
 {
 public:
   static vtkTensor *New();

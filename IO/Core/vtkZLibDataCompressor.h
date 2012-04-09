@@ -20,9 +20,10 @@
 #ifndef __vtkZLibDataCompressor_h
 #define __vtkZLibDataCompressor_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"
 
-class VTK_IO_EXPORT vtkZLibDataCompressor : public vtkDataCompressor
+class VTKIOCORE_EXPORT vtkZLibDataCompressor : public vtkDataCompressor
 {
 public:
   vtkTypeMacro(vtkZLibDataCompressor,vtkDataCompressor);

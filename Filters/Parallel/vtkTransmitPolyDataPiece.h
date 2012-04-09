@@ -23,11 +23,12 @@
 #ifndef __vtkTransmitPolyDataPiece_h
 #define __vtkTransmitPolyDataPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTransmitPolyDataPiece *New();

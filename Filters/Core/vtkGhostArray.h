@@ -29,11 +29,12 @@
 #ifndef vtkGhostArray_H_
 #define vtkGhostArray_H_
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #include <cassert> // For assert
 
-class VTK_COMMON_EXPORT vtkGhostArray : public vtkObject
+class VTKFILTERSCORE_EXPORT vtkGhostArray : public vtkObject
 {
   public:
 

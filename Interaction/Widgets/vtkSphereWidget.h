@@ -55,6 +55,7 @@
 #ifndef __vtkSphereWidget_h
 #define __vtkSphereWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 #include "vtkSphereSource.h" // Needed for faster access to the sphere source
 
@@ -71,7 +72,7 @@ class vtkProperty;
 #define VTK_SPHERE_WIREFRAME 1
 #define VTK_SPHERE_SURFACE 2
 
-class VTK_WIDGETS_EXPORT vtkSphereWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkSphereWidget : public vtk3DWidget
 {
 public:
   // Description:

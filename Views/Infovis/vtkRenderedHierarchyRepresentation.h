@@ -24,9 +24,10 @@
 #ifndef __vtkRenderedHierarchyRepresentation_h
 #define __vtkRenderedHierarchyRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedGraphRepresentation.h"
 
-class VTK_VIEWS_EXPORT vtkRenderedHierarchyRepresentation : public vtkRenderedGraphRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkRenderedHierarchyRepresentation : public vtkRenderedGraphRepresentation
 {
 public:
   static vtkRenderedHierarchyRepresentation* New();

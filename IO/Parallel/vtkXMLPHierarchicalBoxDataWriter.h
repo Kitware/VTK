@@ -23,11 +23,12 @@
 #ifndef __vtkXMLPHierarchicalBoxDataWriter_h
 #define __vtkXMLPHierarchicalBoxDataWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkXMLHierarchicalBoxDataWriter.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLHierarchicalBoxDataWriter
+class VTKIOPARALLEL_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLHierarchicalBoxDataWriter
 {
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();

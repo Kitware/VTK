@@ -25,6 +25,7 @@
 #ifndef __vtkSetGet_h
 #define __vtkSetGet_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 #include <math.h>
 
@@ -441,11 +442,11 @@ virtual void Get##name (type data[count]) \
 // This is to avoid vtkObject #include of vtkOutputWindow
 // while vtkOutputWindow #includes vtkObject
 
-extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayText(const char*);
-extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
-extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
-extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayGenericWarningText(const char*);
-extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
+extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayText(const char*);
+extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
+extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
+extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayGenericWarningText(const char*);
+extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 
 //
 // This macro is used for any output that may not be in an instance method
@@ -631,8 +632,8 @@ virtual double *Get##name() \
   }
 
 // Version of vtkTypeMacro that adds the CollectRevisions method.
-// This version takes a third argument that may be VTK_COMMON_EXPORT,
-// VTK_FILTERING_EXPORT, etc. You should not use this version unless you
+// This version takes a third argument that may be VTKCOMMONCORE_EXPORT,
+// VTKCOMMONCORE_EXPORT, etc. You should not use this version unless you
 // have split the implementation of a class across multiple VTK libraries.
 // When in doubt, use vtkTypeRevisionMacro instead.
 #define vtkExportedTypeRevisionMacro(thisClass,superclass,dllExport) \

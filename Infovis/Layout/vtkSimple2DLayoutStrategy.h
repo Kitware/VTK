@@ -32,11 +32,12 @@
 #ifndef __vtkSimple2DLayoutStrategy_h
 #define __vtkSimple2DLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 class vtkFloatArray;
 
-class VTK_INFOVIS_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkSimple2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkSimple2DLayoutStrategy *New();

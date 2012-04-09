@@ -76,6 +76,7 @@
 #ifndef __vtkPlaneWidget_h
 #define __vtkPlaneWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
@@ -97,7 +98,7 @@ class vtkPlane;
 #define VTK_PLANE_WIREFRAME 2
 #define VTK_PLANE_SURFACE 3
 
-class VTK_WIDGETS_EXPORT vtkPlaneWidget : public vtkPolyDataSourceWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkPlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
   // Description:

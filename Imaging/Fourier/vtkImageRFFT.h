@@ -35,9 +35,10 @@
 #define __vtkImageRFFT_h
 
 
+#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageFourierFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageRFFT : public vtkImageFourierFilter
+class VTKIMAGINGFOURIER_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 {
 public:
   static vtkImageRFFT *New();

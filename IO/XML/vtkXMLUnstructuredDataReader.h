@@ -23,6 +23,7 @@
 #ifndef __vtkXMLUnstructuredDataReader_h
 #define __vtkXMLUnstructuredDataReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
 class vtkCellArray;
@@ -30,7 +31,7 @@ class vtkIdTypeArray;
 class vtkPointSet;
 class vtkUnsignedCharArray;
 
-class VTK_IO_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);

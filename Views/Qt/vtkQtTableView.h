@@ -29,6 +29,7 @@
 #ifndef __vtkQtTableView_h
 #define __vtkQtTableView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
@@ -45,7 +46,7 @@ class QItemSelection;
 class QTableView;
 class vtkQtTableModelAdapter;
 
-class QVTK_EXPORT vtkQtTableView : public vtkQtView
+class VTKVIEWSQT_EXPORT vtkQtTableView : public vtkQtView
 {
 Q_OBJECT
 

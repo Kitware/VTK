@@ -25,9 +25,10 @@
 #ifndef __vtkProbeSelectedLocations_h
 #define __vtkProbeSelectedLocations_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
-class VTK_GRAPHICS_EXPORT vtkProbeSelectedLocations : public vtkExtractSelectionBase
+class VTKFILTERSEXTRACTION_EXPORT vtkProbeSelectedLocations : public vtkExtractSelectionBase
 {
 public:
   static vtkProbeSelectedLocations* New();

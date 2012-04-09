@@ -29,12 +29,13 @@
 #ifndef __vtkProjectedTexture_h
 #define __vtkProjectedTexture_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 #define VTK_PROJECTED_TEXTURE_USE_PINHOLE 0
 #define VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS 1
 
-class VTK_GRAPHICS_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm
 {
 public:
   static vtkProjectedTexture *New();

@@ -29,6 +29,7 @@
 #ifndef __vtkGeoImageNode_h
 #define __vtkGeoImageNode_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoTreeNode.h"
 #include "vtkSmartPointer.h" // for SP
 #include "vtkImageData.h" // for SP
@@ -36,7 +37,7 @@
 class vtkPolyData;
 class vtkTexture;
 
-class VTK_GEOVIS_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
+class VTKGEOVISCORE_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
 {
 public:
   static vtkGeoImageNode *New();

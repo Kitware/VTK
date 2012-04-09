@@ -26,13 +26,14 @@
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
 class vtkTDxMacDevice;
 #endif
 
-class VTK_RENDERING_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGOPENGL_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   // Description:

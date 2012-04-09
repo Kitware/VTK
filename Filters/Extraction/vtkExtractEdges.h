@@ -23,11 +23,12 @@
 #ifndef __vtkExtractEdges_h
 #define __vtkExtractEdges_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIncrementalPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
 {
 public:
   static vtkExtractEdges *New();

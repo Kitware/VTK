@@ -18,12 +18,13 @@
 #ifndef __vtkBond_h
 #define __vtkBond_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h" // For macros, etc
 #include "vtkAtom.h" // For vtkAtom
 
 class vtkMolecule;
 
-class VTK_FILTERING_EXPORT vtkBond
+class VTKCOMMONDATAMODEL_EXPORT vtkBond
 {
 public:
   ~vtkBond();

@@ -64,6 +64,7 @@
 #ifndef __vtkSeedWidget_h
 #define __vtkSeedWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkHandleRepresentation;
@@ -72,7 +73,7 @@ class vtkSeedList;
 class vtkSeedRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkSeedWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkSeedWidget : public vtkAbstractWidget
 {
 public:
   // Description:

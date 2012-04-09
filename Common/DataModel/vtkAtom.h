@@ -18,13 +18,14 @@
 #ifndef __vtkAtom_h
 #define __vtkAtom_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h" // For macros, defines, etc
 
 class vtkMolecule;
 class vtkVector3d;
 class vtkVector3f;
 
-class VTK_FILTERING_EXPORT vtkAtom
+class VTKCOMMONDATAMODEL_EXPORT vtkAtom
 {
  public:
   ~vtkAtom();

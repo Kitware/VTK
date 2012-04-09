@@ -29,6 +29,7 @@
 #ifndef __vtkResliceCursor_h
 #define __vtkResliceCursor_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
@@ -36,7 +37,7 @@ class vtkPolyData;
 class vtkPlane;
 class vtkPlaneCollection;
 
-class VTK_GRAPHICS_EXPORT vtkResliceCursor : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkResliceCursor,vtkObject);

@@ -19,9 +19,10 @@
 #ifndef __vtkUniformGridAMRDataIterator_h
 #define __vtkUniformGridAMRDataIterator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataIterator.h"
 
-class VTK_FILTERING_EXPORT vtkUniformGridAMRDataIterator :
+class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMRDataIterator :
   public vtkCompositeDataIterator
 {
 public:

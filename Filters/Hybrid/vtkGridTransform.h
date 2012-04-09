@@ -26,6 +26,7 @@
 #ifndef __vtkGridTransform_h
 #define __vtkGridTransform_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkWarpTransform.h"
 
 class vtkAlgorithmOutput;
@@ -36,7 +37,7 @@ class vtkImageData;
 #define VTK_GRID_LINEAR VTK_LINEAR_INTERPOLATION
 #define VTK_GRID_CUBIC VTK_CUBIC_INTERPOLATION
 
-class VTK_HYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
+class VTKFILTERSHYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
   static vtkGridTransform *New();

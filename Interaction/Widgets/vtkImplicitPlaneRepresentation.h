@@ -36,6 +36,7 @@
 #ifndef __vtkImplicitPlaneRepresentation_h
 #define __vtkImplicitPlaneRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -57,7 +58,7 @@ class vtkTransform;
 class vtkBox;
 class vtkLookupTable;
 
-class VTK_WIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

@@ -23,9 +23,10 @@
 #ifndef __vtkBoxMuellerRandomSequence_h
 #define __vtkBoxMuellerRandomSequence_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGaussianRandomSequence.h"
 
-class VTK_COMMON_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandomSequence
+class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandomSequence
 {
 public:
   vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);

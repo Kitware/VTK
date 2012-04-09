@@ -26,6 +26,7 @@
 #ifndef __vtkDSPFilterGroup_h
 #define __vtkDSPFilterGroup_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDSPFilterGroupVectorIntSTLCloak;
@@ -37,7 +38,7 @@ class vtkDSPFilterGroupVectorDefinitionSTLCloak;
 class vtkFloatArray;
 class vtkDSPFilterDefinition;
 
-class VTK_HYBRID_EXPORT vtkDSPFilterGroup : public vtkObject
+class VTKFILTERSHYBRID_EXPORT vtkDSPFilterGroup : public vtkObject
 {
 public:
   static vtkDSPFilterGroup *New();

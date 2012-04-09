@@ -65,6 +65,7 @@
 #ifndef __vtkImplicitPlaneWidget_h
 #define __vtkImplicitPlaneWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
@@ -83,7 +84,7 @@ class vtkFeatureEdges;
 class vtkPolyData;
 class vtkTransform;
 
-class VTK_WIDGETS_EXPORT vtkImplicitPlaneWidget : public vtkPolyDataSourceWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
   // Description:

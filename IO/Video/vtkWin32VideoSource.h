@@ -28,11 +28,12 @@
 #ifndef __vtkWin32VideoSource_h
 #define __vtkWin32VideoSource_h
 
+#include "vtkIOVideoModule.h" // For export macro
 #include "vtkVideoSource.h"
 
 class vtkWin32VideoSourceInternal;
 
-class VTK_HYBRID_EXPORT vtkWin32VideoSource : public vtkVideoSource
+class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
   static vtkWin32VideoSource *New();

@@ -35,6 +35,7 @@
 #ifndef __vtkMath_h
 #define __vtkMath_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #include <assert.h> // assert() in inline implementations.
@@ -66,7 +67,7 @@ class vtkMathInternal;
 class vtkMinimalStandardRandomSequence;
 class vtkBoxMuellerRandomSequence;
 
-class VTK_COMMON_EXPORT vtkMath : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 {
 public:
   static vtkMath *New();

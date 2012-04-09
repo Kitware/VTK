@@ -30,11 +30,12 @@
 #ifndef __vtkPYoungsMaterialInterface_h
 #define __vtkPYoungsMaterialInterface_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkYoungsMaterialInterface.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPYoungsMaterialInterface : public vtkYoungsMaterialInterface
+class VTKFILTERSPARALLEL_EXPORT vtkPYoungsMaterialInterface : public vtkYoungsMaterialInterface
 {
 public:
   static vtkPYoungsMaterialInterface* New();

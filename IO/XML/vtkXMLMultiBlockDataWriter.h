@@ -19,9 +19,10 @@
 #ifndef __vtkXMLMultiBlockDataWriter_h
 #define __vtkXMLMultiBlockDataWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"
 
-class VTK_IO_EXPORT vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWriter
+class VTKIOXML_EXPORT vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWriter
 {
 public:
   static vtkXMLMultiBlockDataWriter* New();

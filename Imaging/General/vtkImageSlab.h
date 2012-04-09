@@ -25,9 +25,10 @@
 #ifndef __vtkImageSlab_h
 #define __vtkImageSlab_h
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageSlab *New();

@@ -20,6 +20,7 @@
 #ifndef __vtkOpenGLProperty_h
 #define __vtkOpenGLProperty_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkProperty.h"
 
 class vtkOpenGLRenderer;
@@ -29,7 +30,7 @@ class vtkShaderProgram2;
 class vtkShaderDeviceAdapter2;
 class vtkGLSLShaderDeviceAdapter2;
 
-class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty *New();

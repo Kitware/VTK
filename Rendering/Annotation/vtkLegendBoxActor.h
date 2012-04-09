@@ -35,6 +35,7 @@
 #ifndef __vtkLegendBoxActor_h
 #define __vtkLegendBoxActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkActor;
@@ -51,7 +52,7 @@ class vtkTransform;
 class vtkTransformPolyDataFilter;
 class vtkProperty2D;
 
-class VTK_HYBRID_EXPORT vtkLegendBoxActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkLegendBoxActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLegendBoxActor,vtkActor2D);

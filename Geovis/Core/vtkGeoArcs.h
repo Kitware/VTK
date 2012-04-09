@@ -27,9 +27,10 @@
 #ifndef __vtkGeoArcs_h
 #define __vtkGeoArcs_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GEOVIS_EXPORT vtkGeoArcs : public vtkPolyDataAlgorithm 
+class VTKGEOVISCORE_EXPORT vtkGeoArcs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoArcs *New();

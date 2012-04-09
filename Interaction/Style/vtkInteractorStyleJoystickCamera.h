@@ -33,9 +33,10 @@
 #ifndef __vtkInteractorStyleJoystickCamera_h
 #define __vtkInteractorStyleJoystickCamera_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickCamera *New();

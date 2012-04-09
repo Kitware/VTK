@@ -26,11 +26,12 @@
 #ifndef __vtkGenericOutlineFilter_h
 #define __vtkGenericOutlineFilter_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkOutlineSource;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericOutlineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGenericOutlineFilter *New();

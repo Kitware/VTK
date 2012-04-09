@@ -24,6 +24,7 @@
 #ifndef __vtkImageReader_h
 #define __vtkImageReader_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
 class vtkTransform;
@@ -31,7 +32,7 @@ class vtkTransform;
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_IO_EXPORT vtkImageReader : public vtkImageReader2
+class VTKIOIMAGE_EXPORT vtkImageReader : public vtkImageReader2
 {
 public:
   static vtkImageReader *New();

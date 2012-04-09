@@ -63,6 +63,7 @@
 #ifndef __vtkProjectedTerrainPath_h
 #define __vtkProjectedTerrainPath_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPriorityQueue;
@@ -70,7 +71,7 @@ class vtkImageData;
 class vtkEdgeList;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkProjectedTerrainPath : public vtkPolyDataAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkProjectedTerrainPath : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

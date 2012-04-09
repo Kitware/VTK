@@ -21,10 +21,11 @@
 #ifndef __vtkFreeTypeStringToImage_h
 #define __vtkFreeTypeStringToImage_h
 
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
-class VTK_RENDERING_EXPORT vtkFreeTypeStringToImage : public vtkStringToImage
+class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkFreeTypeStringToImage, vtkStringToImage);

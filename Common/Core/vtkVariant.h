@@ -29,6 +29,7 @@
 #ifndef __vtkVariant_h
 #define __vtkVariant_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 #include "vtkSystemIncludes.h" // To define ostream
 #include "vtkSetGet.h"         // For vtkNotUsed macro
@@ -59,10 +60,10 @@ class vtkVariant;
 struct vtkVariantLessThan;
 
 //BTX
-VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
 //ETX
 
-class VTK_COMMON_EXPORT vtkVariant
+class VTKCOMMONCORE_EXPORT vtkVariant
 {
 public:
 
@@ -394,7 +395,7 @@ public:
   bool operator>=(const vtkVariant &other) const;
 
 //BTX
-  friend VTK_COMMON_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
+  friend VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
 //ETX
 
 private:
@@ -445,19 +446,19 @@ private:
 // compare values.  It satisfies the STL requirement for a comparison
 // function for ordered containers like map and set.
 
-struct VTK_COMMON_EXPORT vtkVariantLessThan
+struct VTKCOMMONCORE_EXPORT vtkVariantLessThan
 {
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
 
-struct VTK_COMMON_EXPORT vtkVariantEqual
+struct VTKCOMMONCORE_EXPORT vtkVariantEqual
 {
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
 
-struct VTK_COMMON_EXPORT vtkVariantStrictWeakOrder
+struct VTKCOMMONCORE_EXPORT vtkVariantStrictWeakOrder
 {
 public:
   bool operator()(const vtkVariant& s1, const vtkVariant& s2) const;
@@ -466,7 +467,7 @@ public:
 // Similarly, this is a fast version of operator== that requires that
 // the types AND the values be equal in order to admit equality.
 
-struct VTK_COMMON_EXPORT vtkVariantStrictEquality
+struct VTKCOMMONCORE_EXPORT vtkVariantStrictEquality
 {
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;

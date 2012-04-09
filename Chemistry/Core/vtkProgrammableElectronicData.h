@@ -18,13 +18,14 @@
 #ifndef __vtkProgrammableElectronicData_h
 #define __vtkProgrammableElectronicData_h
 
+#include "vtkChemistryCoreModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
 
 class vtkImageData;
 
 class StdVectorOfImageDataPointers;
 
-class VTK_CHEMISTRY_EXPORT vtkProgrammableElectronicData
+class VTKCHEMISTRYCORE_EXPORT vtkProgrammableElectronicData
     : public vtkAbstractElectronicData
 {
 public:

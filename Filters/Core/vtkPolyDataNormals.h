@@ -47,13 +47,14 @@
 #ifndef __vtkPolyDataNormals_h
 #define __vtkPolyDataNormals_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkFloatArray;
 class vtkIdList;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPolyDataNormals : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataAlgorithm);

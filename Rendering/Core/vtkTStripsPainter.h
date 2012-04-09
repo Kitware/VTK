@@ -17,9 +17,10 @@
 #ifndef __vtkTStripsPainter_h
 #define __vtkTStripsPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTK_RENDERING_EXPORT vtkTStripsPainter : public vtkPrimitivePainter
+class VTKRENDERINGCORE_EXPORT vtkTStripsPainter : public vtkPrimitivePainter
 {
 public:
   static vtkTStripsPainter* New();

@@ -23,9 +23,10 @@
 #ifndef __vtkFloatingPointExceptions_h
 #define __vtkFloatingPointExceptions_h
 
-#include "vtkSystemIncludes.h" // For VTK_COMMON_EXPORT
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkSystemIncludes.h" // For VTKCOMMONCORE_EXPORT
 
-class VTK_COMMON_EXPORT vtkFloatingPointExceptions
+class VTKCOMMONCORE_EXPORT vtkFloatingPointExceptions
 {
 public:
   // Description:

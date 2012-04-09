@@ -30,6 +30,7 @@
 #ifndef __vtkOpenGLProjectedPolyDataRayBounder_h
 #define __vtkOpenGLProjectedPolyDataRayBounder_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkProjectedPolyDataRayBounder.h"
 #ifdef __APPLE__
 # include <OpenGL/gl.h> //Needed for GLUint
@@ -39,7 +40,7 @@
 
 class vtkWindow;
 
-class VTK_RENDERING_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
   vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);

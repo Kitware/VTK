@@ -35,11 +35,12 @@
 #ifndef __vtkFillHolesFilter_h
 #define __vtkFillHolesFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_GRAPHICS_EXPORT vtkFillHolesFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkFillHolesFilter : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

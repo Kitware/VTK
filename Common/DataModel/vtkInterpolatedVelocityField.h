@@ -51,9 +51,10 @@
 #ifndef __vtkInterpolatedVelocityField_h
 #define __vtkInterpolatedVelocityField_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractInterpolatedVelocityField.h"
 
-class VTK_FILTERING_EXPORT vtkInterpolatedVelocityField 
+class VTKCOMMONDATAMODEL_EXPORT vtkInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
 {
 public:

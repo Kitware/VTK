@@ -16,6 +16,7 @@
 #ifndef __vtkColorTransferFunctionItem_h
 #define __vtkColorTransferFunctionItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
 
 class vtkColorTransferFunction;
@@ -24,7 +25,7 @@ class vtkImageData;
 // Description:
 // vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
 // vtkScalarsToColors::MaskAboveCurve have no effect here.
-class VTK_CHARTS_EXPORT vtkColorTransferFunctionItem: public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT vtkColorTransferFunctionItem: public vtkScalarsToColorsItem
 {
 public:
   static vtkColorTransferFunctionItem* New();

@@ -27,6 +27,7 @@
 #ifndef __vtkAxesTransformRepresentation_h
 #define __vtkAxesTransformRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleRepresentation;
@@ -44,7 +45,7 @@ class vtkTransformPolyDataFilter;
 class vtkProperty;
 
 
-class VTK_WIDGETS_EXPORT vtkAxesTransformRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkAxesTransformRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

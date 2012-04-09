@@ -22,11 +22,12 @@
 #ifndef __vtkInteractorStyleRubberBandZoom_h
 #define __vtkInteractorStyleRubberBandZoom_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
 class vtkUnsignedCharArray;
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBandZoom : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleRubberBandZoom *New();

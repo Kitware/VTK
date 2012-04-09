@@ -71,6 +71,7 @@
 #ifndef __vtkGenericGlyph3DFilter_h
 #define __vtkGenericGlyph3DFilter_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SCALE_BY_SCALAR 0
@@ -90,7 +91,7 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericGlyph3DFilter,vtkPolyDataAlgorithm);

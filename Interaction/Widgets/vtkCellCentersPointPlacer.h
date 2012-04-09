@@ -35,6 +35,7 @@
 #ifndef __vtkCellCentersPointPlacer_h
 #define __vtkCellCentersPointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkRenderer;
@@ -42,7 +43,7 @@ class vtkPropCollection;
 class vtkProp;
 class vtkCellPicker;
 
-class VTK_WIDGETS_EXPORT vtkCellCentersPointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkCellCentersPointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

@@ -28,9 +28,10 @@
 #ifndef __vtkSplitColumnComponents_h
 #define __vtkSplitColumnComponents_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkSplitColumnComponents : public vtkTableAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkSplitColumnComponents : public vtkTableAlgorithm
 {
 public:
   static vtkSplitColumnComponents* New();

@@ -24,6 +24,7 @@
 #ifndef __vtkPStreamTracer_h
 #define __vtkPStreamTracer_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkStreamTracer.h"
 
 #include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.
@@ -32,7 +33,7 @@
 class vtkAbstractInterpolatedVelocityField;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class VTKFILTERSPARALLEL_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);

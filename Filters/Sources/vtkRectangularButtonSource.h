@@ -42,13 +42,14 @@
 #ifndef __vtkRectangularButtonSource_h
 #define __vtkRectangularButtonSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkRectangularButtonSource : public vtkButtonSource 
+class VTKFILTERSSOURCES_EXPORT vtkRectangularButtonSource : public vtkButtonSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

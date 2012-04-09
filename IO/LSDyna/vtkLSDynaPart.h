@@ -15,6 +15,7 @@
 #ifndef __vtkLSDynaPart_h
 #define __vtkLSDynaPart_h
 
+#include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
 #include "LSDynaMetaData.h" //needed for lsdyna types
 #include "vtkStdString.h" //needed for string
@@ -22,7 +23,7 @@
 class vtkUnstructuredGrid;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkLSDynaPart: public vtkObject
+class VTKIOLSDYNA_EXPORT vtkLSDynaPart: public vtkObject
 {
 public:
   static vtkLSDynaPart *New();

@@ -29,11 +29,12 @@
 #ifndef __vtkInteractorStyleRubberBandPick_h
 #define __vtkInteractorStyleRubberBandPick_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 
 class vtkUnsignedCharArray;
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBandPick : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandPick : public vtkInteractorStyleTrackballCamera
 {
 public:
   static vtkInteractorStyleRubberBandPick *New();

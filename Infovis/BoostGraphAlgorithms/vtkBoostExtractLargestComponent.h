@@ -23,11 +23,12 @@
 #ifndef __vtkBoostExtractLargestComponent_h
 #define __vtkBoostExtractLargestComponent_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 
-class VTK_INFOVIS_EXPORT vtkBoostExtractLargestComponent : public vtkGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostExtractLargestComponent : public vtkGraphAlgorithm
 {
 public:
   vtkTypeMacro(vtkBoostExtractLargestComponent, vtkGraphAlgorithm);

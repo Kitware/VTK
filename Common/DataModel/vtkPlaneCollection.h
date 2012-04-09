@@ -22,11 +22,12 @@
 #ifndef __vtkPlaneCollection_h
 #define __vtkPlaneCollection_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkPlane.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkPlaneCollection : public vtkCollection
+class VTKCOMMONDATAMODEL_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkPlaneCollection,vtkCollection);

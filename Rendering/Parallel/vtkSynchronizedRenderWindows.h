@@ -21,6 +21,7 @@
 #ifndef __vtkSynchronizedRenderWindows_h
 #define __vtkSynchronizedRenderWindows_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderWindow;
@@ -28,7 +29,7 @@ class vtkMultiProcessController;
 class vtkCommand;
 class vtkMultiProcessStream;
 
-class VTK_PARALLEL_EXPORT vtkSynchronizedRenderWindows : public vtkObject
+class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderWindows : public vtkObject
 {
 public:
   static vtkSynchronizedRenderWindows* New();

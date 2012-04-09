@@ -21,9 +21,10 @@
 #ifndef __vtkType@VTK_TYPE_NAME@Array_h
 #define __vtkType@VTK_TYPE_NAME@Array_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtk@VTK_TYPE_NATIVE@Array.h"
 
-class VTK_COMMON_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtk@VTK_TYPE_NATIVE@Array
+class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtk@VTK_TYPE_NATIVE@Array
 {
 public:
   static vtkType@VTK_TYPE_NAME@Array* New();

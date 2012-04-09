@@ -18,6 +18,7 @@
 #ifndef __vtkCompositeDataReader_h
 #define __vtkCompositeDataReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkCompositeDataSet;
@@ -25,7 +26,7 @@ class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
 class vtkHierarchicalBoxDataSet;
 
-class VTK_IO_EXPORT vtkCompositeDataReader : public vtkDataReader
+class VTKIOGEOMETRY_EXPORT vtkCompositeDataReader : public vtkDataReader
 {
 public:
   static vtkCompositeDataReader* New();

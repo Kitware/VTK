@@ -21,11 +21,12 @@
 #ifndef __vtkGraphGeodesicPath_h
 #define __vtkGraphGeodesicPath_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkGeodesicPath.h"
 
 class vtkIdList;
 
-class VTK_GRAPHICS_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
+class VTKFILTERSMODELING_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
 {
 public:
   // Description:

@@ -39,11 +39,12 @@
 #ifndef __vtkPComputeHistogram2DOutliers_h
 #define __vtkPComputeHistogram2DOutliers_h
 //------------------------------------------------------------------------------
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkComputeHistogram2DOutliers.h"
 //------------------------------------------------------------------------------
 class vtkMultiProcessController;
 //------------------------------------------------------------------------------
-class VTK_INFOVIS_EXPORT vtkPComputeHistogram2DOutliers : public vtkComputeHistogram2DOutliers
+class VTKFILTERSPARALLELIMAGING_EXPORT vtkPComputeHistogram2DOutliers : public vtkComputeHistogram2DOutliers
 {
 public:
   static vtkPComputeHistogram2DOutliers* New();

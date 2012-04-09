@@ -18,11 +18,12 @@
 #ifndef __vtkMoleculeToBondStickFilter_h
 #define __vtkMoleculeToBondStickFilter_h
 
+#include "vtkChemistryCoreModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"
 
 class vtkMolecule;
 
-class VTK_CHEMISTRY_EXPORT vtkMoleculeToBondStickFilter
+class VTKCHEMISTRYCORE_EXPORT vtkMoleculeToBondStickFilter
 : public vtkMoleculeToPolyDataFilter
 {
  public:

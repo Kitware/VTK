@@ -25,9 +25,10 @@
 #define __vtkImageHSVToRGB_h
 
 
+#include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageHSVToRGB : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCOLOR_EXPORT vtkImageHSVToRGB : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageHSVToRGB *New();

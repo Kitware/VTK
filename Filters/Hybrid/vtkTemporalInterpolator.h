@@ -52,11 +52,12 @@
 #ifndef __vtkTemporalInterpolator_h
 #define __vtkTemporalInterpolator_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkTemporalDataSetAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_HYBRID_EXPORT vtkTemporalInterpolator : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalInterpolator *New();

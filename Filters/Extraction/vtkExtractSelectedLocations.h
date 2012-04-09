@@ -26,12 +26,13 @@
 #ifndef __vtkExtractSelectedLocations_h
 #define __vtkExtractSelectedLocations_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
 class vtkSelection;
 class vtkSelectionNode;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedLocations *New();

@@ -75,12 +75,13 @@
 #ifndef __vtkRectilinearWipeWidget_h
 #define __vtkRectilinearWipeWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkRectilinearWipeRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkRectilinearWipeWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkRectilinearWipeWidget : public vtkAbstractWidget
 {
 public:
   // Description:

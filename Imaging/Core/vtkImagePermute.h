@@ -24,9 +24,10 @@
 #define __vtkImagePermute_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageReslice.h"
 
-class VTK_IMAGING_EXPORT vtkImagePermute : public vtkImageReslice
+class VTKIMAGINGCORE_EXPORT vtkImagePermute : public vtkImageReslice
 {
 public:
   static vtkImagePermute *New();

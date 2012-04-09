@@ -44,11 +44,12 @@
 #ifndef __vtkConeLayoutStrategy_h
 #define __vtkConeLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 class vtkPoints;
 
-class VTK_INFOVIS_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkConeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkConeLayoutStrategy *New();

@@ -29,6 +29,7 @@
 #ifndef __vtkCellQuality_h
 #define __vtkCellQuality_h
 
+#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkCell;
@@ -36,7 +37,7 @@ class vtkDataArray;
 class vtkIdList;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
+class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
 {
   //BTX
   enum

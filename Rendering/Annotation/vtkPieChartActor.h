@@ -31,6 +31,7 @@
 #ifndef __vtkPieChartActor_h
 #define __vtkPieChartActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkAlgorithmOutput;
@@ -45,7 +46,7 @@ class vtkGlyphSource2D;
 class vtkPieChartActorConnection;
 class vtkPieceLabelArray;
 
-class VTK_HYBRID_EXPORT vtkPieChartActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkPieChartActor : public vtkActor2D
 {
 public:
   // Description:

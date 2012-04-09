@@ -21,9 +21,10 @@
 #ifndef __vtkBlockIdScalars_h
 #define __vtkBlockIdScalars_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkBlockIdScalars : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkBlockIdScalars : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkBlockIdScalars* New();

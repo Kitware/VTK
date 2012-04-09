@@ -71,6 +71,7 @@
 #ifndef __vtkModelMetadata_h
 #define __vtkModelMetadata_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataSet;
@@ -81,7 +82,7 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkModelMetadataSTLCloak;
 
-class VTK_GRAPHICS_EXPORT vtkModelMetadata : public vtkObject
+class VTKFILTERSGENERAL_EXPORT vtkModelMetadata : public vtkObject
 {
 public:
   vtkTypeMacro(vtkModelMetadata, vtkObject);

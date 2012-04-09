@@ -34,11 +34,12 @@
 #ifndef __vtkPolyDataSourceWidget_h
 #define __vtkPolyDataSourceWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 
 class vtkPolyDataAlgorithm;
 
-class VTK_WIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
  public:
   vtkTypeMacro(vtkPolyDataSourceWidget, vtk3DWidget);

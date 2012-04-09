@@ -30,11 +30,12 @@
 #ifndef __vtkPPCAStatistics_h
 #define __vtkPPCAStatistics_h
 
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkPCAStatistics.h"
 
 class vtkMultiProcessController;
 
-class VTK_INFOVIS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPPCAStatistics : public vtkPCAStatistics
 {
 public:
   vtkTypeMacro(vtkPPCAStatistics, vtkPCAStatistics);

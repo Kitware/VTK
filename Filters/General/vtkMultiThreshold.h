@@ -98,6 +98,7 @@
 #ifndef __vtkMultiThreshold_h
 #define __vtkMultiThreshold_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkMath.h" // for Inf() and NegInf()
 
@@ -113,7 +114,7 @@ class vtkGenericCell;
 class vtkPointSet;
 class vtkUnstructuredGrid;
 
-class VTK_GRAPHICS_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);

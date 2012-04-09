@@ -20,12 +20,13 @@
 #ifndef __vtkReebGraphSimplificationFilter_h
 #define __vtkReebGraphSimplificationFilter_h
 
+#include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
 
 class vtkReebGraph;
 class vtkReebGraphSimplificationMetric;
 
-class VTK_GRAPHICS_EXPORT vtkReebGraphSimplificationFilter : 
+class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSimplificationFilter :
   public vtkDirectedGraphAlgorithm
 {
 public:

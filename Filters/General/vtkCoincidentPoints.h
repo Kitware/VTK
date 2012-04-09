@@ -27,12 +27,13 @@
 #ifndef __vtkCoincidentPoints_h
 #define __vtkCoincidentPoints_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkIdList;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkCoincidentPoints : public vtkObject
+class VTKFILTERSGENERAL_EXPORT vtkCoincidentPoints : public vtkObject
 {
 public:
   static vtkCoincidentPoints* New();

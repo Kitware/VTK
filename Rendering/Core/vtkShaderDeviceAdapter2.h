@@ -23,11 +23,12 @@
 #ifndef __vtkShaderDeviceAdapter2_h
 #define __vtkShaderDeviceAdapter2_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkShaderProgram2;
 
-class VTK_RENDERING_EXPORT vtkShaderDeviceAdapter2 : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkShaderDeviceAdapter2 : public vtkObject
 {
 public:
   vtkTypeMacro(vtkShaderDeviceAdapter2, vtkObject);

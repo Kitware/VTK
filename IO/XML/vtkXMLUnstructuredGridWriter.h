@@ -27,12 +27,13 @@
 #ifndef __vtkXMLUnstructuredGridWriter_h
 #define __vtkXMLUnstructuredGridWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"
 
 
 class vtkUnstructuredGrid;
 
-class VTK_IO_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
+class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredGridWriter,vtkXMLUnstructuredDataWriter);

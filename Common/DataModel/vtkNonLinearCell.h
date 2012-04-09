@@ -27,9 +27,10 @@
 #ifndef __vtkNonLinearCell_h
 #define __vtkNonLinearCell_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
-class VTK_FILTERING_EXPORT vtkNonLinearCell : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkNonLinearCell : public vtkCell
 {
 public:
   vtkTypeMacro(vtkNonLinearCell,vtkCell);

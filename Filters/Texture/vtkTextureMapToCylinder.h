@@ -43,9 +43,10 @@
 #ifndef __vtkTextureMapToCylinder_h
 #define __vtkTextureMapToCylinder_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgorithm 
+class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkTextureMapToCylinder,vtkDataSetAlgorithm);

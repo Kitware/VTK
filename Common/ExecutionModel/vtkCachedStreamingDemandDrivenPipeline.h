@@ -19,13 +19,14 @@
 #ifndef __vtkCachedStreamingDemandDrivenPipeline_h
 #define __vtkCachedStreamingDemandDrivenPipeline_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkCachedStreamingDemandDrivenPipelineInternals;
 
-class VTK_FILTERING_EXPORT vtkCachedStreamingDemandDrivenPipeline : 
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCachedStreamingDemandDrivenPipeline :
   public vtkStreamingDemandDrivenPipeline
 {
 public:

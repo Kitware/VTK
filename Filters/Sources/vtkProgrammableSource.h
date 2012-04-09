@@ -35,6 +35,7 @@
 #ifndef __vtkProgrammableSource_h
 #define __vtkProgrammableSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkPolyData;
@@ -43,7 +44,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableSource : public vtkDataSetAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkProgrammableSource : public vtkDataSetAlgorithm
 {
 public:
   static vtkProgrammableSource *New();

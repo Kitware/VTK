@@ -84,13 +84,14 @@
 #ifndef __vtkSphereWidget2_h
 #define __vtkSphereWidget2_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkSphereRepresentation;
 class vtkHandleWidget;
 
 
-class VTK_WIDGETS_EXPORT vtkSphereWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkSphereWidget2 : public vtkAbstractWidget
 {
 public:
   // Description:

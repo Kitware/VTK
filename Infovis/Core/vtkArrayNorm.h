@@ -34,10 +34,11 @@
 #ifndef __vtkArrayNorm_h
 #define __vtkArrayNorm_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include <vtkArrayDataAlgorithm.h>
 #include <vtkArrayRange.h>
 
-class VTK_INFOVIS_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
+class VTKINFOVISCORE_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 {
 public:
   static vtkArrayNorm* New();

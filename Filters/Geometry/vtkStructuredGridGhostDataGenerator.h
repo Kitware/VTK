@@ -47,6 +47,7 @@
 #ifndef VTKSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
 #define VTKSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkDataSetGhostGenerator.h"
 
 // Forward declarations
@@ -54,7 +55,7 @@ class vtkMultiBlockDataSet;
 class vtkIndent;
 class vtkStructuredGridConnectivity;
 
-class VTK_FILTERING_EXPORT vtkStructuredGridGhostDataGenerator :
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGhostDataGenerator :
   public vtkDataSetGhostGenerator
 {
   public:

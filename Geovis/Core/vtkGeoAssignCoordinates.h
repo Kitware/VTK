@@ -32,11 +32,12 @@
 #ifndef __vtkGeoAssignCoordinates_h
 #define __vtkGeoAssignCoordinates_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_GEOVIS_EXPORT vtkGeoAssignCoordinates : public vtkPassInputTypeAlgorithm
+class VTKGEOVISCORE_EXPORT vtkGeoAssignCoordinates : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkGeoAssignCoordinates *New();

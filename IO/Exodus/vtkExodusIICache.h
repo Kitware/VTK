@@ -23,13 +23,14 @@
 // the list of references so that it can be located quickly for
 // removal.
 
+#include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 
 #include <map> // used for cache storage
 #include <list> // use for LRU ordering
 
 //BTX
-class VTK_HYBRID_EXPORT vtkExodusIICacheKey
+class VTKIOEXODUS_EXPORT vtkExodusIICacheKey
 {
 public:
   int Time;
@@ -98,7 +99,7 @@ typedef std::map<vtkExodusIICacheKey,vtkExodusIICacheEntry*>::iterator vtkExodus
 typedef std::list<vtkExodusIICacheRef> vtkExodusIICacheLRU;
 typedef std::list<vtkExodusIICacheRef>::iterator vtkExodusIICacheLRURef;
 
-class VTK_HYBRID_EXPORT vtkExodusIICacheEntry
+class VTKIOEXODUS_EXPORT vtkExodusIICacheEntry
 {
 public:
   vtkExodusIICacheEntry();
@@ -117,7 +118,7 @@ protected:
 };
 //ETX
 
-class VTK_HYBRID_EXPORT vtkExodusIICache : public vtkObject
+class VTKIOEXODUS_EXPORT vtkExodusIICache : public vtkObject
 {
 public:
   static vtkExodusIICache* New();

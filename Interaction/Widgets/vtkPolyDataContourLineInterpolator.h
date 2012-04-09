@@ -23,12 +23,13 @@
 #ifndef __vtkPolyDataContourLineInterpolator_h
 #define __vtkPolyDataContourLineInterpolator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
 
 class vtkPolyData;
 class vtkPolyDataCollection;
 
-class VTK_WIDGETS_EXPORT vtkPolyDataContourLineInterpolator 
+class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataContourLineInterpolator
                         : public vtkContourLineInterpolator
 {
 public:

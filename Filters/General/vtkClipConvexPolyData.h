@@ -21,13 +21,14 @@
 #ifndef __vtkClipConvexPolyData_h
 #define __vtkClipConvexPolyData_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPlaneCollection;
 class vtkPlane;
 class vtkClipConvexPolyDataInternals;
 
-class VTK_GRAPHICS_EXPORT vtkClipConvexPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkClipConvexPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkClipConvexPolyData *New();

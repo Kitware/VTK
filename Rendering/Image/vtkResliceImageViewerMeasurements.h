@@ -23,6 +23,7 @@
 #ifndef __vtkResliceImageViewerMeasurements_h
 #define __vtkResliceImageViewerMeasurements_h
 
+#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkResliceImageViewer;
@@ -38,7 +39,7 @@ class vtkCaptionWidget;
 class vtkContourWidget;
 class vtkSeedWidget;
 
-class VTK_WIDGETS_EXPORT vtkResliceImageViewerMeasurements : public vtkObject
+class VTKRENDERINGIMAGE_EXPORT vtkResliceImageViewerMeasurements : public vtkObject
 {
 public:
 

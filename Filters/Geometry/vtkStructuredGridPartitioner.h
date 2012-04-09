@@ -26,6 +26,7 @@
 #ifndef VTKSTRUCTUREDGRIDPARTITIONER_H_
 #define VTKSTRUCTUREDGRIDPARTITIONER_H_
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
@@ -34,7 +35,7 @@ class vtkIndent;
 class vtkStructuredGrid;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkStructuredGridPartitioner :
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:

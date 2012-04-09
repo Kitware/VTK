@@ -41,6 +41,7 @@
 #ifndef __vtkAreaPicker_h
 #define __vtkAreaPicker_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
 
 class vtkRenderer;
@@ -52,7 +53,7 @@ class vtkDataSet;
 class vtkExtractSelectedFrustum;
 class vtkProp;
 
-class VTK_RENDERING_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkAreaPicker *New();

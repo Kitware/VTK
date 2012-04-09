@@ -24,9 +24,10 @@
 #ifndef VTKNONOVERLAPPINGAMR_H_
 #define VTKNONOVERLAPPINGAMR_H_
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMR.h"
 
-class VTK_FILTERING_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
+class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
 {
   public:
     static vtkNonOverlappingAMR* New();

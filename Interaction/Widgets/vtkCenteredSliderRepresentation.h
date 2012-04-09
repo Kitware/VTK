@@ -34,6 +34,7 @@
 #ifndef __vtkCenteredSliderRepresentation_h
 #define __vtkCenteredSliderRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
@@ -54,7 +55,7 @@ class vtkTextMapper;
 class vtkTextActor;
 
 
-class VTK_WIDGETS_EXPORT vtkCenteredSliderRepresentation : public vtkSliderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkCenteredSliderRepresentation : public vtkSliderRepresentation
 {
 public:
   // Description:

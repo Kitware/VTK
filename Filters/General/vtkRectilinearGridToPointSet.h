@@ -31,12 +31,13 @@
 #ifndef __vtkRectilinearGridToPointSet_h
 #define __vtkRectilinearGridToPointSet_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
 class vtkRectilinearGrid;
 class vtkStructuredData;
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridToPointSet : public vtkStructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToPointSet : public vtkStructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToPointSet, vtkStructuredGridAlgorithm);

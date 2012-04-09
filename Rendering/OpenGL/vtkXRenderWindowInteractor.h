@@ -33,6 +33,7 @@
 //===========================================================
 // now we define the C++ class
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
 #include <X11/StringDefs.h> // Needed for X types in the public interface
 #include <X11/Intrinsic.h> // Needed for X types in the public interface
@@ -42,11 +43,11 @@ class vtkXRenderWindowInteractorInternals;
 
 //BTX
 // Forward declare internal friend functions.
-void VTK_RENDERING_EXPORT vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
-void VTK_RENDERING_EXPORT vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+void VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
+void VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
 //ETX
 
-class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   static vtkXRenderWindowInteractor *New();

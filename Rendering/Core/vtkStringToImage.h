@@ -21,6 +21,7 @@
 #ifndef __vtkStringToImage_h
 #define __vtkStringToImage_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkStdString;
@@ -29,7 +30,7 @@ class vtkTextProperty;
 class vtkImageData;
 class vtkVector2i;
 
-class VTK_RENDERING_EXPORT vtkStringToImage : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkStringToImage : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStringToImage, vtkObject);

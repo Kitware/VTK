@@ -29,6 +29,7 @@
 #ifndef __vtkAlgorithm_h
 #define __vtkAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAbstractArray;
@@ -45,7 +46,7 @@ class vtkInformationStringKey;
 class vtkInformationStringVectorKey;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkAlgorithm : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithm : public vtkObject
 {
 public:
   static vtkAlgorithm *New();

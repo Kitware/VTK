@@ -22,9 +22,10 @@
 #ifndef __vtkPlotLine_h
 #define __vtkPlotLine_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints.h"
 
-class VTK_CHARTS_EXPORT vtkPlotLine : public vtkPlotPoints
+class VTKCHARTSCORE_EXPORT vtkPlotLine : public vtkPlotPoints
 {
 public:
   vtkTypeMacro(vtkPlotLine, vtkPlotPoints);

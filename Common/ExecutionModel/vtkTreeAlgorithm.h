@@ -33,12 +33,13 @@
 #ifndef __vtkTreeAlgorithm_h
 #define __vtkTreeAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkTree.h" // makes things a bit easier
 
 class vtkDataSet;
 
-class VTK_FILTERING_EXPORT vtkTreeAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTreeAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkTreeAlgorithm *New();

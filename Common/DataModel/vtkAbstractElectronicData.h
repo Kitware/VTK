@@ -19,11 +19,12 @@
 #ifndef __vtkAbstractElectronicData_h
 #define __vtkAbstractElectronicData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkImageData;
 
-class VTK_CHEMISTRY_EXPORT vtkAbstractElectronicData : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkAbstractElectronicData : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAbstractElectronicData,vtkDataObject);

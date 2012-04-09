@@ -68,6 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMINCImageReader_h
 #define __vtkMINCImageReader_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkImageReader2.h"
 
 class vtkStringArray;
@@ -78,7 +79,7 @@ class vtkMatrix4x4;
 // A special class that holds the attributes
 class vtkMINCImageAttributes;
 
-class VTK_IO_EXPORT vtkMINCImageReader : public vtkImageReader2
+class VTKIOMINC_EXPORT vtkMINCImageReader : public vtkImageReader2
 {
 public:
   vtkTypeMacro(vtkMINCImageReader,vtkImageReader2);

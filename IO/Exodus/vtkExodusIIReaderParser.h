@@ -20,6 +20,7 @@
 #ifndef __vtkExodusIIReaderParser_h
 #define __vtkExodusIIReaderParser_h
 
+#include "vtkIOExodusModule.h" // For export macro
 #include "vtkXMLParser.h"
 #include "vtkSmartPointer.h"
 
@@ -33,7 +34,7 @@ class vtkMutableDirectedGraph;
 class vtkStringArray;
 class vtkUnsignedCharArray;
 
-class VTK_HYBRID_EXPORT vtkExodusIIReaderParser : public vtkXMLParser
+class VTKIOEXODUS_EXPORT vtkExodusIIReaderParser : public vtkXMLParser
 {
 public:
   static vtkExodusIIReaderParser* New();

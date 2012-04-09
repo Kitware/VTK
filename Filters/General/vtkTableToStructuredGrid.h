@@ -23,11 +23,12 @@
 #ifndef __vtkTableToStructuredGrid_h
 #define __vtkTableToStructuredGrid_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
 class vtkTable;
 
-class VTK_GRAPHICS_EXPORT vtkTableToStructuredGrid : public vtkStructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkTableToStructuredGrid : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkTableToStructuredGrid* New();

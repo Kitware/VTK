@@ -26,11 +26,12 @@
 #ifndef __vtkXMLMultiBlockDataReader_h
 #define __vtkXMLMultiBlockDataReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataReader.h"
 
 class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
+class VTKIOXML_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLMultiBlockDataReader* New();

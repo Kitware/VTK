@@ -37,6 +37,7 @@
 #ifndef __vtkTreeAreaView_h
 #define __vtkTreeAreaView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
 
 class vtkAreaLayoutStrategy;
@@ -46,7 +47,7 @@ class vtkPolyDataAlgorithm;
 class vtkRenderedTreeAreaRepresentation;
 class vtkTree;
 
-class VTK_VIEWS_EXPORT vtkTreeAreaView : public vtkRenderView
+class VTKVIEWSINFOVIS_EXPORT vtkTreeAreaView : public vtkRenderView
 {
 public:
   static vtkTreeAreaView *New();

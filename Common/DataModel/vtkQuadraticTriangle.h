@@ -30,13 +30,14 @@
 #ifndef __vtkQuadraticTriangle_h
 #define __vtkQuadraticTriangle_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
 class vtkQuadraticEdge;
 class vtkTriangle;
 class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkQuadraticTriangle : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticTriangle : public vtkNonLinearCell
 {
 public:
   static vtkQuadraticTriangle *New();

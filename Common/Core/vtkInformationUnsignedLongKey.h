@@ -20,11 +20,12 @@
 #ifndef __vtkInformationUnsignedLongKey_h
 #define __vtkInformationUnsignedLongKey_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
-class VTK_COMMON_EXPORT vtkInformationUnsignedLongKey : public vtkInformationKey
+class VTKCOMMONCORE_EXPORT vtkInformationUnsignedLongKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationUnsignedLongKey,vtkInformationKey);

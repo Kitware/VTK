@@ -23,6 +23,7 @@
 #ifndef __vtkPlatonicSolidSource_h
 #define __vtkPlatonicSolidSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SOLID_TETRAHEDRON  0
@@ -31,7 +32,7 @@
 #define VTK_SOLID_ICOSAHEDRON  3
 #define VTK_SOLID_DODECAHEDRON 4
 
-class VTK_GRAPHICS_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPlatonicSolidSource *New();

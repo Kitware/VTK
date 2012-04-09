@@ -23,9 +23,10 @@
 #ifndef __vtkPCellDataToPointData_h
 #define __vtkPCellDataToPointData_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCellDataToPointData.h"
 
-class VTK_PARALLEL_EXPORT vtkPCellDataToPointData : public vtkCellDataToPointData
+class VTKFILTERSPARALLEL_EXPORT vtkPCellDataToPointData : public vtkCellDataToPointData
 {
 public:
   vtkTypeMacro(vtkPCellDataToPointData,vtkCellDataToPointData);

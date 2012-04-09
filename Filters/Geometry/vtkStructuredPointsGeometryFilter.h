@@ -20,9 +20,10 @@
 #ifndef __vtkStructuredPointsGeometryFilter_h
 #define __vtkStructuredPointsGeometryFilter_h
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkImageDataGeometryFilter.h"
 
-class VTK_GRAPHICS_EXPORT vtkStructuredPointsGeometryFilter : public vtkImageDataGeometryFilter
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter : public vtkImageDataGeometryFilter
 {
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);

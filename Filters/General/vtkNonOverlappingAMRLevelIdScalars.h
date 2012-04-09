@@ -21,12 +21,13 @@
 #ifndef __vtkNonOverlappingAMRLevelIdScalars_h
 #define __vtkNonOverlappingAMRLevelIdScalars_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkNonOverlappingAMRAlgorithm.h"
 
 class vtkUniformGrid;
 class vtkUniformGridAMR;
 
-class VTK_GRAPHICS_EXPORT vtkNonOverlappingAMRLevelIdScalars :
+class VTKFILTERSGENERAL_EXPORT vtkNonOverlappingAMRLevelIdScalars :
   public vtkNonOverlappingAMRAlgorithm
 {
 public:

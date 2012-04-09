@@ -21,13 +21,14 @@
 #ifndef __vtkDataArrayTemplate_h
 #define __vtkDataArrayTemplate_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
 template <class T>
 class vtkDataArrayTemplateLookup;
 
 template <class T>
-class VTK_COMMON_EXPORT vtkDataArrayTemplate: public vtkDataArray
+class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate: public vtkDataArray
 {
 public:
   typedef vtkDataArray Superclass;
@@ -295,7 +296,7 @@ private:
 
 #if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 # define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTK_COMMON_EXPORT vtkDataArrayTemplate< T >
+   template class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate< T >
 #else
 # include "vtkDataArrayTemplateImplicit.txx"
 # define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)

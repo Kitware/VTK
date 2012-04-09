@@ -27,6 +27,7 @@
 #ifndef __vtkOpenGLContextDevice2D_h
 #define __vtkOpenGLContextDevice2D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextDevice2D.h"
 
 class vtkWindow;
@@ -36,7 +37,7 @@ class vtkStringToImage;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 
-class VTK_CHARTS_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
+class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice2D, vtkContextDevice2D);

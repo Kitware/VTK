@@ -22,11 +22,12 @@
 #ifndef __vtkImplicitFunctionCollection_h
 #define __vtkImplicitFunctionCollection_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkImplicitFunction.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkImplicitFunctionCollection : public vtkCollection
+class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkImplicitFunctionCollection,vtkCollection);

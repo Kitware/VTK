@@ -56,6 +56,7 @@
 #ifndef __vtkInteractorStyleImage_h
 #define __vtkInteractorStyleImage_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 
 // Motion flags
@@ -72,7 +73,7 @@
 
 class vtkImageProperty;
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorStyleTrackballCamera
 {
 public:
   static vtkInteractorStyleImage *New();

@@ -28,6 +28,7 @@
 #ifndef __vtkVolume_h
 #define __vtkVolume_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkRenderer;
@@ -37,7 +38,7 @@ class vtkWindow;
 class vtkVolumeProperty;
 class vtkAbstractVolumeMapper;
 
-class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkVolume : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkVolume,vtkProp3D);

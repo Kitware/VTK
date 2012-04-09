@@ -21,9 +21,10 @@
 #ifndef __vtkTriangleFilter_h
 #define __vtkTriangleFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTriangleFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkTriangleFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangleFilter *New();

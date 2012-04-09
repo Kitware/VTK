@@ -53,6 +53,7 @@
 #ifndef __vtkScalarBarActor_h
 #define __vtkScalarBarActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkPolyData;
@@ -66,7 +67,7 @@ class vtkTexture;
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
 
-class VTK_RENDERING_EXPORT vtkScalarBarActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkScalarBarActor,vtkActor2D);

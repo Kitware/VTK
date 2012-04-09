@@ -26,12 +26,13 @@
 #ifndef __vtkPruneTreeFilter_h
 #define __vtkPruneTreeFilter_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
 class vtkTree;
 class vtkPVXMLElement;
 
-class VTK_INFOVIS_EXPORT vtkPruneTreeFilter : public vtkTreeAlgorithm
+class VTKINFOVISCORE_EXPORT vtkPruneTreeFilter : public vtkTreeAlgorithm
 {
 public:
   static vtkPruneTreeFilter* New();

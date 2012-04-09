@@ -38,6 +38,7 @@
 #ifndef __vtkOpenFOAMReader_h
 #define __vtkOpenFOAMReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkCollection;
@@ -49,7 +50,7 @@ class vtkStringArray;
 
 class vtkOpenFOAMReaderPrivate;
 
-class VTK_IO_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkOpenFOAMReader *New();

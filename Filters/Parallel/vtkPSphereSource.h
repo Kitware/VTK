@@ -17,9 +17,10 @@
 #ifndef __vtkPSphereSource_h
 #define __vtkPSphereSource_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkSphereSource.h"
 
-class VTK_PARALLEL_EXPORT vtkPSphereSource : public vtkSphereSource
+class VTKFILTERSPARALLEL_EXPORT vtkPSphereSource : public vtkSphereSource
 {
 public:
   vtkTypeMacro(vtkPSphereSource,vtkSphereSource);

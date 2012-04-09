@@ -59,13 +59,14 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkPolyDataToImageStencil_h
 #define __vtkPolyDataToImageStencil_h
 
+#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
 
 class vtkMergePoints;
 class vtkDataSet;
 class vtkPolyData;
 
-class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil :
+class VTKIMAGINGSTENCIL_EXPORT vtkPolyDataToImageStencil :
   public vtkImageStencilSource
 {
 public:

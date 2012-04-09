@@ -49,6 +49,7 @@
 #ifndef __vtkQtTableRepresentation_h
 #define __vtkQtTableRepresentation_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkDataRepresentation.h"
 
@@ -58,7 +59,7 @@ class vtkQtTableModelAdapter;
 
 // ----------------------------------------------------------------------
 
-class QVTK_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
+class VTKVIEWSQT_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
 {
 public:
   vtkTypeMacro(vtkQtTableRepresentation, vtkDataRepresentation);

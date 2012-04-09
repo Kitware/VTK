@@ -34,6 +34,7 @@
 #ifndef __vtkImageBSplineInterpolator_h
 #define __vtkImageBSplineInterpolator_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
 
 #define VTK_IMAGE_BSPLINE_DEGREE_MAX 9
@@ -41,7 +42,7 @@
 class vtkImageData;
 struct vtkInterpolationInfo;
 
-class VTK_FILTERING_EXPORT vtkImageBSplineInterpolator :
+class VTKIMAGINGCORE_EXPORT vtkImageBSplineInterpolator :
   public vtkAbstractImageInterpolator
 {
 public:

@@ -43,13 +43,14 @@
 #ifndef __vtkImageDataLIC2D_h
 #define __vtkImageDataLIC2D_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 class vtkImageNoiseSource;
 
-class VTK_HYBRID_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 {
 public:
   static vtkImageDataLIC2D* New();

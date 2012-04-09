@@ -29,6 +29,7 @@
 #ifndef __vtkAngleRepresentation3D_h
 #define __vtkAngleRepresentation3D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAngleRepresentation.h"
 
 class vtkActor;
@@ -41,7 +42,7 @@ class vtkVectorText;
 class vtkPolyDataMapper;
 class vtkTextProperty;
 
-class VTK_WIDGETS_EXPORT vtkAngleRepresentation3D : public vtkAngleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation3D : public vtkAngleRepresentation
 {
 public:
   // Description:

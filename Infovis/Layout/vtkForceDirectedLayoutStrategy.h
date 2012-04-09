@@ -32,9 +32,10 @@
 #ifndef __vtkForceDirectedLayoutStrategy_h
 #define __vtkForceDirectedLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
-class VTK_INFOVIS_EXPORT vtkForceDirectedLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkForceDirectedLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkForceDirectedLayoutStrategy *New();

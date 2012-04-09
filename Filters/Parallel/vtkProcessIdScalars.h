@@ -25,13 +25,14 @@
 #ifndef __vtkProcessIdScalars_h
 #define __vtkProcessIdScalars_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkIntArray;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkProcessIdScalars : public vtkDataSetAlgorithm
 {
 public:
   static vtkProcessIdScalars *New();

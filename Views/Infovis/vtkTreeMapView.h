@@ -27,13 +27,14 @@
 #ifndef __vtkTreeMapView_h
 #define __vtkTreeMapView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
 
 class vtkBoxLayoutStrategy;
 class vtkSliceAndDiceLayoutStrategy;
 class vtkSquarifyLayoutStrategy;
 
-class VTK_VIEWS_EXPORT vtkTreeMapView : public vtkTreeAreaView
+class VTKVIEWSINFOVIS_EXPORT vtkTreeMapView : public vtkTreeAreaView
 {
 public:
   static vtkTreeMapView *New();

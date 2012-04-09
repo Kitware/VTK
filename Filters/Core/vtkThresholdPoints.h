@@ -24,9 +24,10 @@
 #ifndef __vtkThresholdPoints_h
 #define __vtkThresholdPoints_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkThresholdPoints : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkThresholdPoints : public vtkPolyDataAlgorithm
 {
 public:
   static vtkThresholdPoints *New();

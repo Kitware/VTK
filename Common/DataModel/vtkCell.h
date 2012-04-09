@@ -37,6 +37,7 @@
 #define VTK_CELL_SIZE 512
 #define VTK_TOL 1.e-05 // Tolerance for geometric calculation
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkIdList.h" // Needed for inline methods
@@ -49,7 +50,7 @@ class vtkPointData;
 class vtkIncrementalPointLocator;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkCell : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCell,vtkObject);

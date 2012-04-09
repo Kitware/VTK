@@ -28,11 +28,12 @@
 #ifndef __vtkGeoSphereTransform_h
 #define __vtkGeoSphereTransform_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractTransform.h"
 
 class vtkGeoProjection;
 
-class VTK_GEOVIS_EXPORT vtkGeoSphereTransform : public vtkAbstractTransform
+class VTKGEOVISCORE_EXPORT vtkGeoSphereTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoSphereTransform* New();

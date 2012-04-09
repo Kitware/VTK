@@ -23,9 +23,10 @@
 #ifndef __vtkEarthSource_h
 #define __vtkEarthSource_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkEarthSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSHYBRID_EXPORT vtkEarthSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkEarthSource *New();

@@ -26,11 +26,12 @@
 #ifndef __vtkXMLPImageDataWriter_h
 #define __vtkXMLPImageDataWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataWriter.h"
 
 class vtkImageData;
 
-class VTK_IO_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredDataWriter
+class VTKIOXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredDataWriter
 {
 public:
   static vtkXMLPImageDataWriter* New();

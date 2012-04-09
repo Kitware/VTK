@@ -22,9 +22,10 @@
 #ifndef __vtkPointData_h
 #define __vtkPointData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
 
-class VTK_FILTERING_EXPORT vtkPointData : public vtkDataSetAttributes
+class VTKCOMMONDATAMODEL_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
   static vtkPointData *New();

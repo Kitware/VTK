@@ -29,9 +29,10 @@
 #define __vtkImageButterworthLowPass_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageButterworthLowPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageButterworthLowPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageButterworthLowPass *New();

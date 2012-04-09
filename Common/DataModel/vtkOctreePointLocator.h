@@ -34,6 +34,7 @@
 #ifndef __vtkOctreePointLocator_h
 #define __vtkOctreePointLocator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
 
 class vtkCellArray;
@@ -42,7 +43,7 @@ class vtkOctreePointLocatorNode;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_FILTERING_EXPORT vtkOctreePointLocator : public vtkAbstractPointLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkOctreePointLocator : public vtkAbstractPointLocator
 {
 public:
   vtkTypeMacro(vtkOctreePointLocator, vtkAbstractPointLocator);

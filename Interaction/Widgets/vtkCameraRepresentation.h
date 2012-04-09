@@ -28,6 +28,7 @@
 #ifndef __vtkCameraRepresentation_h
 #define __vtkCameraRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
 
 class vtkRenderer;
@@ -41,7 +42,7 @@ class vtkPolyDataMapper2D;
 class vtkProperty2D;
 class vtkActor2D;
 
-class VTK_WIDGETS_EXPORT vtkCameraRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkCameraRepresentation : public vtkBorderRepresentation
 {
 public:
   // Description:

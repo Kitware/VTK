@@ -31,13 +31,14 @@
 #ifndef __vtkGraphLayout_h
 #define __vtkGraphLayout_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkAbstractTransform;
 class vtkEventForwarderCommand;
 class vtkGraphLayoutStrategy;
 
-class VTK_INFOVIS_EXPORT vtkGraphLayout : public vtkGraphAlgorithm 
+class VTKINFOVISLAYOUT_EXPORT vtkGraphLayout : public vtkGraphAlgorithm
 {
 public:
   static vtkGraphLayout *New();

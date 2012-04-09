@@ -38,11 +38,12 @@
 #ifndef __vtkHierarchicalGraphView_h
 #define __vtkHierarchicalGraphView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkGraphLayoutView.h"
 
 class vtkRenderedHierarchyRepresentation;
 
-class VTK_VIEWS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutView
+class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutView
 {
 public:
   static vtkHierarchicalGraphView *New();

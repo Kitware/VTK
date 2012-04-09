@@ -23,11 +23,12 @@
 #ifndef __vtkImageProgressIterator_h
 #define __vtkImageProgressIterator_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageIterator.h"
 class vtkAlgorithm;
 
 template<class DType>
-class VTK_FILTERING_EXPORT vtkImageProgressIterator : public vtkImageIterator<DType>
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator : public vtkImageIterator<DType>
 {
 public:
   typedef vtkImageIterator<DType> Superclass;

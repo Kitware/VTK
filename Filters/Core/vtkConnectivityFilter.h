@@ -47,6 +47,7 @@
 #ifndef __vtkConnectivityFilter_h
 #define __vtkConnectivityFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
@@ -62,7 +63,7 @@ class vtkIdList;
 class vtkIdTypeArray;
 class vtkIntArray;
 
-class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkConnectivityFilter,vtkUnstructuredGridAlgorithm);

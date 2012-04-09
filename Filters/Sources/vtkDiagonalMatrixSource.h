@@ -28,9 +28,10 @@
 #ifndef __vtkDiagonalMatrixSource_h
 #define __vtkDiagonalMatrixSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgorithm
 {
 public:
   static vtkDiagonalMatrixSource* New();

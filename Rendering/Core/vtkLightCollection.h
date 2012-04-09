@@ -24,11 +24,12 @@
 #ifndef __vtkLightCollection_h
 #define __vtkLightCollection_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 class vtkLight;
 
-class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New();

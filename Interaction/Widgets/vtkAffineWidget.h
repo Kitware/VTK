@@ -53,12 +53,13 @@
 #ifndef __vtkAffineWidget_h
 #define __vtkAffineWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkAffineRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkAffineWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkAffineWidget : public vtkAbstractWidget
 {
 public:
   // Description:

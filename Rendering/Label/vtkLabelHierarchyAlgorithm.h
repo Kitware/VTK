@@ -31,12 +31,13 @@
 #ifndef __vtkLabelHierarchyAlgorithm_h
 #define __vtkLabelHierarchyAlgorithm_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataSet;
 class vtkLabelHierarchy;
 
-class VTK_RENDERING_EXPORT vtkLabelHierarchyAlgorithm : public vtkAlgorithm
+class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkLabelHierarchyAlgorithm *New();

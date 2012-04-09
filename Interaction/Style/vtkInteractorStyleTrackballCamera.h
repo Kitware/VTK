@@ -32,9 +32,10 @@
 #ifndef __vtkInteractorStyleTrackballCamera_h
 #define __vtkInteractorStyleTrackballCamera_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleTrackballCamera *New();

@@ -51,11 +51,12 @@
 #ifndef __vtkBoostSplitTableField_h
 #define __vtkBoostSplitTableField_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
 class vtkStringArray;
 
-class VTK_INFOVIS_EXPORT vtkBoostSplitTableField : public vtkTableAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostSplitTableField : public vtkTableAlgorithm
 {
 public:
   static vtkBoostSplitTableField* New();

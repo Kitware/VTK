@@ -43,6 +43,7 @@
 #ifndef __vtkSphereRepresentation_h
 #define __vtkSphereRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 #include "vtkSphereSource.h" // Needed for fast access to the sphere source
 
@@ -67,7 +68,7 @@ class vtkLineSource;
 #define VTK_SPHERE_WIREFRAME 1
 #define VTK_SPHERE_SURFACE 2
 
-class VTK_WIDGETS_EXPORT vtkSphereRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkSphereRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

@@ -25,10 +25,11 @@
 #ifndef __vtkWin32OutputWindow_h
 #define __vtkWin32OutputWindow_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
 
 
-class VTK_COMMON_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
+class VTKCOMMONCORE_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
 // Methods from vtkObject

@@ -38,6 +38,7 @@
 #ifndef __vtkGenericCellTessellator_h
 #define __vtkGenericCellTessellator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkCellArray;
@@ -52,7 +53,7 @@ class vtkGenericDataSet;
 //-----------------------------------------------------------------------------
 //
 // The tessellation object
-class VTK_FILTERING_EXPORT vtkGenericCellTessellator : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellTessellator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGenericCellTessellator,vtkObject);

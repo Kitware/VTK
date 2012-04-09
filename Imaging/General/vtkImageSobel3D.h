@@ -26,9 +26,10 @@
 #define __vtkImageSobel3D_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageSobel3D : public vtkImageSpatialAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageSobel3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageSobel3D *New();

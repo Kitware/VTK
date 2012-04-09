@@ -23,13 +23,14 @@
 #ifndef __vtkHyperOctreeDepth_h
 #define __vtkHyperOctreeDepth_h
 
+#include "vtkFiltersHyperOctreeModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkHyperOctree;
 class vtkHyperOctreeCursor;
 class vtkIntArray;
 
-class VTK_GRAPHICS_EXPORT vtkHyperOctreeDepth : public vtkDataSetAlgorithm
+class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeDepth : public vtkDataSetAlgorithm
 {
 public:
   static vtkHyperOctreeDepth *New();

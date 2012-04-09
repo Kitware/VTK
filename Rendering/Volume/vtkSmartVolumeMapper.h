@@ -99,6 +99,7 @@
 #ifndef __vtkSmartVolumeMapper_h
 #define __vtkSmartVolumeMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 #include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
@@ -110,7 +111,7 @@ class vtkVolume;
 class vtkVolumeProperty;
 class vtkVolumeTextureMapper3D;
 
-class VTK_VOLUMERENDERING_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
 public:
   static vtkSmartVolumeMapper *New();

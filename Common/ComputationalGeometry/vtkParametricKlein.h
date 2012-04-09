@@ -36,9 +36,10 @@
 #ifndef __vtkParametricKlein_h
 #define __vtkParametricKlein_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
-class VTK_COMMON_EXPORT vtkParametricKlein : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public vtkParametricFunction
 {
 public:
   vtkTypeMacro(vtkParametricKlein,vtkParametricFunction);

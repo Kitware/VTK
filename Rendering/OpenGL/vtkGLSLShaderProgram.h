@@ -36,13 +36,14 @@
 #ifndef __vtkGLSLShaderProgram_h
 #define __vtkGLSLShaderProgram_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkShaderProgram.h"
 
 class vtkGLSLShader;
 class vtkXMLDataElement;
 class vtkRenderWindow;
 
-class VTK_RENDERING_EXPORT vtkGLSLShaderProgram : public vtkShaderProgram
+class VTKRENDERINGOPENGL_EXPORT vtkGLSLShaderProgram : public vtkShaderProgram
 {
 public:
   vtkTypeMacro(vtkGLSLShaderProgram, vtkShaderProgram);

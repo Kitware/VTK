@@ -23,6 +23,7 @@
 #ifndef __vtkContextDevice2D_h
 #define __vtkContextDevice2D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkWindow;
@@ -38,7 +39,7 @@ class vtkPen;
 class vtkBrush;
 class vtkRectf;
 
-class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);

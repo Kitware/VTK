@@ -37,6 +37,7 @@
 #ifndef __vtkDecimatePolylineFilter_h
 #define __vtkDecimatePolylineFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // Needed for SP ivars
 
 #include "vtkPolyDataAlgorithm.h"
@@ -44,7 +45,7 @@
 class vtkPriorityQueue;
 
 
-class VTK_GRAPHICS_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

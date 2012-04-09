@@ -31,10 +31,11 @@
 #ifndef __vtkXYPlotWidget_h
 #define __vtkXYPlotWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 class vtkXYPlotActor;
 
-class VTK_WIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserver
 {
 public:
   static vtkXYPlotWidget *New();

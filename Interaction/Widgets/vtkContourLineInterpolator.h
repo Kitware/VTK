@@ -31,13 +31,14 @@
 #ifndef __vtkContourLineInterpolator_h
 #define __vtkContourLineInterpolator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
 class vtkContourRepresentation;
 class vtkIntArray;
 
-class VTK_WIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
 {
 public:
   // Description:

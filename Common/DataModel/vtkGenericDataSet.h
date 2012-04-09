@@ -54,6 +54,7 @@
 #ifndef __vtkGenericDataSet_h
 #define __vtkGenericDataSet_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkCellTypes;
@@ -62,7 +63,7 @@ class vtkGenericAttributeCollection;
 class vtkGenericCellTessellator;
 class vtkGenericPointIterator;
 
-class VTK_FILTERING_EXPORT vtkGenericDataSet : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericDataSet : public vtkDataObject
 {
 public:
   // Description:

@@ -43,6 +43,7 @@
 #ifndef __vtkPostgreSQLDatabase_h
 #define __vtkPostgreSQLDatabase_h
 
+#include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
 class vtkPostgreSQLQuery;
@@ -50,7 +51,7 @@ class vtkStringArray;
 class vtkPostgreSQLDatabasePrivate;
 struct PQconn;
 
-class VTK_IO_EXPORT vtkPostgreSQLDatabase : public vtkSQLDatabase
+class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLDatabase : public vtkSQLDatabase
 {
   //BTX
   friend class vtkPostgreSQLQuery;

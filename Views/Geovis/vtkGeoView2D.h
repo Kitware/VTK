@@ -37,13 +37,14 @@
 // .SECTION See Also
 // vtkGeoTerrain2D vtkGeoAlignedImageRepresentation vtkGeoSource
 
+#include "vtkViewsGeovisModule.h" // For export macro
 #include "vtkRenderView.h"
 
 class vtkAssembly;
 class vtkGeoTerrain2D;
 class vtkViewTheme;
 
-class VTK_GEOVIS_EXPORT vtkGeoView2D : public vtkRenderView
+class VTKVIEWSGEOVIS_EXPORT vtkGeoView2D : public vtkRenderView
 {
 public:
   static vtkGeoView2D *New();

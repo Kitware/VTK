@@ -23,9 +23,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifndef __vtkBoundingBox_h
 #define __vtkBoundingBox_h
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
  
-class VTK_COMMON_EXPORT vtkBoundingBox 
+class VTKCOMMONDATAMODEL_EXPORT vtkBoundingBox
 {
 public:
   // Description:

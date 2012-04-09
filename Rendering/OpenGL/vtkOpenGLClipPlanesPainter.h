@@ -21,11 +21,12 @@
 #ifndef __vtkOpenGLClipPlanesPainter_h
 #define __vtkOpenGLClipPlanesPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkClipPlanesPainter.h"
 
 class vtkPlaneCollection;
 
-class VTK_RENDERING_EXPORT vtkOpenGLClipPlanesPainter : public vtkClipPlanesPainter
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLClipPlanesPainter : public vtkClipPlanesPainter
 {
 public:
   static vtkOpenGLClipPlanesPainter* New();

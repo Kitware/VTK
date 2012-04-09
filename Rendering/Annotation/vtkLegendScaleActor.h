@@ -34,6 +34,7 @@
 #ifndef __vtkLegendScaleActor_h
 #define __vtkLegendScaleActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
@@ -46,7 +47,7 @@ class vtkTextMapper;
 class vtkPoints;
 class vtkCoordinate;
 
-class VTK_HYBRID_EXPORT vtkLegendScaleActor : public vtkProp
+class VTKRENDERINGANNOTATION_EXPORT vtkLegendScaleActor : public vtkProp
 {
 public:
   // Description:

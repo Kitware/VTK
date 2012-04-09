@@ -31,9 +31,10 @@
 #ifndef __vtkGraphLayoutFilter_h
 #define __vtkGraphLayoutFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkGraphLayoutFilter : public vtkPolyDataAlgorithm 
+class VTKFILTERSGENERAL_EXPORT vtkGraphLayoutFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphLayoutFilter *New();

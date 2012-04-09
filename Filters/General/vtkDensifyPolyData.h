@@ -30,9 +30,10 @@
 #ifndef __vtkDensifyPolyData_h
 #define __vtkDensifyPolyData_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkDensifyPolyData : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDensifyPolyData,vtkPolyDataAlgorithm);

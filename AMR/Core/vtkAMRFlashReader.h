@@ -21,12 +21,13 @@
 #ifndef VTKAMRFLASHREADER_H_
 #define VTKAMRFLASHREADER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
 
 class vtkOverlappingAMR;
 class vtkFlashReaderInternal;
 
-class VTK_AMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
+class VTKAMRCORE_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 {
   public:
     static vtkAMRFlashReader* New();

@@ -26,11 +26,12 @@
 #ifndef __vtkExtentSplitter_h
 #define __vtkExtentSplitter_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkExtentSplitterInternals;
 
-class VTK_COMMON_EXPORT vtkExtentSplitter : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentSplitter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExtentSplitter,vtkObject);

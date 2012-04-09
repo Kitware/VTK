@@ -21,12 +21,13 @@
 #ifndef __vtkQtView_h
 #define __vtkQtView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkView.h"
 
 #include <QObject>
 
-class QVTK_EXPORT vtkQtView : public QObject, public vtkView
+class VTKVIEWSQT_EXPORT vtkQtView : public QObject, public vtkView
 {
 Q_OBJECT
 public:

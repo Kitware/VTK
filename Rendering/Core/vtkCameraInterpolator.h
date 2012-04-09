@@ -46,6 +46,7 @@
 #ifndef __vtkCameraInterpolator_h
 #define __vtkCameraInterpolator_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkCamera;
@@ -54,7 +55,7 @@ class vtkTupleInterpolator;
 class vtkCameraList;
 
 
-class VTK_RENDERING_EXPORT vtkCameraInterpolator : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkCameraInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCameraInterpolator, vtkObject);

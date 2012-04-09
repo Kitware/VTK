@@ -27,6 +27,7 @@
 #ifndef __vtkCompassRepresentation_h
 #define __vtkCompassRepresentation_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 #include "vtkCenteredSliderRepresentation.h" // to use in a SP
@@ -48,7 +49,7 @@ class vtkTextProperty;
 class vtkTextActor;
 
 
-class VTK_GEOVIS_EXPORT vtkCompassRepresentation : 
+class VTKGEOVISCORE_EXPORT vtkCompassRepresentation :
   public vtkContinuousValueWidgetRepresentation
 {
 public:

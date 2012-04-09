@@ -24,11 +24,12 @@
 #ifndef __vtkTransmitImageDataPiece_h
 #define __vtkTransmitImageDataPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitImageDataPiece : public vtkImageAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitImageDataPiece : public vtkImageAlgorithm
 {
 public:
   static vtkTransmitImageDataPiece *New();

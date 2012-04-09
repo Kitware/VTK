@@ -22,12 +22,13 @@
 #ifndef VTKHIERARCHICALBOXDATASET_H_
 #define VTKHIERARCHICALBOXDATASET_H_
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkOverlappingAMR.h"
 
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataSet:
+class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
   public vtkOverlappingAMR
 {
 public:

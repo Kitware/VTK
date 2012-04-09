@@ -39,9 +39,10 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
-class VTK_RENDERING_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkCocoaRenderWindow *New();

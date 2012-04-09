@@ -21,13 +21,14 @@
 #ifndef __vtkFreeTypeLabelRenderStrategy_h
 #define __vtkFreeTypeLabelRenderStrategy_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
 
 class vtkActor2D;
 class vtkFreeTypeUtilities;
 class vtkTextMapper;
 
-class VTK_RENDERING_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRenderStrategy
+class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRenderStrategy
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -32,13 +32,14 @@
 #ifndef __vtkLabelPlacementMapper_h
 #define __vtkLabelPlacementMapper_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
 
 class vtkCoordinate;
 class vtkLabelRenderStrategy;
 class vtkSelectVisiblePoints;
 
-class VTK_RENDERING_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
+class VTKRENDERINGLABEL_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
 {
 public:
   static vtkLabelPlacementMapper *New();

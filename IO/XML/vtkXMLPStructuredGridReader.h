@@ -26,11 +26,12 @@
 #ifndef __vtkXMLPStructuredGridReader_h
 #define __vtkXMLPStructuredGridReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataReader.h"
 
 class vtkStructuredGrid;
 
-class VTK_IO_EXPORT vtkXMLPStructuredGridReader : public vtkXMLPStructuredDataReader
+class VTKIOXML_EXPORT vtkXMLPStructuredGridReader : public vtkXMLPStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredGridReader,vtkXMLPStructuredDataReader);

@@ -41,6 +41,7 @@
 #ifndef __vtkTInterpolatedVelocityField_h
 #define __vtkTInterpolatedVelocityField_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // this is allowed
 //BTX
@@ -59,7 +60,7 @@ class IVFDataSetInfo;
 class IVFCacheList : public std::vector< IVFDataSetInfo > {};
 //---------------------------------------------------------------------------
 //ETX
-class VTK_PARALLEL_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
+class VTKFILTERSPARALLEL_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
   vtkTypeMacro(vtkCachingInterpolatedVelocityField,vtkFunctionSet);

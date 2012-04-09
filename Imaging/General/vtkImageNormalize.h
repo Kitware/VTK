@@ -23,9 +23,10 @@
 #define __vtkImageNormalize_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageNormalize : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageNormalize *New();

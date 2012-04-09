@@ -40,6 +40,7 @@
 #ifndef __vtkOpenGLPainterDeviceAdapter_h
 #define __vtkOpenGLPainterDeviceAdapter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainterDeviceAdapter.h"
 
 // To switch off deprecated warning about
@@ -49,7 +50,7 @@
 #pragma warning(disable:4996)
 #endif
 
-class VTK_RENDERING_EXPORT vtkOpenGLPainterDeviceAdapter : 
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPainterDeviceAdapter :
   public vtkPainterDeviceAdapter
 {
 public:

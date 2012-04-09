@@ -22,13 +22,14 @@
 #ifndef __vtkCommonInformationKeyManager_h
 #define __vtkCommonInformationKeyManager_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer than info keys.
 
 class vtkInformationKey;
 
-class VTK_COMMON_EXPORT vtkCommonInformationKeyManager
+class VTKCOMMONCORE_EXPORT vtkCommonInformationKeyManager
 {
 public:
   vtkCommonInformationKeyManager();

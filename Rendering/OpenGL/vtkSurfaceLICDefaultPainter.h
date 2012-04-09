@@ -27,11 +27,12 @@
 #ifndef __vtkSurfaceLICDefaultPainter_h
 #define __vtkSurfaceLICDefaultPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkDefaultPainter.h"
 
 class vtkSurfaceLICPainter;
 
-class VTK_RENDERING_EXPORT vtkSurfaceLICDefaultPainter : public vtkDefaultPainter
+class VTKRENDERINGOPENGL_EXPORT vtkSurfaceLICDefaultPainter : public vtkDefaultPainter
 {
 public:
   static vtkSurfaceLICDefaultPainter* New();

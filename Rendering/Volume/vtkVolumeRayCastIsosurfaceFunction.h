@@ -30,9 +30,10 @@
 #ifndef __vtkVolumeRayCastIsosurfaceFunction_h
 #define __vtkVolumeRayCastIsosurfaceFunction_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
 {
 public:
   vtkTypeMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);

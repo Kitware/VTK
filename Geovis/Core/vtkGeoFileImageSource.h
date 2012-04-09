@@ -25,13 +25,14 @@
 // vtkGeoAlignedImageRepresentation's SaveDatabase method to generate
 // an database of image tiles in this format.
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 #include "vtkSmartPointer.h" // For smart pointer ivars
 
 class vtkGeoImageNode;
 class vtkGeoTreeNode;
 
-class VTK_GEOVIS_EXPORT vtkGeoFileImageSource : public vtkGeoSource
+class VTKGEOVISCORE_EXPORT vtkGeoFileImageSource : public vtkGeoSource
 {
 public:
   static vtkGeoFileImageSource *New();

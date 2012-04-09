@@ -42,11 +42,12 @@
 #ifndef __vtkHeap_h
 #define __vtkHeap_h
 
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkHeapBlock; //forward declaration
 
-class VTK_COMMON_EXPORT vtkHeap : public vtkObject
+class VTKCOMMONMISC_EXPORT vtkHeap : public vtkObject
 {
 public:
   static vtkHeap *New();

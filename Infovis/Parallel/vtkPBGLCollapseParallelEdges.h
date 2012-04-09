@@ -26,9 +26,10 @@
 #ifndef __vtkPBGLCollapseParallelEdges_h
 #define __vtkPBGLCollapseParallelEdges_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_PARALLEL_EXPORT vtkPBGLCollapseParallelEdges : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLCollapseParallelEdges : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLCollapseParallelEdges* New();

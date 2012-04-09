@@ -24,6 +24,7 @@
 #ifndef __vtkRenderedTreeAreaRepresentation_h
 #define __vtkRenderedTreeAreaRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
 
 class vtkActor;
@@ -45,7 +46,7 @@ class vtkTreeLevelsFilter;
 class vtkVertexDegree;
 class vtkWorldPointPicker;
 
-class VTK_VIEWS_EXPORT vtkRenderedTreeAreaRepresentation : public vtkRenderedRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkRenderedTreeAreaRepresentation : public vtkRenderedRepresentation
 {
 public:
   static vtkRenderedTreeAreaRepresentation* New();

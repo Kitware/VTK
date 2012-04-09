@@ -17,11 +17,12 @@
 #ifndef __vtkEnSightMasterServerReader_h
 #define __vtkEnSightMasterServerReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkGenericEnSightReader.h"
 
 class vtkCollection;
 
-class VTK_IO_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSightReader
+class VTKIOENSIGHT_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSightReader
 {
 public:
   vtkTypeMacro(vtkEnSightMasterServerReader, vtkGenericEnSightReader);

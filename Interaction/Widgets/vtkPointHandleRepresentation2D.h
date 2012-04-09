@@ -25,6 +25,7 @@
 #ifndef __vtkPointHandleRepresentation2D_h
 #define __vtkPointHandleRepresentation2D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
 
 class vtkProperty2D;
@@ -36,7 +37,7 @@ class vtkPoints;
 class vtkPolyDataAlgorithm;
 class vtkPointPlacer;
 
-class VTK_WIDGETS_EXPORT vtkPointHandleRepresentation2D : public vtkHandleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkPointHandleRepresentation2D : public vtkHandleRepresentation
 {
 public:
   // Description:

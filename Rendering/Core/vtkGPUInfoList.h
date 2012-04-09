@@ -24,12 +24,13 @@
 #ifndef __vtkGPUInfoList_h
 #define __vtkGPUInfoList_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGPUInfoListArray; // STL Pimpl
 class vtkGPUInfo;
 
-class VTK_RENDERING_EXPORT vtkGPUInfoList : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkGPUInfoList : public vtkObject
 {
 public:
   static vtkGPUInfoList *New();

@@ -36,6 +36,7 @@
 #ifndef __vtkPointLocator_h
 #define __vtkPointLocator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIncrementalPointLocator.h"
 
 class vtkCellArray;
@@ -43,7 +44,7 @@ class vtkIdList;
 class vtkNeighborPoints;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkPointLocator : public vtkIncrementalPointLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkPointLocator : public vtkIncrementalPointLocator
 {
 public:
   // Description:

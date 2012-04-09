@@ -73,6 +73,7 @@
 #ifndef __vtkTecplotReader_h
 #define __vtkTecplotReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 //BTX
@@ -89,7 +90,7 @@ class vtkMultiBlockDataSet;
 class vtkDataArraySelection;
 class vtkTecplotReaderInternal;
 
-class VTK_IO_EXPORT vtkTecplotReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkTecplotReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkTecplotReader * New();

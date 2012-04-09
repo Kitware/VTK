@@ -22,6 +22,7 @@
 #ifndef __vtkXOpenGLRenderWindow_h
 #define __vtkXOpenGLRenderWindow_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <X11/Xutil.h> // Needed for X types used in the public interface
@@ -29,7 +30,7 @@
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
 
-class VTK_RENDERING_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkXOpenGLRenderWindow *New();

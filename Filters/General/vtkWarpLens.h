@@ -20,9 +20,10 @@
 #ifndef __vtkWarpLens_h
 #define __vtkWarpLens_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkWarpLens : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkWarpLens : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpLens *New();

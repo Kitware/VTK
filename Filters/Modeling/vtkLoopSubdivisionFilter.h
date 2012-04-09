@@ -43,6 +43,7 @@
 #ifndef __vtkLoopSubdivisionFilter_h
 #define __vtkLoopSubdivisionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkApproximatingSubdivisionFilter.h"
 
 class vtkPolyData;
@@ -50,7 +51,7 @@ class vtkIntArray;
 class vtkPoints;
 class vtkIdList;
 
-class VTK_GRAPHICS_EXPORT vtkLoopSubdivisionFilter : public vtkApproximatingSubdivisionFilter
+class VTKFILTERSMODELING_EXPORT vtkLoopSubdivisionFilter : public vtkApproximatingSubdivisionFilter
 {
 public:
   // Description:

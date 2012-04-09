@@ -22,9 +22,10 @@
 #ifndef __vtkWin32ProcessOutputWindow_h
 #define __vtkWin32ProcessOutputWindow_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
 
-class VTK_COMMON_EXPORT vtkWin32ProcessOutputWindow : public vtkOutputWindow
+class VTKCOMMONCORE_EXPORT vtkWin32ProcessOutputWindow : public vtkOutputWindow
 {
 public:
   vtkTypeMacro(vtkWin32ProcessOutputWindow,vtkOutputWindow);

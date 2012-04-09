@@ -67,6 +67,7 @@
 #ifndef __vtkGLSLShader_h
 #define __vtkGLSLShader_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkShader.h"
 
 class vtkActor;
@@ -78,7 +79,7 @@ class vtkRenderWindow;
 
 // Manages all shaders defined in the XML file
 // especially the part about sending things to the card
-class VTK_RENDERING_EXPORT vtkGLSLShader : public vtkShader
+class VTKRENDERINGOPENGL_EXPORT vtkGLSLShader : public vtkShader
 {
 public:
   static vtkGLSLShader *New();

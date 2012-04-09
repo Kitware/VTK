@@ -34,6 +34,7 @@
 #ifndef __vtkRenderViewBase_h
 #define __vtkRenderViewBase_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkView.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
@@ -42,7 +43,7 @@ class vtkRenderer;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 
-class VTK_VIEWS_EXPORT vtkRenderViewBase : public vtkView
+class VTKVIEWSCORE_EXPORT vtkRenderViewBase : public vtkView
 {
 public:
   static vtkRenderViewBase* New();

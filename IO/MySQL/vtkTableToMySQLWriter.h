@@ -20,11 +20,12 @@
 #ifndef __vtkTableToMySQLWriter_h
 #define __vtkTableToMySQLWriter_h
 
+#include "vtkIOMySQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkMySQLDatabase;
 
-class VTK_IO_EXPORT vtkTableToMySQLWriter : public vtkTableToDatabaseWriter
+class VTKIOMYSQL_EXPORT vtkTableToMySQLWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToMySQLWriter *New();

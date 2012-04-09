@@ -30,11 +30,12 @@
 #ifndef __vtkFFMPEGWriter_h
 #define __vtkFFMPEGWriter_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
 
 class vtkFFMPEGWriterInternal;
 
-class VTK_IO_EXPORT vtkFFMPEGWriter : public vtkGenericMovieWriter
+class VTKIOIMAGE_EXPORT vtkFFMPEGWriter : public vtkGenericMovieWriter
 {
 public:
   static vtkFFMPEGWriter *New();

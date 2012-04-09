@@ -34,12 +34,13 @@
 #ifndef __vtkSubPixelPositionEdgels_h
 #define __vtkSubPixelPositionEdgels_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkStructuredPoints;
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSubPixelPositionEdgels *New();

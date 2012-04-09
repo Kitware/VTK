@@ -30,6 +30,7 @@
 #ifndef __vtkResliceCursorLineRepresentation_h
 #define __vtkResliceCursorLineRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorRepresentation.h"
 
 class vtkPolyData;
@@ -39,7 +40,7 @@ class vtkResliceCursorPicker;
 class vtkResliceCursor;
 
 
-class VTK_WIDGETS_EXPORT vtkResliceCursorLineRepresentation : public vtkResliceCursorRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorLineRepresentation : public vtkResliceCursorRepresentation
 {
 public:
   // Description:

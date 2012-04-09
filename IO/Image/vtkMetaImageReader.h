@@ -59,13 +59,14 @@
 #ifndef __vtkMetaImageReader2_h
 #define __vtkMetaImageReader2_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
 //BTX
 namespace vtkmetaio { class MetaImage; } // forward declaration  
 //ETX
 
-class VTK_IO_EXPORT vtkMetaImageReader : public vtkImageReader2
+class VTKIOIMAGE_EXPORT vtkMetaImageReader : public vtkImageReader2
 {
 public:
   vtkTypeMacro(vtkMetaImageReader,vtkImageReader2);

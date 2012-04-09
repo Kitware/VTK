@@ -22,9 +22,10 @@
 #ifndef __vtkImageCanvasSource2D_h
 #define __vtkImageCanvasSource2D_h
 
+#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
+class VTKIMAGINGSOURCES_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
 {
 public:
   // Description:

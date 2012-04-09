@@ -62,6 +62,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #ifndef __vtkPLY_h
 #define __vtkPLY_h
 
+#include "vtkIOPLYModule.h" // For export macro
 #include "vtkObject.h"
 
 #define PLY_ASCII      1        /* ascii PLY file */
@@ -152,7 +153,7 @@ typedef struct PlyFile {        /* description of PLY file */
   PlyOtherElems *other_elems;   /* "other" elements from a PLY file */
 } PlyFile;
 
-class VTK_IO_EXPORT vtkPLY
+class VTKIOPLY_EXPORT vtkPLY
 {
 public:
   //standard PLY library interface

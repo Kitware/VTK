@@ -23,9 +23,10 @@
 #ifndef __vtkStructuredExtent_h
 #define __vtkStructuredExtent_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkStructuredExtent : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkStructuredExtent : public vtkObject
 {
 public:
   static vtkStructuredExtent* New();

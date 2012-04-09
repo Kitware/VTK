@@ -49,13 +49,14 @@
 #ifndef VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_
 #define VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_
 
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkPDataSetGhostGenerator.h"
 
 class vtkMultiBlockDataSet;
 class vtkIndent;
 class vtkPStructuredGridConnectivity;
 
-class VTK_PARALLEL_EXPORT vtkPUniformGridGhostDataGenerator:
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUniformGridGhostDataGenerator:
   public vtkPDataSetGhostGenerator
 {
   public:

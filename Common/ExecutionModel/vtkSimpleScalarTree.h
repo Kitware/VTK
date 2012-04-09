@@ -32,13 +32,14 @@
 #ifndef __vtkSimpleScalarTree_h
 #define __vtkSimpleScalarTree_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkScalarTree.h"
 
 //BTX
 class vtkScalarNode;
 //ETX
 
-class VTK_FILTERING_EXPORT vtkSimpleScalarTree : public vtkScalarTree
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleScalarTree : public vtkScalarTree
 {
 public:
   // Description:

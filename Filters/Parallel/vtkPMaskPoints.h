@@ -21,11 +21,12 @@
 #ifndef __vtkPMaskPoints_h
 #define __vtkPMaskPoints_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMaskPoints.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPMaskPoints : public vtkMaskPoints
+class VTKFILTERSPARALLEL_EXPORT vtkPMaskPoints : public vtkMaskPoints
 {
 public:
   static vtkPMaskPoints *New();

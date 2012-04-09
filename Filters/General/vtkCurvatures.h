@@ -61,6 +61,7 @@
 #ifndef __vtkCurvatures_h
 #define __vtkCurvatures_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_CURVATURE_GAUSS 0
@@ -68,7 +69,7 @@
 #define VTK_CURVATURE_MAXIMUM 2
 #define VTK_CURVATURE_MINIMUM 3
 
-class VTK_GRAPHICS_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCurvatures,vtkPolyDataAlgorithm);

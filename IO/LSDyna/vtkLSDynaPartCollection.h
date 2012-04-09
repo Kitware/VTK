@@ -15,6 +15,7 @@
 #ifndef __vtkLSDynaPartCollection_h
 #define __vtkLSDynaPartCollection_h
 
+#include "vtkIOLSDynaModule.h" // For export macro
 #include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum
 #include "vtkObject.h"
 
@@ -24,7 +25,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkLSDynaPart;
 
-class VTK_IO_EXPORT vtkLSDynaPartCollection: public vtkObject
+class VTKIOLSDYNA_EXPORT vtkLSDynaPartCollection: public vtkObject
 {
 public:
   class LSDynaPart;

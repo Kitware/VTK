@@ -21,10 +21,11 @@
 #ifndef __vtkSocketCollection_h
 #define __vtkSocketCollection_h
 
+#include "vtkCommonSystemModule.h" // For export macro
 #include "vtkCollection.h"
 
 class vtkSocket;
-class VTK_COMMON_EXPORT vtkSocketCollection : public vtkCollection
+class VTKCOMMONSYSTEM_EXPORT vtkSocketCollection : public vtkCollection
 {
 public:
   static vtkSocketCollection* New();

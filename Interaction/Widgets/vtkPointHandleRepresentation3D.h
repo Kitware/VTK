@@ -25,6 +25,7 @@
 #ifndef __vtkPointHandleRepresentation3D_h
 #define __vtkPointHandleRepresentation3D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
 #include "vtkCursor3D.h" // Needed for delegation to cursor3D
 
@@ -34,7 +35,7 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 
-class VTK_WIDGETS_EXPORT vtkPointHandleRepresentation3D : public vtkHandleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkPointHandleRepresentation3D : public vtkHandleRepresentation
 {
 public:
   // Description:

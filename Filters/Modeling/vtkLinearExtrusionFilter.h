@@ -48,6 +48,7 @@
 #ifndef __vtkLinearExtrusionFilter_h
 #define __vtkLinearExtrusionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkDataArray;
@@ -56,7 +57,7 @@ class vtkDataArray;
 #define VTK_NORMAL_EXTRUSION 2
 #define VTK_POINT_EXTRUSION 3
 
-class VTK_GRAPHICS_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataAlgorithm);

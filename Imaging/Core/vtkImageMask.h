@@ -29,9 +29,10 @@
 #define __vtkImageMask_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMask : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageMask : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMask *New();

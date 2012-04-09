@@ -26,12 +26,13 @@
 #ifndef __vtkVolumeRayCastCompositeFunction_h
 #define __vtkVolumeRayCastCompositeFunction_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
 #define VTK_COMPOSITE_CLASSIFY_FIRST 0
 #define VTK_COMPOSITE_INTERPOLATE_FIRST 1
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
 {
 public:
   static vtkVolumeRayCastCompositeFunction *New();

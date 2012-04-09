@@ -31,11 +31,12 @@
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkDataSetAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractVectorComponents : public vtkDataSetAlgorithm
 {
 public:
   static vtkExtractVectorComponents *New();

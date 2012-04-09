@@ -41,10 +41,11 @@
 #ifndef __vtkArrayCoordinates_h
 #define __vtkArrayCoordinates_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 #include <vector>
 
-class VTK_COMMON_EXPORT vtkArrayCoordinates
+class VTKCOMMONCORE_EXPORT vtkArrayCoordinates
 {
 public:
   typedef vtkIdType CoordinateT;
@@ -100,7 +101,7 @@ public:
   // Description:
   // Inequality comparison
   bool operator!=(const vtkArrayCoordinates& rhs) const;
-  VTK_COMMON_EXPORT friend ostream& operator<<(
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
     ostream& stream, const vtkArrayCoordinates& rhs);
 
 private:

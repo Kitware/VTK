@@ -76,12 +76,13 @@
 #ifndef __vtkGarbageCollector_h
 #define __vtkGarbageCollector_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkGarbageCollectorManager.h" // Needed for singleton initialization.
 
 // This function is a friend of the collector so that it can call the
 // internal report method.
-void VTK_COMMON_EXPORT
+void VTKCOMMONCORE_EXPORT
 vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
                                   vtkObjectBase*, void*,
                                   const char*);
@@ -89,7 +90,7 @@ vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
 // This allows vtkObjectBase to get at the methods it needs.
 class vtkObjectBaseToGarbageCollectorFriendship;
 
-class VTK_COMMON_EXPORT vtkGarbageCollector : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGarbageCollector,vtkObject);
@@ -172,7 +173,7 @@ private:
 
   // Internal report callback and friend function that calls it.
   virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
-  friend void VTK_COMMON_EXPORT
+  friend void VTKCOMMONCORE_EXPORT
   vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
                                     vtkObjectBase*, void*,
                                     const char*);
@@ -187,7 +188,7 @@ class vtkSmartPointerBase;
 
 // Description:
 // Function to report a reference held by a smart pointer to a collector.
-void VTK_COMMON_EXPORT
+void VTKCOMMONCORE_EXPORT
 vtkGarbageCollectorReport(vtkGarbageCollector* collector,
                           vtkSmartPointerBase& ptr,
                           const char* desc);

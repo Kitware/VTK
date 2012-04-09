@@ -30,9 +30,10 @@
 #ifndef __vtkChacoReader_h
 #define __vtkChacoReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_IO_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm 
+class VTKIOGEOMETRY_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkChacoReader *New();

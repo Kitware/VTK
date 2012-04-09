@@ -41,6 +41,7 @@
 #define VTKABSTRACTGRIDCONNECTIVITY_H_
 
 // VTK includes
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkPoints.h"            // for vtkPoints definition in STL vector
 #include "vtkPointData.h"         // for vtkPointData definition in STL vector
@@ -57,7 +58,7 @@ class vtkPoints;
 #include <vector>  // For STL vector
 #include <cassert> // For assert
 
-class VTK_FILTERING_EXPORT vtkAbstractGridConnectivity : public vtkObject
+class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
   public:
     vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );

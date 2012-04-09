@@ -21,11 +21,12 @@
 #ifndef __vtkPDataSetReader_h
 #define __vtkPDataSetReader_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
+class VTKIOPARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

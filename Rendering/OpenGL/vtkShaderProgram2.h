@@ -22,6 +22,7 @@
 #ifndef __vtkShaderProgram2_h
 #define __vtkShaderProgram2_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
@@ -59,7 +60,7 @@ enum vtkShaderProgram2GeometryOutType
   VTK_GEOMETRY_SHADER_OUT_TYPE_TRIANGLE_STRIP
 };
 
-class VTK_RENDERING_EXPORT vtkShaderProgram2 : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkShaderProgram2 : public vtkObject
 {
 public:
   static vtkShaderProgram2* New();

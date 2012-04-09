@@ -53,9 +53,10 @@
 #ifndef __vtkDiscreteMarchingCubes_h
 #define __vtkDiscreteMarchingCubes_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMarchingCubes.h"
 
-class VTK_GRAPHICS_EXPORT vtkDiscreteMarchingCubes : public vtkMarchingCubes
+class VTKFILTERSGENERAL_EXPORT vtkDiscreteMarchingCubes : public vtkMarchingCubes
 {
 public:
   static vtkDiscreteMarchingCubes *New();

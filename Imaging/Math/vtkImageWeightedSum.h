@@ -26,10 +26,11 @@
 #ifndef __vtkImageWeightedSum_h
 #define __vtkImageWeightedSum_h
 
+#include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
 class vtkDoubleArray;
-class VTK_IMAGING_EXPORT vtkImageWeightedSum : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMATH_EXPORT vtkImageWeightedSum : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageWeightedSum *New();

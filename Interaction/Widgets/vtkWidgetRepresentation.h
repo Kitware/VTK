@@ -40,12 +40,13 @@
 #ifndef __vtkWidgetRepresentation_h
 #define __vtkWidgetRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp.h"
 
 class vtkRenderer;
 
 
-class VTK_WIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
+class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
 {
 public:
   // Description:

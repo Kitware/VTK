@@ -25,6 +25,7 @@
 #ifndef __vtkVRMLExporter_h
 #define __vtkVRMLExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkLight;
@@ -35,7 +36,7 @@ class vtkUnsignedCharArray;
 class vtkPolyData;
 class vtkPointData;
 
-class VTK_RENDERING_EXPORT vtkVRMLExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
   static vtkVRMLExporter *New();

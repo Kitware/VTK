@@ -52,6 +52,7 @@
 #ifndef __vtkMapper_h
 #define __vtkMapper_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 
@@ -74,7 +75,7 @@ class vtkDataSet;
 class vtkFloatArray;
 class vtkImageData;
 
-class VTK_RENDERING_EXPORT vtkMapper : public vtkAbstractMapper3D
+class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);

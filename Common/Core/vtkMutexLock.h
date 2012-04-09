@@ -22,6 +22,7 @@
 #define __vtkMutexLock_h
 
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 //BTX
@@ -49,7 +50,7 @@ typedef int vtkMutexType;
 #endif
 
 // Mutex lock that is not a vtkObject.
-class VTK_COMMON_EXPORT vtkSimpleMutexLock
+class VTKCOMMONCORE_EXPORT vtkSimpleMutexLock
 {
 public:
   // left public purposely
@@ -75,7 +76,7 @@ protected:
 
 //ETX
 
-class VTK_COMMON_EXPORT vtkMutexLock : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
 {
 public:
   static vtkMutexLock *New();

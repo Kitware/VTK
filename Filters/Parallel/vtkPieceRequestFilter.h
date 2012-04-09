@@ -20,11 +20,12 @@
 #ifndef __vtkPieceRequestFilter_h
 #define __vtkPieceRequestFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataObject;
 
-class VTK_PARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
 {
 public:
   static vtkPieceRequestFilter *New();

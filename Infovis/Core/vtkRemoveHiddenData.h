@@ -32,13 +32,14 @@
 #ifndef __vtkRemoveHiddenData_h
 #define __vtkRemoveHiddenData_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkSmartPointer.h"  // For Smartpointer
 
 class vtkExtractSelectedGraph;
 class vtkExtractSelectedRows;
 
-class VTK_INFOVIS_EXPORT vtkRemoveHiddenData : public vtkPassInputTypeAlgorithm 
+class VTKINFOVISCORE_EXPORT vtkRemoveHiddenData : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkRemoveHiddenData *New();

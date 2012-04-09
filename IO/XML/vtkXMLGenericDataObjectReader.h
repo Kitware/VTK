@@ -23,6 +23,7 @@
 #ifndef __vtkXMLGenericDataObjectReader_h
 #define __vtkXMLGenericDataObjectReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
 class vtkHierarchicalBoxDataSet;
@@ -34,7 +35,7 @@ class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTK_IO_EXPORT vtkXMLGenericDataObjectReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT vtkXMLGenericDataObjectReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLGenericDataObjectReader,vtkXMLDataReader);

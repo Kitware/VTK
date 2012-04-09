@@ -23,6 +23,7 @@
 #ifndef __vtkAxis_h
 #define __vtkAxis_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkVector.h"       // For position variables
@@ -36,7 +37,7 @@ class vtkDoubleArray;
 class vtkStringArray;
 class vtkTextProperty;
 
-class VTK_CHARTS_EXPORT vtkAxis : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkAxis : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkAxis, vtkContextItem);

@@ -23,12 +23,13 @@
 #ifndef __vtkMapper2D_h
 #define __vtkMapper2D_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper.h"
 
 class vtkViewport;
 class vtkActor2D;
 
-class VTK_FILTERING_EXPORT vtkMapper2D : public vtkAbstractMapper
+class VTKRENDERINGCORE_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);

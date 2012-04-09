@@ -23,11 +23,12 @@
 #ifndef __vtkObjectFactoryCollection_h
 #define __vtkObjectFactoryCollection_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkObjectFactory.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkObjectFactoryCollection : public vtkCollection
+class VTKCOMMONCORE_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);

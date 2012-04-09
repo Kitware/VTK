@@ -32,11 +32,12 @@
 #ifndef __vtkTransformFilter_h
 #define __vtkTransformFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 {
 public:
   static vtkTransformFilter *New();

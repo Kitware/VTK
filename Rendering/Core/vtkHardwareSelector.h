@@ -57,6 +57,7 @@
 #ifndef __vtkHardwareSelector_h
 #define __vtkHardwareSelector_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
@@ -64,7 +65,7 @@ class vtkSelection;
 class vtkProp;
 class vtkTextureObject;
 
-class VTK_RENDERING_EXPORT vtkHardwareSelector : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkHardwareSelector : public vtkObject
 {
 public:
   // Description:

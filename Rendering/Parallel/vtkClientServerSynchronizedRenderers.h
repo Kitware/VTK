@@ -20,9 +20,10 @@
 #ifndef __vtkClientServerSynchronizedRenderers_h
 #define __vtkClientServerSynchronizedRenderers_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
-class VTK_PARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
+class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
   public vtkSynchronizedRenderers
 {
 public:

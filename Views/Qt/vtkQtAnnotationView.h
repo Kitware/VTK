@@ -28,6 +28,7 @@
 #ifndef __vtkQtAnnotationView_h
 #define __vtkQtAnnotationView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 #include <QObject>
@@ -38,7 +39,7 @@
 class QItemSelection;
 class QTableView;
 
-class QVTK_EXPORT vtkQtAnnotationView : public vtkQtView
+class VTKVIEWSQT_EXPORT vtkQtAnnotationView : public vtkQtView
 {
 Q_OBJECT
 

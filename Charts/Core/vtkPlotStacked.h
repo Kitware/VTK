@@ -22,6 +22,7 @@
 #ifndef __vtkPlotStacked_h
 #define __vtkPlotStacked_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 
 class vtkChartXY;
@@ -34,7 +35,7 @@ class vtkColorSeries;
 
 class vtkPlotStackedPrivate;
 
-class VTK_CHARTS_EXPORT vtkPlotStacked : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotStacked : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotStacked, vtkPlot);

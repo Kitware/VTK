@@ -36,6 +36,7 @@
 #ifndef __vtkCGMWriter_h
 #define __vtkCGMWriter_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataWriter.h"
 
 class vtkViewport;
@@ -44,7 +45,7 @@ class vtkViewport;
 #define VTK_COLOR_MODE_SPECIFIED_COLOR 1
 #define VTK_COLOR_MODE_RANDOM_COLORS 2
 
-class VTK_IO_EXPORT vtkCGMWriter : public vtkPolyDataWriter
+class VTKIOGEOMETRY_EXPORT vtkCGMWriter : public vtkPolyDataWriter
 {
 public:
   // Description:

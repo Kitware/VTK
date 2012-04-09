@@ -26,13 +26,14 @@
 #ifndef __vtkXMLHyperOctreeReader_h
 #define __vtkXMLHyperOctreeReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
 class vtkHyperOctree;
 class vtkHyperOctreeCursor;
 class vtkIntArray;
 
-class VTK_IO_EXPORT vtkXMLHyperOctreeReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT vtkXMLHyperOctreeReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLHyperOctreeReader,vtkXMLDataReader);

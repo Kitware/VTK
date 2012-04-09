@@ -24,9 +24,10 @@
 #ifndef __vtkMergePoints_h
 #define __vtkMergePoints_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"
 
-class VTK_FILTERING_EXPORT vtkMergePoints : public vtkPointLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
   static vtkMergePoints *New();

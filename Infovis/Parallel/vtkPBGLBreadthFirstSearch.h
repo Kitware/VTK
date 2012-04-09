@@ -32,6 +32,7 @@
 #ifndef __vtkPBGLBreadthFirstSearch_h
 #define __vtkPBGLBreadthFirstSearch_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -39,7 +40,7 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLBreadthFirstSearch *New();

@@ -26,11 +26,12 @@
 #ifndef __vtkColorMaterialHelper_h
 #define __vtkColorMaterialHelper_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkShaderProgram2;
 
-class VTK_RENDERING_EXPORT vtkColorMaterialHelper : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkColorMaterialHelper : public vtkObject
 {
 public:
   static vtkColorMaterialHelper* New();

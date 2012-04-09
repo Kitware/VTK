@@ -22,6 +22,7 @@
 #ifndef __vtkOpenGLContextDevice3D_h
 #define __vtkOpenGLContextDevice3D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextDevice3D.h"
 #include "vtkNew.h"             // For ivars.
 
@@ -29,7 +30,7 @@ class vtkBrush;
 class vtkPen;
 class vtkRenderer;
 
-class VTK_CHARTS_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
+class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D);

@@ -27,6 +27,7 @@
 #ifndef __vtkLogoRepresentation_h
 #define __vtkLogoRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
 
 class vtkImageData;
@@ -39,7 +40,7 @@ class vtkActor2D;
 class vtkProperty2D;
 
 
-class VTK_WIDGETS_EXPORT vtkLogoRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkLogoRepresentation : public vtkBorderRepresentation
 {
 public:
   // Description:

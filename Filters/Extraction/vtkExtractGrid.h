@@ -37,9 +37,10 @@
 #ifndef __vtkExtractGrid_h
 #define __vtkExtractGrid_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkExtractGrid *New();

@@ -24,6 +24,7 @@
 #ifndef __vtkTooltipItem_h
 #define __vtkTooltipItem_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkVector.h"     // Needed for vtkVector2f
 #include "vtkStdString.h"  // For vtkStdString ivars
@@ -32,7 +33,7 @@ class vtkPen;
 class vtkBrush;
 class vtkTextProperty;
 
-class VTK_CHARTS_EXPORT vtkTooltipItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkTooltipItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkTooltipItem, vtkContextItem);

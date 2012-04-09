@@ -20,12 +20,13 @@
 #ifndef VTKNONOVERLAPPINGAMRALGORITHM_H_
 #define VTKNONOVERLAPPINGAMRALGORITHM_H_
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"
 
 class vtkNonOverlappingAMR;
 class vtkInformation;
 
-class VTK_FILTERING_EXPORT vtkNonOverlappingAMRAlgorithm :
+class VTKFILTERSGENERAL_EXPORT vtkNonOverlappingAMRAlgorithm :
   public vtkUniformGridAMRAlgorithm
 {
   public:

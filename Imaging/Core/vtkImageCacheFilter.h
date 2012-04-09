@@ -23,11 +23,12 @@
 #ifndef __vtkImageCacheFilter_h
 #define __vtkImageCacheFilter_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkExecutive;
 
-class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageCacheFilter : public vtkImageAlgorithm
 {
 public:
   static vtkImageCacheFilter *New();

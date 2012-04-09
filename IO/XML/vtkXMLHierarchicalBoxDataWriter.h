@@ -21,9 +21,10 @@
 #ifndef __vtkXMLHierarchicalBoxDataWriter_h
 #define __vtkXMLHierarchicalBoxDataWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"
 
-class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLCompositeDataWriter
+class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataWriter : public vtkXMLCompositeDataWriter
 {
 public:
   static vtkXMLHierarchicalBoxDataWriter* New();

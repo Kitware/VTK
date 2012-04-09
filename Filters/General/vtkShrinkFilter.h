@@ -30,9 +30,10 @@
 #ifndef __vtkShrinkFilter_h
 #define __vtkShrinkFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkShrinkFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkShrinkFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkShrinkFilter *New();

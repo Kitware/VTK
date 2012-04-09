@@ -67,6 +67,7 @@
 #ifndef __vtkAngleWidget_h
 #define __vtkAngleWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkAngleRepresentation;
@@ -74,7 +75,7 @@ class vtkHandleWidget;
 class vtkAngleWidgetCallback;
 
 
-class VTK_WIDGETS_EXPORT vtkAngleWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkAngleWidget : public vtkAbstractWidget
 {
 public:
   // Description:

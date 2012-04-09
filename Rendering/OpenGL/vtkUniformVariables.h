@@ -24,11 +24,12 @@
 #ifndef __vtkUniformVariables_h
 #define __vtkUniformVariables_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkUniformVariablesMap; // internal
 
-class VTK_RENDERING_EXPORT vtkUniformVariables : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkUniformVariables : public vtkObject
 {
 public:
   static vtkUniformVariables *New();

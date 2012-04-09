@@ -26,6 +26,7 @@
 #ifndef __vtkCompositer_h
 #define __vtkCompositer_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkMultiProcessController;
@@ -34,7 +35,7 @@ class vtkDataArray;
 class vtkFloatArray;
 class vtkUnsignedCharArray;
 
-class VTK_PARALLEL_EXPORT vtkCompositer : public vtkObject
+class VTKRENDERINGPARALLEL_EXPORT vtkCompositer : public vtkObject
 {
 public:
   static vtkCompositer *New();

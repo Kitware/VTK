@@ -30,9 +30,10 @@
 #define __vtkImageCityBlockDistance_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
+class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageCityBlockDistance *New();

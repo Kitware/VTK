@@ -120,6 +120,7 @@
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkAbstractTransform;
@@ -131,7 +132,7 @@ class vtkPointSet;
 #define VTK_SET_TRANSFORM_PLANE 1
 #define VTK_BEST_FITTING_PLANE 2
 
-class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkDelaunay2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDelaunay2D,vtkPolyDataAlgorithm);

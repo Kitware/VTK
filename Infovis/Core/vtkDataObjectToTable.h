@@ -26,9 +26,10 @@
 #ifndef __vtkDataObjectToTable_h
 #define __vtkDataObjectToTable_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
+class VTKINFOVISCORE_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
 {
 public:
   static vtkDataObjectToTable* New();

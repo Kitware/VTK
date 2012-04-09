@@ -31,13 +31,14 @@
 #ifndef __vtkEncodedGradientEstimator_h
 #define __vtkEncodedGradientEstimator_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
 class vtkDirectionEncoder;
 class vtkMultiThreader;
 
-class VTK_VOLUMERENDERING_EXPORT vtkEncodedGradientEstimator : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);

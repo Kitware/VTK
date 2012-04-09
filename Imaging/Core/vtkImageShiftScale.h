@@ -24,9 +24,10 @@
 #define __vtkImageShiftScale_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageShiftScale : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageShiftScale *New();

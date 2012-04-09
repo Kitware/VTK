@@ -21,6 +21,7 @@
 #ifndef __vtkDemandDrivenPipeline_h
 #define __vtkDemandDrivenPipeline_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExecutive.h"
 
 class vtkAbstractArray;
@@ -34,7 +35,7 @@ class vtkInformationVector;
 class vtkInformationKeyVectorKey;
 class vtkInformationUnsignedLongKey;
 
-class VTK_FILTERING_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDemandDrivenPipeline : public vtkExecutive
 {
 public:
   static vtkDemandDrivenPipeline* New();

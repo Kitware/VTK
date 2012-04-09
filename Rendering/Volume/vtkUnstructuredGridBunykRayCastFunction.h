@@ -57,6 +57,7 @@
 #ifndef __vtkUnstructuredGridBunykRayCastFunction_h
 #define __vtkUnstructuredGridBunykRayCastFunction_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayCastFunction.h"
 
 class vtkRenderer;
@@ -76,7 +77,7 @@ class vtkDataArray;
 #define VTK_BUNYKRCF_MAX_ARRAYS 10000
 #define VTK_BUNYKRCF_ARRAY_SIZE 10000
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridBunykRayCastFunction : public vtkUnstructuredGridVolumeRayCastFunction
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridBunykRayCastFunction : public vtkUnstructuredGridVolumeRayCastFunction
 { 
 public:
   static vtkUnstructuredGridBunykRayCastFunction *New();

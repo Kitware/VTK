@@ -34,9 +34,10 @@
 #ifndef __vtkQuantizePolyDataPoints_h
 #define __vtkQuantizePolyDataPoints_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCleanPolyData.h"
 
-class VTK_GRAPHICS_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
+class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
   static vtkQuantizePolyDataPoints *New();

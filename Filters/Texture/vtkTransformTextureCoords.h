@@ -32,9 +32,10 @@
 #ifndef __vtkTransformTextureCoords_h
 #define __vtkTransformTextureCoords_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTransformTextureCoords : public vtkDataSetAlgorithm 
+class VTKFILTERSTEXTURE_EXPORT vtkTransformTextureCoords : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetAlgorithm);

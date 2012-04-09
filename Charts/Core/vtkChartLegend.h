@@ -23,6 +23,7 @@
 #ifndef __vtkChartLegend_h
 #define __vtkChartLegend_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkNew.h"         // For vtkNew
 #include "vtkRect.h"        // For vtkRectf return value
@@ -32,7 +33,7 @@ class vtkPen;
 class vtkBrush;
 class vtkTextProperty;
 
-class VTK_CHARTS_EXPORT vtkChartLegend : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkChartLegend : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartLegend, vtkContextItem);

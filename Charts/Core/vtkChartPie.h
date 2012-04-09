@@ -21,13 +21,14 @@
 #ifndef __vtkChartPie_h
 #define __vtkChartPie_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
 
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkChartPiePrivate;
 
-class VTK_CHARTS_EXPORT vtkChartPie : public vtkChart
+class VTKCHARTSCORE_EXPORT vtkChartPie : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartPie, vtkChart);

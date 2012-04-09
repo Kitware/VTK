@@ -19,13 +19,14 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkQImageToImageSource_h
 #define __vtkQImageToImageSource_h
 
+#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 //BTX
 class QImage;
 //ETX
 
-class VTK_RENDERING_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
+class VTKRENDERINGQT_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {
 public:
   static vtkQImageToImageSource *New();

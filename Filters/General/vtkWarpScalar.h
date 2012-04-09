@@ -36,11 +36,12 @@
 #ifndef __vtkWarpScalar_h
 #define __vtkWarpScalar_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpScalar *New();

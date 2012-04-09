@@ -31,9 +31,10 @@
 #ifndef __vtkIntersectionPolyDataFilter_h
 #define __vtkIntersectionPolyDataFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkIntersectionPolyDataFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkIntersectionPolyDataFilter *New();

@@ -29,6 +29,7 @@
 #ifndef __vtkQtTableModelAdapter_h
 #define __vtkQtTableModelAdapter_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 #include <QMimeData>
 #include <QImage>
@@ -37,7 +38,7 @@ class vtkSelection;
 class vtkTable;
 class vtkVariant;
 
-class QVTK_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
+class VTKGUISUPPORTQT_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
 

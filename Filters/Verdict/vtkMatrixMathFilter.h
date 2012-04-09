@@ -25,12 +25,13 @@
 #ifndef __vtkMatrixMathFilter_h
 #define __vtkMatrixMathFilter_h
 
+#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkCell;
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
+class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
 {
   //BTX
   enum

@@ -41,13 +41,14 @@
 #ifndef __vtkTupleInterpolator_h
 #define __vtkTupleInterpolator_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkSpline;
 class vtkPiecewiseFunction;
 
 
-class VTK_RENDERING_EXPORT vtkTupleInterpolator : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkTupleInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTupleInterpolator, vtkObject);

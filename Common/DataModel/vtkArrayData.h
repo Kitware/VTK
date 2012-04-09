@@ -37,12 +37,13 @@
 #ifndef __vtkArrayData_h
 #define __vtkArrayData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkArray.h"
 #include "vtkDataObject.h"
 
 class vtkArray;
 
-class VTK_FILTERING_EXPORT vtkArrayData : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
 {
 public:
   static vtkArrayData* New();

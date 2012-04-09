@@ -21,11 +21,12 @@
 #ifndef __vtkFocalPlanePointPlacer_h
 #define __vtkFocalPlanePointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkFocalPlanePointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlanePointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

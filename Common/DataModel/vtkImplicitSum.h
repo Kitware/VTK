@@ -23,12 +23,13 @@
 #ifndef __vtkImplicitSum_h
 #define __vtkImplicitSum_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
 class vtkDoubleArray;
 class vtkImplicitFunctionCollection;
 
-class VTK_FILTERING_EXPORT vtkImplicitSum : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkImplicitSum : public vtkImplicitFunction
 {
 public:
   static vtkImplicitSum *New();

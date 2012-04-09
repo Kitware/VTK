@@ -33,12 +33,13 @@
 #ifndef __vtkScalarBarWidget_h
 #define __vtkScalarBarWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
 
 class vtkScalarBarActor;
 class vtkScalarBarRepresentation;
 
-class VTK_WIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
 {
 public:
   static vtkScalarBarWidget *New();

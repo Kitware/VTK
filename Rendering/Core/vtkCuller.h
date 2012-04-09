@@ -25,12 +25,13 @@
 #ifndef __vtkCuller_h
 #define __vtkCuller_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkProp;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkCuller : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller,vtkObject);

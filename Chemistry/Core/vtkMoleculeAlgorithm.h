@@ -30,12 +30,13 @@
 #ifndef __vtkMoleculeAlgorithm_h
 #define __vtkMoleculeAlgorithm_h
 
+#include "vtkChemistryCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataSet;
 class vtkMolecule;
 
-class VTK_FILTERING_EXPORT vtkMoleculeAlgorithm : public vtkAlgorithm
+class VTKCHEMISTRYCORE_EXPORT vtkMoleculeAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkMoleculeAlgorithm *New();

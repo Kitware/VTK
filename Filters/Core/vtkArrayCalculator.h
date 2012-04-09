@@ -58,6 +58,7 @@
 #ifndef __vtkArrayCalculator_h
 #define __vtkArrayCalculator_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkFunctionParser;
@@ -68,7 +69,7 @@ class vtkFunctionParser;
 #define VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA 3
 #define VTK_ATTRIBUTE_MODE_USE_EDGE_DATA 4
 
-class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm 
+class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkArrayCalculator,vtkDataSetAlgorithm);

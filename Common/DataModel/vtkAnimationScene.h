@@ -27,6 +27,7 @@
 #ifndef __vtkAnimationScene_h
 #define __vtkAnimationScene_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAnimationCue.h"
 
 class vtkAnimationCue;
@@ -34,7 +35,7 @@ class vtkCollection;
 class vtkCollectionIterator;
 class vtkTimerLog;
 
-class VTK_COMMON_EXPORT vtkAnimationScene: public vtkAnimationCue
+class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
   vtkTypeMacro(vtkAnimationScene, vtkAnimationCue);

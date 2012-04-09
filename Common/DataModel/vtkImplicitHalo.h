@@ -29,9 +29,10 @@
 #ifndef __vtkImplicitHalo_h
 #define __vtkImplicitHalo_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_FILTERING_EXPORT vtkImplicitHalo : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkImplicitHalo : public vtkImplicitFunction
 {
 public:
   // Description

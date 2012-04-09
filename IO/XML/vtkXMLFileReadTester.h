@@ -21,9 +21,10 @@
 #ifndef __vtkXMLFileReadTester_h
 #define __vtkXMLFileReadTester_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLParser.h"
 
-class VTK_IO_EXPORT vtkXMLFileReadTester: public vtkXMLParser
+class VTKIOXML_EXPORT vtkXMLFileReadTester: public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);

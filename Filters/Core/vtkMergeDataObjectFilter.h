@@ -38,9 +38,10 @@
 #ifndef __vtkMergeDataObjectFilter_h
 #define __vtkMergeDataObjectFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkMergeDataObjectFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkMergeDataObjectFilter *New();

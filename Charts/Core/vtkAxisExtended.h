@@ -26,6 +26,7 @@
 #define __vtkAxisExtended_h
 #endif
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h" // Needed for vtkVector
 //
@@ -35,7 +36,7 @@
 #  define VTK_DBL_EPSILON    DBL_EPSILON
 #endif  // DBL_EPSILON
 
-class VTK_CHARTS_EXPORT vtkAxisExtended : public vtkObject
+class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
 {
 public:
    vtkTypeMacro(vtkAxisExtended, vtkObject);

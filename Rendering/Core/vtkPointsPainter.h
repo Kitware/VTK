@@ -23,9 +23,10 @@
 #ifndef __vtkPointsPainter_h
 #define __vtkPointsPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTK_RENDERING_EXPORT vtkPointsPainter : public vtkPrimitivePainter
+class VTKRENDERINGCORE_EXPORT vtkPointsPainter : public vtkPrimitivePainter
 {
 public:
   static vtkPointsPainter* New();

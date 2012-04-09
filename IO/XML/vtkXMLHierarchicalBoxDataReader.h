@@ -26,11 +26,12 @@
 #ifndef __vtkXMLHierarchicalBoxDataReader_h
 #define __vtkXMLHierarchicalBoxDataReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataReader.h"
 
 class vtkHierarchicalBoxDataSet;
 
-class VTK_IO_EXPORT vtkXMLHierarchicalBoxDataReader :
+class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader :
   public vtkXMLCompositeDataReader
 {
 public:

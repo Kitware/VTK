@@ -32,12 +32,13 @@
 #ifndef __vtkPBGLRandomGraphSource_h
 #define __vtkPBGLRandomGraphSource_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 class vtkPVXMLElement;
 
-class VTK_PARALLEL_EXPORT vtkPBGLRandomGraphSource : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLRandomGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLRandomGraphSource* New();

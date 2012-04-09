@@ -25,6 +25,7 @@
 #ifndef VTKRECTILINEARGRIDPARTITIONER_H_
 #define VTKRECTILINEARGRIDPARTITIONER_H_
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
@@ -33,7 +34,7 @@ class vtkIndent;
 class vtkDoubleArray;
 class vtkRectilinearGrid;
 
-class VTK_FILTERING_EXPORT vtkRectilinearGridPartitioner :
+class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:

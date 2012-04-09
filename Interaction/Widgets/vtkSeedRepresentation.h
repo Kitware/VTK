@@ -26,13 +26,14 @@
 #ifndef __vtkSeedRepresentation_h
 #define __vtkSeedRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleList;
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkSeedRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkSeedRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

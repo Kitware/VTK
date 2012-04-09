@@ -27,6 +27,7 @@
 #ifndef __vtkCosmicTreeLayoutStrategy_h
 #define __vtkCosmicTreeLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 class vtkDoubleArray;
@@ -34,7 +35,7 @@ class vtkDataArray;
 class vtkPoints;
 class vtkTree;
 
-class VTK_INFOVIS_EXPORT vtkCosmicTreeLayoutStrategy : public vtkGraphLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkCosmicTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkCosmicTreeLayoutStrategy* New();

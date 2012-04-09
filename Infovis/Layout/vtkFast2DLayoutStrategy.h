@@ -30,6 +30,7 @@
 #ifndef __vtkFast2DLayoutStrategy_h
 #define __vtkFast2DLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
@@ -39,7 +40,7 @@ class vtkFloatArray;
 class vtkGraphToPolyData;
 class vtkImageData;
 
-class VTK_INFOVIS_EXPORT vtkFast2DLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkFast2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkFast2DLayoutStrategy *New();

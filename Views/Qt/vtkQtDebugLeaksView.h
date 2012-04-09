@@ -23,6 +23,7 @@
 #ifndef __vtkQtDebugLeaksView_h
 #define __vtkQtDebugLeaksView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include <QWidget>
 
@@ -30,7 +31,7 @@ class QModelIndex;
 class vtkObjectBase;
 class vtkQtDebugLeaksModel;
 
-class QVTK_EXPORT vtkQtDebugLeaksView : public QWidget
+class VTKVIEWSQT_EXPORT vtkQtDebugLeaksView : public QWidget
 {
   Q_OBJECT
 

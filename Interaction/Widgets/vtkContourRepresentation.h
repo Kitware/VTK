@@ -53,6 +53,7 @@
 #ifndef __vtkContourRepresentation_h
 #define __vtkContourRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 #include <vector> // STL Header; Required for vector
 
@@ -109,7 +110,7 @@ public:
 };
 //ETX
 
-class VTK_WIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
   //BTX  
   friend class vtkContourWidget;

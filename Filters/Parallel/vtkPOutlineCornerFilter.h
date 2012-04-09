@@ -24,11 +24,12 @@
 #ifndef __vtkPOutlineCornerFilter_h
 #define __vtkPOutlineCornerFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 class vtkOutlineCornerSource;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);

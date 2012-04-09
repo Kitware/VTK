@@ -31,6 +31,7 @@
 #ifndef __vtkAMRResampleFilter_h
 #define __vtkAMRResampleFilter_h
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <vector> // For STL vector
 
@@ -45,7 +46,7 @@ class vtkCellData;
 class vtkPointData;
 class vtkIndent;
 
-class VTK_AMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKAMRCORE_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgorithm
 {
   public:
     static vtkAMRResampleFilter *New();

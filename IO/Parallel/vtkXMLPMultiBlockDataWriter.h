@@ -23,12 +23,13 @@
 #ifndef __vtkXMLPMultiBlockDataWriter_h
 #define __vtkXMLPMultiBlockDataWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkXMLMultiBlockDataWriter.h"
 
 class vtkCompositeDataSet;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkXMLPMultiBlockDataWriter : public vtkXMLMultiBlockDataWriter
+class VTKIOPARALLEL_EXPORT vtkXMLPMultiBlockDataWriter : public vtkXMLMultiBlockDataWriter
 {
 public:
   static vtkXMLPMultiBlockDataWriter* New();

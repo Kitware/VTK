@@ -29,6 +29,7 @@
 #ifndef __vtkVariantArray_h
 #define __vtkVariantArray_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
 #include "vtkVariant.h" // For variant type
 
@@ -39,7 +40,7 @@ class vtkVariantArrayLookup;
 namespace boost { namespace serialization { class access; } }
 //ETX
 
-class VTK_COMMON_EXPORT vtkVariantArray : public vtkAbstractArray
+class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
 {
 //BTX
   /// Friendship required for Boost serialization

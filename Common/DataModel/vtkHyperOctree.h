@@ -116,6 +116,7 @@
 #ifndef __vtkHyperOctree_h
 #define __vtkHyperOctree_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
 class vtkHyperOctreeLightWeightCursor;
@@ -136,7 +137,7 @@ class vtkPixel;
 class vtkVoxel;
 class vtkCellLinks;
 
-class VTK_FILTERING_EXPORT vtkHyperOctree : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctree : public vtkDataSet
 {
 public:
   static vtkInformationIntegerKey* LEVELS();
@@ -562,7 +563,7 @@ private:
 
 //BTX
 
-class VTK_FILTERING_EXPORT vtkHyperOctreeLightWeightCursor
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor
 {
 public:  
   vtkHyperOctreeLightWeightCursor();

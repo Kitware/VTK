@@ -32,6 +32,7 @@
 #ifndef __vtkImplicitBoolean_h
 #define __vtkImplicitBoolean_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
  
 class vtkImplicitFunctionCollection;
@@ -41,7 +42,7 @@ class vtkImplicitFunctionCollection;
 #define VTK_DIFFERENCE 2
 #define VTK_UNION_OF_MAGNITUDES 3
 
-class VTK_FILTERING_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);

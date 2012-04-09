@@ -20,6 +20,7 @@
 #ifndef __vtkIOStream_h
 #define __vtkIOStream_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkConfigure.h"
 
 #define __VTK_SYSTEM_INCLUDES__INSIDE
@@ -70,7 +71,7 @@ using std::fstream;
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
 
 # if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
-VTK_COMMON_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamSLL&);
+VTKCOMMONCORE_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamSLL&);
 #  if !defined(VTK_DO_NOT_DEFINE_ISTREAM_SLL)
 inline istream& operator >> (istream& is, vtkIOStreamSLL& value)
 {
@@ -78,7 +79,7 @@ inline istream& operator >> (istream& is, vtkIOStreamSLL& value)
 }
 #  endif
 
-VTK_COMMON_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamULL&);
+VTKCOMMONCORE_EXPORT istream& vtkIOStreamScan(istream&, vtkIOStreamULL&);
 #  if !defined(VTK_DO_NOT_DEFINE_ISTREAM_ULL)
 inline istream& operator >> (istream& is, vtkIOStreamULL& value)
 {
@@ -88,7 +89,7 @@ inline istream& operator >> (istream& is, vtkIOStreamULL& value)
 # endif
 
 # if !defined(VTK_OSTREAM_SUPPORTS_LONG_LONG)
-VTK_COMMON_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamSLL);
+VTKCOMMONCORE_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamSLL);
 #  if !defined(VTK_DO_NOT_DEFINE_OSTREAM_SLL)
 inline ostream& operator << (ostream& os, vtkIOStreamSLL value)
 {
@@ -96,7 +97,7 @@ inline ostream& operator << (ostream& os, vtkIOStreamSLL value)
 }
 #  endif
 
-VTK_COMMON_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamULL);
+VTKCOMMONCORE_EXPORT ostream& vtkIOStreamPrint(ostream&, vtkIOStreamULL);
 #  if !defined(VTK_DO_NOT_DEFINE_OSTREAM_ULL)
 inline ostream& operator << (ostream& os, vtkIOStreamULL value)
 {

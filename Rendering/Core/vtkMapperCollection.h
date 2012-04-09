@@ -24,11 +24,12 @@
 #ifndef __vtkMapperCollection_h
 #define __vtkMapperCollection_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
 #include "vtkMapper.h" // Needed for direct access to mapper methods in 
                        // inline functions
 
-class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 {
  public:
   static vtkMapperCollection *New();

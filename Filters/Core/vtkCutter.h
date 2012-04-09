@@ -42,6 +42,7 @@
 #ifndef __vtkCutter_h
 #define __vtkCutter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -56,7 +57,7 @@ class vtkSynchronizedTemplatesCutter3D;
 class vtkGridSynchronizedTemplates3D;
 class vtkRectilinearSynchronizedTemplates;
 
-class VTK_GRAPHICS_EXPORT vtkCutter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkCutter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCutter,vtkPolyDataAlgorithm);

@@ -18,13 +18,14 @@
 #ifndef __vtkX3DExporterFIWriter_h
 #define __vtkX3DExporterFIWriter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"
 
 class vtkX3DExporterFIByteWriter;
 class vtkX3DExporterFINodeInfoStack;
 class vtkZLibDataCompressor;
 
-class VTK_HYBRID_EXPORT vtkX3DExporterFIWriter : public vtkX3DExporterWriter
+class VTKIOEXPORT_EXPORT vtkX3DExporterFIWriter : public vtkX3DExporterWriter
 {
 public:
   static vtkX3DExporterFIWriter *New();

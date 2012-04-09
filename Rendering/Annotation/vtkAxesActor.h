@@ -45,6 +45,7 @@
 #ifndef __vtkAxesActor_h
 #define __vtkAxesActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkActor;
@@ -58,7 +59,7 @@ class vtkProperty;
 class vtkRenderer;
 class vtkSphereSource;
 
-class VTK_HYBRID_EXPORT vtkAxesActor : public vtkProp3D
+class VTKRENDERINGANNOTATION_EXPORT vtkAxesActor : public vtkProp3D
 {
 public:
   static vtkAxesActor *New();

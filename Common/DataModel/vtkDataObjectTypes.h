@@ -24,11 +24,12 @@
 #ifndef __vtkDataObjectTypes_h
 #define __vtkDataObjectTypes_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkDataObjectTypes : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTypes : public vtkObject
 {
 public:
   static vtkDataObjectTypes *New();

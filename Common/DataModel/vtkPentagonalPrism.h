@@ -32,6 +32,7 @@
 #ifndef __vtkPentagonalPrism_h
 #define __vtkPentagonalPrism_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
 
 class vtkLine;
@@ -39,7 +40,7 @@ class vtkPolygon;
 class vtkQuad;
 class vtkTriangle;
 
-class VTK_FILTERING_EXPORT vtkPentagonalPrism : public vtkCell3D
+class VTKCOMMONDATAMODEL_EXPORT vtkPentagonalPrism : public vtkCell3D
 {
 public:
   static vtkPentagonalPrism *New();

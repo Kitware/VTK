@@ -28,9 +28,10 @@
 #ifndef __vtkCone_h
 #define __vtkCone_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_FILTERING_EXPORT vtkCone : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
   // Description

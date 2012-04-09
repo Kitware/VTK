@@ -30,11 +30,12 @@
 #ifndef __vtkAMRBox_h
 #define __vtkAMRBox_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkType.h"     //For utility functions.
 #include <vector> // STL Header
 
-class VTK_FILTERING_EXPORT vtkAMRBox
+class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 {
 
 public:

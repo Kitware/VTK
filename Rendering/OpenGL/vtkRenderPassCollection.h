@@ -24,11 +24,12 @@
 #ifndef __vtkRenderPassCollection_h
 #define __vtkRenderPassCollection_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCollection.h"
 
 class vtkRenderPass;
 
-class VTK_RENDERING_EXPORT vtkRenderPassCollection : public vtkCollection
+class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
 {
  public:
   static vtkRenderPassCollection *New();

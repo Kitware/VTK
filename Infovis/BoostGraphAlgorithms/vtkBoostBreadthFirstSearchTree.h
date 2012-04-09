@@ -33,12 +33,13 @@
 #ifndef __vtkBoostBreadthFirstSearchTree_h
 #define __vtkBoostBreadthFirstSearchTree_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
 #include "vtkTreeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostBreadthFirstSearchTree : public vtkTreeAlgorithm 
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearchTree : public vtkTreeAlgorithm
 {
 public:
   static vtkBoostBreadthFirstSearchTree *New();

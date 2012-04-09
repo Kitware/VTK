@@ -22,11 +22,12 @@
 #ifndef __vtkMergeFilter_h
 #define __vtkMergeFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkFieldList;
 
-class VTK_GRAPHICS_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkMergeFilter *New();

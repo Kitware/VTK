@@ -37,12 +37,13 @@
 #ifndef __vtkPolygonalSurfaceContourLineInterpolator_h
 #define __vtkPolygonalSurfaceContourLineInterpolator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataContourLineInterpolator.h"
 
 class vtkDijkstraGraphGeodesicPath;
 class vtkIdList;
 
-class VTK_WIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator : public vtkPolyDataContourLineInterpolator
+class VTKINTERACTIONWIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator : public vtkPolyDataContourLineInterpolator
 {
 public:
   // Description:

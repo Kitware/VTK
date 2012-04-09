@@ -24,6 +24,7 @@
 #ifndef VTKAMRUTILITIES_H_
 #define VTKAMRUTILITIES_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // For C++ vector
 
@@ -33,7 +34,7 @@ class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkUniformGrid;
 
-class VTK_PARALLEL_EXPORT vtkAMRUtilities : public vtkObject
+class VTKAMRCORE_EXPORT vtkAMRUtilities : public vtkObject
 {
   public:
 

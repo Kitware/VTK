@@ -25,9 +25,10 @@
 #ifndef __vtkInteractorStyleTrackball_h
 #define __vtkInteractorStyleTrackball_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleSwitch.h"
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyleSwitch 
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyleSwitch
 {
 public:
   static vtkInteractorStyleTrackball *New();

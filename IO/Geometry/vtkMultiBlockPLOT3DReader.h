@@ -72,6 +72,7 @@
 #ifndef __vtkMultiBlockPLOT3DReader_h
 #define __vtkMultiBlockPLOT3DReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkUnsignedCharArray;
@@ -81,7 +82,7 @@ class vtkStructuredGrid;
 //BTX
 struct vtkMultiBlockPLOT3DReaderInternals;
 //ETX
-class VTK_IO_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm 
+class VTKIOGEOMETRY_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkMultiBlockPLOT3DReader *New();

@@ -35,11 +35,12 @@
 #ifndef __vtkGeoRandomGraphSource_h
 #define __vtkGeoRandomGraphSource_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkRandomGraphSource.h"
 
 class vtkGraph;
 
-class VTK_GEOVIS_EXPORT vtkGeoRandomGraphSource : public vtkRandomGraphSource
+class VTKGEOVISCORE_EXPORT vtkGeoRandomGraphSource : public vtkRandomGraphSource
 {
 public:
   static vtkGeoRandomGraphSource* New();

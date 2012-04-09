@@ -57,6 +57,7 @@
 #define __vtkGenericAdaptorCell_h
 
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkLine;
@@ -85,7 +86,7 @@ class vtkHexahedron;
 class vtkWedge;
 class vtkPyramid;
 
-class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGenericAdaptorCell,vtkObject);

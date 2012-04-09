@@ -61,6 +61,7 @@
 #ifndef __vtkMeshQuality_h
 #define __vtkMeshQuality_h
 
+#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkCell;
@@ -97,7 +98,7 @@ class vtkDataArray;
 #define VTK_QUALITY_AREA 28
 #define VTK_QUALITY_ASPECT_BETA 29
 
-class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
+class VTKFILTERSVERDICT_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

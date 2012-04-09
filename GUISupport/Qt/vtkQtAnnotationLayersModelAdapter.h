@@ -29,13 +29,14 @@
 #ifndef __vtkQtAnnotationLayersModelAdapter_h
 #define __vtkQtAnnotationLayersModelAdapter_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtAbstractModelAdapter.h"
 
 class vtkAnnotationLayers;
 class vtkSelection;
 
-class QVTK_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbstractModelAdapter
+class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
 

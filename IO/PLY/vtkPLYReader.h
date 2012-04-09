@@ -30,9 +30,10 @@
 #ifndef __vtkPLYReader_h
 #define __vtkPLYReader_h
 
+#include "vtkIOPLYModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_IO_EXPORT vtkPLYReader : public vtkPolyDataAlgorithm 
+class VTKIOPLY_EXPORT vtkPLYReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPLYReader,vtkPolyDataAlgorithm);

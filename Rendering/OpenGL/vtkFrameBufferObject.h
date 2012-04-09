@@ -22,6 +22,7 @@
 #ifndef __vtkFrameBufferObject_h
 #define __vtkFrameBufferObject_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
@@ -33,7 +34,7 @@ class vtkRenderWindow;
 class vtkTextureObject;
 class vtkOpenGLExtensionManager;
 
-class VTK_RENDERING_EXPORT vtkFrameBufferObject : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkObject
 {
 public:
   static vtkFrameBufferObject* New();

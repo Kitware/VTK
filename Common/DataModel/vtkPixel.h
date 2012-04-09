@@ -22,12 +22,13 @@
 #ifndef __vtkPixel_h
 #define __vtkPixel_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
 class vtkLine;
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkPixel : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkPixel : public vtkCell
 {
 public:
   static vtkPixel *New();

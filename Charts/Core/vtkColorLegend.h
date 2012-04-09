@@ -21,6 +21,7 @@
 #ifndef __vtkColorLegend_h
 #define __vtkColorLegend_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h"       // For vtkRectf
@@ -30,7 +31,7 @@ class vtkImageData;
 class vtkScalarsToColors;
 class vtkCallbackCommand;
 
-class VTK_CHARTS_EXPORT vtkColorLegend: public vtkChartLegend
+class VTKCHARTSCORE_EXPORT vtkColorLegend: public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkColorLegend, vtkChartLegend);

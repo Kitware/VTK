@@ -36,12 +36,13 @@
 #ifndef __vtkMapArrayValues_h
 #define __vtkMapArrayValues_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkMapType;
 class vtkVariant;
 
-class VTK_RENDERING_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorithm
+class VTKRENDERINGCORE_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkMapArrayValues,vtkPassInputTypeAlgorithm);

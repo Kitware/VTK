@@ -74,12 +74,13 @@
 #ifndef __vtkApplyColors_h
 #define __vtkApplyColors_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
-class VTK_INFOVIS_EXPORT vtkApplyColors : public vtkPassInputTypeAlgorithm 
+class VTKVIEWSINFOVIS_EXPORT vtkApplyColors : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkApplyColors *New();

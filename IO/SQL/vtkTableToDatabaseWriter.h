@@ -21,13 +21,14 @@
 #ifndef __vtkTableToDatabaseWriter_h
 #define __vtkTableToDatabaseWriter_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include <string> // STL Header
 #include "vtkTableWriter.h"
 
 class vtkSQLDatabase;
 class vtkStringArray;
 
-class VTK_IO_EXPORT vtkTableToDatabaseWriter : public vtkTableWriter
+class VTKIOSQL_EXPORT vtkTableToDatabaseWriter : public vtkTableWriter
 {
 public:
   vtkTypeMacro(vtkTableToDatabaseWriter, vtkTableWriter);

@@ -37,9 +37,10 @@
 #ifndef __vtkTextureMapToPlane_h
 #define __vtkTextureMapToPlane_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm 
+class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);

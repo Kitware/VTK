@@ -102,6 +102,7 @@
 #ifndef __vtkImagePlaneWidget_h
 #define __vtkImagePlaneWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
@@ -125,7 +126,7 @@ class vtkTransform;
 #define VTK_LINEAR_RESLICE  1
 #define VTK_CUBIC_RESLICE   2
 
-class VTK_WIDGETS_EXPORT vtkImagePlaneWidget : public vtkPolyDataSourceWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkImagePlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
   // Description:

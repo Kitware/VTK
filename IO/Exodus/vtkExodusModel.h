@@ -52,6 +52,7 @@
 #ifndef __vtkExodusModel_h
 #define __vtkExodusModel_h
 
+#include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkModelMetadata.h"  // So those who include vtkExodusModel don't
@@ -60,7 +61,7 @@
 class vtkIdTypeArray;
 class vtkUnstructuredGrid;
 
-class VTK_HYBRID_EXPORT vtkExodusModel : public vtkObject
+class VTKIOEXODUS_EXPORT vtkExodusModel : public vtkObject
 { 
 public:
   vtkTypeMacro(vtkExodusModel, vtkObject);

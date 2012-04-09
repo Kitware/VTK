@@ -22,6 +22,7 @@
 #ifndef __vtkHyperOctreeCursor_h
 #define __vtkHyperOctreeCursor_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 enum
@@ -44,7 +45,7 @@ const int VTK_QUADTREE_CHILD_NE=VTK_OCTREE_CHILD_ZMIN_YMAX_XMAX;
 const int VTK_BINARY_TREE_CHILD_LEFT=VTK_QUADTREE_CHILD_SW;
 const int VTK_BINARY_TREE_CHILD_RIGHT=VTK_QUADTREE_CHILD_SE;
 
-class VTK_FILTERING_EXPORT vtkHyperOctreeCursor : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCursor,vtkObject);

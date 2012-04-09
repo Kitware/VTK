@@ -21,10 +21,11 @@
 #ifndef __vtkStructuredPointsCollection_h
 #define __vtkStructuredPointsCollection_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
 #include "vtkStructuredPoints.h" // Needed for static cast
 
-class VTK_FILTERING_EXPORT vtkStructuredPointsCollection : public vtkCollection
+class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   static vtkStructuredPointsCollection *New();

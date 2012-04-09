@@ -24,6 +24,7 @@
 #ifndef __vtkContext3D_h
 #define __vtkContext3D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h" // For the vector coordinates.
 #include "vtkSmartPointer.h" // For SP ivars.
@@ -33,7 +34,7 @@ class vtkPen;
 class vtkBrush;
 class vtkTransform;
 
-class VTK_CHARTS_EXPORT vtkContext3D : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContext3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContext3D, vtkObject);

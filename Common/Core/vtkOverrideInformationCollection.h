@@ -22,11 +22,12 @@
 #ifndef __vtkOverrideInformationCollection_h
 #define __vtkOverrideInformationCollection_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkOverrideInformation.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkOverrideInformationCollection : public vtkCollection
+class VTKCOMMONCORE_EXPORT vtkOverrideInformationCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkOverrideInformationCollection,vtkCollection);

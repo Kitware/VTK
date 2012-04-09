@@ -36,6 +36,7 @@
 #ifndef __vtkPostgreSQLQuery_h
 #define __vtkPostgreSQLQuery_h
 
+#include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
 class vtkPostgreSQLDatabase;
@@ -43,7 +44,7 @@ class vtkVariant;
 class vtkVariantArray;
 class vtkPostgreSQLQueryPrivate;
 
-class VTK_IO_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
+class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
 {
 public:
   static vtkPostgreSQLQuery* New();

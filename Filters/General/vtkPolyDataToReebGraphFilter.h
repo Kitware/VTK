@@ -23,11 +23,12 @@
 #ifndef __vtkPolyDataToReebGraphFilter_h
 #define __vtkPolyDataToReebGraphFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
 
 class vtkReebGraph;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataToReebGraphFilter :
+class VTKFILTERSGENERAL_EXPORT vtkPolyDataToReebGraphFilter :
   public vtkDirectedGraphAlgorithm
 {
 public:

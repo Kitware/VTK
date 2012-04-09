@@ -27,9 +27,10 @@
 #ifndef __vtkVertexDegree_h
 #define __vtkVertexDegree_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkVertexDegree : public vtkGraphAlgorithm 
+class VTKINFOVISCORE_EXPORT vtkVertexDegree : public vtkGraphAlgorithm
 {
 public:
   static vtkVertexDegree *New();

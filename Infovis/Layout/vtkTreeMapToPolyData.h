@@ -27,9 +27,10 @@
 #ifndef __vtkTreeMapToPolyData_h
 #define __vtkTreeMapToPolyData_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm 
+class VTKINFOVISLAYOUT_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTreeMapToPolyData *New();

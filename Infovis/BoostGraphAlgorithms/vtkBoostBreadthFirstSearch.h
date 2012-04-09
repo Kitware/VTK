@@ -31,6 +31,7 @@
 #ifndef __vtkBoostBreadthFirstSearch_h
 #define __vtkBoostBreadthFirstSearch_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -38,7 +39,7 @@
 
 class vtkSelection;
 
-class VTK_INFOVIS_EXPORT vtkBoostBreadthFirstSearch : public vtkGraphAlgorithm 
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearch : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostBreadthFirstSearch *New();

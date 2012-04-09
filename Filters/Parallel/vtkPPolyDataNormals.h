@@ -18,9 +18,10 @@
 #ifndef __vtkPPolyDataNormals_h
 #define __vtkPPolyDataNormals_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataNormals.h"
 
-class VTK_PARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
+class VTKFILTERSPARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
   vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);

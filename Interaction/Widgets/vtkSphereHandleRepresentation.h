@@ -25,6 +25,7 @@
 #ifndef __vtkSphereHandleRepresentation_h
 #define __vtkSphereHandleRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
 #include "vtkSphereSource.h" // Needed for delegation to sphere
 
@@ -34,7 +35,7 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 
-class VTK_WIDGETS_EXPORT vtkSphereHandleRepresentation 
+class VTKINTERACTIONWIDGETS_EXPORT vtkSphereHandleRepresentation
                         : public vtkHandleRepresentation
 {
 public:

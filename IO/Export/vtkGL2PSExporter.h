@@ -81,9 +81,10 @@
 #ifndef __vtkGL2PSExporter_h
 #define __vtkGL2PSExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
-class VTK_RENDERING_EXPORT vtkGL2PSExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
   static vtkGL2PSExporter *New();

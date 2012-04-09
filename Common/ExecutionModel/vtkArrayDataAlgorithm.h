@@ -41,12 +41,13 @@
 #ifndef __vtkArrayDataAlgorithm_h
 #define __vtkArrayDataAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkArrayData.h"
 
 class vtkDataSet;
 
-class VTK_FILTERING_EXPORT vtkArrayDataAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkArrayDataAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkArrayDataAlgorithm *New();

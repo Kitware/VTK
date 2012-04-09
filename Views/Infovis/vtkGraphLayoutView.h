@@ -39,6 +39,7 @@
 #ifndef __vtkGraphLayoutView_h
 #define __vtkGraphLayoutView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
 
 class vtkEdgeLayoutStrategy;
@@ -46,7 +47,7 @@ class vtkGraphLayoutStrategy;
 class vtkRenderedGraphRepresentation;
 class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkGraphLayoutView : public vtkRenderView
+class VTKVIEWSINFOVIS_EXPORT vtkGraphLayoutView : public vtkRenderView
 {
 public:
   static vtkGraphLayoutView *New();

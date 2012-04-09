@@ -40,6 +40,7 @@
 #ifndef __vtkShadowMapBakerPass_h
 #define __vtkShadowMapBakerPass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 class vtkOpenGLRenderWindow;
@@ -50,7 +51,7 @@ class vtkFrameBufferObject;
 class vtkShadowMapBakerPassTextures; // internal
 class vtkShadowMapBakerPassLightCameras; // internal
 
-class VTK_RENDERING_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
+class VTKRENDERINGOPENGL_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
 {
 public:
   static vtkShadowMapBakerPass *New();

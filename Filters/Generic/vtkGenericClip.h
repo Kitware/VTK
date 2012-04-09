@@ -58,6 +58,7 @@
 #ifndef __vtkGenericClip_h
 #define __vtkGenericClip_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkImplicitFunction;
@@ -66,7 +67,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkIncrementalPointLocator;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);

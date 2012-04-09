@@ -23,11 +23,12 @@
 #ifndef __vtkRectilinearGridWriter_h
 #define __vtkRectilinearGridWriter_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataWriter.h"
 
 class vtkRectilinearGrid;
 
-class VTK_IO_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
+class VTKIOGEOMETRY_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
   static vtkRectilinearGridWriter *New();

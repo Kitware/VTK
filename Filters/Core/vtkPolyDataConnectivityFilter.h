@@ -47,6 +47,7 @@
 #ifndef __vtkPolyDataConnectivityFilter_h
 #define __vtkPolyDataConnectivityFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
@@ -60,7 +61,7 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPolyDataConnectivityFilter,vtkPolyDataAlgorithm);

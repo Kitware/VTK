@@ -35,9 +35,10 @@
 #ifndef __vtkDistancePolyDataFilter_h
 #define __vtkDistancePolyDataFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlgorithm {
+class VTKFILTERSGENERAL_EXPORT vtkDistancePolyDataFilter : public vtkPolyDataAlgorithm {
 public:
   static vtkDistancePolyDataFilter *New();
   vtkTypeMacro(vtkDistancePolyDataFilter, vtkPolyDataAlgorithm);

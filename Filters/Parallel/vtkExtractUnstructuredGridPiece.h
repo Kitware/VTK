@@ -18,12 +18,13 @@
 #ifndef __vtkExtractUnstructuredGridPiece_h
 #define __vtkExtractUnstructuredGridPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkIdList;
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkExtractUnstructuredGridPiece *New();

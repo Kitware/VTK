@@ -29,9 +29,10 @@
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageAlgorithm
+class VTKIOIMAGE_EXPORT vtkImageImport : public vtkImageAlgorithm
 {
 public:
   static vtkImageImport *New();

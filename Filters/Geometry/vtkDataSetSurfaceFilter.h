@@ -25,6 +25,7 @@
 #ifndef __vtkDataSetSurfaceFilter_h
 #define __vtkDataSetSurfaceFilter_h
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 
@@ -44,7 +45,7 @@ struct vtkFastGeomQuadStruct
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDataSetSurfaceFilter *New();

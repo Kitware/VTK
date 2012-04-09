@@ -64,6 +64,7 @@
 #ifndef __vtkGaussianSplatter_h
 #define __vtkGaussianSplatter_h
 
+#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 #define VTK_ACCUMULATION_MODE_MIN 0
@@ -72,7 +73,7 @@
 
 class vtkDoubleArray;
 
-class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm 
+class VTKIMAGINGHYBRID_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkGaussianSplatter,vtkImageAlgorithm);

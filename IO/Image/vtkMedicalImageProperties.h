@@ -24,11 +24,12 @@
 #ifndef __vtkMedicalImageProperties_h
 #define __vtkMedicalImageProperties_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkMedicalImagePropertiesInternals;
 
-class VTK_IO_EXPORT vtkMedicalImageProperties : public vtkObject
+class VTKIOIMAGE_EXPORT vtkMedicalImageProperties : public vtkObject
 {
 public:
   static vtkMedicalImageProperties *New();

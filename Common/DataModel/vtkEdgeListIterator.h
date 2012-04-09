@@ -35,6 +35,7 @@
 #ifndef __vtkEdgeListIterator_h
 #define __vtkEdgeListIterator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGraph;
@@ -43,7 +44,7 @@ class vtkGraphEdge;
 struct vtkEdgeType;
 struct vtkOutEdgeType;
 //ETX
-class VTK_FILTERING_EXPORT vtkEdgeListIterator : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
   static vtkEdgeListIterator *New();

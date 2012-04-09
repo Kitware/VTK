@@ -50,12 +50,13 @@
 #ifndef __vtkLocator_h
 #define __vtkLocator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataSet;
 class vtkPolyData;
 
-class VTK_FILTERING_EXPORT vtkLocator : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkLocator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLocator,vtkObject);

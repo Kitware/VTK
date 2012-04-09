@@ -38,6 +38,7 @@
 #ifndef __vtkCellPicker_h
 #define __vtkCellPicker_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"
 
 class vtkMapper;
@@ -56,7 +57,7 @@ class vtkAbstractCellLocator;
 class vtkCollection;
 class vtkMatrix4x4;
 
-class VTK_RENDERING_EXPORT vtkCellPicker : public vtkPicker
+class VTKRENDERINGCORE_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
   static vtkCellPicker *New();

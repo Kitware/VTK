@@ -41,6 +41,7 @@
 #ifndef __vtkAbstractArray_h
 #define __vtkAbstractArray_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVariant.h" // for variant arguments
 
@@ -51,7 +52,7 @@ class vtkIdTypeArray;
 class vtkInformation;
 class vtkInformationIntegerKey;
 
-class VTK_COMMON_EXPORT vtkAbstractArray : public vtkObject 
+class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractArray,vtkObject);

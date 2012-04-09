@@ -32,6 +32,7 @@
 #ifndef __vtkMultiProcessController_h
 #define __vtkMultiProcessController_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
@@ -58,7 +59,7 @@ typedef void (*vtkRMIFunctionType)(void *localArg,
 //ETX
 
 
-class VTK_PARALLEL_EXPORT vtkMultiProcessController : public vtkObject
+class VTKPARALLELCORE_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMultiProcessController,vtkObject);

@@ -37,6 +37,7 @@
 #ifndef __vtkDataSet_h
 #define __vtkDataSet_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkCell;
@@ -47,7 +48,7 @@ class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
 
-class VTK_FILTERING_EXPORT vtkDataSet : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkDataSet,vtkDataObject);

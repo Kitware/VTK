@@ -20,11 +20,12 @@
 #ifndef __vtkIdListCollection_h
 #define __vtkIdListCollection_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkIdList.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkIdListCollection : public vtkCollection
+class VTKCOMMONCORE_EXPORT vtkIdListCollection : public vtkCollection
 {
 public:
   static vtkIdListCollection *New();

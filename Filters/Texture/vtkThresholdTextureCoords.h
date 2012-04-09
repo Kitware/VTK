@@ -35,9 +35,10 @@
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgorithm
+class VTKFILTERSTEXTURE_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgorithm
 {
 public:
   static vtkThresholdTextureCoords *New();

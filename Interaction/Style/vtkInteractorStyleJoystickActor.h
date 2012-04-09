@@ -31,13 +31,14 @@
 #ifndef __vtkInteractorStyleJoystickActor_h
 #define __vtkInteractorStyleJoystickActor_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
 class vtkCellPicker;
 
 // motion flags
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickActor *New();

@@ -17,10 +17,11 @@
 #ifndef __vtkClientSocket_h
 #define __vtkClientSocket_h
 
+#include "vtkCommonSystemModule.h" // For export macro
 #include "vtkSocket.h"
 class vtkServerSocket;
 
-class VTK_COMMON_EXPORT vtkClientSocket : public vtkSocket
+class VTKCOMMONSYSTEM_EXPORT vtkClientSocket : public vtkSocket
 {
 public:
   static vtkClientSocket* New();

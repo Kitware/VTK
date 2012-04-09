@@ -18,9 +18,10 @@
 #ifndef __vtkVolumeRenderingFactory_h
 #define __vtkVolumeRenderingFactory_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRenderingFactory : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRenderingFactory : public vtkObject
 {
 public:
   static vtkVolumeRenderingFactory *New();

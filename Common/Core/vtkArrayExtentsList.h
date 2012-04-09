@@ -41,10 +41,11 @@
 #ifndef __vtkArrayExtentsList_h
 #define __vtkArrayExtentsList_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayExtents.h"
 #include <vtksys/stl/vector> // STL Header
 
-class VTK_COMMON_EXPORT vtkArrayExtentsList
+class VTKCOMMONCORE_EXPORT vtkArrayExtentsList
 {
 public:
   // Description:

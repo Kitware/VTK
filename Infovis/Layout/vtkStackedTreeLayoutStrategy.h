@@ -34,12 +34,13 @@
 #ifndef __vtkStackedTreeLayoutStrategy_h
 #define __vtkStackedTreeLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"
 
 class vtkTree;
 class vtkDataArray;
 
-class VTK_INFOVIS_EXPORT vtkStackedTreeLayoutStrategy :
+class VTKINFOVISLAYOUT_EXPORT vtkStackedTreeLayoutStrategy :
   public vtkAreaLayoutStrategy
 {
 public:

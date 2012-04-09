@@ -18,9 +18,10 @@
 #ifndef __vtkOnePieceExtentTranslator_h
 #define __vtkOnePieceExtentTranslator_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExtentTranslator.h"
 
-class VTK_COMMON_EXPORT vtkOnePieceExtentTranslator : public vtkExtentTranslator
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkOnePieceExtentTranslator : public vtkExtentTranslator
 {
 public:
   static vtkOnePieceExtentTranslator* New();

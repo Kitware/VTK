@@ -28,6 +28,7 @@
 #ifndef __vtkOBBDicer_h
 #define __vtkOBBDicer_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDicer.h"
 
 class vtkOBBNode;
@@ -35,7 +36,7 @@ class vtkShortArray;
 class vtkIdList;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkOBBDicer : public vtkDicer 
+class VTKFILTERSGENERAL_EXPORT vtkOBBDicer : public vtkDicer
 {
 public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);

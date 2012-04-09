@@ -24,12 +24,13 @@
 #ifndef __vtkDiscretizableColorTransferFunction_h
 #define __vtkDiscretizableColorTransferFunction_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkColorTransferFunction.h"
 
 class vtkLookupTable;
 class vtkColorTransferFunction;
 
-class VTK_FILTERING_EXPORT vtkDiscretizableColorTransferFunction : public vtkColorTransferFunction
+class VTKRENDERINGCORE_EXPORT vtkDiscretizableColorTransferFunction : public vtkColorTransferFunction
 {
 public:
   static vtkDiscretizableColorTransferFunction* New();

@@ -25,11 +25,12 @@
 #ifndef __vtkLineSource_h
 #define __vtkLineSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkLineSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLineSource *New();

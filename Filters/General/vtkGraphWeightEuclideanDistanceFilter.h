@@ -21,11 +21,12 @@
 #ifndef __vtkGraphWeightEuclideanDistanceFilter_h
 #define __vtkGraphWeightEuclideanDistanceFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphWeightFilter.h"
 
 class vtkGraph;
 
-class VTK_FILTERING_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vtkGraphWeightFilter
+class VTKFILTERSGENERAL_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vtkGraphWeightFilter
 {
  public:
   static vtkGraphWeightEuclideanDistanceFilter *New();

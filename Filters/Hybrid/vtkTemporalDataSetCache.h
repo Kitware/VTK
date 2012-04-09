@@ -28,11 +28,12 @@
 #ifndef __vtkTemporalDataSetCache_h
 #define __vtkTemporalDataSetCache_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkTemporalDataSetAlgorithm.h"
 
 #include <map> // used for the cache
 
-class VTK_HYBRID_EXPORT vtkTemporalDataSetCache : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalDataSetCache *New();

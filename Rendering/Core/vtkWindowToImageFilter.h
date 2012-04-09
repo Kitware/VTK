@@ -51,6 +51,7 @@
 #ifndef __vtkWindowToImageFilter_h
 #define __vtkWindowToImageFilter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h" // makes things a bit easier
 
@@ -60,7 +61,7 @@
 class vtkWindow;
 
 class vtkWTI2DHelperClass;
-class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkAlgorithm
+class VTKRENDERINGCORE_EXPORT vtkWindowToImageFilter : public vtkAlgorithm
 {
 public:
   static vtkWindowToImageFilter *New();

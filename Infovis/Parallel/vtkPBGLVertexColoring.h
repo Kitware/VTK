@@ -28,6 +28,7 @@
 #ifndef __vtkPBGLVertexColoring_h
 #define __vtkPBGLVertexColoring_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -35,7 +36,7 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLVertexColoring : public vtkGraphAlgorithm 
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLVertexColoring : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLVertexColoring *New();

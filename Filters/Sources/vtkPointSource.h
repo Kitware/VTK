@@ -24,12 +24,13 @@
 #ifndef __vtkPointSource_h
 #define __vtkPointSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_POINT_UNIFORM   1
 #define VTK_POINT_SHELL     0
 
-class VTK_GRAPHICS_EXPORT vtkPointSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkPointSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPointSource *New();

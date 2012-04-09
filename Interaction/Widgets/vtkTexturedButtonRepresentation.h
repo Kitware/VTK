@@ -45,6 +45,7 @@
 #ifndef __vtkTexturedButtonRepresentation_h
 #define __vtkTexturedButtonRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
 
 class vtkCellPicker;
@@ -58,7 +59,7 @@ class vtkAlgorithmOutput;
 class vtkTexture;
 class vtkFollower;
 
-class VTK_WIDGETS_EXPORT vtkTexturedButtonRepresentation : public vtkButtonRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkTexturedButtonRepresentation : public vtkButtonRepresentation
 {
 public:
   // Description:

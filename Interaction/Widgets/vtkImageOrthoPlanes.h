@@ -25,13 +25,14 @@
 #ifndef __vtkImageOrthoPlanes_h
 #define __vtkImageOrthoPlanes_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImagePlaneWidget;
 class vtkTransform;
 class vtkMatrix4x4;
 
-class VTK_WIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
 {
 public:
   static vtkImageOrthoPlanes *New();

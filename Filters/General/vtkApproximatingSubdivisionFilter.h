@@ -24,6 +24,7 @@
 #ifndef __vtkApproximatingSubdivisionFilter_h
 #define __vtkApproximatingSubdivisionFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -33,7 +34,7 @@ class vtkIntArray;
 class vtkPoints;
 class vtkPointData;
 
-class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataAlgorithm);

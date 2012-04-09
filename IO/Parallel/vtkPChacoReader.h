@@ -27,12 +27,13 @@
 #ifndef __vtkPChacoReader_h
 #define __vtkPChacoReader_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkChacoReader.h"
 
 class vtkTimerLog;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPChacoReader : public vtkChacoReader 
+class VTKIOPARALLEL_EXPORT vtkPChacoReader : public vtkChacoReader
 {
 public:
   static vtkPChacoReader *New();

@@ -28,11 +28,12 @@
 #ifndef __vtkCollapseVerticesByArray_h__
 #define __vtkCollapseVerticesByArray_h__
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkCollapseVerticesByArrayInternal;
 
-class VTK_INFOVIS_EXPORT vtkCollapseVerticesByArray : public vtkGraphAlgorithm
+class VTKINFOVISCORE_EXPORT vtkCollapseVerticesByArray : public vtkGraphAlgorithm
 {
 public:
     static vtkCollapseVerticesByArray* New();

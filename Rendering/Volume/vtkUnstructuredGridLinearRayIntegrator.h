@@ -40,12 +40,13 @@
 #ifndef __vtkUnstructuredGridLinearRayIntegrator_h
 #define __vtkUnstructuredGridLinearRayIntegrator_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
 class vtkLinearRayIntegratorTransferFunction;
 class vtkVolumeProperty;
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridLinearRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridLinearRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridLinearRayIntegrator,

@@ -27,9 +27,10 @@
 #define __vtkROIStencilSource_h
 
 
+#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
 
-class VTK_IMAGING_EXPORT vtkROIStencilSource : public vtkImageStencilSource
+class VTKIMAGINGSTENCIL_EXPORT vtkROIStencilSource : public vtkImageStencilSource
 {
 public:
   static vtkROIStencilSource *New();

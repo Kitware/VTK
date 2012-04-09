@@ -27,9 +27,10 @@
 #ifndef __vtkIdFilter_h
 #define __vtkIdFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkIdFilter : public vtkDataSetAlgorithm 
+class VTKFILTERSCORE_EXPORT vtkIdFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkIdFilter,vtkDataSetAlgorithm);

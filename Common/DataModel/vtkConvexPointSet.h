@@ -27,6 +27,7 @@
 #ifndef __vtkConvexPointSet_h
 #define __vtkConvexPointSet_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
 
 class vtkUnstructuredGrid;
@@ -35,7 +36,7 @@ class vtkTriangle;
 class vtkTetra;
 class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkConvexPointSet : public vtkCell3D
+class VTKCOMMONDATAMODEL_EXPORT vtkConvexPointSet : public vtkCell3D
 {
 public:
   static vtkConvexPointSet *New();

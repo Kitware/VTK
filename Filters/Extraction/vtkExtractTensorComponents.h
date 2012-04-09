@@ -40,13 +40,14 @@
 #ifndef __vtkExtractTensorComponents_h
 #define __vtkExtractTensorComponents_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 #define VTK_EXTRACT_COMPONENT 0
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1
 #define VTK_EXTRACT_DETERMINANT 2
 
-class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm 
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractTensorComponents : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetAlgorithm);

@@ -24,6 +24,7 @@
 #ifndef __vtkOpenGLFreeTypeTextMapper_h
 #define __vtkOpenGLFreeTypeTextMapper_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkTextMapper.h"
 
 //#include <FTGL.h>
@@ -39,7 +40,7 @@
 //}
 //#endif
 
-class VTK_RENDERING_EXPORT vtkOpenGLFreeTypeTextMapper : public vtkTextMapper
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLFreeTypeTextMapper : public vtkTextMapper
 {
 public:
   vtkTypeMacro(vtkOpenGLFreeTypeTextMapper,vtkTextMapper);

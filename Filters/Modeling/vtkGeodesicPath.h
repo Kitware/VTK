@@ -20,11 +20,12 @@
 #ifndef __vtkGeodesicPath_h
 #define __vtkGeodesicPath_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
 {
 public:
 

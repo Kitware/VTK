@@ -21,11 +21,12 @@
 #ifndef __vtkImageDataStreamer_h
 #define __vtkImageDataStreamer_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkExtentTranslator;
 
-class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageDataStreamer : public vtkImageAlgorithm
 {
 public:
   static vtkImageDataStreamer *New();

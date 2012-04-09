@@ -19,9 +19,10 @@
 #ifndef __vtkBase64Utilities_h
 #define __vtkBase64Utilities_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_IO_EXPORT vtkBase64Utilities : public vtkObject
+class VTKIOCORE_EXPORT vtkBase64Utilities : public vtkObject
 {
 public:
   static vtkBase64Utilities *New();

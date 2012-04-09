@@ -26,13 +26,14 @@
 #ifndef VTKUNIFORMGRIDPARTITIONER_H_
 #define VTKUNIFORMGRIDPARTITIONER_H_
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
 
-class VTK_FILTERING_EXPORT vtkUniformGridPartitioner :
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:

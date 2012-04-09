@@ -27,6 +27,7 @@
 #ifndef __vtkGlyphSource2D_h
 #define __vtkGlyphSource2D_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_NO_GLYPH 0
@@ -47,7 +48,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCellArray;
 
-class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyphSource2D,vtkPolyDataAlgorithm);

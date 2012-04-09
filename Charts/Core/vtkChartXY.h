@@ -24,6 +24,7 @@
 #ifndef __vtkChartXY_h
 #define __vtkChartXY_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h" // For vtkVector2f in struct
@@ -35,7 +36,7 @@ class vtkChartLegend;
 class vtkTooltipItem;
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
-class VTK_CHARTS_EXPORT vtkChartXY : public vtkChart
+class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartXY, vtkChart);

@@ -24,11 +24,12 @@
 #ifndef __vtkPropCollection_h
 #define __vtkPropCollection_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkProp.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkPropCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 {
  public:
   static vtkPropCollection *New();

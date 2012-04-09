@@ -33,11 +33,12 @@
 #ifndef __vtkFixedSizeHandleRepresentation3D_h
 #define __vtkFixedSizeHandleRepresentation3D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolygonalHandleRepresentation3D.h"
 
 class vtkSphereSource;
 
-class VTK_WIDGETS_EXPORT vtkFixedSizeHandleRepresentation3D : public vtkPolygonalHandleRepresentation3D
+class VTKINTERACTIONWIDGETS_EXPORT vtkFixedSizeHandleRepresentation3D : public vtkPolygonalHandleRepresentation3D
 {
 public:
 

@@ -44,13 +44,14 @@
 #ifndef __vtkExtractHistogram2D_h
 #define __vtkExtractHistogram2D_h
 
+#include "vtkFiltersImagingModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
 class vtkImageData;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 
-class VTK_INFOVIS_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgorithm
+class VTKFILTERSIMAGING_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgorithm
 {
 public:
   static vtkExtractHistogram2D* New();

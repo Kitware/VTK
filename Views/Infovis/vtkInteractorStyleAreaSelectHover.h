@@ -31,6 +31,7 @@
 #ifndef __vtkInteractorStyleAreaSelectHover_h
 #define __vtkInteractorStyleAreaSelectHover_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleRubberBand2D.h"
 
 class vtkAreaLayout;
@@ -41,7 +42,7 @@ class vtkTree;
 class vtkWorldPointPicker;
 class vtkPolyData;
 
-class VTK_VIEWS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
+class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInteractorStyleRubberBand2D
 {
 public:
   static vtkInteractorStyleAreaSelectHover* New();

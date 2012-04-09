@@ -34,13 +34,14 @@
 #ifndef __vtkTerrainDataPointPlacer_h
 #define __vtkTerrainDataPointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkPropCollection;
 class vtkProp;
 class vtkPropPicker;
 
-class VTK_WIDGETS_EXPORT vtkTerrainDataPointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkTerrainDataPointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

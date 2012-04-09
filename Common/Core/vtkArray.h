@@ -51,13 +51,14 @@
 #ifndef __vtkArray_h
 #define __vtkArray_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 #include "vtkObject.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
 
-class VTK_COMMON_EXPORT vtkArray : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArray, vtkObject);

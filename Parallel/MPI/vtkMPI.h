@@ -18,6 +18,7 @@
 
 #ifndef USE_STDARG
  #define USE_STDARG
+#include "vtkParallelMPIModule.h" // For export macro
  #include "mpi.h"
  #undef USE_STDARG
 #else
@@ -26,7 +27,7 @@
 
 #include "vtkSystemIncludes.h"
 
-class VTK_PARALLEL_EXPORT vtkMPICommunicatorOpaqueComm
+class VTKPARALLELMPI_EXPORT vtkMPICommunicatorOpaqueComm
 {
 public:
   vtkMPICommunicatorOpaqueComm(MPI_Comm* handle = 0);
@@ -40,7 +41,7 @@ protected:
   MPI_Comm* Handle;
 };
 
-class VTK_PARALLEL_EXPORT vtkMPICommunicatorReceiveDataInfo
+class VTKPARALLELMPI_EXPORT vtkMPICommunicatorReceiveDataInfo
 {
 public:
   vtkMPICommunicatorReceiveDataInfo()
@@ -52,7 +53,7 @@ public:
   MPI_Comm* Handle;
 };
 
-class VTK_PARALLEL_EXPORT vtkMPIOpaqueFileHandle
+class VTKPARALLELMPI_EXPORT vtkMPIOpaqueFileHandle
 {
 public:
   vtkMPIOpaqueFileHandle() : Handle(MPI_FILE_NULL) { }

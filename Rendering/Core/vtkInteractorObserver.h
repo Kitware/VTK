@@ -42,6 +42,7 @@
 #ifndef __vtkInteractorObserver_h
 #define __vtkInteractorObserver_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderWindowInteractor;
@@ -50,7 +51,7 @@ class vtkCallbackCommand;
 class vtkObserverMediator;
 
 
-class VTK_RENDERING_EXPORT vtkInteractorObserver : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInteractorObserver,vtkObject);

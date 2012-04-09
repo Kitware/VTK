@@ -83,6 +83,7 @@
 #ifndef __vtkSplineWidget_h
 #define __vtkSplineWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 
 class vtkActor;
@@ -102,7 +103,7 @@ class vtkTransform;
 #define VTK_PROJECTION_XY 2
 #define VTK_PROJECTION_OBLIQUE 3
 
-class VTK_WIDGETS_EXPORT vtkSplineWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkSplineWidget : public vtk3DWidget
 {
 public:
   // Description:

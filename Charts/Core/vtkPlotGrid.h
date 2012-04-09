@@ -24,6 +24,7 @@
 #ifndef __vtkPlotGrid_h
 #define __vtkPlotGrid_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 
 class vtkStdString;
@@ -31,7 +32,7 @@ class vtkContext2D;
 class vtkPoints2D;
 class vtkAxis;
 
-class VTK_CHARTS_EXPORT vtkPlotGrid : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkPlotGrid : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlotGrid, vtkContextItem);

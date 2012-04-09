@@ -38,9 +38,10 @@
 #ifndef __vtkPolyDataPointSampler_h
 #define __vtkPolyDataPointSampler_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataPointSampler : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkPolyDataPointSampler : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

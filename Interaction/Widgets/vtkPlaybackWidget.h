@@ -26,12 +26,13 @@
 #ifndef __vtkPlaybackWidget_h
 #define __vtkPlaybackWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
 
 class vtkPlaybackRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkPlaybackWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkPlaybackWidget : public vtkBorderWidget
 {
 public:
   // Description:

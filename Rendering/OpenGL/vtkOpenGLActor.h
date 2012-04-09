@@ -20,11 +20,12 @@
 #ifndef __vtkOpenGLActor_h
 #define __vtkOpenGLActor_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkActor.h"
 
 class vtkOpenGLRenderer;
 
-class VTK_RENDERING_EXPORT vtkOpenGLActor : public vtkActor
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLActor : public vtkActor
 {
 protected:
   

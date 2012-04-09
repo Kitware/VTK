@@ -29,9 +29,10 @@
 #ifndef __vtkTreeRingToPolyData_h
 #define __vtkTreeRingToPolyData_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkTreeRingToPolyData : public vtkPolyDataAlgorithm 
+class VTKINFOVISLAYOUT_EXPORT vtkTreeRingToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTreeRingToPolyData *New();

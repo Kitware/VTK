@@ -24,9 +24,10 @@
 #ifndef __vtkLinearContourLineInterpolator_h
 #define __vtkLinearContourLineInterpolator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
 
-class VTK_WIDGETS_EXPORT vtkLinearContourLineInterpolator 
+class VTKINTERACTIONWIDGETS_EXPORT vtkLinearContourLineInterpolator
                           : public vtkContourLineInterpolator
 {
 public:

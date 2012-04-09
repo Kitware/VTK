@@ -20,6 +20,7 @@
 #ifndef __vtkGenericEnSightReader_h
 #define __vtkGenericEnSightReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkCallbackCommand;
@@ -45,7 +46,7 @@ enum EnsightReaderCellIdMode
     };
 //ETX
 
-class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkGenericEnSightReader *New();

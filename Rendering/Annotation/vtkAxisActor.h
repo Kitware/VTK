@@ -49,6 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkAxisActor_h
 #define __vtkAxisActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
 
 #define VTK_MAX_LABELS    200
@@ -81,7 +82,7 @@ class vtkTextActor;
 class vtkTextProperty;
 class vtkVectorText;
 
-class VTK_HYBRID_EXPORT vtkAxisActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 {
  public:
   vtkTypeMacro(vtkAxisActor,vtkActor);

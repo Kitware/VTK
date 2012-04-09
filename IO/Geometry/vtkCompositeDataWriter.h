@@ -21,6 +21,7 @@
 #ifndef __vtkCompositeDataWriter_h
 #define __vtkCompositeDataWriter_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataWriter.h"
 
 class vtkCompositeDataSet;
@@ -28,7 +29,7 @@ class vtkMultiPieceDataSet;
 class vtkMultiBlockDataSet;
 class vtkHierarchicalBoxDataSet;
 
-class VTK_IO_EXPORT vtkCompositeDataWriter : public vtkDataWriter
+class VTKIOGEOMETRY_EXPORT vtkCompositeDataWriter : public vtkDataWriter
 {
 public:
   static vtkCompositeDataWriter* New();

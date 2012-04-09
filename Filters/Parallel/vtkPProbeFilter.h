@@ -18,11 +18,12 @@
 #ifndef __vtkPProbeFilter_h
 #define __vtkPProbeFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCompositeDataProbeFilter.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFilter
+class VTKFILTERSPARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFilter
 {
 public:
   vtkTypeMacro(vtkPProbeFilter,vtkCompositeDataProbeFilter);

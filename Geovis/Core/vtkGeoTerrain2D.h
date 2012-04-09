@@ -30,6 +30,7 @@
 #ifndef __vtkGeoTerrain2D_h
 #define __vtkGeoTerrain2D_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoTerrain.h"
 
 class vtkAbstractTransform;
@@ -40,7 +41,7 @@ class vtkGeoSource;
 class vtkGeoTerrainNode;
 class vtkRenderer;
 
-class VTK_GEOVIS_EXPORT vtkGeoTerrain2D : public vtkGeoTerrain
+class VTKGEOVISCORE_EXPORT vtkGeoTerrain2D : public vtkGeoTerrain
 {
 public:
   static vtkGeoTerrain2D *New();

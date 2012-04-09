@@ -32,6 +32,7 @@
 #ifndef __vtkDataSetAlgorithm_h
 #define __vtkDataSetAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataSet;
@@ -42,7 +43,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_FILTERING_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkDataSetAlgorithm *New();

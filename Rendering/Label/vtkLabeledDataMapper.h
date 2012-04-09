@@ -43,6 +43,7 @@
 #ifndef __vtkLabeledDataMapper_h
 #define __vtkLabeledDataMapper_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
 
 class vtkDataObject;
@@ -59,7 +60,7 @@ class vtkTransform;
 #define VTK_LABEL_TENSORS    5
 #define VTK_LABEL_FIELD_DATA 6
 
-class VTK_RENDERING_EXPORT vtkLabeledDataMapper : public vtkMapper2D
+class VTKRENDERINGLABEL_EXPORT vtkLabeledDataMapper : public vtkMapper2D
 {
 public:
   // Description:

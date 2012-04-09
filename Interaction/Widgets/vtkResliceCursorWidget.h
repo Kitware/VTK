@@ -33,11 +33,12 @@
 #ifndef __vtkResliceCursorWidget_h
 #define __vtkResliceCursorWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkResliceCursorRepresentation;
 
-class VTK_WIDGETS_EXPORT vtkResliceCursorWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorWidget : public vtkAbstractWidget
 {
 public:
 

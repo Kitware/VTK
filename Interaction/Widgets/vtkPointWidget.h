@@ -64,6 +64,7 @@
 #ifndef __vtkPointWidget_h
 #define __vtkPointWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 #include "vtkCursor3D.h" // Needed for faster access to the Cursor3D
 
@@ -73,7 +74,7 @@ class vtkCellPicker;
 class vtkPolyData;
 class vtkProperty;
 
-class VTK_WIDGETS_EXPORT vtkPointWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkPointWidget : public vtk3DWidget
 {
 public:
   // Description:

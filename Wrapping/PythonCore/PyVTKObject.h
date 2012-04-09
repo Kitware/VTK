@@ -19,6 +19,7 @@
 #ifndef __PyVTKObject_h
 #define __PyVTKObject_h
 
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 
 class vtkObjectBase;
@@ -40,23 +41,23 @@ struct PyVTKObject {
 #endif
 };
 
-extern VTK_PYTHON_EXPORT PyTypeObject PyVTKObject_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKObject_Type;
 
 #define PyVTKObject_Check(obj) ((obj)->ob_type == &PyVTKObject_Type)
 
 extern "C"
 {
-VTK_PYTHON_EXPORT
+VTKWRAPPINGPYTHONCORE_EXPORT
 PyObject *PyVTKObject_New(
   PyObject *vtkclass, PyObject *pydict, vtkObjectBase *ptr);
 
-VTK_PYTHON_EXPORT
+VTKWRAPPINGPYTHONCORE_EXPORT
 vtkObjectBase *PyVTKObject_GetObject(PyObject *obj);
 
-VTK_PYTHON_EXPORT
+VTKWRAPPINGPYTHONCORE_EXPORT
 void PyVTKObject_SetFlag(PyObject *obj, long flag, int val);
 
-VTK_PYTHON_EXPORT
+VTKWRAPPINGPYTHONCORE_EXPORT
 long PyVTKObject_GetFlags(PyObject *obj);
 }
 

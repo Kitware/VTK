@@ -27,13 +27,14 @@
 #ifndef __vtkScalarsToColorsItem_h
 #define __vtkScalarsToColorsItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 
 class vtkCallbackCommand;
 class vtkImageData;
 class vtkPoints2D;
 
-class VTK_CHARTS_EXPORT vtkScalarsToColorsItem: public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkScalarsToColorsItem: public vtkPlot
 {
 public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);

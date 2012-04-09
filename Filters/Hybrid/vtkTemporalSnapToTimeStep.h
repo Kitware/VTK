@@ -29,13 +29,14 @@
 #ifndef __vtkTemporalSnapToTimeStep_h
 #define __vtkTemporalSnapToTimeStep_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkTemporalDataSetAlgorithm.h"
 
 //BTX
 #include <vector> // used because I am a bad boy. So there.
 //ETX
 
-class VTK_HYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalSnapToTimeStep *New();

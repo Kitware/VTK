@@ -39,9 +39,10 @@
 #ifndef __vtkUndirectedGraph_h
 #define __vtkUndirectedGraph_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
 
-class VTK_FILTERING_EXPORT vtkUndirectedGraph : public vtkGraph
+class VTKCOMMONDATAMODEL_EXPORT vtkUndirectedGraph : public vtkGraph
 {
 public:
   static vtkUndirectedGraph *New();

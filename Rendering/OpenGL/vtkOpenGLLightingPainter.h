@@ -22,11 +22,12 @@
 #ifndef __vtkOpenGLLightingPainter_h
 #define __vtkOpenGLLightingPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkLightingPainter.h"
 
 class vtkWindow;
 
-class VTK_RENDERING_EXPORT vtkOpenGLLightingPainter : public vtkLightingPainter
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLightingPainter : public vtkLightingPainter
 {
 public:
   static vtkOpenGLLightingPainter* New();

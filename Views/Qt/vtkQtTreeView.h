@@ -29,6 +29,7 @@
 #ifndef __vtkQtTreeView_h
 #define __vtkQtTreeView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
@@ -48,7 +49,7 @@ class QVBoxLayout;
 class vtkQtTreeModelAdapter;
 class QItemSelectionModel;
 
-class QVTK_EXPORT vtkQtTreeView : public vtkQtView
+class VTKVIEWSQT_EXPORT vtkQtTreeView : public vtkQtView
 {
 Q_OBJECT
 

@@ -36,12 +36,13 @@
 #define __vtkTreeMapLayoutStrategy_h
 
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"
 
 class vtkTree;
 class vtkDataArray;
 
-class VTK_INFOVIS_EXPORT vtkTreeMapLayoutStrategy : public vtkAreaLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkTreeMapLayoutStrategy : public vtkAreaLayoutStrategy
 {
 public:
   vtkTypeMacro(vtkTreeMapLayoutStrategy, vtkAreaLayoutStrategy);

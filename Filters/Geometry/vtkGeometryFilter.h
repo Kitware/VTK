@@ -44,11 +44,12 @@
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIncrementalPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeometryFilter *New();

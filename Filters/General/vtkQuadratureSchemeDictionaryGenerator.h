@@ -28,6 +28,7 @@
 #ifndef vtkQuadratureSchemeDictionaryGenerator_h
 #define vtkQuadratureSchemeDictionaryGenerator_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkPolyData;
@@ -35,7 +36,7 @@ class vtkUnstructuredGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_GRAPHICS_EXPORT vtkQuadratureSchemeDictionaryGenerator : public vtkDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkQuadratureSchemeDictionaryGenerator : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);

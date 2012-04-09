@@ -22,9 +22,10 @@
 #ifndef __vtkOpenGLDisplayListPainter_h
 #define __vtkOpenGLDisplayListPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkDisplayListPainter.h"
 
-class VTK_RENDERING_EXPORT vtkOpenGLDisplayListPainter : public vtkDisplayListPainter
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLDisplayListPainter : public vtkDisplayListPainter
 {
 public:
   static vtkOpenGLDisplayListPainter* New();

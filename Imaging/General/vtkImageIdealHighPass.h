@@ -30,9 +30,10 @@
 #define __vtkImageIdealHighPass_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageIdealHighPass *New();

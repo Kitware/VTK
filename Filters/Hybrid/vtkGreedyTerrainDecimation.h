@@ -63,6 +63,7 @@
 #ifndef __vtkGreedyTerrainDecimation_h
 #define __vtkGreedyTerrainDecimation_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPriorityQueue;
@@ -81,7 +82,7 @@ class vtkGreedyTerrainDecimationPointInfoType;
 #define VTK_ERROR_ABSOLUTE            2
 #define VTK_ERROR_RELATIVE            3
 
-class VTK_HYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);

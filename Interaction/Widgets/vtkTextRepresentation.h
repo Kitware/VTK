@@ -25,6 +25,7 @@
 #ifndef __vtkTextRepresentation_h
 #define __vtkTextRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
 
 class vtkRenderer;
@@ -32,7 +33,7 @@ class vtkTextActor;
 class vtkTextProperty;
 class vtkTextRepresentationObserver;
 
-class VTK_WIDGETS_EXPORT vtkTextRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkTextRepresentation : public vtkBorderRepresentation
 {
 public:
   // Description:

@@ -19,12 +19,13 @@
 #ifndef __vtkPipelineGraphSource_h
 #define __vtkPipelineGraphSource_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
 #include <vtkStdString.h>
 
 class vtkCollection;
 
-class VTK_VIEWS_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
+class VTKVIEWSINFOVIS_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkPipelineGraphSource* New();

@@ -28,11 +28,12 @@
 #ifndef __vtkImageResize_h
 #define __vtkImageResize_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
 class vtkAbstractImageInterpolator;
 
-class VTK_IMAGING_EXPORT vtkImageResize : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageResize : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageResize *New();

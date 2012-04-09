@@ -59,12 +59,13 @@
 #ifndef __vtkContinuousValueWidget_h
 #define __vtkContinuousValueWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkContinuousValueWidgetRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkContinuousValueWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkContinuousValueWidget : public vtkAbstractWidget
 {
 public:
   // Description:

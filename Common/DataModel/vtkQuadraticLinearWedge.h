@@ -36,6 +36,7 @@
 #ifndef __vtkQuadraticLinearWedge_h
 #define __vtkQuadraticLinearWedge_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
 class vtkQuadraticEdge;
@@ -45,7 +46,7 @@ class vtkQuadraticTriangle;
 class vtkWedge;
 class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkQuadraticLinearWedge : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticLinearWedge : public vtkNonLinearCell
 {
 public:
   static vtkQuadraticLinearWedge *New ();

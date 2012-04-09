@@ -22,6 +22,7 @@
 #ifndef __vtkImageData_h
 #define __vtkImageData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
 #include "vtkStructuredData.h" // Needed for inline methods
@@ -32,7 +33,7 @@ class vtkPixel;
 class vtkVertex;
 class vtkVoxel;
 
-class VTK_FILTERING_EXPORT vtkImageData : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkImageData : public vtkDataSet
 {
 public:
   static vtkImageData *New();

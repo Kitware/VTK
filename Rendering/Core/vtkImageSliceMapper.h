@@ -27,12 +27,13 @@
 #ifndef __vtkImageSliceMapper_h
 #define __vtkImageSliceMapper_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageMapper3D.h"
 
 class vtkCamera;
 class vtkPoints;
 
-class VTK_RENDERING_EXPORT vtkImageSliceMapper : public vtkImageMapper3D
+class VTKRENDERINGCORE_EXPORT vtkImageSliceMapper : public vtkImageMapper3D
 {
 public:
   static vtkImageSliceMapper *New();

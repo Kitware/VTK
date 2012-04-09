@@ -37,13 +37,14 @@
 #ifndef __vtkThinPlateSplineTransform_h
 #define __vtkThinPlateSplineTransform_h
 
+#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkWarpTransform.h"
 
 #define VTK_RBF_CUSTOM 0
 #define VTK_RBF_R      1
 #define VTK_RBF_R2LOGR 2
 
-class VTK_HYBRID_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
+class VTKCOMMONTRANSFORMS_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);

@@ -41,9 +41,10 @@
 #ifndef __vtkTextureMapToSphere_h
 #define __vtkTextureMapToSphere_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorithm 
+class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkTextureMapToSphere,vtkDataSetAlgorithm);

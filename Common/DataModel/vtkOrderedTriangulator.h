@@ -78,6 +78,7 @@
 #ifndef __vtkOrderedTriangulator_h
 #define __vtkOrderedTriangulator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class  vtkUnstructuredGrid;
@@ -103,7 +104,7 @@ typedef unsigned int    TemplateIDType;
 typedef unsigned long   TemplateIDType;
 #endif    
 
-class VTK_FILTERING_EXPORT vtkOrderedTriangulator : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOrderedTriangulator,vtkObject);

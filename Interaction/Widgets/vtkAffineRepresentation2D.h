@@ -39,6 +39,7 @@
 #ifndef __vtkAffineRepresentation2D_h
 #define __vtkAffineRepresentation2D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAffineRepresentation.h"
 
 class vtkProperty2D;
@@ -53,7 +54,7 @@ class vtkTextMapper;
 class vtkActor2D;
 
 
-class VTK_WIDGETS_EXPORT vtkAffineRepresentation2D : public vtkAffineRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkAffineRepresentation2D : public vtkAffineRepresentation
 {
 public:
   // Description:

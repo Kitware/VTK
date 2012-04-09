@@ -35,13 +35,14 @@
 #ifndef __vtkGenericSubdivisionErrorMetric_h
 #define __vtkGenericSubdivisionErrorMetric_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGenericAttributeCollection;
 class vtkGenericAdaptorCell;
 class vtkGenericDataSet;
 
-class VTK_FILTERING_EXPORT vtkGenericSubdivisionErrorMetric : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericSubdivisionErrorMetric : public vtkObject
 {
 public:  
   // Description:

@@ -49,6 +49,7 @@
 #ifndef __vtkOBBTree_h
 #define __vtkOBBTree_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
 
 class vtkMatrix4x4;
@@ -57,7 +58,7 @@ class vtkMatrix4x4;
 //
 //BTX
 //
-class VTK_GRAPHICS_EXPORT vtkOBBNode { //;prevent man page generation
+class VTKFILTERSGENERAL_EXPORT vtkOBBNode { //;prevent man page generation
 public:
   vtkOBBNode();
   ~vtkOBBNode();
@@ -73,7 +74,7 @@ public:
 //ETX
 //
 
-class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkAbstractCellLocator
+class VTKFILTERSGENERAL_EXPORT vtkOBBTree : public vtkAbstractCellLocator
 {
 public:
   vtkTypeMacro(vtkOBBTree,vtkAbstractCellLocator);

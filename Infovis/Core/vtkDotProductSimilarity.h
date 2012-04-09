@@ -55,9 +55,10 @@
 #ifndef __vtkDotProductSimilarity_h
 #define __vtkDotProductSimilarity_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
+class VTKINFOVISCORE_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 {
 public:
   static vtkDotProductSimilarity* New();

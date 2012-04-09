@@ -26,6 +26,7 @@
 #ifndef __vtkRenderState_h
 #define __vtkRenderState_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
@@ -33,7 +34,7 @@ class vtkProp;
 class vtkFrameBufferObject;
 class vtkInformation;
 
-class VTK_RENDERING_EXPORT vtkRenderState
+class VTKRENDERINGOPENGL_EXPORT vtkRenderState
 {
  public:
   // Description:

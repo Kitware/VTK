@@ -24,12 +24,13 @@
 #ifndef __vtkImageToStructuredPoints_h
 #define __vtkImageToStructuredPoints_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
  
 class vtkImageData;
 class vtkStructuredPoints;
 
-class VTK_FILTERING_EXPORT vtkImageToStructuredPoints : public vtkImageAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredPoints : public vtkImageAlgorithm
 {
 public:
   static vtkImageToStructuredPoints *New();

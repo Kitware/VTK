@@ -39,6 +39,7 @@
 #ifndef __vtkSelectEnclosedPoints_h
 #define __vtkSelectEnclosedPoints_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkUnsignedCharArray;
@@ -47,7 +48,7 @@ class vtkIdList;
 class vtkGenericCell;
 
 
-class VTK_GRAPHICS_EXPORT vtkSelectEnclosedPoints : public vtkDataSetAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkSelectEnclosedPoints : public vtkDataSetAlgorithm
 {
 public:
   // Description

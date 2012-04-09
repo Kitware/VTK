@@ -33,9 +33,10 @@
 #ifndef __vtkProgrammableDataObjectSource_h
 #define __vtkProgrammableDataObjectSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableDataObjectSource : public vtkDataObjectAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkProgrammableDataObjectSource : public vtkDataObjectAlgorithm
 {
 public:
   static vtkProgrammableDataObjectSource *New();

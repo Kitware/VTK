@@ -34,13 +34,14 @@
 #ifndef __vtkDataObjectAlgorithm_h
 #define __vtkDataObjectAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkDataObject.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkDataObjectAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDataObjectAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkDataObjectAlgorithm *New();

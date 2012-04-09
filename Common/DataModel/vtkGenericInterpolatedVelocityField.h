@@ -39,6 +39,7 @@
 #ifndef __vtkGenericInterpolatedVelocityField_h
 #define __vtkGenericInterpolatedVelocityField_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFunctionSet.h"
 
 class vtkGenericDataSet;
@@ -47,7 +48,7 @@ class vtkGenericAdaptorCell;
 
 class vtkGenericInterpolatedVelocityFieldDataSetsType;
 
-class VTK_FILTERING_EXPORT vtkGenericInterpolatedVelocityField : public vtkFunctionSet
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
   vtkTypeMacro(vtkGenericInterpolatedVelocityField,vtkFunctionSet);

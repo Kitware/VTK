@@ -21,11 +21,12 @@
 #ifndef __vtkEvent_h
 #define __vtkEvent_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderWindowInteractor;
 
-class VTK_WIDGETS_EXPORT vtkEvent : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkEvent : public vtkObject
 {
 public:
   // Description:

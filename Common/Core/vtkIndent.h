@@ -21,12 +21,13 @@
 #ifndef __vtkIndent_h
 #define __vtkIndent_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 class vtkIndent;
-VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
+VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
 
-class VTK_COMMON_EXPORT vtkIndent
+class VTKCOMMONCORE_EXPORT vtkIndent
 {
 public:
   void Delete() {delete this;};
@@ -41,7 +42,7 @@ public:
   //BTX
   // Description:
   // Print out the indentation. Basically output a bunch of spaces.
-  friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
+  friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
   //ETX
 
 protected:

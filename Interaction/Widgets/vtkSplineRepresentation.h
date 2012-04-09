@@ -25,6 +25,7 @@
 #ifndef __vtkSplineRepresentation_h
 #define __vtkSplineRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -44,7 +45,7 @@ class vtkTransform;
 #define VTK_PROJECTION_XZ 1
 #define VTK_PROJECTION_XY 2
 #define VTK_PROJECTION_OBLIQUE 3
-class VTK_WIDGETS_EXPORT vtkSplineRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkSplineRepresentation : public vtkWidgetRepresentation
 {
 public:
   static vtkSplineRepresentation* New();

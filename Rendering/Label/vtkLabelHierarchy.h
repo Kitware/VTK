@@ -58,6 +58,7 @@
 #ifndef __vtkLabelHierarchy_h
 #define __vtkLabelHierarchy_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPointSet.h"
 
 class vtkAbstractArray;
@@ -71,7 +72,7 @@ class vtkPolyData;
 class vtkRenderer;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkLabelHierarchy : public vtkPointSet
+class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchy : public vtkPointSet
 {
 public:
   static vtkLabelHierarchy* New();

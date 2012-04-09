@@ -24,9 +24,10 @@
 #ifndef __vtkMatrix3x3_h
 #define __vtkMatrix3x3_h
 
+#include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkMatrix3x3 : public vtkObject
+class VTKCOMMONMATH_EXPORT vtkMatrix3x3 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
   // method taking a pointer to 9 doubles that constitutes a user

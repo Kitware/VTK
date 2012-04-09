@@ -23,11 +23,12 @@
 #ifndef __vtkSplineWidget2_h
 #define __vtkSplineWidget2_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkSplineRepresentation;
 
-class VTK_WIDGETS_EXPORT vtkSplineWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkSplineWidget2 : public vtkAbstractWidget
 {
 public:
   static vtkSplineWidget2* New();

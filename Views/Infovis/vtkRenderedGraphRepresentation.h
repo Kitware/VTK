@@ -24,6 +24,7 @@
 #ifndef __vtkRenderedGraphRepresentation_h
 #define __vtkRenderedGraphRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
 #include "vtkSmartPointer.h" // for SP ivars
 
@@ -58,7 +59,7 @@ class vtkVertexDegree;
 class vtkView;
 class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkRenderedGraphRepresentation : public vtkRenderedRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkRenderedGraphRepresentation : public vtkRenderedRepresentation
 {
 public:
   static vtkRenderedGraphRepresentation* New();

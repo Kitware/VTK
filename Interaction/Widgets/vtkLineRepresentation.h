@@ -36,6 +36,7 @@
 #ifndef __vtkLineRepresentation_h
 #define __vtkLineRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -52,7 +53,7 @@ class vtkVectorText;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 
-class VTK_WIDGETS_EXPORT vtkLineRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkLineRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

@@ -35,12 +35,13 @@
 #ifndef __vtkExpandSelectedGraph_h
 #define __vtkExpandSelectedGraph_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
 class vtkGraph;
 class vtkIdTypeArray;
 
-class VTK_INFOVIS_EXPORT vtkExpandSelectedGraph : public vtkSelectionAlgorithm
+class VTKINFOVISCORE_EXPORT vtkExpandSelectedGraph : public vtkSelectionAlgorithm
 {
 public:
   static vtkExpandSelectedGraph* New();

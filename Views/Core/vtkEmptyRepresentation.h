@@ -24,12 +24,13 @@
 #ifndef __vtkEmptyRepresentation_h
 #define __vtkEmptyRepresentation_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkConvertSelectionDomain;
 
-class VTK_VIEWS_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
+class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkEmptyRepresentation* New();

@@ -26,9 +26,10 @@
 #ifndef __vtkResliceCursorThickLineRepresentation_h
 #define __vtkResliceCursorThickLineRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorLineRepresentation.h"
 
-class VTK_WIDGETS_EXPORT vtkResliceCursorThickLineRepresentation : public vtkResliceCursorLineRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorThickLineRepresentation : public vtkResliceCursorLineRepresentation
 {
 public:
   // Description:

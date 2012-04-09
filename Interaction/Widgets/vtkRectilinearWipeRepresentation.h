@@ -37,6 +37,7 @@
 #ifndef __vtkRectilinearWipeRepresentation_h
 #define __vtkRectilinearWipeRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkImageRectilinearWipe;
@@ -49,7 +50,7 @@ class vtkPolyDataMapper2D;
 class vtkActor2D;
 
 
-class VTK_WIDGETS_EXPORT vtkRectilinearWipeRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkRectilinearWipeRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

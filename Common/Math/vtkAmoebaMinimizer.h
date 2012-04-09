@@ -26,9 +26,10 @@
 #ifndef __vtkAmoebaMinimizer_h
 #define __vtkAmoebaMinimizer_h
 
+#include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkAmoebaMinimizer : public vtkObject
+class VTKCOMMONMATH_EXPORT vtkAmoebaMinimizer : public vtkObject
 {
 public:
   static vtkAmoebaMinimizer *New();

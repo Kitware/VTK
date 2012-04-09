@@ -31,6 +31,7 @@
 #ifndef __vtkPolyDataPointPlacer_h
 #define __vtkPolyDataPointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkRenderer;
@@ -38,7 +39,7 @@ class vtkPropCollection;
 class vtkProp;
 class vtkPropPicker;
 
-class VTK_WIDGETS_EXPORT vtkPolyDataPointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataPointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

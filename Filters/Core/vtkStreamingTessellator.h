@@ -74,13 +74,14 @@
 #ifndef vtkStreamingTessellator_h
 #define vtkStreamingTessellator_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #undef PARAVIEW_DEBUG_TESSELLATOR
 
 class vtkEdgeSubdivisionCriterion;
 
-class VTK_GRAPHICS_EXPORT vtkStreamingTessellator : public vtkObject
+class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
 {
   public:
     vtkTypeMacro(vtkStreamingTessellator,vtkObject);

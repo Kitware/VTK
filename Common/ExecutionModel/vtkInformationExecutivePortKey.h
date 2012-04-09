@@ -21,13 +21,14 @@
 #ifndef __vtkInformationExecutivePortKey_h
 #define __vtkInformationExecutivePortKey_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkInformationKey.h"
 
 #include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
 
 class vtkExecutive;
 
-class VTK_FILTERING_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationExecutivePortKey,vtkInformationKey);

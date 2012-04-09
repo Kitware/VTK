@@ -27,12 +27,13 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkPBivariateLinearTableThreshold__h
 #define __vtkPBivariateLinearTableThreshold__h
 
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkBivariateLinearTableThreshold.h"
 
 class vtkIdTypeArray;
 class vtkMultiProcessController;
 
-class VTK_INFOVIS_EXPORT vtkPBivariateLinearTableThreshold : public vtkBivariateLinearTableThreshold
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPBivariateLinearTableThreshold : public vtkBivariateLinearTableThreshold
 {
 public:
   static vtkPBivariateLinearTableThreshold* New();

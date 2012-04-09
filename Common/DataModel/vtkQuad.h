@@ -22,13 +22,14 @@
 #ifndef __vtkQuad_h
 #define __vtkQuad_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
 class vtkLine;
 class vtkTriangle;
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkQuad : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkQuad : public vtkCell
 {
 public:
   static vtkQuad *New();

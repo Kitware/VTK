@@ -69,6 +69,7 @@
 #ifndef __vtkGeoCamera_h
 #define __vtkGeoCamera_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
 
@@ -76,7 +77,7 @@ class vtkCamera;
 class vtkGeoTerrainNode;
 class vtkTransform;
 
-class VTK_GEOVIS_EXPORT vtkGeoCamera : public vtkObject
+class VTKGEOVISCORE_EXPORT vtkGeoCamera : public vtkObject
 {
 public:
   static vtkGeoCamera *New();

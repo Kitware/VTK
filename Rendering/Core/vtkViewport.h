@@ -29,6 +29,7 @@
 #ifndef __vtkViewport_h
 #define __vtkViewport_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkActor2DCollection;
@@ -37,7 +38,7 @@ class vtkProp;
 class vtkPropCollection;
 class vtkWindow;
 
-class VTK_FILTERING_EXPORT vtkViewport : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkViewport : public vtkObject
 {
 public:
   vtkTypeMacro(vtkViewport,vtkObject);

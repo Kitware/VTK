@@ -28,6 +28,7 @@
 #ifndef __vtkCompositeRGBAPass_h
 #define __vtkCompositeRGBAPass_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
   
 class vtkMultiProcessController;
@@ -37,7 +38,7 @@ class vtkTextureObject;
 class vtkOpenGLRenderWindow;
 class vtkPKdTree;
 
-class VTK_PARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
+class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRGBAPass : public vtkRenderPass
 {
 public:
   static vtkCompositeRGBAPass *New();

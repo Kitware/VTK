@@ -25,6 +25,7 @@
 #ifndef __vtkAbstractMapper_h
 #define __vtkAbstractMapper_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 #define VTK_SCALAR_MODE_DEFAULT 0
@@ -45,7 +46,7 @@ class vtkPlanes;
 class vtkTimerLog;
 class vtkWindow;
 
-class VTK_FILTERING_EXPORT vtkAbstractMapper : public vtkAlgorithm
+class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractMapper,vtkAlgorithm);

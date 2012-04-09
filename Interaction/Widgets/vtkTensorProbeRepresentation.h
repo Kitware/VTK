@@ -25,6 +25,7 @@
 #ifndef __vtkTensorProbeRepresentation_h
 #define __vtkTensorProbeRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -32,7 +33,7 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkGenericCell;
 
-class VTK_WIDGETS_EXPORT vtkTensorProbeRepresentation :
+class VTKINTERACTIONWIDGETS_EXPORT vtkTensorProbeRepresentation :
                            public vtkWidgetRepresentation
 {
 public:

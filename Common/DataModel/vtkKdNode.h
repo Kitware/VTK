@@ -30,12 +30,13 @@
 #ifndef __vtkKdNode_h
 #define __vtkKdNode_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkCell;
 class vtkPlanesIntersection;
 
-class VTK_FILTERING_EXPORT vtkKdNode : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkKdNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkKdNode, vtkObject);

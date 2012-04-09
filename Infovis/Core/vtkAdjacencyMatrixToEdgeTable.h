@@ -31,9 +31,10 @@
 #ifndef __vtkAdjacencyMatrixToEdgeTable_h
 #define __vtkAdjacencyMatrixToEdgeTable_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkAdjacencyMatrixToEdgeTable : public vtkTableAlgorithm
+class VTKINFOVISCORE_EXPORT vtkAdjacencyMatrixToEdgeTable : public vtkTableAlgorithm
 {
 public:
   static vtkAdjacencyMatrixToEdgeTable* New();

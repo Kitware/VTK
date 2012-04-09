@@ -30,13 +30,14 @@
 #ifndef __vtkGeoAlignedImageSource_h
 #define __vtkGeoAlignedImageSource_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 
 class vtkGeoImageNode;
 class vtkImageData;
 class vtkMultiBlockDataSet;
 
-class VTK_GEOVIS_EXPORT vtkGeoAlignedImageSource : public vtkGeoSource
+class VTKGEOVISCORE_EXPORT vtkGeoAlignedImageSource : public vtkGeoSource
 {
 public:
   static vtkGeoAlignedImageSource *New();

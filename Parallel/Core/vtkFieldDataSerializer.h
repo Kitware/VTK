@@ -26,6 +26,7 @@
 #ifndef VTKFIELDDATASERIALIZER_H_
 #define VTKFIELDDATASERIALIZER_H_
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 // Forward declarations
@@ -36,7 +37,7 @@ class vtkStringArray;
 class vtkIntArray;
 class vtkMultiProcessStream;
 
-class VTK_PARALLEL_EXPORT vtkFieldDataSerializer : public vtkObject
+class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
 {
   public:
     static vtkFieldDataSerializer* New();

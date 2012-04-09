@@ -44,6 +44,7 @@
 #ifndef __vtkGenericCutter_h
 #define __vtkGenericCutter_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkContourValues;
@@ -53,7 +54,7 @@ class vtkIncrementalPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericCutter,vtkPolyDataAlgorithm);

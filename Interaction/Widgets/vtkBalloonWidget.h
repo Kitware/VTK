@@ -67,6 +67,7 @@
 #ifndef __vtkBalloonWidget_h
 #define __vtkBalloonWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHoverWidget.h"
 
 class vtkBalloonRepresentation;
@@ -77,7 +78,7 @@ class vtkPropMap;
 class vtkImageData;
 
 
-class VTK_WIDGETS_EXPORT vtkBalloonWidget : public vtkHoverWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkBalloonWidget : public vtkHoverWidget
 {
 public:
   // Description:

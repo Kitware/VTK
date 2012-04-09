@@ -24,6 +24,7 @@
 #ifndef __vtkResliceCursorActor_h
 #define __vtkResliceCursorActor_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkResliceCursor;
@@ -33,7 +34,7 @@ class vtkActor;
 class vtkProperty;
 class vtkBoundingBox;
 
-class VTK_RENDERING_EXPORT vtkResliceCursorActor : public vtkProp3D
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorActor : public vtkProp3D
 {
 
 public:

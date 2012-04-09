@@ -41,6 +41,7 @@
 #ifndef __vtkQtTreeRingLabelMapper_h
 #define __vtkQtTreeRingLabelMapper_h
 
+#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
 
 //BTX
@@ -59,7 +60,7 @@ class vtkTextureMapToPlane;
 class vtkTree;
 class vtkUnicodeStringArray;
 
-class VTK_RENDERING_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapper
+class VTKRENDERINGQT_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapper
 {
 public:
   static vtkQtTreeRingLabelMapper *New();

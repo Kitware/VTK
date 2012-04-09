@@ -34,6 +34,7 @@
 #ifndef __vtkThreshold_h
 #define __vtkThreshold_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 #define VTK_ATTRIBUTE_MODE_DEFAULT         0
@@ -47,7 +48,7 @@
 
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkThreshold *New();

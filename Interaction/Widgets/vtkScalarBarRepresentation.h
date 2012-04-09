@@ -40,11 +40,12 @@
 #ifndef __vtkScalarBarRepresentation_h
 #define __vtkScalarBarRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
 
 class vtkScalarBarActor;
 
-class VTK_WIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorderRepresentation
 {
 public:
   vtkTypeMacro(vtkScalarBarRepresentation, vtkBorderRepresentation);

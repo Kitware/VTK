@@ -30,6 +30,7 @@
 #ifndef __vtkWidgetEventTranslator_h
 #define __vtkWidgetEventTranslator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 // Support PIMPL encapsulation of internal STL map
@@ -41,7 +42,7 @@ class vtkAbstractWidget;
 
 
 // This is a lightweight class that should be used internally by the widgets
-class VTK_WIDGETS_EXPORT vtkWidgetEventTranslator : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEventTranslator : public vtkObject
 {
 public:
   // Description:

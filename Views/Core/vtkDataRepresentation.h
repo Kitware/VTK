@@ -47,6 +47,7 @@
 #ifndef __vtkDataRepresentation_h
 #define __vtkDataRepresentation_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAlgorithmOutput;
@@ -59,7 +60,7 @@ class vtkTrivialProducer;
 class vtkView;
 class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
+class VTKVIEWSCORE_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkDataRepresentation *New();

@@ -20,9 +20,10 @@
 #ifndef __vtkOutlineCornerSource_h
 #define __vtkOutlineCornerSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkOutlineSource.h"
 
-class VTK_GRAPHICS_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
+class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
   vtkTypeMacro(vtkOutlineCornerSource,vtkOutlineSource);

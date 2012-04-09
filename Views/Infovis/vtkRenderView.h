@@ -31,6 +31,7 @@
 #ifndef __vtkRenderView_h
 #define __vtkRenderView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderViewBase.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
@@ -51,7 +52,7 @@ class vtkTexture;
 class vtkTexturedActor2D;
 class vtkTransformCoordinateSystems;
 
-class VTK_VIEWS_EXPORT vtkRenderView : public vtkRenderViewBase
+class VTKVIEWSINFOVIS_EXPORT vtkRenderView : public vtkRenderViewBase
 {
 public:
   static vtkRenderView* New();

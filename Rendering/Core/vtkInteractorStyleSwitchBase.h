@@ -25,9 +25,10 @@
 #ifndef __vtkInteractorStyleSwitchBase_h
 #define __vtkInteractorStyleSwitchBase_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleSwitchBase
+class VTKRENDERINGCORE_EXPORT vtkInteractorStyleSwitchBase
   : public vtkInteractorStyle
 {
 public:

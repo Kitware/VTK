@@ -38,11 +38,12 @@
 #ifndef __vtkPointPlacer_h
 #define __vtkPointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkPointPlacer : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkPointPlacer : public vtkObject
 {
 public:
   // Description:

@@ -36,6 +36,7 @@
 #ifndef __vtkCaptionWidget_h
 #define __vtkCaptionWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
 
 class vtkCaptionRepresentation;
@@ -45,7 +46,7 @@ class vtkPointHandleRepresentation3D;
 class vtkCaptionAnchorCallback;
 
 
-class VTK_WIDGETS_EXPORT vtkCaptionWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionWidget : public vtkBorderWidget
 {
 public:
   // Description:

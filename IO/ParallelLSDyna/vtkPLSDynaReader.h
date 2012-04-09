@@ -117,10 +117,11 @@
 #ifndef __vtkPLSDynaReader_h
 #define __vtkPLSDynaReader_h
 
+#include "vtkIOParallelLSDynaModule.h" // For export macro
 #include "vtkLSDynaReader.h"
 
 class vtkMultiProcessController;
-class VTK_PARALLEL_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
+class VTKIOPARALLELLSDYNA_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
 {
 public:
   vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);

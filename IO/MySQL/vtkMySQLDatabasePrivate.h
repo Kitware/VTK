@@ -5,9 +5,10 @@
 # include <winsock.h> // mysql.h relies on the typedefs from here
 #endif
 
+#include "vtkIOMySQLModule.h" // For export macro
 #include <mysql.h> // needed for MYSQL typedefs
 
-class VTK_IO_EXPORT vtkMySQLDatabasePrivate
+class VTKIOMYSQL_EXPORT vtkMySQLDatabasePrivate
 {
 public:
   vtkMySQLDatabasePrivate() :

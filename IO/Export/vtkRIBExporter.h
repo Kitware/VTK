@@ -47,6 +47,7 @@
 #ifndef __vtkRIBExporter_h
 #define __vtkRIBExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkActor;
@@ -58,7 +59,7 @@ class vtkRenderer;
 class vtkTexture;
 class vtkUnsignedCharArray;
 
-class VTK_HYBRID_EXPORT vtkRIBExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkRIBExporter : public vtkExporter
 {
 public:
   static vtkRIBExporter *New();

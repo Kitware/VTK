@@ -20,13 +20,14 @@
 #ifndef __vtkGenericAttributeCollection_h
 #define __vtkGenericAttributeCollection_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGenericAttributeInternalVector;
 class vtkIntInternalVector;
 class vtkGenericAttribute;
 
-class VTK_FILTERING_EXPORT vtkGenericAttributeCollection : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttributeCollection : public vtkObject
 {
 public:
   // Description:

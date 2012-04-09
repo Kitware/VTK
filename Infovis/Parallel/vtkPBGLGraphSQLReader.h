@@ -36,11 +36,12 @@
 #ifndef __vtkPBGLGraphSQLReader_h
 #define __vtkPBGLGraphSQLReader_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkSQLDatabase;
 
-class VTK_PARALLEL_EXPORT vtkPBGLGraphSQLReader : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLGraphSQLReader : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLGraphSQLReader* New();

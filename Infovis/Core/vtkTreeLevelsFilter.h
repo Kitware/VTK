@@ -32,9 +32,10 @@
 #ifndef __vtkTreeLevelsFilter_h
 #define __vtkTreeLevelsFilter_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkTreeLevelsFilter : public vtkTreeAlgorithm 
+class VTKINFOVISCORE_EXPORT vtkTreeLevelsFilter : public vtkTreeAlgorithm
 {
 public:
   static vtkTreeLevelsFilter *New();

@@ -23,11 +23,12 @@
 #ifndef __vtkPolyDataCollection_h
 #define __vtkPolyDataCollection_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkPolyData.h" // Needed for static cast
 
-class VTK_FILTERING_EXPORT vtkPolyDataCollection : public vtkCollection
+class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   static vtkPolyDataCollection *New();

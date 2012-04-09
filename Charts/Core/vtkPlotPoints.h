@@ -27,6 +27,7 @@
 #ifndef __vtkPlotPoints_h
 #define __vtkPlotPoints_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
@@ -39,7 +40,7 @@ class vtkImageData;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
-class VTK_CHARTS_EXPORT vtkPlotPoints : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotPoints : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPoints, vtkPlot);

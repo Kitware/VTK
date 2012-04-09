@@ -28,11 +28,12 @@
 #ifndef __vtkTreeReader_h
 #define __vtkTreeReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkTree;
 
-class VTK_IO_EXPORT vtkTreeReader : public vtkDataReader
+class VTKIOGEOMETRY_EXPORT vtkTreeReader : public vtkDataReader
 {
 public:
   static vtkTreeReader *New();

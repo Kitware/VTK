@@ -28,6 +28,7 @@
 #ifndef __vtkDepthSortPolyData_h
 #define __vtkDepthSortPolyData_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_DIRECTION_BACK_TO_FRONT 0
@@ -42,7 +43,7 @@ class vtkCamera;
 class vtkProp3D;
 class vtkTransform;
 
-class VTK_HYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataAlgorithm 
+class VTKFILTERSHYBRID_EXPORT vtkDepthSortPolyData : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

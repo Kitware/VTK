@@ -24,13 +24,14 @@
 #ifndef __vtkXMLPDataReader_h
 #define __vtkXMLPDataReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"
 
 class vtkDataArray;
 class vtkDataSet;
 class vtkXMLDataReader;
 
-class VTK_IO_EXPORT vtkXMLPDataReader : public vtkXMLReader
+class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLPDataReader,vtkXMLReader);

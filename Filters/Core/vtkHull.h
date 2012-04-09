@@ -38,6 +38,7 @@
 #ifndef __vtkHull_h
 #define __vtkHull_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -45,7 +46,7 @@ class vtkPlanes;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkHull : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHull *New();

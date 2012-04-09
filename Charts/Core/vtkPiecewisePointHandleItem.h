@@ -24,6 +24,7 @@
 #ifndef __vtkPiecewisePointHandleItem_h
 #define __vtkPiecewisePointHandleItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer to the PiecewiseFunction.
 
@@ -32,7 +33,7 @@ class vtkPiecewiseFunction;
 class vtkCallbackCommand;
 class vtkAbstractContextItem;
 
-class VTK_CHARTS_EXPORT vtkPiecewisePointHandleItem : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkPiecewisePointHandleItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPiecewisePointHandleItem, vtkContextItem);

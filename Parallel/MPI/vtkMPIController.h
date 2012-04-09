@@ -40,6 +40,7 @@
 #ifndef __vtkMPIController_h
 #define __vtkMPIController_h
 
+#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkMultiProcessController.h"
 // Do not remove this header file. This class contains methods
 // which take arguments defined in  vtkMPICommunicator.h by
@@ -48,7 +49,7 @@
 
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkMPIController : public vtkMultiProcessController
+class VTKPARALLELMPI_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 
 public:

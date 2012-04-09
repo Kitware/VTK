@@ -19,11 +19,12 @@
 #ifndef __vtkX3DExporterXMLWriter_h
 #define __vtkX3DExporterXMLWriter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"
 
 class vtkX3DExporterXMLNodeInfoStack;
 
-class VTK_HYBRID_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
+class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 {
 
 public:

@@ -36,6 +36,7 @@
 #ifndef __vtkConstrained2DLayoutStrategy_h
 #define __vtkConstrained2DLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
@@ -44,7 +45,7 @@ class vtkFastSplatter;
 class vtkImageData;
 class vtkFloatArray;
 
-class VTK_INFOVIS_EXPORT vtkConstrained2DLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkConstrained2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkConstrained2DLayoutStrategy *New();

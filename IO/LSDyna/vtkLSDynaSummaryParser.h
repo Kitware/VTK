@@ -15,11 +15,12 @@
 #ifndef __vtkLSDynaSummaryParser_h
 #define __vtkLSDynaSummaryParser_h
 
+#include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkXMLParser.h"
 #include "vtkStdString.h" //needed for vtkStdString
 
 class LSDynaMetaData;
-class VTK_IO_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
+class VTKIOLSDYNA_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkLSDynaSummaryParser,vtkXMLParser);

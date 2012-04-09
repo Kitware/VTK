@@ -24,6 +24,7 @@
 #ifndef __vtkResliceCursorRepresentation_h
 #define __vtkResliceCursorRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkTextProperty;
@@ -44,7 +45,7 @@ class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
 
-class VTK_WIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

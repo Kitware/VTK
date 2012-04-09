@@ -39,13 +39,14 @@
 #ifndef __vtkUnstructuredGridPartialPreIntegration_h
 #define __vtkUnstructuredGridPartialPreIntegration_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 #include "vtkMath.h" // For all the inline methods
 
 class vtkPartialPreIntegrationTransferFunction;
 class vtkVolumeProperty;
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridPartialPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridPartialPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridPartialPreIntegration,

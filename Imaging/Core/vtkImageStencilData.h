@@ -25,9 +25,10 @@
 #define __vtkImageStencilData_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkDataObject.h"
 
-class VTK_IMAGING_EXPORT vtkImageStencilData : public vtkDataObject
+class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 {
 public:
   static vtkImageStencilData *New();
@@ -193,7 +194,7 @@ private:
 // infinite resolution in the X direction (approximately, since it uses
 // double precision).  Lines that represent polygon edges can be drawn
 // into this raster, and then filled given a tolerance.
-class VTK_IMAGING_EXPORT vtkImageStencilRaster
+class VTKIMAGINGCORE_EXPORT vtkImageStencilRaster
 {
 public:
   // Description:

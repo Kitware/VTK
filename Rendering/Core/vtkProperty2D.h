@@ -23,6 +23,7 @@
 #ifndef __vtkProperty2D_h
 #define __vtkProperty2D_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkViewport;
@@ -30,7 +31,7 @@ class vtkViewport;
 #define VTK_BACKGROUND_LOCATION 0
 #define VTK_FOREGROUND_LOCATION 1
 
-class VTK_COMMON_EXPORT vtkProperty2D : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkProperty2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty2D,vtkObject);

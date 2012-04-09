@@ -25,6 +25,7 @@
 #ifndef __vtkLabelHierarchyIterator_h
 #define __vtkLabelHierarchyIterator_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkStdString.h" // for std string
 #include "vtkUnicodeString.h" // for unicode string
@@ -33,7 +34,7 @@ class vtkIdTypeArray;
 class vtkLabelHierarchy;
 class vtkPolyData;
 
-class VTK_RENDERING_EXPORT vtkLabelHierarchyIterator : public vtkObject
+class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLabelHierarchyIterator,vtkObject);

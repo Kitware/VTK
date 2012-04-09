@@ -28,13 +28,14 @@
 #ifndef __vtkGeoAlignedImageRepresentation_h
 #define __vtkGeoAlignedImageRepresentation_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"
 
 class vtkGeoImageNode;
 class vtkGeoSource;
 class vtkGeoTreeNodeCache;
 
-class VTK_GEOVIS_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
+class VTKGEOVISCORE_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkGeoAlignedImageRepresentation *New();

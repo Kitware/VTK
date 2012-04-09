@@ -24,13 +24,14 @@
 #ifndef __vtkInformationIterator_h
 #define __vtkInformationIterator_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkInformation;
 class vtkInformationKey;
 class vtkInformationIteratorInternals;
 
-class VTK_COMMON_EXPORT vtkInformationIterator : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkInformationIterator : public vtkObject
 {
 public:
   static vtkInformationIterator *New();

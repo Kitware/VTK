@@ -90,6 +90,7 @@
 #ifndef __vtkBiDimensionalWidget_h
 #define __vtkBiDimensionalWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkBiDimensionalRepresentation;
@@ -97,7 +98,7 @@ class vtkHandleWidget;
 class vtkBiDimensionalWidgetCallback;
 
 
-class VTK_WIDGETS_EXPORT vtkBiDimensionalWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalWidget : public vtkAbstractWidget
 {
 public:
   // Description:

@@ -34,13 +34,14 @@
 #ifndef __vtkPiecewiseFunctionAlgorithm_h
 #define __vtkPiecewiseFunctionAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkPiecewiseFunction.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkPiecewiseFunctionAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPiecewiseFunctionAlgorithm *New();

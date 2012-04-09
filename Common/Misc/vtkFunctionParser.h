@@ -41,6 +41,7 @@
 #ifndef __vtkFunctionParser_h
 #define __vtkFunctionParser_h
 
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
 #define VTK_PARSER_IMMEDIATE 1
@@ -119,7 +120,7 @@
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
 
-class VTK_COMMON_EXPORT vtkFunctionParser : public vtkObject
+class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 {
 public:
   static vtkFunctionParser *New();

@@ -23,9 +23,10 @@
 #ifndef __vtkPostScriptWriter_h
 #define __vtkPostScriptWriter_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
-class VTK_IO_EXPORT vtkPostScriptWriter : public vtkImageWriter
+class VTKIOIMAGE_EXPORT vtkPostScriptWriter : public vtkImageWriter
 {
 public:
   static vtkPostScriptWriter *New();

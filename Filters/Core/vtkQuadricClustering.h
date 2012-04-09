@@ -80,6 +80,7 @@
 #ifndef __vtkQuadricClustering_h
 #define __vtkQuadricClustering_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -88,7 +89,7 @@ class vtkPoints;
 class vtkQuadricClusteringCellSet;
 
 
-class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

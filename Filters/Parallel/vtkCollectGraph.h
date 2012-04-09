@@ -25,12 +25,13 @@
 #ifndef __vtkCollectGraph_h
 #define __vtkCollectGraph_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkMultiProcessController;
 class vtkSocketController;
 
-class VTK_PARALLEL_EXPORT vtkCollectGraph : public vtkGraphAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkCollectGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkCollectGraph *New();

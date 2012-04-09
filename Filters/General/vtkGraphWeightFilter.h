@@ -28,11 +28,12 @@
 #ifndef __vtkGraphWeightFilter_h
 #define __vtkGraphWeightFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 
-class VTK_FILTERING_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
 {
 public:
   vtkTypeMacro(vtkGraphWeightFilter, vtkGraphAlgorithm);

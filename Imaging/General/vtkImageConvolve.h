@@ -21,9 +21,10 @@
 #ifndef __vtkImageConvolve_h
 #define __vtkImageConvolve_h
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageConvolve : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageConvolve : public vtkThreadedImageAlgorithm
 {
 public:
   // Description:

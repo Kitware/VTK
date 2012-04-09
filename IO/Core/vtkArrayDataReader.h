@@ -33,9 +33,10 @@
 #ifndef __vtkArrayDataReader_h
 #define __vtkArrayDataReader_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 
-class VTK_IO_EXPORT vtkArrayDataReader :
+class VTKIOCORE_EXPORT vtkArrayDataReader :
   public vtkArrayDataAlgorithm
 {
 public:

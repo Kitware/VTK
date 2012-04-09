@@ -25,11 +25,12 @@
 #define __vtkImageDilateErode3D_h
 
 
+#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageDilateErode3D : public vtkImageSpatialAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageDilateErode3D : public vtkImageSpatialAlgorithm
 {
 public:
   // Description:

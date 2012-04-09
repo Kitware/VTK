@@ -28,6 +28,7 @@
 #define __vtkWindBladeReader_h
 
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
 class vtkWindBladeReaderPiece;
@@ -44,7 +45,7 @@ class vtkMultiBlockDataSetAglorithm;
 class vtkStructuredGridAlgorithm;
 class WindBladeReaderInternal;
 
-class VTK_PARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
+class VTKIOPARALLEL_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkWindBladeReader *New();

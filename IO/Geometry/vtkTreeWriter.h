@@ -22,11 +22,12 @@
 #ifndef __vtkTreeWriter_h
 #define __vtkTreeWriter_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataWriter.h"
 
 class vtkTree;
 
-class VTK_IO_EXPORT vtkTreeWriter : public vtkDataWriter
+class VTKIOGEOMETRY_EXPORT vtkTreeWriter : public vtkDataWriter
 {
 public:
   static vtkTreeWriter *New();

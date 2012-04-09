@@ -32,11 +32,12 @@
 #ifndef __vtkReebGraphToJoinSplitTreeFilter_h
 #define __vtkReebGraphToJoinSplitTreeFilter_h
 
+#include "vtkFiltersReebGraphModule.h" // For export macro
 #include  "vtkDirectedGraphAlgorithm.h"
 
 class vtkReebGraph;
 
-class VTK_GRAPHICS_EXPORT vtkReebGraphToJoinSplitTreeFilter :
+class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphToJoinSplitTreeFilter :
   public vtkDirectedGraphAlgorithm
 {
 public:

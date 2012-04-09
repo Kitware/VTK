@@ -23,10 +23,11 @@
 #ifndef __vtkXYZMolReader_h
 #define __vtkXYZMolReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"
 
 
-class VTK_IO_EXPORT vtkXYZMolReader : public vtkMoleculeReaderBase
+class VTKIOGEOMETRY_EXPORT vtkXYZMolReader : public vtkMoleculeReaderBase
 {
 public:
   vtkTypeMacro(vtkXYZMolReader,vtkMoleculeReaderBase);

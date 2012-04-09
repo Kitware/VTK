@@ -25,12 +25,13 @@
 #ifndef __vtkPieceScalars_h
 #define __vtkPieceScalars_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkPieceScalars : public vtkDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPieceScalars : public vtkDataSetAlgorithm
 {
 public:
   static vtkPieceScalars *New();

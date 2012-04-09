@@ -66,6 +66,7 @@
 #ifndef __vtkOrientationMarkerWidget_h
 #define __vtkOrientationMarkerWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
 class vtkActor2D;
@@ -74,7 +75,7 @@ class vtkProp;
 class vtkOrientationMarkerWidgetObserver;
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkOrientationMarkerWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT vtkOrientationMarkerWidget : public vtkInteractorObserver
 {
 public:
   static vtkOrientationMarkerWidget* New();

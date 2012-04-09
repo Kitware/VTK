@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNITagPointReader_h
 #define __vtkMNITagPointReader_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkStdString.h" // needed for std::string
 
@@ -71,7 +72,7 @@ class vtkStringArray;
 class vtkDoubleArray;
 class vtkIntArray;
 
-class VTK_HYBRID_EXPORT vtkMNITagPointReader : public vtkPolyDataAlgorithm
+class VTKIOMINC_EXPORT vtkMNITagPointReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMNITagPointReader,vtkPolyDataAlgorithm);

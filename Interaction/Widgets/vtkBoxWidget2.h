@@ -90,13 +90,14 @@
 #ifndef __vtkBoxWidget2_h
 #define __vtkBoxWidget2_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkBoxRepresentation;
 class vtkHandleWidget;
 
 
-class VTK_WIDGETS_EXPORT vtkBoxWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkBoxWidget2 : public vtkAbstractWidget
 {
 public:
   // Description:

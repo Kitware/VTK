@@ -38,12 +38,13 @@
 #ifndef __vtkTerrainContourLineInterpolator_h
 #define __vtkTerrainContourLineInterpolator_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
 
 class vtkImageData;
 class vtkProjectedTerrainPath;
 
-class VTK_WIDGETS_EXPORT vtkTerrainContourLineInterpolator 
+class VTKINTERACTIONWIDGETS_EXPORT vtkTerrainContourLineInterpolator
                        : public vtkContourLineInterpolator
 {
 public:

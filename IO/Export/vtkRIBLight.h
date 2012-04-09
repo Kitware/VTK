@@ -23,11 +23,12 @@
 #ifndef __vtkRIBLight_h
 #define __vtkRIBLight_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkLight.h"
 
 class vtkRIBRenderer;
 
-class VTK_HYBRID_EXPORT vtkRIBLight : public vtkLight
+class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
 {
 public:
   static vtkRIBLight *New();

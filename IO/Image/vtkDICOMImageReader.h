@@ -34,6 +34,7 @@
 #ifndef __vtkDICOMImageReader_h
 #define __vtkDICOMImageReader_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
 //BTX
@@ -42,7 +43,7 @@ class DICOMParser;
 class DICOMAppHelper;
 //ETX
 
-class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
+class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
 {
  public:
   // Description:

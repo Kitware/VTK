@@ -40,6 +40,7 @@
 #ifndef __vtkPKdTree_h
 #define __vtkPKdTree_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkKdTree.h"
 
 class vtkMultiProcessController;
@@ -48,7 +49,7 @@ class vtkSubGroup;
 class vtkIntArray;
 class vtkKdNode;
 
-class VTK_PARALLEL_EXPORT vtkPKdTree : public vtkKdTree
+class VTKFILTERSPARALLEL_EXPORT vtkPKdTree : public vtkKdTree
 {
 public:
   vtkTypeMacro(vtkPKdTree, vtkKdTree);

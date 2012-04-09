@@ -30,9 +30,10 @@
 #ifndef __vtkDirectionEncoder_h
 #define __vtkDirectionEncoder_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_VOLUMERENDERING_EXPORT vtkDirectionEncoder : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
   // Description:

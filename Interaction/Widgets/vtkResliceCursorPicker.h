@@ -27,6 +27,7 @@
 #ifndef __vtkResliceCursorPicker_h
 #define __vtkResliceCursorPicker_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPicker.h"
 
 class vtkPolyData;
@@ -36,7 +37,7 @@ class vtkIdList;
 class vtkMatrix4x4;
 class vtkPlane;
 
-class VTK_RENDERING_EXPORT vtkResliceCursorPicker : public vtkPicker
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPicker : public vtkPicker
 {
 public:
   static vtkResliceCursorPicker *New();

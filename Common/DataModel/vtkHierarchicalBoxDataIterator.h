@@ -19,9 +19,10 @@
 #ifndef VTKHIERARCHICALBOXDATAITERATOR_H_
 #define VTKHIERARCHICALBOXDATAITERATOR_H_
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMRDataIterator.h"
 
-class VTK_FILTERING_EXPORT vtkHierarchicalBoxDataIterator :
+class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
   public vtkUniformGridAMRDataIterator
 {
   public:

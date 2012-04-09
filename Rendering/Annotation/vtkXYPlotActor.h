@@ -87,6 +87,7 @@
 #define VTK_XYPLOT_ROW 0
 #define VTK_XYPLOT_COLUMN 1
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkXYPlotActorConnections;
@@ -107,7 +108,7 @@ class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTK_HYBRID_EXPORT vtkXYPlotActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkXYPlotActor,vtkActor2D);

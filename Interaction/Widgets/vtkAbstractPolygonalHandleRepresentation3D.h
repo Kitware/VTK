@@ -29,6 +29,7 @@
 #ifndef __vtkAbstractPolygonalHandleRepresentation3D_h
 #define __vtkAbstractPolygonalHandleRepresentation3D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
 
 class vtkProperty;
@@ -43,7 +44,7 @@ class vtkActor;
 class vtkFollower;
 class vtkVectorText;
 
-class VTK_WIDGETS_EXPORT vtkAbstractPolygonalHandleRepresentation3D
+class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractPolygonalHandleRepresentation3D
                            : public vtkHandleRepresentation
 {
 public:

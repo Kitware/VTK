@@ -20,11 +20,12 @@
 #ifndef __vtkXMLPStructuredDataWriter_h
 #define __vtkXMLPStructuredDataWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"
 
 class vtkXMLStructuredDataWriter;
 
-class VTK_IO_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
+class VTKIOXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);

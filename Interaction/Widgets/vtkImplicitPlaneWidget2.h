@@ -90,12 +90,13 @@
 #ifndef __vtkImplicitPlaneWidget2_h
 #define __vtkImplicitPlaneWidget2_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkImplicitPlaneRepresentation;
 class vtkInteractionCallback;
 
-class VTK_WIDGETS_EXPORT vtkImplicitPlaneWidget2 : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitPlaneWidget2 : public vtkAbstractWidget
 {
   friend class vtkInteractionCallback;
 

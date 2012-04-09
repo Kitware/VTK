@@ -25,6 +25,7 @@
 #ifndef __vtkOrientedGlyphContourRepresentation_h
 #define __vtkOrientedGlyphContourRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourRepresentation.h"
 
 class vtkProperty;
@@ -34,7 +35,7 @@ class vtkPolyData;
 class vtkGlyph3D;
 class vtkPoints;
 
-class VTK_WIDGETS_EXPORT vtkOrientedGlyphContourRepresentation : public vtkContourRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkOrientedGlyphContourRepresentation : public vtkContourRepresentation
 {
 public:
   // Description:

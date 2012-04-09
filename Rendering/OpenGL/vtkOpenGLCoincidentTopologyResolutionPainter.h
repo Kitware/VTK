@@ -19,9 +19,10 @@
 #ifndef __vtkOpenGLCoincidentTopologyResolutionPainter_h
 #define __vtkOpenGLCoincidentTopologyResolutionPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCoincidentTopologyResolutionPainter.h"
 
-class VTK_RENDERING_EXPORT vtkOpenGLCoincidentTopologyResolutionPainter :
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLCoincidentTopologyResolutionPainter :
   public vtkCoincidentTopologyResolutionPainter
 {
 public:

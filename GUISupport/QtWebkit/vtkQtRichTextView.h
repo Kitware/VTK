@@ -31,13 +31,14 @@
 #ifndef __vtkQtRichTextView_h
 #define __vtkQtRichTextView_h
 
+#include "vtkGUISupportQtWebkitModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
 class vtkStdString;
 class QUrl;
 
-class QVTK_EXPORT vtkQtRichTextView : public vtkQtView
+class VTKGUISUPPORTQTWEBKIT_EXPORT vtkQtRichTextView : public vtkQtView
 {
 Q_OBJECT
 

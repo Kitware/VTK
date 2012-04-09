@@ -28,9 +28,10 @@
 #ifndef __vtkIcicleView_h
 #define __vtkIcicleView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
 
-class VTK_VIEWS_EXPORT vtkIcicleView : public vtkTreeAreaView
+class VTKVIEWSINFOVIS_EXPORT vtkIcicleView : public vtkTreeAreaView
 {
 public:
   static vtkIcicleView *New();

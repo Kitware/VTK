@@ -32,13 +32,14 @@
 #ifndef __vtkBooleanOperationPolyDataFilter_h
 #define __vtkBooleanOperationPolyDataFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for CopyCells() method
 
 class vtkIdList;
 
-class VTK_GRAPHICS_EXPORT vtkBooleanOperationPolyDataFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkBooleanOperationPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

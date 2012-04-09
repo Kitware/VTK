@@ -21,6 +21,7 @@
 #ifndef __vtkChart_h
 #define __vtkChart_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkRect.h"         // For vtkRectf
 #include "vtkStdString.h"    // For vtkStdString ivars
@@ -37,7 +38,7 @@ class vtkChartLegend;
 class vtkInteractorStyle;
 class vtkAnnotationLink;
 
-class VTK_CHARTS_EXPORT vtkChart : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkChart : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChart, vtkContextItem);

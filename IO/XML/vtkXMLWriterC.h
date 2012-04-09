@@ -15,6 +15,7 @@
 #ifndef __vtkXMLWriterC_h
 #define __vtkXMLWriterC_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkType.h" /* For scalar and vtkDataObject type enumerations.  */
 
 #ifdef __cplusplus
@@ -32,7 +33,7 @@ typedef struct vtkXMLWriterC_s vtkXMLWriterC;
  * Create a new instance of vtkXMLWriterC.  Returns the object or NULL
  * on failure.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 vtkXMLWriterC* vtkXMLWriterC_New();
 
 /**
@@ -40,7 +41,7 @@ vtkXMLWriterC* vtkXMLWriterC_New();
  *
  * This should not be called between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_Delete(vtkXMLWriterC* self);
 
 /**
@@ -50,7 +51,7 @@ void vtkXMLWriterC_Delete(vtkXMLWriterC* self);
  * This must be set before setting geometry or data information can
  * can be set only once per writer object.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType);
 
 /**
@@ -61,7 +62,7 @@ void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType);
  *
  * This may be used only after SetDataObjectType has been called.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype);
 
 /**
@@ -70,7 +71,7 @@ void vtkXMLWriterC_SetDataModeType(vtkXMLWriterC* self, int datamodetype);
  * This may be used only after SetDataObjectType has been called with
  * a structured data object type.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetExtent(vtkXMLWriterC* self, int extent[6]);
 
 /**
@@ -85,7 +86,7 @@ void vtkXMLWriterC_SetExtent(vtkXMLWriterC* self, int extent[6]);
  * not be called before SetDataObjectType or between Start and Stop
  * calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetPoints(vtkXMLWriterC* self, int dataType,
                              void* data, vtkIdType numPoints);
 
@@ -95,7 +96,7 @@ void vtkXMLWriterC_SetPoints(vtkXMLWriterC* self, int dataType,
  * This may only be used for image data.  It may not be called before
  * SetDataObjectType or between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetOrigin(vtkXMLWriterC* self, double origin[3]);
 
 /**
@@ -104,7 +105,7 @@ void vtkXMLWriterC_SetOrigin(vtkXMLWriterC* self, double origin[3]);
  * This may only be used for image data.  It may not be called before
  * SetDataObjectType or between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetSpacing(vtkXMLWriterC* self, double spacing[3]);
 
 /**
@@ -119,7 +120,7 @@ void vtkXMLWriterC_SetSpacing(vtkXMLWriterC* self, double spacing[3]);
  * This may only be used for rectilinear grids.  It may not be called
  * before SetDataObjectType or between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetCoordinates(vtkXMLWriterC* self, int axis,
                                   int dataType, void* data,
                                   vtkIdType numCoordinates);
@@ -143,7 +144,7 @@ void vtkXMLWriterC_SetCoordinates(vtkXMLWriterC* self, int axis,
  * types.  It may not be called before SetDataObjectType or between
  * Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetCellsWithType(vtkXMLWriterC* self,
                                     int cellType, vtkIdType ncells,
                                     vtkIdType* cells, vtkIdType cellsSize);
@@ -162,7 +163,7 @@ void vtkXMLWriterC_SetCellsWithType(vtkXMLWriterC* self,
  * not be called before SetDataObjectType or between Start and Stop
  * calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetCellsWithTypes(vtkXMLWriterC* self,
                                      int* cellTypes, vtkIdType ncells,
                                      vtkIdType* cells, vtkIdType cellsSize);
@@ -190,12 +191,12 @@ void vtkXMLWriterC_SetCellsWithTypes(vtkXMLWriterC* self,
  * This may be used for all data types.  It may not be called before
  * SetDataObjectType but may be called between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetPointData(vtkXMLWriterC* self, const char* name,
                                 int dataType, void* data,
                                 vtkIdType numTuples, int numComponents,
                                 const char* role);
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetCellData(vtkXMLWriterC* self, const char* name,
                                int dataType, void* data,
                                vtkIdType numTuples, int numComponents,
@@ -207,7 +208,7 @@ void vtkXMLWriterC_SetCellData(vtkXMLWriterC* self, const char* name,
  * This may be used for all data types.  It may not be called before
  * SetDataObjectType or between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetFileName(vtkXMLWriterC* self, const char* fileName);
 
 /**
@@ -216,7 +217,7 @@ void vtkXMLWriterC_SetFileName(vtkXMLWriterC* self, const char* fileName);
  *
  * This may only be called after SetFileName and SetDataObjectType.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 int vtkXMLWriterC_Write(vtkXMLWriterC* self);
 
 /**
@@ -226,7 +227,7 @@ int vtkXMLWriterC_Write(vtkXMLWriterC* self);
  * This may be used for all data types.  It may not be called before
  * SetDataObjectType or between Start and Stop calls.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_SetNumberOfTimeSteps(vtkXMLWriterC* self, int numTimeSteps);
 
 /**
@@ -236,7 +237,7 @@ void vtkXMLWriterC_SetNumberOfTimeSteps(vtkXMLWriterC* self, int numTimeSteps);
  * SetNumberOfTimeSteps.  It may not be called a second time until
  * after an intervening call to Stop.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_Start(vtkXMLWriterC* self);
 
 /**
@@ -249,7 +250,7 @@ void vtkXMLWriterC_Start(vtkXMLWriterC* self);
  * This may only be called after Start has been called.  It should be
  * called NumberOfTimeSteps times before calling Stop.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_WriteNextTimeStep(vtkXMLWriterC* self, double timeValue);
 
 /**
@@ -258,7 +259,7 @@ void vtkXMLWriterC_WriteNextTimeStep(vtkXMLWriterC* self, double timeValue);
  * This may only be called after Start and NumberOfTimeSteps calls to
  * WriteNextTimeStep.
  */
-VTK_XML_EXPORT
+VTKIOXML_EXPORT
 void vtkXMLWriterC_Stop(vtkXMLWriterC* self);
 
 #ifdef __cplusplus

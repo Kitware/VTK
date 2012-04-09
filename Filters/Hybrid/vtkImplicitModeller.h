@@ -84,6 +84,7 @@
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 #define VTK_VOXEL_MODE   0
@@ -93,7 +94,7 @@ class vtkDataArray;
 class vtkExtractGeometry;
 class vtkMultiThreader;
 
-class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm 
+class VTKFILTERSHYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkImplicitModeller,vtkImageAlgorithm);

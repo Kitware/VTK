@@ -23,10 +23,11 @@
 #ifndef __vtkContextClip_h
 #define __vtkContextClip_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
 #include "vtkSmartPointer.h" // Needed for SP ivars.
 
-class VTK_CHARTS_EXPORT vtkContextClip : public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);

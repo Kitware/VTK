@@ -45,6 +45,7 @@
 #ifndef __vtkHyperOctreeContourFilter_h
 #define __vtkHyperOctreeContourFilter_h
 
+#include "vtkFiltersHyperOctreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -62,7 +63,7 @@ class vtkIdTypeArray;
 class vtkHyperOctreeContourPointsGrabber;
 class vtkBitArray;
 
-class VTK_GRAPHICS_EXPORT vtkHyperOctreeContourFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperOctreeContourFilter,vtkPolyDataAlgorithm);

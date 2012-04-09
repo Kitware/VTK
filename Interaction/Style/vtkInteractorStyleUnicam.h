@@ -78,6 +78,7 @@
 #ifndef __vtkInteractorStyleUnicam_h
 #define __vtkInteractorStyleUnicam_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
 class vtkCamera;
@@ -103,7 +104,7 @@ class vtkWorldPointPicker;
 #define VTK_UNICAM_CAM_INT_PAN    2
 #define VTK_UNICAM_CAM_INT_DOLLY  3
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleUnicam : public vtkInteractorStyle 
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUnicam : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleUnicam *New();

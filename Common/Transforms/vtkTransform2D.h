@@ -28,13 +28,14 @@
 #ifndef __vtkTransform2D_h
 #define __vtkTransform2D_h
 
+#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkMatrix3x3.h" // Needed for inline methods
 
 class vtkPoints2D;
 
-class VTK_COMMON_EXPORT vtkTransform2D : public vtkObject
+class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
 {
  public:
   static vtkTransform2D *New();

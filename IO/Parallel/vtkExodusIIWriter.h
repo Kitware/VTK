@@ -64,6 +64,7 @@
 #ifndef __vtkExodusIIWriter_h
 #define __vtkExodusIIWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkWriter.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -76,7 +77,7 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkUnstructuredGrid;
 
-class VTK_PARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
+class VTKIOPARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
 {
 public:
   static vtkExodusIIWriter *New ();

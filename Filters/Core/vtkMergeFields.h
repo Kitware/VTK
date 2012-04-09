@@ -42,12 +42,13 @@
 #ifndef __vtkMergeFields_h
 #define __vtkMergeFields_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkDataArray;
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);

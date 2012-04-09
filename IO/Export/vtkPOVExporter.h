@@ -73,6 +73,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPOVExporter_h
 #define __vtkPOVExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkRenderer;
@@ -84,7 +85,7 @@ class vtkProperty;
 class vtkTexture;
 class vtkPOVInternals;
 
-class VTK_RENDERING_EXPORT vtkPOVExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkPOVExporter : public vtkExporter
 {
 public:
     static vtkPOVExporter *New();

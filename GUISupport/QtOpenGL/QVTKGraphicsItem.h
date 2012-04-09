@@ -25,6 +25,7 @@
 #ifndef QVTKGraphicsItem_hpp
 #define QVTKGraphicsItem_hpp
 
+#include "vtkGUISupportQtOpenGLModule.h" // For export macro
 #include <QtGui/QGraphicsWidget>
 #include <QtOpenGL/QGLContext>
 #include <vtkSmartPointer.h>
@@ -36,7 +37,7 @@ class QVTKInteractor;
 class vtkGenericOpenGLRenderWindow;
 class vtkObject;
 
-class QVTK_EXPORT QVTKGraphicsItem : public QGraphicsWidget
+class VTKGUISUPPORTQTOPENGL_EXPORT QVTKGraphicsItem : public QGraphicsWidget
 {
   Q_OBJECT
   public:

@@ -22,9 +22,10 @@
 #ifndef __vtkCompositePainter_h
 #define __vtkCompositePainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPainter.h"
 
-class VTK_RENDERING_EXPORT vtkCompositePainter : public vtkPainter
+class VTKRENDERINGCORE_EXPORT vtkCompositePainter : public vtkPainter
 {
 public:
   static vtkCompositePainter* New();

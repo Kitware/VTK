@@ -20,11 +20,12 @@
 #ifndef __vtkTableToPostgreSQLWriter_h
 #define __vtkTableToPostgreSQLWriter_h
 
+#include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkPostgreSQLDatabase;
 
-class VTK_IO_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatabaseWriter
+class VTKIOPOSTGRESQL_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToPostgreSQLWriter *New();

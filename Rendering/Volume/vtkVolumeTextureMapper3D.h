@@ -73,6 +73,7 @@
 #ifndef __vtkVolumeTextureMapper3D_h
 #define __vtkVolumeTextureMapper3D_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
 class vtkImageData;
@@ -80,7 +81,7 @@ class vtkColorTransferFunction;
 class vtkPiecewiseFunction;
 class vtkVolumeProperty;
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeTextureMapper3D : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper3D : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper3D,vtkVolumeMapper);

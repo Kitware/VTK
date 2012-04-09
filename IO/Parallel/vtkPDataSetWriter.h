@@ -21,13 +21,14 @@
 #ifndef __vtkPDataSetWriter_h
 #define __vtkPDataSetWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetWriter.h"
 
 class vtkImageData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 
-class VTK_PARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
+class VTKIOPARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

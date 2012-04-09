@@ -202,6 +202,7 @@
 #ifndef __vtkGraph_h
 #define __vtkGraph_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkAdjacentVertexIterator;
@@ -271,7 +272,7 @@ struct vtkEdgeType : vtkEdgeBase
 };
 //ETX
 
-class VTK_FILTERING_EXPORT vtkGraph : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT vtkGraph : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkGraph, vtkDataObject);
@@ -719,9 +720,9 @@ private:
 };
 
 //BTX
-bool VTK_FILTERING_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);
-bool VTK_FILTERING_EXPORT operator!=(vtkEdgeBase e1, vtkEdgeBase e2);
-VTK_FILTERING_EXPORT ostream& operator<<(ostream& out, vtkEdgeBase e);
+bool VTKCOMMONDATAMODEL_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);
+bool VTKCOMMONDATAMODEL_EXPORT operator!=(vtkEdgeBase e1, vtkEdgeBase e2);
+VTKCOMMONDATAMODEL_EXPORT ostream& operator<<(ostream& out, vtkEdgeBase e);
 //ETX
 
 #endif

@@ -36,6 +36,7 @@
 #ifndef __vtkIconGlyphFilter_h
 #define __vtkIconGlyphFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_ICON_GRAVITY_TOP_RIGHT     1
@@ -52,7 +53,7 @@
 #define VTK_ICON_SCALING_USE_SCALING_ARRAY 1
 
 
-class VTK_GRAPHICS_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
   // Description

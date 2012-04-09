@@ -35,6 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
   #error VTK_USE_CARBON cannot work in 64 bit, use VTK_USE_COCOA instead.
 #endif
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
 #include <Carbon/Carbon.h> // Carbon and Mac specific
@@ -43,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkCarbonRenderWindowInternal;
 
 
-class VTK_RENDERING_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL_EXPORT vtkCarbonRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkCarbonRenderWindow *New();

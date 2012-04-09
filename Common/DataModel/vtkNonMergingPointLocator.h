@@ -31,11 +31,12 @@
 #ifndef __vtkNonMergingPointLocator_h
 #define __vtkNonMergingPointLocator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"
 
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkNonMergingPointLocator : public vtkPointLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkNonMergingPointLocator : public vtkPointLocator
 {
 public:
   static vtkNonMergingPointLocator * New();

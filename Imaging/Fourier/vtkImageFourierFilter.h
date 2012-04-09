@@ -22,6 +22,7 @@
 #define __vtkImageFourierFilter_h
 
 
+#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
 
 
@@ -83,7 +84,7 @@ typedef struct{
 /******************* End of COMPLEX number stuff ********************/
 //ETX
 
-class VTK_IMAGING_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
+class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
   vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);

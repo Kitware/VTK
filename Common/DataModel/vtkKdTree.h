@@ -53,6 +53,7 @@
 #ifndef __vtkKdTree_h
 #define __vtkKdTree_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
 class vtkTimerLog;
@@ -68,7 +69,7 @@ class vtkBSPCuts;
 class vtkBSPIntersections;
 class vtkDataSetCollection;
 
-class VTK_FILTERING_EXPORT vtkKdTree : public vtkLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkKdTree, vtkLocator);

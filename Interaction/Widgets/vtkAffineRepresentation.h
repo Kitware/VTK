@@ -37,11 +37,12 @@
 #ifndef __vtkAffineRepresentation_h
 #define __vtkAffineRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkTransform;
 
-class VTK_WIDGETS_EXPORT vtkAffineRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkAffineRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

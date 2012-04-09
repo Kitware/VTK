@@ -26,9 +26,10 @@
 #ifndef __vtkCardinalSpline_h
 #define __vtkCardinalSpline_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkSpline.h"
 
-class VTK_FILTERING_EXPORT vtkCardinalSpline : public vtkSpline
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkCardinalSpline : public vtkSpline
 {
 public:
   static vtkCardinalSpline *New();

@@ -20,13 +20,14 @@
 #ifndef __vtkTreeOrbitLayoutStrategy_h
 #define __vtkTreeOrbitLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 class vtkPoints;
 class vtkTree;
 
 
-class VTK_INFOVIS_EXPORT vtkTreeOrbitLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkTreeOrbitLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkTreeOrbitLayoutStrategy *New();

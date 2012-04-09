@@ -21,11 +21,12 @@
 #ifndef VTKEXTENTRCBPARTITIONER_H_
 #define VTKEXTENTRCBPARTITIONER_H_
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // For STL vector
 #include <cassert>  // For assert
 
-class VTK_COMMON_EXPORT vtkExtentRCBPartitioner : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
   public:
     static vtkExtentRCBPartitioner *New();

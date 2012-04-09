@@ -22,9 +22,10 @@
 #ifndef __vtkPlane_h
 #define __vtkPlane_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_COMMON_EXPORT vtkPlane : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
   // Description

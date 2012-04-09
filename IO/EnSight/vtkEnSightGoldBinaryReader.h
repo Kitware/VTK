@@ -37,11 +37,12 @@
 #ifndef __vtkEnSightGoldBinaryReader_h
 #define __vtkEnSightGoldBinaryReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
 
 class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
+class VTKIOENSIGHT_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
 {
 public:
   static vtkEnSightGoldBinaryReader *New();

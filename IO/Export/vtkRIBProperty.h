@@ -25,11 +25,12 @@
 #ifndef __vtkRIBProperty_h
 #define __vtkRIBProperty_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkProperty.h"
 
 class vtkRIBRenderer;
 
-class VTK_HYBRID_EXPORT vtkRIBProperty : public vtkProperty
+class VTKIOEXPORT_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
   static vtkRIBProperty *New();

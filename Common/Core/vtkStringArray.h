@@ -26,12 +26,13 @@
 #ifndef __vtkStringArray_h
 #define __vtkStringArray_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
 #include "vtkStdString.h" // needed for vtkStdString definition
 
 class vtkStringArrayLookup;
 
-class VTK_COMMON_EXPORT vtkStringArray : public vtkAbstractArray
+class VTKCOMMONCORE_EXPORT vtkStringArray : public vtkAbstractArray
 {
 public:
   static vtkStringArray* New();

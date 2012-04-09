@@ -23,9 +23,10 @@
 #ifndef __vtkCellData_h
 #define __vtkCellData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"
 
-class VTK_FILTERING_EXPORT vtkCellData : public vtkDataSetAttributes
+class VTKCOMMONDATAMODEL_EXPORT vtkCellData : public vtkDataSetAttributes
 {
 public:
   static vtkCellData *New();

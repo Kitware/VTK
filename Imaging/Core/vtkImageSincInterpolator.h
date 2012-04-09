@@ -29,6 +29,7 @@
 #ifndef __vtkImageSincInterpolator_h
 #define __vtkImageSincInterpolator_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
 
 #define VTK_LANCZOS_WINDOW 0
@@ -47,7 +48,7 @@
 class vtkImageData;
 struct vtkInterpolationInfo;
 
-class VTK_FILTERING_EXPORT vtkImageSincInterpolator :
+class VTKIMAGINGCORE_EXPORT vtkImageSincInterpolator :
   public vtkAbstractImageInterpolator
 {
 public:

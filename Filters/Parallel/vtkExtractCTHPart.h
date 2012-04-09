@@ -23,6 +23,7 @@
 #ifndef __vtkExtractCTHPart_h
 #define __vtkExtractCTHPart_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkAppendPolyData;
@@ -47,7 +48,7 @@ class vtkUnsignedCharArray;
 
 //#define EXTRACT_USE_IMAGE_DATA 1
 
-class VTK_PARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);

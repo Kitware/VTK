@@ -36,9 +36,10 @@
 #ifndef __vtkTreeRingView_h
 #define __vtkTreeRingView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
 
-class VTK_VIEWS_EXPORT vtkTreeRingView : public vtkTreeAreaView
+class VTKVIEWSINFOVIS_EXPORT vtkTreeRingView : public vtkTreeAreaView
 {
 public:
   static vtkTreeRingView *New();

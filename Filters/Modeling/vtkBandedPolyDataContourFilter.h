@@ -37,6 +37,7 @@
 #ifndef __vtkBandedPolyDataContourFilter_h
 #define __vtkBandedPolyDataContourFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -51,7 +52,7 @@ class vtkDoubleArray;
 #define VTK_SCALAR_MODE_INDEX 0
 #define VTK_SCALAR_MODE_VALUE 1
 
-class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkBandedPolyDataContourFilter,vtkPolyDataAlgorithm);

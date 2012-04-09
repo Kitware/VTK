@@ -25,6 +25,7 @@
 
 #define VTK_FTFC_CACHE_CAPACITY 150
 
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
@@ -56,7 +57,7 @@ class FTFont;
 //----------------------------------------------------------------------------
 // Singleton cleanup
 
-class VTK_RENDERING_EXPORT vtkFreeTypeUtilitiesCleanup
+class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeUtilitiesCleanup
 {
 public:
   vtkFreeTypeUtilitiesCleanup();
@@ -66,7 +67,7 @@ public:
 //----------------------------------------------------------------------------
 // Singleton font cache
 
-class VTK_RENDERING_EXPORT vtkFreeTypeUtilities : public vtkObject
+class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFreeTypeUtilities, vtkObject);

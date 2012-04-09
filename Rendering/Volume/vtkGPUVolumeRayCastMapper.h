@@ -22,6 +22,7 @@
 #ifndef __vtkGPUVolumeRayCastMapper_h
 #define __vtkGPUVolumeRayCastMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
 class vtkVolumeProperty;
@@ -29,7 +30,7 @@ class vtkRenderWindow;
 
 //class vtkKWAMRVolumeMapper; // friend class.
 
-class VTK_VOLUMERENDERING_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkGPUVolumeRayCastMapper *New();

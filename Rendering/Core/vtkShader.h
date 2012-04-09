@@ -41,6 +41,7 @@
 #ifndef __vtkShader_h
 #define __vtkShader_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkActor;
@@ -54,7 +55,7 @@ class vtkWindow;
 class vtkXMLDataElement;
 class vtkXMLShader;
 
-class VTK_RENDERING_EXPORT vtkShader : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkShader : public vtkObject
 {
 public:
   vtkTypeMacro(vtkShader, vtkObject);

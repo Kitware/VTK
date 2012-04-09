@@ -20,6 +20,7 @@
 #ifndef __vtkPlotPie_h
 #define __vtkPlotPie_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // To hold ColorSeries etc.
 
@@ -29,7 +30,7 @@ class vtkPoints2D;
 
 class vtkPlotPiePrivate;
 
-class VTK_CHARTS_EXPORT vtkPlotPie : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotPie : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPie, vtkPlot);

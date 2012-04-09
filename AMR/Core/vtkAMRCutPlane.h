@@ -22,6 +22,7 @@
 #ifndef VTKAMRCUTPLANE_H_
 #define VTKAMRCUTPLANE_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 #include <vector> // For STL vector
@@ -41,7 +42,7 @@ class vtkCellArray;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_AMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
+class VTKAMRCORE_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 {
   public:
     static vtkAMRCutPlane *New();

@@ -25,12 +25,13 @@
 #ifndef __vtkAssignCoordinatesLayoutStrategy_h
 #define __vtkAssignCoordinatesLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkAssignCoordinates;
 
-class VTK_INFOVIS_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkAssignCoordinatesLayoutStrategy *New();

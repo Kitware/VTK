@@ -20,9 +20,10 @@
 #ifndef __vtkImageGridSource_h
 #define __vtkImageGridSource_h
 
+#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageAlgorithm
+class VTKIMAGINGSOURCES_EXPORT vtkImageGridSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageGridSource *New();

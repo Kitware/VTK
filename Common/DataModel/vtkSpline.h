@@ -52,11 +52,12 @@
 #ifndef __vtkSpline_h
 #define __vtkSpline_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkPiecewiseFunction;
 
-class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline,vtkObject);

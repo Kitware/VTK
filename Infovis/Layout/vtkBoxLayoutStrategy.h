@@ -29,9 +29,10 @@
 #ifndef __vtkBoxLayoutStrategy_h
 #define __vtkBoxLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"
 
-class VTK_INFOVIS_EXPORT vtkBoxLayoutStrategy : public vtkTreeMapLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkBoxLayoutStrategy : public vtkTreeMapLayoutStrategy
 {
 public:
   static vtkBoxLayoutStrategy *New();

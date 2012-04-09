@@ -23,6 +23,7 @@
 #ifndef __vtkStreamingDemandDrivenPipeline_h
 #define __vtkStreamingDemandDrivenPipeline_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkDemandDrivenPipeline.h"
 
 #define VTK_UPDATE_EXTENT_COMBINE 1
@@ -38,7 +39,7 @@ class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 
-class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
 {
 public:
   static vtkStreamingDemandDrivenPipeline* New();

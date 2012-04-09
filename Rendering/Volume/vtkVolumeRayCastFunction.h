@@ -28,6 +28,7 @@
 #ifndef __vtkVolumeRayCastFunction_h
 #define __vtkVolumeRayCastFunction_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
@@ -127,7 +128,7 @@ typedef struct
   int                          MaximizeOpacity;
 } vtkVolumeRayCastStaticInfo;
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastFunction : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);

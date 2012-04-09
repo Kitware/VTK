@@ -28,9 +28,10 @@
 #ifndef __vtkVoxelModeller_h
 #define __vtkVoxelModeller_h
 
+#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkImageAlgorithm 
+class VTKIMAGINGHYBRID_EXPORT vtkVoxelModeller : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkVoxelModeller,vtkImageAlgorithm);

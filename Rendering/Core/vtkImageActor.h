@@ -28,6 +28,7 @@
 #ifndef __vtkImageActor_h
 #define __vtkImageActor_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageSlice.h"
 
 class vtkAlgorithm;
@@ -36,7 +37,7 @@ class vtkRenderer;
 class vtkImageData;
 
 
-class VTK_RENDERING_EXPORT vtkImageActor : public vtkImageSlice
+class VTKRENDERINGCORE_EXPORT vtkImageActor : public vtkImageSlice
 {
 public:
   vtkTypeMacro(vtkImageActor,vtkImageSlice);

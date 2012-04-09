@@ -18,11 +18,12 @@
 #ifndef __vtkPipelineSize_h
 #define __vtkPipelineSize_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkObject.h"
 class vtkAlgorithm;
 class vtkPolyDataMapper;
 
-class VTK_PARALLEL_EXPORT vtkPipelineSize : public vtkObject
+class VTKFILTERSPARALLEL_EXPORT vtkPipelineSize : public vtkObject
 {
 public:
   static vtkPipelineSize* New();

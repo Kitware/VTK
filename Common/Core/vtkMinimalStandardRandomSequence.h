@@ -32,9 +32,10 @@
 #ifndef __vtkMinimalStandardRandomSequence_h
 #define __vtkMinimalStandardRandomSequence_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
 
-class VTK_COMMON_EXPORT vtkMinimalStandardRandomSequence
+class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence
   : public vtkRandomSequence
 {
 public:

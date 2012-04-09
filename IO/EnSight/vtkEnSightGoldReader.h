@@ -37,12 +37,13 @@
 #ifndef __vtkEnSightGoldReader_h
 #define __vtkEnSightGoldReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
 
 
 class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
+class VTKIOENSIGHT_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
   static vtkEnSightGoldReader *New();

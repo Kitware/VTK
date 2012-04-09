@@ -20,9 +20,10 @@
 #ifndef __vtkWidgetEvent_h
 #define __vtkWidgetEvent_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_WIDGETS_EXPORT vtkWidgetEvent : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEvent : public vtkObject
 {
 public:
   // Description:

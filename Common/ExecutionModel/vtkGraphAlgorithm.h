@@ -43,12 +43,13 @@
 #ifndef __vtkGraphAlgorithm_h
 #define __vtkGraphAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkGraph.h" // makes things a bit easier
 
 class vtkDataSet;
 
-class VTK_FILTERING_EXPORT vtkGraphAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkGraphAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkGraphAlgorithm *New();

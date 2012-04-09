@@ -23,11 +23,12 @@
 #ifndef __vtkOpenGLHardwareSupport_h
 #define __vtkOpenGLHardwareSupport_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkOpenGLExtensionManager;
 
-class VTK_RENDERING_EXPORT vtkOpenGLHardwareSupport : public vtkObject //: public vtkHardwareSupport
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLHardwareSupport : public vtkObject //: public vtkHardwareSupport
 {
 public:
   vtkTypeMacro(vtkOpenGLHardwareSupport,vtkObject);

@@ -36,6 +36,7 @@
 #ifndef vtkSimple3DCirclesStrategyH
 #define vtkSimple3DCirclesStrategyH 1
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 #include "vtkVariant.h" // For variant API
 
@@ -45,7 +46,7 @@ class vtkIdTypeArray;
 class vtkIntArray;
 class vtkSimple3DCirclesStrategyInternal;
 
-class VTK_INFOVIS_EXPORT vtkSimple3DCirclesStrategy : public vtkGraphLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkSimple3DCirclesStrategy : public vtkGraphLayoutStrategy
   {
 public:
   static vtkSimple3DCirclesStrategy * New();

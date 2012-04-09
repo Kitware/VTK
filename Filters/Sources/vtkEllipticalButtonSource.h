@@ -37,13 +37,14 @@
 #ifndef __vtkEllipticalButtonSource_h
 #define __vtkEllipticalButtonSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkEllipticalButtonSource : public vtkButtonSource
+class VTKFILTERSSOURCES_EXPORT vtkEllipticalButtonSource : public vtkButtonSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

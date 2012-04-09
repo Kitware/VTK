@@ -32,9 +32,10 @@
 #ifndef __vtkDashedStreamLine_h
 #define __vtkDashedStreamLine_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStreamLine.h"
 
-class VTK_GRAPHICS_EXPORT vtkDashedStreamLine : public vtkStreamLine
+class VTKFILTERSGENERAL_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
   static vtkDashedStreamLine *New();

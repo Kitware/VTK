@@ -28,13 +28,14 @@
 #ifndef __vtkHexahedron_h
 #define __vtkHexahedron_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
 
 class vtkLine;
 class vtkQuad;
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkHexahedron : public vtkCell3D
+class VTKCOMMONDATAMODEL_EXPORT vtkHexahedron : public vtkCell3D
 {
 public:
   static vtkHexahedron *New();

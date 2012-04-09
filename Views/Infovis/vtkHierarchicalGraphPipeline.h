@@ -25,6 +25,7 @@
 // is used in the internals of vtkRenderedHierarchyRepresentation and
 // vtkRenderedTreeAreaRepresentation.
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkActor;
@@ -43,7 +44,7 @@ class vtkSelection;
 class vtkTextProperty;
 class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
+class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
 {
 public:
   static vtkHierarchicalGraphPipeline* New();

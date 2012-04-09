@@ -26,6 +26,7 @@
 #ifndef __vtkDebugLeaks_h
 #define __vtkDebugLeaks_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkToolkits.h" // Needed for VTK_DEBUG_LEAKS macro setting.
@@ -35,7 +36,7 @@ class vtkDebugLeaksHashTable;
 class vtkSimpleCriticalSection;
 class vtkDebugLeaksObserver;
 
-class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
 {
 public: 
   static vtkDebugLeaks *New();
@@ -95,7 +96,7 @@ private:
 // This class defines callbacks for debugging tools. The callbacks are not for general use.
 // The objects passed as arguments to the callbacks are in partially constructed or destructed
 // state and accessing them may cause undefined behavior.
-class VTK_COMMON_EXPORT vtkDebugLeaksObserver {
+class VTKCOMMONCORE_EXPORT vtkDebugLeaksObserver {
 public:
   virtual ~vtkDebugLeaksObserver() {};
   virtual void ConstructingObject(vtkObjectBase*) = 0;

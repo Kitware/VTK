@@ -29,12 +29,13 @@
 #ifndef __vtkFixedPointVolumeRayCastCompositeGOHelper_h
 #define __vtkFixedPointVolumeRayCastCompositeGOHelper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkFixedPointVolumeRayCastHelper.h"
 
 class vtkFixedPointVolumeRayCastMapper;
 class vtkVolume;
 
-class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastCompositeGOHelper : public vtkFixedPointVolumeRayCastHelper
+class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastCompositeGOHelper : public vtkFixedPointVolumeRayCastHelper
 {
 public:
   static vtkFixedPointVolumeRayCastCompositeGOHelper *New();

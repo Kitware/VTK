@@ -27,9 +27,10 @@
 #ifndef __vtkParametricMobius_h
 #define __vtkParametricMobius_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
-class VTK_COMMON_EXPORT vtkParametricMobius : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricMobius : public vtkParametricFunction
 {
 public:
   vtkTypeMacro(vtkParametricMobius,vtkParametricFunction);

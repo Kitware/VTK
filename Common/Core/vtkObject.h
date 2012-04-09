@@ -38,6 +38,7 @@
 #ifndef __vtkObject_h
 #define __vtkObject_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"
 #include "vtkSetGet.h"
 #include "vtkTimeStamp.h"
@@ -46,7 +47,7 @@
 class vtkSubjectHelper;
 class vtkCommand;
 
-class VTK_COMMON_EXPORT vtkObject : public vtkObjectBase
+class VTKCOMMONCORE_EXPORT vtkObject : public vtkObjectBase
 {
 public:
   vtkTypeMacro(vtkObject,vtkObjectBase);

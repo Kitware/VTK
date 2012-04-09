@@ -61,6 +61,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNITransformWriter_h
 #define __vtkMNITransformWriter_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkAbstractTransform;
@@ -69,7 +70,7 @@ class vtkThinPlateSplineTransform;
 class vtkGridTransform;
 class vtkCollection;
 
-class VTK_HYBRID_EXPORT vtkMNITransformWriter : public vtkAlgorithm
+class VTKIOMINC_EXPORT vtkMNITransformWriter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkMNITransformWriter,vtkAlgorithm);

@@ -26,11 +26,12 @@
 #ifndef __vtkXMLRectilinearGridReader_h
 #define __vtkXMLRectilinearGridReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataReader.h"
 
 class vtkRectilinearGrid;
 
-class VTK_IO_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataReader
+class VTKIOXML_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);

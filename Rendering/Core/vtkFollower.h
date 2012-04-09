@@ -29,11 +29,12 @@
 #ifndef __vtkFollower_h
 #define __vtkFollower_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
 
 class vtkCamera;
 
-class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
+class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
 {
  public:
   vtkTypeMacro(vtkFollower,vtkActor);

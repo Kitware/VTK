@@ -21,6 +21,7 @@
 #ifndef VTKAMRENZOREADER_H_
 #define VTKAMRENZOREADER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
 
 #include <map>     // For STL map
@@ -28,7 +29,7 @@
 class vtkOverlappingAMR;
 class vtkEnzoReaderInternal;
 
-class VTK_AMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
+class VTKAMRCORE_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 {
   public:
     static vtkAMREnzoReader* New();

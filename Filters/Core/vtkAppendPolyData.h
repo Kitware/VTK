@@ -28,6 +28,7 @@
 #ifndef __vtkAppendPolyData_h
 #define __vtkAppendPolyData_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -35,7 +36,7 @@ class vtkDataArray;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkAppendPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkAppendPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkAppendPolyData *New();

@@ -21,11 +21,12 @@
 #ifndef __vtkImageChangeInformation_h
 #define __vtkImageChangeInformation_h
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkImageData;
 
-class VTK_IMAGING_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
 {
 public:
   static vtkImageChangeInformation *New();

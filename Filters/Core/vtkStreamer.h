@@ -50,6 +50,7 @@
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkInitialValueProblemSolver;
@@ -59,7 +60,7 @@ class vtkMultiThreader;
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkStreamer : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamer,vtkPolyDataAlgorithm);

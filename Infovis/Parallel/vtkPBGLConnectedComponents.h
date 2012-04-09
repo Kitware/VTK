@@ -29,6 +29,7 @@
 #ifndef __vtkPBGLConnectedComponents_h
 #define __vtkPBGLConnectedComponents_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -36,7 +37,7 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLConnectedComponents : public vtkGraphAlgorithm 
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLConnectedComponents : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLConnectedComponents *New();

@@ -23,11 +23,12 @@
 #ifndef __vtkTexturedSphereSource_h
 #define __vtkTexturedSphereSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
-class VTK_GRAPHICS_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTexturedSphereSource,vtkPolyDataAlgorithm);

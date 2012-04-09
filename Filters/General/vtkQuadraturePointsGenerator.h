@@ -29,6 +29,7 @@
 #ifndef vtkQuadraturePointsGenerator_h
 #define vtkQuadraturePointsGenerator_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPolyData;
@@ -36,7 +37,7 @@ class vtkUnstructuredGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_GRAPHICS_EXPORT vtkQuadraturePointsGenerator : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointsGenerator : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkQuadraturePointsGenerator,vtkPolyDataAlgorithm);

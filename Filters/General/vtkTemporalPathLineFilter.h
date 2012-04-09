@@ -33,6 +33,7 @@
 #ifndef _vtkTemporalPathLineFilter_h
 #define _vtkTemporalPathLineFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPoints;
@@ -48,7 +49,7 @@ class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorithm {
+class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorithm {
   public:
     // Description:
     // Standard Type-Macro

@@ -27,11 +27,12 @@
 #ifndef __vtkConeSource_h
 #define __vtkConeSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
-class VTK_GRAPHICS_EXPORT vtkConeSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkConeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkConeSource,vtkPolyDataAlgorithm);

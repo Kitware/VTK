@@ -45,9 +45,10 @@
 #ifndef __vtkPlaneSource_h
 #define __vtkPlaneSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

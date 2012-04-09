@@ -51,6 +51,7 @@
 #ifndef __vtkImageTracerWidget_h
 #define __vtkImageTracerWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 
 class vtkAbstractPropPicker;
@@ -73,7 +74,7 @@ class vtkTransformPolyDataFilter;
 #define VTK_ITW_SNAP_CELLS    0
 #define VTK_ITW_SNAP_POINTS   1
 
-class VTK_WIDGETS_EXPORT vtkImageTracerWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkImageTracerWidget : public vtk3DWidget
 {
 public:
   // Description:

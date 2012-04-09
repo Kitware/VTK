@@ -29,12 +29,13 @@
 #ifndef __vtkScalarsToColors_h
 #define __vtkScalarsToColors_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataArray;
 class vtkUnsignedCharArray;
 
-class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);

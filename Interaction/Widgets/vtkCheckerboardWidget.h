@@ -44,13 +44,14 @@
 #ifndef __vtkCheckerboardWidget_h
 #define __vtkCheckerboardWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkCheckerboardRepresentation;
 class vtkSliderWidget;
 
 
-class VTK_WIDGETS_EXPORT vtkCheckerboardWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkCheckerboardWidget : public vtkAbstractWidget
 {
 public:
   // Description:

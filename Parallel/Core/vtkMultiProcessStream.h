@@ -26,11 +26,12 @@
 #ifndef __vtkMultiProcessStream_h
 #define __vtkMultiProcessStream_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // needed for vector.
 #include <string> // needed for string.
 
-class VTK_PARALLEL_EXPORT vtkMultiProcessStream
+class VTKPARALLELCORE_EXPORT vtkMultiProcessStream
 {
 public:
   vtkMultiProcessStream();

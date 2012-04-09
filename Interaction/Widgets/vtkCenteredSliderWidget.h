@@ -66,12 +66,13 @@
 #ifndef __vtkCenteredSliderWidget_h
 #define __vtkCenteredSliderWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkSliderRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkCenteredSliderWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkCenteredSliderWidget : public vtkAbstractWidget
 {
 public:
   // Description:

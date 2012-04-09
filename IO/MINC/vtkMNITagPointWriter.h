@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNITagPointWriter_h
 #define __vtkMNITagPointWriter_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkDataSetWriter.h"
 
 class vtkDataSet;
@@ -71,7 +72,7 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkMNITagPointWriter : public vtkDataSetWriter
+class VTKIOMINC_EXPORT vtkMNITagPointWriter : public vtkDataSetWriter
 {
 public:
   vtkTypeMacro(vtkMNITagPointWriter,vtkDataSetWriter);

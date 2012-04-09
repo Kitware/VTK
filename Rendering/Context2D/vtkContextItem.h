@@ -22,9 +22,10 @@
 #ifndef __vtkContextItem_h
 #define __vtkContextItem_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
 
-class VTK_CHARTS_EXPORT vtkContextItem : public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextItem : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextItem, vtkAbstractContextItem);

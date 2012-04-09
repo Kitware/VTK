@@ -67,11 +67,12 @@
 #ifndef __vtkWeightedTransformFilter_h
 #define __vtkWeightedTransformFilter_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlgorithm
 {
 public:
   static vtkWeightedTransformFilter *New();

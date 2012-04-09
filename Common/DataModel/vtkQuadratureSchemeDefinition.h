@@ -33,13 +33,14 @@
 #ifndef vtkQuadratureSchemeDefinition_h
 #define vtkQuadratureSchemeDefinition_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkInformationQuadratureSchemeDefinitionVectorKey;
 class vtkInformationStringKey;
 class vtkXMLDataElement;
 
-class VTK_COMMON_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
 {
 public:
   // vtk stuff

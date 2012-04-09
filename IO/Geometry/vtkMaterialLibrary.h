@@ -21,9 +21,10 @@
 #ifndef __vtkMaterialLibrary_h
 #define __vtkMaterialLibrary_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_IO_EXPORT vtkMaterialLibrary : public vtkObject
+class VTKIOGEOMETRY_EXPORT vtkMaterialLibrary : public vtkObject
 {
 public:
   static vtkMaterialLibrary* New();

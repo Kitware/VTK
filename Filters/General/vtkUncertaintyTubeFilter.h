@@ -32,11 +32,12 @@
 #ifndef __vtkUncertaintyTubeFilter_h
 #define __vtkUncertaintyTubeFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkTubeArray;
 
-class VTK_GRAPHICS_EXPORT vtkUncertaintyTubeFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkUncertaintyTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

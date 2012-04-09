@@ -39,13 +39,14 @@
 #ifndef __vtkLabelPlacer_h
 #define __vtkLabelPlacer_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkRenderer;
 class vtkCoordinate;
 class vtkSelectVisiblePoints;
 
-class VTK_RENDERING_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
+class VTKRENDERINGLABEL_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLabelPlacer* New();

@@ -22,11 +22,12 @@
 #ifndef __vtkGraphWriter_h
 #define __vtkGraphWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataWriter.h"
 
 class vtkGraph;
 
-class VTK_IO_EXPORT vtkGraphWriter : public vtkDataWriter
+class VTKIOCORE_EXPORT vtkGraphWriter : public vtkDataWriter
 {
 public:
   static vtkGraphWriter *New();

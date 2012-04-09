@@ -25,6 +25,7 @@
 #ifndef __vtkControlPointsItem_h
 #define __vtkControlPointsItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkCommand.h" // For vtkCommand enum
 #include "vtkPlot.h"
 #include "vtkVector.h" // For vtkVector2f
@@ -34,7 +35,7 @@ class vtkContext2D;
 class vtkPoints2D;
 class vtkTransform2D;
 
-class VTK_CHARTS_EXPORT vtkControlPointsItem: public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkControlPointsItem: public vtkPlot
 {
 public:
   vtkTypeMacro(vtkControlPointsItem, vtkPlot);

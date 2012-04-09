@@ -35,11 +35,12 @@
 #ifndef __vtkAreaLayout_h
 #define __vtkAreaLayout_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
 class vtkAreaLayoutStrategy;
 
-class VTK_INFOVIS_EXPORT vtkAreaLayout : public vtkTreeAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkAreaLayout : public vtkTreeAlgorithm
 {
 public:
   static vtkAreaLayout *New();

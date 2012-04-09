@@ -46,13 +46,14 @@
 #ifndef __vtkInteractorStyleTerrain_h
 #define __vtkInteractorStyleTerrain_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
 class vtkPolyDataMapper;
 class vtkSphereSource;
 class vtkExtractEdges;
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleTerrain : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTerrain : public vtkInteractorStyle
 {
 public:
   // Description:

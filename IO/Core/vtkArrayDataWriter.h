@@ -49,12 +49,13 @@
 #ifndef __vtkArrayDataWriter_h
 #define __vtkArrayDataWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 #include "vtkStdString.h" // For string API
 
 class vtkArrayData;
 
-class VTK_IO_EXPORT vtkArrayDataWriter :
+class VTKIOCORE_EXPORT vtkArrayDataWriter :
   public vtkWriter
 {
 public:

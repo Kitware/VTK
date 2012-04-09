@@ -54,13 +54,14 @@
 #ifndef __vtkAbstractPicker_h
 #define __vtkAbstractPicker_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
 class vtkProp;
 class vtkPropCollection;
 
-class VTK_RENDERING_EXPORT vtkAbstractPicker : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractPicker,vtkObject);

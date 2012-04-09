@@ -33,9 +33,10 @@
 #ifndef __vtkBreakPoint_h
 #define __vtkBreakPoint_h
 
-#include "vtkObject.h" // to get VTK_COMMON_EXPORT
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkObject.h" // to get VTKCOMMONCORE_EXPORT
 
-class VTK_COMMON_EXPORT vtkBreakPoint
+class VTKCOMMONCORE_EXPORT vtkBreakPoint
 {
 public:
   // Description:

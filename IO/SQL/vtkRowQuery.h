@@ -50,12 +50,13 @@
 #ifndef __vtkRowQuery_h
 #define __vtkRowQuery_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkVariant;
 class vtkVariantArray;
 
-class VTK_IO_EXPORT vtkRowQuery : public vtkObject
+class VTKIOSQL_EXPORT vtkRowQuery : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRowQuery, vtkObject);

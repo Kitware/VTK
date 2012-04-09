@@ -61,12 +61,13 @@
 #ifndef __vtkPBGLRMATGraphSource_h
 #define __vtkPBGLRMATGraphSource_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkGraph;
 class vtkPVXMLElement;
 
-class VTK_PARALLEL_EXPORT vtkPBGLRMATGraphSource : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLRMATGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLRMATGraphSource* New();

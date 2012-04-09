@@ -49,13 +49,14 @@
 #ifndef __vtkQuaternionInterpolator_h
 #define __vtkQuaternionInterpolator_h
 
+#include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
 struct vtkQuaternion;
 class vtkQuaternionList;
 
 
-class VTK_RENDERING_EXPORT vtkQuaternionInterpolator : public vtkObject
+class VTKCOMMONMATH_EXPORT vtkQuaternionInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkQuaternionInterpolator, vtkObject);

@@ -38,11 +38,12 @@
 #ifndef __vtkConvertSelectionDomain_h
 #define __vtkConvertSelectionDomain_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAnnotation;
 
-class VTK_VIEWS_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlgorithm 
+class VTKVIEWSCORE_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkConvertSelectionDomain *New();

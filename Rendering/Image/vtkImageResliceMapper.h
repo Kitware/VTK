@@ -26,6 +26,7 @@
 #ifndef __vtkImageResliceMapper_h
 #define __vtkImageResliceMapper_h
 
+#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkImageMapper3D.h"
 
 class vtkImageSliceMapper;
@@ -39,7 +40,7 @@ class vtkImageResliceToColors;
 class vtkMatrix4x4;
 class vtkAbstractImageInterpolator;
 
-class VTK_RENDERING_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
+class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
 {
 public:
   static vtkImageResliceMapper *New();

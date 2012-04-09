@@ -23,10 +23,11 @@
 #ifndef __vtkPImageWriter_h
 #define __vtkPImageWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkImageWriter.h"
 class vtkPipelineSize;
 
-class VTK_PARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
+class VTKIOPARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 {
 public:
   static vtkPImageWriter *New();

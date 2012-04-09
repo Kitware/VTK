@@ -65,6 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMINCImageAttributes_h
 #define __vtkMINCImageAttributes_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataArray;
@@ -76,7 +77,7 @@ class vtkMatrix4x4;
 // A special class that holds the attributes
 class vtkMINCImageAttributeMap;
 
-class VTK_IO_EXPORT vtkMINCImageAttributes : public vtkObject
+class VTKIOMINC_EXPORT vtkMINCImageAttributes : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMINCImageAttributes,vtkObject);

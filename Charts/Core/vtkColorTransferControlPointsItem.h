@@ -25,11 +25,12 @@
 #ifndef __vtkColorTransferControlPointsItem_h
 #define __vtkColorTransferControlPointsItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"
 
 class vtkColorTransferFunction;
 
-class VTK_CHARTS_EXPORT vtkColorTransferControlPointsItem: public vtkControlPointsItem
+class VTKCHARTSCORE_EXPORT vtkColorTransferControlPointsItem: public vtkControlPointsItem
 {
 public:
   vtkTypeMacro(vtkColorTransferControlPointsItem, vtkControlPointsItem);

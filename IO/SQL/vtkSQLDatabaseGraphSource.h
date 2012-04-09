@@ -27,12 +27,13 @@
 #ifndef __vtkSQLDatabaseGraphSource_h
 #define __vtkSQLDatabaseGraphSource_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"
 #include "vtkGraphAlgorithm.h"
 
 class vtkEventForwarderCommand;
 
-class VTK_INFOVIS_EXPORT vtkSQLDatabaseGraphSource : public vtkGraphAlgorithm
+class VTKIOSQL_EXPORT vtkSQLDatabaseGraphSource : public vtkGraphAlgorithm
 {
 public:
   static vtkSQLDatabaseGraphSource* New();

@@ -40,9 +40,10 @@
 #ifndef __vtkVoxelContoursToSurfaceFilter_h
 #define __vtkVoxelContoursToSurfaceFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkVoxelContoursToSurfaceFilter *New();

@@ -60,12 +60,13 @@
 #ifndef __vtkCompassWidget_h
 #define __vtkCompassWidget_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkCompassRepresentation;
 
 
-class VTK_GEOVIS_EXPORT vtkCompassWidget : public vtkAbstractWidget
+class VTKGEOVISCORE_EXPORT vtkCompassWidget : public vtkAbstractWidget
 {
 public:
   // Description:

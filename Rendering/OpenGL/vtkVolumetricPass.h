@@ -28,9 +28,10 @@
 #ifndef __vtkVolumetricPass_h
 #define __vtkVolumetricPass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkDefaultPass.h"
 
-class VTK_RENDERING_EXPORT vtkVolumetricPass : public vtkDefaultPass
+class VTKRENDERINGOPENGL_EXPORT vtkVolumetricPass : public vtkDefaultPass
 {
 public:
   static vtkVolumetricPass *New();

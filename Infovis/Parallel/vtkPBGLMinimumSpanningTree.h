@@ -31,6 +31,7 @@
 #ifndef __vtkPBGLMinimumSpanningTree_h
 #define __vtkPBGLMinimumSpanningTree_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -38,7 +39,7 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLMinimumSpanningTree : public vtkGraphAlgorithm 
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLMinimumSpanningTree : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLMinimumSpanningTree *New();

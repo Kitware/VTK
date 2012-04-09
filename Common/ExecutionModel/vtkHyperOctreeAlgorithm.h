@@ -28,13 +28,14 @@
 #ifndef __vtkHyperOctreeAlgorithm_h
 #define __vtkHyperOctreeAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkHyperOctree.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkHyperOctree;
 
-class VTK_FILTERING_EXPORT vtkHyperOctreeAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHyperOctreeAlgorithm : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperOctreeAlgorithm,vtkAlgorithm);

@@ -31,11 +31,12 @@
 #ifndef __vtkGeoGraticule_h
 #define __vtkGeoGraticule_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPolyData;
 
-class VTK_GEOVIS_EXPORT vtkGeoGraticule : public vtkPolyDataAlgorithm
+class VTKGEOVISCORE_EXPORT vtkGeoGraticule : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoGraticule* New();

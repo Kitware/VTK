@@ -26,6 +26,7 @@
 // Start() method just returns.
 // To use this factory:
 // \code
+#include "vtkTestingRenderingModule.h" // For export macro
 //   #include "vtkTestingObjectFactory.h"
 //   vtkTestingObjectFactory* factory = vtkTestingObjectFactory::New();
 //   vtkObjectFactory::RegisterFactory(factory);
@@ -39,7 +40,7 @@
 #include "vtkSmartPointer.h"       // Required for testing framework
 
 
-class VTK_RENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
+class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkTestingObjectFactory* New();

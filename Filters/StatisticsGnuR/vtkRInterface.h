@@ -39,6 +39,7 @@
 #ifndef __vtkRInterface_h
 #define __vtkRInterface_h
 
+#include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataArray;
@@ -47,7 +48,7 @@ class vtkTable;
 class vtkImplementationRSingleton;
 class vtkRAdapter;
 
-class VTK_GRAPHICS_EXPORT vtkRInterface : public vtkObject
+class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRInterface : public vtkObject
 {
 public:
 

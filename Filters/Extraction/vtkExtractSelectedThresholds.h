@@ -31,13 +31,14 @@
 #ifndef __vtkExtractSelectedThresholds_h
 #define __vtkExtractSelectedThresholds_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
 class vtkDataArray;
 class vtkSelection;
 class vtkSelectionNode;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtractSelectionBase
 {
 public:
   vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);

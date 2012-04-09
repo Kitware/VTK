@@ -26,6 +26,7 @@
 #ifndef __vtkSynchronizedRenderers_h
 #define __vtkSynchronizedRenderers_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkUnsignedCharArray.h" // needed for vtkUnsignedCharArray.
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
@@ -35,7 +36,7 @@ class vtkMultiProcessController;
 class vtkMultiProcessStream;
 class vtkOpenGLRenderer;
 
-class VTK_PARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
+class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
 {
 public:
   static vtkSynchronizedRenderers* New();
@@ -117,7 +118,7 @@ public:
 
   /// vtkRawImage can be used to make it easier to deal with images for
   /// compositing/communicating over client-server etc.
-  struct VTK_PARALLEL_EXPORT vtkRawImage
+  struct VTKRENDERINGPARALLEL_EXPORT vtkRawImage
     {
   public:
     vtkRawImage()

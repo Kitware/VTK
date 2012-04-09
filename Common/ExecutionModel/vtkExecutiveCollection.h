@@ -38,11 +38,12 @@
 #ifndef __vtkExecutiveCollection_h
 #define __vtkExecutiveCollection_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkExecutive.h" // Needed for static cast
 
-class VTK_FILTERING_EXPORT vtkExecutiveCollection : public vtkCollection
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutiveCollection : public vtkCollection
 {
 public:
   static vtkExecutiveCollection *New();

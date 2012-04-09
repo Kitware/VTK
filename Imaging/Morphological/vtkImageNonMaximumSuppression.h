@@ -28,10 +28,11 @@
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_MAGNITUDE_INPUT 0
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1
 
+#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkImageData.h" // makes things a bit easier
 
-class VTK_IMAGING_EXPORT vtkImageNonMaximumSuppression : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageNonMaximumSuppression : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageNonMaximumSuppression *New();

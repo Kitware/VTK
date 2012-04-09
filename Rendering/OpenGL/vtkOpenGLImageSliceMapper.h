@@ -23,6 +23,7 @@
 #ifndef __vtkOpenGLImageSliceMapper_h
 #define __vtkOpenGLImageSliceMapper_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkImageSliceMapper.h"
 
 class vtkWindow;
@@ -33,7 +34,7 @@ class vtkImageSlice;
 class vtkImageProperty;
 class vtkImageData;
 
-class VTK_RENDERING_EXPORT vtkOpenGLImageSliceMapper :
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLImageSliceMapper :
   public vtkImageSliceMapper
 {
 public:

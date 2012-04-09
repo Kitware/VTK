@@ -40,6 +40,7 @@
 #ifndef __vtkLeaderActor2D_h
 #define __vtkLeaderActor2D_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkPoints;
@@ -49,7 +50,7 @@ class vtkPolyDataMapper2D;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkLeaderActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkLeaderActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLeaderActor2D,vtkActor2D);

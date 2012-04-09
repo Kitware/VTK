@@ -59,6 +59,7 @@
 #ifndef __vtkImageToPolyDataFilter_h
 #define __vtkImageToPolyDataFilter_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_STYLE_PIXELIZE 0
@@ -78,7 +79,7 @@ class vtkStructuredPoints;
 class vtkTimeStamp;
 class vtkUnsignedCharArray;
 
-class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkImageToPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageToPolyDataFilter,vtkPolyDataAlgorithm);

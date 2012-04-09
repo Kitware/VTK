@@ -28,6 +28,7 @@
 #ifndef __vtkLinearSubdivisionFilter_h
 #define __vtkLinearSubdivisionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkInterpolatingSubdivisionFilter.h"
 
 class vtkIntArray;
@@ -35,7 +36,7 @@ class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
+class VTKFILTERSMODELING_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
 public:
   // Description:

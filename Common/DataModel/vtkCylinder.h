@@ -28,9 +28,10 @@
 #ifndef __vtkCylinder_h
 #define __vtkCylinder_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_FILTERING_EXPORT vtkCylinder : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkCylinder,vtkImplicitFunction);

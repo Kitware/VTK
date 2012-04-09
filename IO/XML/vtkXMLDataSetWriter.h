@@ -26,11 +26,12 @@
 #ifndef __vtkXMLDataSetWriter_h
 #define __vtkXMLDataSetWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
 class vtkCallbackCommand;
 
-class VTK_IO_EXPORT vtkXMLDataSetWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLWriter);

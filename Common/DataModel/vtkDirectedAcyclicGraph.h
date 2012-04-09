@@ -43,11 +43,12 @@
 #ifndef __vtkDirectedAcyclicGraph_h
 #define __vtkDirectedAcyclicGraph_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedGraph.h"
 
 class vtkIdTypeArray;
 
-class VTK_FILTERING_EXPORT vtkDirectedAcyclicGraph : public vtkDirectedGraph
+class VTKCOMMONDATAMODEL_EXPORT vtkDirectedAcyclicGraph : public vtkDirectedGraph
 {
 public:
   static vtkDirectedAcyclicGraph *New();

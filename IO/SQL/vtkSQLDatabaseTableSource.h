@@ -27,12 +27,13 @@
 #ifndef __vtkSQLDatabaseTableSource_h
 #define __vtkSQLDatabaseTableSource_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"
 #include "vtkTableAlgorithm.h"
 
 class vtkEventForwarderCommand;
 
-class VTK_INFOVIS_EXPORT vtkSQLDatabaseTableSource : public vtkTableAlgorithm
+class VTKIOSQL_EXPORT vtkSQLDatabaseTableSource : public vtkTableAlgorithm
 {
 public:
   static vtkSQLDatabaseTableSource* New();

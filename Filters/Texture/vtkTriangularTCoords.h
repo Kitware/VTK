@@ -29,9 +29,10 @@
 #ifndef __vtkTriangularTCoords_h
 #define __vtkTriangularTCoords_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
+class VTKFILTERSTEXTURE_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangularTCoords *New();

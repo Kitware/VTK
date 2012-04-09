@@ -28,6 +28,7 @@
 #ifndef __vtkOrientedGlyphFocalPlaneContourRepresentation_h
 #define __vtkOrientedGlyphFocalPlaneContourRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkFocalPlaneContourRepresentation.h"
 
 class vtkProperty2D;
@@ -38,7 +39,7 @@ class vtkGlyph2D;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_WIDGETS_EXPORT vtkOrientedGlyphFocalPlaneContourRepresentation : 
+class VTKINTERACTIONWIDGETS_EXPORT vtkOrientedGlyphFocalPlaneContourRepresentation :
   public vtkFocalPlaneContourRepresentation
 {
 public:

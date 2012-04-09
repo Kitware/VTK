@@ -28,12 +28,13 @@
 #ifndef __vtkGeoTreeNodeCache_h
 #define __vtkGeoTreeNodeCache_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkGeoTreeNode;
 
-class VTK_GEOVIS_EXPORT vtkGeoTreeNodeCache : public vtkObject
+class VTKGEOVISCORE_EXPORT vtkGeoTreeNodeCache : public vtkObject
 {
 public:
   static vtkGeoTreeNodeCache *New();

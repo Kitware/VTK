@@ -24,9 +24,10 @@
 #ifndef __vtkDiskSource_h
 #define __vtkDiskSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDiskSource *New();

@@ -28,6 +28,7 @@
 #ifndef __vtkCompositeZPass_h
 #define __vtkCompositeZPass_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
   
 class vtkMultiProcessController;
@@ -37,7 +38,7 @@ class vtkTextureObject;
 class vtkShaderProgram2;
 class vtkOpenGLRenderWindow;
 
-class VTK_PARALLEL_EXPORT vtkCompositeZPass : public vtkRenderPass
+class VTKRENDERINGPARALLEL_EXPORT vtkCompositeZPass : public vtkRenderPass
 {
 public:
   static vtkCompositeZPass *New();

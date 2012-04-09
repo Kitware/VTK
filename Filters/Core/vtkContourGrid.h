@@ -46,6 +46,7 @@
 #ifndef __vtkContourGrid_h
 #define __vtkContourGrid_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
@@ -54,7 +55,7 @@ class vtkEdgeTable;
 class vtkScalarTree;
 class vtkIncrementalPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkContourGrid : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkContourGrid,vtkPolyDataAlgorithm);

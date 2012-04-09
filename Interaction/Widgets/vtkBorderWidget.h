@@ -69,12 +69,13 @@
 #ifndef __vtkBorderWidget_h
 #define __vtkBorderWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkBorderRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkBorderWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkBorderWidget : public vtkAbstractWidget
 {
 public:
   // Description:

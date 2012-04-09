@@ -56,12 +56,13 @@
 #ifndef __vtkIncrementalOctreeNode_h
 #define __vtkIncrementalOctreeNode_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkPoints;
 class vtkIdList;
 
-class VTK_FILTERING_EXPORT vtkIncrementalOctreeNode : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalOctreeNode : public vtkObject
 {
 public:
   vtkTypeMacro( vtkIncrementalOctreeNode, vtkObject );

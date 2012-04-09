@@ -23,6 +23,7 @@
 #ifndef __vtkUnstructuredGridVolumeRayCastMapper_h
 #define __vtkUnstructuredGridVolumeRayCastMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 class vtkDoubleArray;
@@ -36,7 +37,7 @@ class vtkUnstructuredGridVolumeRayCastIterator;
 class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkVolume;
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
   static vtkUnstructuredGridVolumeRayCastMapper *New();

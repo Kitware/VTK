@@ -28,12 +28,13 @@
 #ifndef __vtkUnstructuredGridAlgorithm_h
 #define __vtkUnstructuredGridAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataSet;
 class vtkUnstructuredGrid;
 
-class VTK_FILTERING_EXPORT vtkUnstructuredGridAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUnstructuredGridAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkUnstructuredGridAlgorithm *New();

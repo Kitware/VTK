@@ -40,13 +40,14 @@
 #ifndef __vtkFieldData_h
 #define __vtkFieldData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
 
 class vtkIdList;
 
-class VTK_FILTERING_EXPORT vtkFieldData : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkFieldData : public vtkObject
 {
 public:
   static vtkFieldData *New();
@@ -340,7 +341,7 @@ private:
 
 public:
 
-  class VTK_FILTERING_EXPORT BasicIterator
+  class VTKCOMMONDATAMODEL_EXPORT BasicIterator
   {
   public:
     BasicIterator();
@@ -380,7 +381,7 @@ public:
     int Position;
   };
 
-  class VTK_FILTERING_EXPORT Iterator : public BasicIterator
+  class VTKCOMMONDATAMODEL_EXPORT Iterator : public BasicIterator
   {
   public:
 

@@ -39,6 +39,7 @@
 #ifndef __vtkBiDimensionalRepresentation2D_h
 #define __vtkBiDimensionalRepresentation2D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBiDimensionalRepresentation.h"
 
 class vtkHandleRepresentation;
@@ -52,7 +53,7 @@ class vtkProperty2D;
 class vtkTextProperty;
 
 
-class VTK_WIDGETS_EXPORT vtkBiDimensionalRepresentation2D : public vtkBiDimensionalRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalRepresentation2D : public vtkBiDimensionalRepresentation
 {
 public:
   // Description:

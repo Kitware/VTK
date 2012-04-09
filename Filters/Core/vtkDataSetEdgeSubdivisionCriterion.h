@@ -35,12 +35,13 @@
 // .SECTION See Also
 // vtkEdgeSubdivisionCriterion
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkEdgeSubdivisionCriterion.h"
 
 class vtkCell;
 class vtkDataSet;
 
-class VTK_GRAPHICS_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSubdivisionCriterion
+class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSubdivisionCriterion
 {
   public:
     vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion,vtkEdgeSubdivisionCriterion);

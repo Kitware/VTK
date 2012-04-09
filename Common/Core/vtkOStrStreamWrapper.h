@@ -28,7 +28,7 @@
 Do_not_include_vtkOStrStreamWrapper_directly__vtkSystemIncludes_includes_it;
 #endif
 
-class VTK_COMMON_EXPORT vtkOStrStreamWrapper: public vtkOStreamWrapper
+class VTKCOMMONCORE_EXPORT vtkOStrStreamWrapper: public vtkOStreamWrapper
 {
 public:
   // Description:

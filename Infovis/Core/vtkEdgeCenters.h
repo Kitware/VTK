@@ -32,9 +32,10 @@
 #ifndef __vtkEdgeCenters_h
 #define __vtkEdgeCenters_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
+class VTKINFOVISCORE_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkEdgeCenters,vtkPolyDataAlgorithm);

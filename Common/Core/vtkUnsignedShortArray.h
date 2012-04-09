@@ -26,12 +26,13 @@
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE unsigned short
 #endif
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
 #define vtkDataArray vtkDataArrayTemplate<unsigned short>
-class VTK_COMMON_EXPORT vtkUnsignedShortArray : public vtkDataArray
+class VTKCOMMONCORE_EXPORT vtkUnsignedShortArray : public vtkDataArray
 #undef vtkDataArray
 {
 public:

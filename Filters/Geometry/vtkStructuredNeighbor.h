@@ -20,9 +20,10 @@
 #ifndef VTKSTRUCTUREDNEIGHBOR_H_
 #define VTKSTRUCTUREDNEIGHBOR_H_
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_FILTERING_EXPORT vtkStructuredNeighbor
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredNeighbor
 {
   public:
 

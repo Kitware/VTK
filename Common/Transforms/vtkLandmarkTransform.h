@@ -29,13 +29,14 @@
 #ifndef __vtkLandmarkTransform_h
 #define __vtkLandmarkTransform_h
 
+#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
 #define VTK_LANDMARK_RIGIDBODY 6
 #define VTK_LANDMARK_SIMILARITY 7
 #define VTK_LANDMARK_AFFINE 12
 
-class VTK_HYBRID_EXPORT vtkLandmarkTransform : public vtkLinearTransform
+class VTKCOMMONTRANSFORMS_EXPORT vtkLandmarkTransform : public vtkLinearTransform
 {
 public:
   static vtkLandmarkTransform *New();

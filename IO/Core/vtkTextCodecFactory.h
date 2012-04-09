@@ -36,11 +36,12 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkTextCodecFactory_h
 #define __vtkTextCodecFactory_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkTextCodec;
 
-class VTK_IO_EXPORT vtkTextCodecFactory : public vtkObject
+class VTKIOCORE_EXPORT vtkTextCodecFactory : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextCodecFactory, vtkObject);

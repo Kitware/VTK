@@ -20,9 +20,10 @@
 #ifndef __vtkPolygonsPainter_h
 #define __vtkPolygonsPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPrimitivePainter.h"
 
-class VTK_RENDERING_EXPORT vtkPolygonsPainter : public vtkPrimitivePainter
+class VTKRENDERINGCORE_EXPORT vtkPolygonsPainter : public vtkPrimitivePainter
 {
 public:
   static vtkPolygonsPainter* New();

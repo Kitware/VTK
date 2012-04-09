@@ -34,11 +34,12 @@
 #ifndef __vtkSquarifyLayoutStrategy_h
 #define __vtkSquarifyLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"
 
 class vtkIdList;
 
-class VTK_INFOVIS_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayoutStrategy
 {
 public:
   static vtkSquarifyLayoutStrategy *New();

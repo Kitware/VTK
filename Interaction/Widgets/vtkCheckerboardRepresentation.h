@@ -30,6 +30,7 @@
 #ifndef __vtkCheckerboardRepresentation_h
 #define __vtkCheckerboardRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkImageCheckerboard;
@@ -37,7 +38,7 @@ class vtkImageActor;
 class vtkSliderRepresentation3D;
 
 
-class VTK_WIDGETS_EXPORT vtkCheckerboardRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkCheckerboardRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

@@ -22,6 +22,7 @@
 #ifndef __vtkPlotBar_h
 #define __vtkPlotBar_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // Needed to hold ColorSeries
 
@@ -33,7 +34,7 @@ class vtkColorSeries;
 
 class vtkPlotBarPrivate;
 
-class VTK_CHARTS_EXPORT vtkPlotBar : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotBar : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBar, vtkPlot);

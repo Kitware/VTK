@@ -31,6 +31,7 @@
 #ifndef __vtkQtRecordView_h
 #define __vtkQtRecordView_h
 
+#include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 #include "vtkSmartPointer.h"
@@ -39,7 +40,7 @@
 class QTextEdit;
 class vtkDataObjectToTable;
 
-class QVTK_EXPORT vtkQtRecordView : public vtkQtView
+class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
 {
 Q_OBJECT
 

@@ -25,11 +25,12 @@
 #ifndef __vtkEdgeLayoutStrategy_h
 #define __vtkEdgeLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGraph;
 
-class VTK_INFOVIS_EXPORT vtkEdgeLayoutStrategy : public vtkObject 
+class VTKINFOVISLAYOUT_EXPORT vtkEdgeLayoutStrategy : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEdgeLayoutStrategy,vtkObject);

@@ -39,11 +39,12 @@
 #ifndef __vtkCirclePackLayout_h
 #define __vtkCirclePackLayout_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
 class vtkCirclePackLayoutStrategy;
 
-class VTK_INFOVIS_EXPORT vtkCirclePackLayout : public vtkTreeAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayout : public vtkTreeAlgorithm
 {
 public:
     static vtkCirclePackLayout *New();

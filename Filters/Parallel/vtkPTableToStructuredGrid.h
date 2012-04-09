@@ -23,11 +23,12 @@
 #ifndef __vtkPTableToStructuredGrid_h
 #define __vtkPTableToStructuredGrid_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkTableToStructuredGrid.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPTableToStructuredGrid : public vtkTableToStructuredGrid
+class VTKFILTERSPARALLEL_EXPORT vtkPTableToStructuredGrid : public vtkTableToStructuredGrid
 {
 public:
   static vtkPTableToStructuredGrid* New();

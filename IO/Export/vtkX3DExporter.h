@@ -24,6 +24,7 @@
 #ifndef __vtkX3DExporter_h
 #define __vtkX3DExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkLight;
@@ -35,7 +36,7 @@ class vtkUnsignedCharArray;
 class vtkX3DExporterWriter;
 class vtkRenderer;
 
-class VTK_HYBRID_EXPORT vtkX3DExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkX3DExporter : public vtkExporter
 {
 public:
   static vtkX3DExporter *New();

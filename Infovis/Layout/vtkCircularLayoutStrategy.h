@@ -25,9 +25,10 @@
 #ifndef __vtkCircularLayoutStrategy_h
 #define __vtkCircularLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
-class VTK_INFOVIS_EXPORT vtkCircularLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkCircularLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkCircularLayoutStrategy *New();

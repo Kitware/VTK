@@ -36,6 +36,7 @@
 #ifndef __vtkSLACParticleReader_h
 #define __vtkSLACParticleReader_h
 
+#include "vtkIONetCDFModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkDataArraySelection;
@@ -43,7 +44,7 @@ class vtkIdTypeArray;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 
-class VTK_IO_EXPORT vtkSLACParticleReader : public vtkPolyDataAlgorithm
+class VTKIONETCDF_EXPORT vtkSLACParticleReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSLACParticleReader, vtkPolyDataAlgorithm);

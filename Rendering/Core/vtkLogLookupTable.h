@@ -23,9 +23,10 @@
 #ifndef __vtkLogLookupTable_h
 #define __vtkLogLookupTable_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
 
-class VTK_COMMON_EXPORT vtkLogLookupTable : public vtkLookupTable
+class VTKRENDERINGCORE_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
   static vtkLogLookupTable *New();

@@ -26,6 +26,7 @@
 #ifndef __vtkWidgetCallbackMapper_h
 #define __vtkWidgetCallbackMapper_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkWidgetEvent;
@@ -34,7 +35,7 @@ class vtkWidgetEventTranslator;
 class vtkCallbackMap; // PIMPL encapsulation of STL map
 
 
-class VTK_WIDGETS_EXPORT vtkWidgetCallbackMapper : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetCallbackMapper : public vtkObject
 {
 public:
   // Description:

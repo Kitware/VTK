@@ -36,6 +36,7 @@
 #ifndef __vtkCellTreeLocator_h
 #define __vtkCellTreeLocator_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
 #include <vector> // Needed for internal class
 
@@ -43,7 +44,7 @@ class vtkCellPointTraversal;
 class vtkIdTypeArray;
 class vtkCellArray;
 
-class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
+class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
 {
   public:
     class vtkCellTree;
@@ -132,7 +133,7 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     // Description:
     // Internal classes made public to allow subclasses to create
     // customized some traversal algorithms
-    class VTK_FILTERING_EXPORT vtkCellTree
+    class VTKFILTERSGENERAL_EXPORT vtkCellTree
     {
       public:
         std::vector<vtkCellTreeNode>  Nodes;
@@ -154,7 +155,7 @@ class VTK_FILTERING_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
     // candidates.
     // start is the location in the cell tree. e.g. for root node start is zero.
     // size is the number of the nodes under the (sub-)tree
-    class VTK_FILTERING_EXPORT vtkCellTreeNode
+    class VTKFILTERSGENERAL_EXPORT vtkCellTreeNode
     {
       public:
 

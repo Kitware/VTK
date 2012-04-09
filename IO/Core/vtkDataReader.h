@@ -26,6 +26,7 @@
 #ifndef __vtkDataReader_h
 #define __vtkDataReader_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkStdString.h" // For API using strings
 
@@ -42,7 +43,7 @@ class vtkPointSet;
 class vtkRectilinearGrid;
 class vtkTable;
 
-class VTK_IO_EXPORT vtkDataReader : public vtkAlgorithm
+class VTKIOCORE_EXPORT vtkDataReader : public vtkAlgorithm
 {
 public:
   static vtkDataReader *New();

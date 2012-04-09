@@ -29,13 +29,14 @@
 #ifndef __vtkQtInitialization_h
 #define __vtkQtInitialization_h
 
+#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkObject.h"
 
 //BTX
 class QApplication;
 //ETX
 
-class VTK_RENDERING_EXPORT vtkQtInitialization : public vtkObject
+class VTKRENDERINGQT_EXPORT vtkQtInitialization : public vtkObject
 {
 public:
   static vtkQtInitialization* New();

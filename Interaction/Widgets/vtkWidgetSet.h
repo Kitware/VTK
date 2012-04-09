@@ -90,6 +90,7 @@
 #ifndef __vtkWidgetSet_h
 #define __vtkWidgetSet_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // Required for vector
 
@@ -105,7 +106,7 @@ template< class TWidget > struct ActionFunction
 };
 //ETX
 
-class VTK_WIDGETS_EXPORT vtkWidgetSet : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetSet : public vtkObject
 {
 public:
   // Description:

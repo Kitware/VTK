@@ -61,13 +61,14 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNITransformReader_h
 #define __vtkMNITransformReader_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkAbstractTransform;
 class vtkDoubleArray;
 class vtkCollection;
 
-class VTK_HYBRID_EXPORT vtkMNITransformReader : public vtkAlgorithm
+class VTKIOMINC_EXPORT vtkMNITransformReader : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkMNITransformReader,vtkAlgorithm);

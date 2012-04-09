@@ -22,13 +22,14 @@
 #ifndef __vtkHierarchicalDataExtractDataSets_h
 #define __vtkHierarchicalDataExtractDataSets_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractDataSets.h"
 
 //BTX
 struct vtkHierarchicalDataExtractDataSetsInternals;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkHierarchicalDataExtractDataSets : 
+class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets :
   public vtkExtractDataSets 
 {
 public:

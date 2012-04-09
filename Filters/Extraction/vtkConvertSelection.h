@@ -30,6 +30,7 @@
 #ifndef __vtkConvertSelection_h
 #define __vtkConvertSelection_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
 class vtkCompositeDataSet;
@@ -40,7 +41,7 @@ class vtkSelectionNode;
 class vtkStringArray;
 class vtkTable;
 
-class VTK_GRAPHICS_EXPORT vtkConvertSelection : public vtkSelectionAlgorithm 
+class VTKFILTERSEXTRACTION_EXPORT vtkConvertSelection : public vtkSelectionAlgorithm
 {
 public:
   static vtkConvertSelection *New();

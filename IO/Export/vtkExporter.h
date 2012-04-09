@@ -36,10 +36,11 @@
 #ifndef __vtkExporter_h
 #define __vtkExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"
 class vtkRenderWindow;
 
-class VTK_RENDERING_EXPORT vtkExporter : public vtkObject 
+class VTKIOEXPORT_EXPORT vtkExporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExporter,vtkObject);

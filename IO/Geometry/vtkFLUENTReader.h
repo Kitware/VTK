@@ -32,6 +32,7 @@
 #ifndef __vtkFLUENTReader_h
 #define __vtkFLUENTReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkDataArraySelection;
@@ -44,7 +45,7 @@ class vtkPyramid;
 class vtkWedge;
 class vtkConvexPointSet;
 
-class VTK_IO_EXPORT vtkFLUENTReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkFLUENTReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkFLUENTReader *New();

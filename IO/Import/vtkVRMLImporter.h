@@ -66,6 +66,7 @@
 #define __vtkVRMLImporter_h
 
 // Includes for the yacc/lex parser
+#include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
 
 class vtkActor;
@@ -82,7 +83,7 @@ class vtkIdTypeArray;
 class vtkVRMLImporterInternal;
 class vtkCellArray;
 
-class VTK_HYBRID_EXPORT vtkVRMLImporter : public vtkImporter
+class VTKIOIMPORT_EXPORT vtkVRMLImporter : public vtkImporter
 {
 public:
   static vtkVRMLImporter *New();

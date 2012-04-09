@@ -54,6 +54,7 @@
 #ifndef __vtkPolyData_h
 #define __vtkPolyData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
 #include "vtkCellTypes.h" // Needed for inline methods
@@ -69,7 +70,7 @@ class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
 
-class VTK_FILTERING_EXPORT vtkPolyData : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT vtkPolyData : public vtkPointSet
 {
 public:
   static vtkPolyData *New();

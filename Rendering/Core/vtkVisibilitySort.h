@@ -43,6 +43,7 @@
 #ifndef __vtkVisibilitySort_h
 #define __vtkVisibilitySort_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkIdTypeArray;
@@ -50,7 +51,7 @@ class vtkDataSet;
 class vtkMatrix4x4;
 class vtkCamera;
 
-class VTK_RENDERING_EXPORT vtkVisibilitySort : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);

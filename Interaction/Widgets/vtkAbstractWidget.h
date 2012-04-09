@@ -50,6 +50,7 @@
 #ifndef __vtkAbstractWidget_h
 #define __vtkAbstractWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
 class vtkWidgetEventTranslator;
@@ -57,7 +58,7 @@ class vtkWidgetCallbackMapper;
 class vtkWidgetRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
+class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
 {
 public:
   // Description:

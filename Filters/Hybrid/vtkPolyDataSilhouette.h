@@ -35,6 +35,7 @@
 #ifndef __vtkPolyDataSilhouette_h
 #define __vtkPolyDataSilhouette_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_DIRECTION_SPECIFIED_VECTOR 0
@@ -47,7 +48,7 @@ class vtkProp3D;
 class vtkTransform;
 class vtkPolyDataEdges;
 
-class VTK_HYBRID_EXPORT vtkPolyDataSilhouette : public vtkPolyDataAlgorithm 
+class VTKFILTERSHYBRID_EXPORT vtkPolyDataSilhouette : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

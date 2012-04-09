@@ -24,9 +24,10 @@
 #define __vtkImageDecomposeFilter_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageIterateFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
+class VTKIMAGINGCORE_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
   // Description:

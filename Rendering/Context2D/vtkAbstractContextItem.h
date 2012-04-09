@@ -24,6 +24,7 @@
 #ifndef __vtkAbstractContextItem_h
 #define __vtkAbstractContextItem_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkContext2D;
@@ -33,7 +34,7 @@ class vtkContextScene;
 class vtkContextScenePrivate;
 class vtkVector2f;
 
-class VTK_CHARTS_EXPORT vtkAbstractContextItem : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextItem : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);

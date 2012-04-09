@@ -24,6 +24,7 @@
 #ifndef VTKAMRENZOPARTICLESREADER_H_
 #define VTKAMRENZOPARTICLESREADER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
 
 
@@ -32,7 +33,7 @@ class vtkDataArray;
 class vtkIntArray;
 class vtkEnzoReaderInternal;
 
-class VTK_AMR_EXPORT vtkAMREnzoParticlesReader :
+class VTKAMRCORE_EXPORT vtkAMREnzoParticlesReader :
   public vtkAMRBaseParticlesReader
 {
   public:

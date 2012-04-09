@@ -29,6 +29,7 @@
 #ifndef __vtkMILVideoSource_h
 #define __vtkMILVideoSource_h
 
+#include "vtkIOVideoModule.h" // For export macro
 #include "vtkVideoSource.h"
 
 // digitizer hardware
@@ -62,7 +63,7 @@
 #define VTK_MIL_SECAM         4
 #define VTK_MIL_NONSTANDARD   5       
 
-class VTK_HYBRID_EXPORT vtkMILVideoSource : public vtkVideoSource
+class VTKIOVIDEO_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
 public:
   static vtkMILVideoSource *New();

@@ -28,13 +28,14 @@
 #ifndef __vtkPerturbCoincidentVertices_h
 #define __vtkPerturbCoincidentVertices_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 #include "vtkSmartPointer.h" // for ivars
 
 class vtkCoincidentPoints;
 class vtkDataSet;
 
-class VTK_INFOVIS_EXPORT vtkPerturbCoincidentVertices : public vtkGraphAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkPerturbCoincidentVertices : public vtkGraphAlgorithm
 {
 public:
   static vtkPerturbCoincidentVertices* New();

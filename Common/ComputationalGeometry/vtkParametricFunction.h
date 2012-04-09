@@ -50,9 +50,10 @@
 #ifndef __vtkParametricFunction_h
 #define __vtkParametricFunction_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkParametricFunction : public vtkObject
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkParametricFunction, vtkObject);

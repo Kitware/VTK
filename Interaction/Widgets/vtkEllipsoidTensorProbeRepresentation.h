@@ -25,13 +25,14 @@
 #ifndef __vtkEllipsoidTensorProbeRepresentation_h
 #define __vtkEllipsoidTensorProbeRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkTensorProbeRepresentation.h"
 
 class vtkCellPicker;
 class vtkTensorGlyph;
 class vtkPolyDataNormals;
 
-class VTK_WIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation :
+class VTKINTERACTIONWIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation :
                public vtkTensorProbeRepresentation
 {
 public:

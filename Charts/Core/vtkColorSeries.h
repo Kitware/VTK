@@ -24,10 +24,11 @@
 #ifndef __vtkColorSeries_h
 #define __vtkColorSeries_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor3ub
 
-class VTK_CHARTS_EXPORT vtkColorSeries : public vtkObject
+class VTKCHARTSCORE_EXPORT vtkColorSeries : public vtkObject
 {
 public:
   vtkTypeMacro(vtkColorSeries, vtkObject);

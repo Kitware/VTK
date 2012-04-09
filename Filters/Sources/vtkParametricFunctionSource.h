@@ -40,12 +40,13 @@
 #ifndef __vtkParametricFunctionSource_h
 #define __vtkParametricFunctionSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkParametricFunction;
 
-class VTK_GRAPHICS_EXPORT vtkParametricFunctionSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkParametricFunctionSource,vtkPolyDataAlgorithm);

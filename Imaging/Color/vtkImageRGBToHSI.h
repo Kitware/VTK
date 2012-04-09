@@ -21,9 +21,10 @@
 #ifndef __vtkImageRGBToHSI_h
 #define __vtkImageRGBToHSI_h
 
+#include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageRGBToHSI *New();

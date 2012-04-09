@@ -21,6 +21,7 @@
 #ifndef __vtk2DHistogramItem_h
 #define __vtk2DHistogramItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h"  // Needed for SP ivars
 #include "vtkRect.h"          // Needed for vtkRectf
@@ -28,7 +29,7 @@
 class vtkImageData;
 class vtkScalarsToColors;
 
-class VTK_CHARTS_EXPORT vtkPlotHistogram2D : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotHistogram2D : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);

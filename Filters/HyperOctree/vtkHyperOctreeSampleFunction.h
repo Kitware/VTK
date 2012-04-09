@@ -26,11 +26,12 @@
 #ifndef __vtkHyperOctreeSampleFunction_h
 #define __vtkHyperOctreeSampleFunction_h
 
+#include "vtkFiltersHyperOctreeModule.h" // For export macro
 #include "vtkHyperOctreeAlgorithm.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkHyperOctreeSampleFunction : public vtkHyperOctreeAlgorithm
+class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeSampleFunction : public vtkHyperOctreeAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperOctreeSampleFunction,vtkHyperOctreeAlgorithm);

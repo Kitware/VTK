@@ -30,11 +30,12 @@
 #ifndef __vtkFocalPlaneContourRepresentation_h
 #define __vtkFocalPlaneContourRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourRepresentation.h"
 
 class vtkHandleRepresentation;
 
-class VTK_WIDGETS_EXPORT vtkFocalPlaneContourRepresentation : public vtkContourRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlaneContourRepresentation : public vtkContourRepresentation
 {
 public:
   // Description:

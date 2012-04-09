@@ -34,6 +34,7 @@
 
 #define DEFAULTINCREMENT        100
 
+#include "vtkIOImportModule.h" // For export macro
 #include "vtkHeap.h"
 
 #ifdef VTK_USE_ANSI_STDLIB
@@ -65,7 +66,7 @@ struct vtkVRMLAllocator
 
   
 template <class T> 
-class VTK_HYBRID_EXPORT vtkVRMLVectorType
+class VTKIOIMPORT_EXPORT vtkVRMLVectorType
 {
 protected:
   T *Data;

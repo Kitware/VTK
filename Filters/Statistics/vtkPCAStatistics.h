@@ -44,12 +44,13 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkPCAStatistics_h
 #define __vtkPCAStatistics_h
 
+#include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkMultiCorrelativeStatistics.h"
 
 class vtkDoubleArray;
 class vtkIdTypeArray;
 
-class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
+class VTKFILTERSSTATISTICS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
 {
 public:
   vtkTypeMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);

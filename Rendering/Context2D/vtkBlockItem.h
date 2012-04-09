@@ -22,12 +22,13 @@
 #ifndef __vtkBlockItem_h
 #define __vtkBlockItem_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;
 
-class VTK_CHARTS_EXPORT vtkBlockItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkBlockItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkBlockItem, vtkContextItem);

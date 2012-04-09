@@ -36,6 +36,7 @@
 #ifndef __vtkAnnotatedCubeActor_h
 #define __vtkAnnotatedCubeActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkActor;
@@ -50,7 +51,7 @@ class vtkTransform;
 class vtkTransformFilter;
 class vtkVectorText;
 
-class VTK_HYBRID_EXPORT vtkAnnotatedCubeActor : public vtkProp3D
+class VTKRENDERINGANNOTATION_EXPORT vtkAnnotatedCubeActor : public vtkProp3D
 {
 public:
   static vtkAnnotatedCubeActor *New();

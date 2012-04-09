@@ -23,9 +23,10 @@
 #ifndef __vtkTimeStamp_h
 #define __vtkTimeStamp_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-class VTK_COMMON_EXPORT vtkTimeStamp 
+class VTKCOMMONCORE_EXPORT vtkTimeStamp
 {
 public:
   vtkTimeStamp() {this->ModifiedTime = 0;};

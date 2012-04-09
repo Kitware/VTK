@@ -33,13 +33,14 @@
 #ifndef __vtkGlobeSource_h
 #define __vtkGlobeSource_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 
 
-class VTK_GEOVIS_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
+class VTKGEOVISCORE_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlobeSource,vtkPolyDataAlgorithm);

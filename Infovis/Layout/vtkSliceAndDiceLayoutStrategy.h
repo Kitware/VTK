@@ -31,9 +31,10 @@
 #ifndef __vtkSliceAndDiceLayoutStrategy_h
 #define __vtkSliceAndDiceLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"
 
-class VTK_INFOVIS_EXPORT vtkSliceAndDiceLayoutStrategy : public vtkTreeMapLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkSliceAndDiceLayoutStrategy : public vtkTreeMapLayoutStrategy
 {
 public:
   static vtkSliceAndDiceLayoutStrategy *New();

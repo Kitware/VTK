@@ -22,11 +22,12 @@
 #ifndef __vtkTemporalDataSetAlgorithm_h
 #define __vtkTemporalDataSetAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkTemporalDataSet;
 
-class VTK_FILTERING_EXPORT vtkTemporalDataSetAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTemporalDataSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkTemporalDataSetAlgorithm *New();

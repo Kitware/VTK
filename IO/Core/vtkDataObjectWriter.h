@@ -27,11 +27,12 @@
 #ifndef __vtkDataObjectWriter_h
 #define __vtkDataObjectWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 #include "vtkDataWriter.h" // Needs data because it calls methods on it
 #include "vtkStdString.h" // For string used in api
 
-class VTK_IO_EXPORT vtkDataObjectWriter : public vtkWriter
+class VTKIOCORE_EXPORT vtkDataObjectWriter : public vtkWriter
 {
 public:
   static vtkDataObjectWriter *New();

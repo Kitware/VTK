@@ -31,9 +31,10 @@
 #define __vtkImageIdealLowPass_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageIdealLowPass *New();

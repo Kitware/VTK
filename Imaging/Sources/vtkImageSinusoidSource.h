@@ -21,9 +21,10 @@
 #ifndef __vtkImageSinusoidSource_h
 #define __vtkImageSinusoidSource_h
 
+#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageSinusoidSource : public vtkImageAlgorithm
+class VTKIMAGINGSOURCES_EXPORT vtkImageSinusoidSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageSinusoidSource *New();

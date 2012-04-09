@@ -29,6 +29,7 @@
 #ifndef __vtkCommunicator_h
 #define __vtkCommunicator_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkBoundingBox;
@@ -41,7 +42,7 @@ class vtkMultiBlockDataSet;
 class vtkMultiProcessStream;
 class vtkTemporalDataSet;
 
-class VTK_PARALLEL_EXPORT vtkCommunicator : public vtkObject
+class VTKPARALLELCORE_EXPORT vtkCommunicator : public vtkObject
 {
 
 public:

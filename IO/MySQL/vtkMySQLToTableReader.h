@@ -20,11 +20,12 @@
 #ifndef __vtkMySQLToTableReader_h
 #define __vtkMySQLToTableReader_h
 
+#include "vtkIOMySQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
 
 class vtkMySQLDatabase;
 
-class VTK_IO_EXPORT vtkMySQLToTableReader :
+class VTKIOMYSQL_EXPORT vtkMySQLToTableReader :
   public vtkDatabaseToTableReader
 {
 public:

@@ -24,9 +24,10 @@
 #ifndef __vtkMaskPolyData_h
 #define __vtkMaskPolyData_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkMaskPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkMaskPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMaskPolyData *New();

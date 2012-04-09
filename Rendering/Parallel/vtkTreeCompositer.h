@@ -54,10 +54,11 @@
 #ifndef __vtkTreeCompositer_h
 #define __vtkTreeCompositer_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkCompositer.h"
 
 
-class VTK_PARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
+class VTKRENDERINGPARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
 {
 public:
   static vtkTreeCompositer *New();

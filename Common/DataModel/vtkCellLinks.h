@@ -25,11 +25,12 @@
 #ifndef __vtkCellLinks_h
 #define __vtkCellLinks_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 class vtkDataSet;
 class vtkCellArray;
 
-class VTK_FILTERING_EXPORT vtkCellLinks : public vtkObject 
+class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkObject
 {
 public:
 

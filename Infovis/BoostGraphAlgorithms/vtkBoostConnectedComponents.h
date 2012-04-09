@@ -31,9 +31,10 @@
 #ifndef __vtkBoostConnectedComponents_h
 #define __vtkBoostConnectedComponents_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostConnectedComponents : public vtkGraphAlgorithm
 {
 public:
   static vtkBoostConnectedComponents *New();

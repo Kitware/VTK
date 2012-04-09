@@ -28,12 +28,13 @@
 
 
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDSPFilterDefinitionVectorDoubleSTLCloak;
 class vtkDSPFilterDefinitionStringSTLCloak;
 
-class VTK_HYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
+class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 {
  public:
   vtkTypeMacro(vtkDSPFilterDefinition, vtkObject);

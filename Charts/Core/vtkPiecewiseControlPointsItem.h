@@ -25,11 +25,12 @@
 #ifndef __vtkPiecewiseControlPointsItem_h
 #define __vtkPiecewiseControlPointsItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"
 
 class vtkPiecewiseFunction;
 
-class VTK_CHARTS_EXPORT vtkPiecewiseControlPointsItem: public vtkControlPointsItem
+class VTKCHARTSCORE_EXPORT vtkPiecewiseControlPointsItem: public vtkControlPointsItem
 {
 public:
   vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);

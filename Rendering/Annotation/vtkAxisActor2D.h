@@ -54,6 +54,7 @@
 #ifndef __vtkAxisActor2D_h
 #define __vtkAxisActor2D_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkPolyDataMapper2D;
@@ -63,7 +64,7 @@ class vtkTextProperty;
 
 #define VTK_MAX_LABELS 25
 
-class VTK_RENDERING_EXPORT vtkAxisActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkAxisActor2D,vtkActor2D);

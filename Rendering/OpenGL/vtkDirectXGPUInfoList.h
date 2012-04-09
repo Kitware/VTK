@@ -26,11 +26,12 @@
 #ifndef __vtkDirectXGPUInfoList_h
 #define __vtkDirectXGPUInfoList_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkGPUInfoList.h"
 
 #include <d3d9.h> // DirectX, HMONITOR
 
-class VTK_RENDERING_EXPORT vtkDirectXGPUInfoList : public vtkGPUInfoList
+class VTKRENDERINGOPENGL_EXPORT vtkDirectXGPUInfoList : public vtkGPUInfoList
 {
 public:
   static vtkDirectXGPUInfoList* New();

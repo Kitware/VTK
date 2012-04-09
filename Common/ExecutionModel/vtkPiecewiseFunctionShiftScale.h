@@ -20,11 +20,12 @@
 #ifndef __vtkPiecewiseFunctionShiftScale_h
 #define __vtkPiecewiseFunctionShiftScale_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPiecewiseFunctionAlgorithm.h"
 
 class vtkPiecewiseFunction;
 
-class VTK_FILTERING_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionAlgorithm
 {
 public:
   static vtkPiecewiseFunctionShiftScale *New();

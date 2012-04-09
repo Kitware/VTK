@@ -37,6 +37,7 @@ All rights reserve
 #define VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS 200
 #define VTK_POLAR_ARC_RESOLUTION_PER_DEG 0.2
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
 
 class vtkAxisActor;
@@ -45,7 +46,7 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkTextProperty;
 
-class VTK_HYBRID_EXPORT vtkPolarAxesActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT vtkPolarAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkPolarAxesActor,vtkActor);

@@ -37,6 +37,7 @@
 #ifndef __vtkPExodusIIReader_h
 #define __vtkPExodusIIReader_h
 
+#include "vtkIOParallelExodusModule.h" // For export macro
 #include "vtkExodusIIReader.h"
 
 #include <vector> // Required for vector
@@ -44,7 +45,7 @@
 class vtkTimerLog;
 class vtkMultiProcessController;
 
-class VTK_HYBRID_EXPORT vtkPExodusIIReader : public vtkExodusIIReader 
+class VTKIOPARALLELEXODUS_EXPORT vtkPExodusIIReader : public vtkExodusIIReader
 {
 public:
   static vtkPExodusIIReader* New();

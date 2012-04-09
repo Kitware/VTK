@@ -33,6 +33,7 @@
 #ifndef __vtkFrustumCoverageCuller_h
 #define __vtkFrustumCoverageCuller_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCuller.h"
 
 #define VTK_CULLER_SORT_NONE          0
@@ -42,7 +43,7 @@
 class vtkProp;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkFrustumCoverageCuller : public vtkCuller
+class VTKRENDERINGCORE_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
   static vtkFrustumCoverageCuller *New();

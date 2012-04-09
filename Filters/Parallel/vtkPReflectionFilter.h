@@ -19,11 +19,12 @@
 #ifndef __vtkPReflectionFilter_h
 #define __vtkPReflectionFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkReflectionFilter.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPReflectionFilter : public vtkReflectionFilter
+class VTKFILTERSPARALLEL_EXPORT vtkPReflectionFilter : public vtkReflectionFilter
 {
 public:
   static vtkPReflectionFilter* New();

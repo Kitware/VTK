@@ -33,13 +33,14 @@
 #define __vtkImageReader2Factory_h
 
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageReader2;
 class vtkImageReader2Collection;
 class vtkImageReader2FactoryCleanup;
 
-class VTK_IO_EXPORT vtkImageReader2Factory : public vtkObject
+class VTKIOIMAGE_EXPORT vtkImageReader2Factory : public vtkObject
 {
 public:
   static vtkImageReader2Factory *New();

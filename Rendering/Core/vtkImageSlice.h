@@ -32,6 +32,7 @@
 #ifndef __vtkImageSlice_h
 #define __vtkImageSlice_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkRenderer;
@@ -39,7 +40,7 @@ class vtkPropCollection;
 class vtkImageProperty;
 class vtkImageMapper3D;
 
-class VTK_RENDERING_EXPORT vtkImageSlice : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkImageSlice : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkImageSlice,vtkProp3D);

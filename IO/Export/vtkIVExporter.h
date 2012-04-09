@@ -24,6 +24,7 @@
 #ifndef __vtkIVExporter_h
 #define __vtkIVExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkLight;
@@ -32,7 +33,7 @@ class vtkPoints;
 class vtkDataArray;
 class vtkUnsignedCharArray;
 
-class VTK_RENDERING_EXPORT vtkIVExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkIVExporter : public vtkExporter
 {
 public:
   static vtkIVExporter *New();

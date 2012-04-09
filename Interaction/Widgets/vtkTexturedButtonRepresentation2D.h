@@ -42,6 +42,7 @@
 #ifndef __vtkTexturedButtonRepresentation2D_h
 #define __vtkTexturedButtonRepresentation2D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
 
 class vtkProperty2D;
@@ -53,7 +54,7 @@ class vtkBalloonRepresentation;
 class vtkCoordinate;
 
 
-class VTK_WIDGETS_EXPORT vtkTexturedButtonRepresentation2D : public vtkButtonRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkTexturedButtonRepresentation2D : public vtkButtonRepresentation
 {
 public:
   // Description:

@@ -49,13 +49,14 @@
 #ifndef __vtkProcrustesAlignmentFilter_h
 #define __vtkProcrustesAlignmentFilter_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkLandmarkTransform;
 class vtkPointSet;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkProcrustesAlignmentFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkProcrustesAlignmentFilter,vtkMultiBlockDataSetAlgorithm);

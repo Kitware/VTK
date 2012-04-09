@@ -40,6 +40,7 @@
 #ifndef __vtkGenericContourFilter_h
 #define __vtkGenericContourFilter_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkContourValues;
@@ -47,7 +48,7 @@ class vtkIncrementalPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericContourFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericContourFilter,

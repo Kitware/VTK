@@ -36,13 +36,14 @@
 #ifndef __vtkCellCenterDepthSort_h
 #define __vtkCellCenterDepthSort_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVisibilitySort.h"
 
 class vtkFloatArray;
 
 class vtkCellCenterDepthSortStack;
 
-class VTK_RENDERING_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
+class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);

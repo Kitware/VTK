@@ -27,11 +27,12 @@
 #ifndef __vtkSequencePass_h
 #define __vtkSequencePass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 class vtkRenderPassCollection;
 
-class VTK_RENDERING_EXPORT vtkSequencePass : public vtkRenderPass
+class VTKRENDERINGOPENGL_EXPORT vtkSequencePass : public vtkRenderPass
 {
 public:
   static vtkSequencePass *New();

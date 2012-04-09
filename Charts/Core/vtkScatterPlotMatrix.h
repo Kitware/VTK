@@ -23,6 +23,7 @@
 #ifndef __vtkScatterPlotMatrix_h
 #define __vtkScatterPlotMatrix_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartMatrix.h"
 #include "vtkSmartPointer.h" // For ivars
 #include "vtkNew.h"          // For ivars
@@ -37,7 +38,7 @@ class vtkTextProperty;
 class vtkTooltipItem;
 class vtkRenderWindowInteractor;
 
-class VTK_CHARTS_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
+class VTKCHARTSCORE_EXPORT vtkScatterPlotMatrix : public vtkChartMatrix
 {
 public:
   enum {

@@ -33,11 +33,12 @@
 #ifndef __vtkGlobFileNames_h
 #define __vtkGlobFileNames_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkStringArray;
 
-class VTK_IO_EXPORT vtkGlobFileNames : public vtkObject
+class VTKIOCORE_EXPORT vtkGlobFileNames : public vtkObject
 {
 public:
   // Description:

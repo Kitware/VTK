@@ -104,6 +104,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkHAVSVolumeMapper_h
 #define __vtkHAVSVolumeMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 #define VTK_KBUFFER_SIZE_2 0
@@ -116,7 +117,7 @@ class vtkUnstructuredGrid;
 class vtkDepthRadixSortUnstructuredGrid;
 class vtkHAVSSortedFace;
 
-class VTK_VOLUMERENDERING_EXPORT vtkHAVSVolumeMapper : public vtkUnstructuredGridVolumeMapper 
+class VTKRENDERINGVOLUME_EXPORT vtkHAVSVolumeMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
   static vtkHAVSVolumeMapper *New();

@@ -32,11 +32,12 @@
 #define __vtkImageOpenClose3D_h
 
 
+#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkImageDilateErode3D;
 
-class VTK_IMAGING_EXPORT vtkImageOpenClose3D : public vtkImageAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageOpenClose3D : public vtkImageAlgorithm
 {
 public:
   // Description:

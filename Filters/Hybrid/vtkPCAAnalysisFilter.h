@@ -47,12 +47,13 @@
 #ifndef __vtkPCAAnalysisFilter_h
 #define __vtkPCAAnalysisFilter_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkPointSet;
 
-class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSetAlgorithm
 {
  public:
   vtkTypeMacro(vtkPCAAnalysisFilter,vtkMultiBlockDataSetAlgorithm);

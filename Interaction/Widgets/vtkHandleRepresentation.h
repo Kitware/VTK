@@ -43,13 +43,14 @@
 #ifndef __vtkHandleRepresentation_h
 #define __vtkHandleRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkCoordinate;
 class vtkRenderer;
 class vtkPointPlacer;
 
-class VTK_WIDGETS_EXPORT vtkHandleRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkHandleRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

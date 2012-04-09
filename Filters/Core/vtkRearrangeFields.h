@@ -55,13 +55,14 @@
 #ifndef __vtkRearrangeFields_h
 #define __vtkRearrangeFields_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 class vtkFieldData;
 
-class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);

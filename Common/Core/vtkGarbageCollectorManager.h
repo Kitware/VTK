@@ -22,12 +22,13 @@
 #ifndef __vtkGarbageCollectorManager_h
 #define __vtkGarbageCollectorManager_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks is around longer than
                                   // the garbage collector.
 
-class VTK_COMMON_EXPORT vtkGarbageCollectorManager
+class VTKCOMMONCORE_EXPORT vtkGarbageCollectorManager
 {
 public:
   vtkGarbageCollectorManager();

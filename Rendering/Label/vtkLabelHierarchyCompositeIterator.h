@@ -35,13 +35,14 @@
 #define __vtkLabelHierarchyCompositeIterator_h
 
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelHierarchyIterator.h"
 
 class vtkIdTypeArray;
 class vtkLabelHierarchy;
 class vtkPolyData;
 
-class VTK_RENDERING_EXPORT vtkLabelHierarchyCompositeIterator : public vtkLabelHierarchyIterator
+class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyCompositeIterator : public vtkLabelHierarchyIterator
 {
 public:
   vtkTypeMacro(vtkLabelHierarchyCompositeIterator, vtkLabelHierarchyIterator);

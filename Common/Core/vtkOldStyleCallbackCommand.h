@@ -31,10 +31,11 @@
 #ifndef __vtkOldStyleCallbackCommand_h
 #define __vtkOldStyleCallbackCommand_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
 
 // the old style void fund(void *) callbacks
-class VTK_COMMON_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
+class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 {
 public:
   vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);

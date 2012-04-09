@@ -26,13 +26,14 @@
 #ifndef __vtkGeoAdaptiveArcs_h
 #define __vtkGeoAdaptiveArcs_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkDoubleArray;
 class vtkPolyData;
 class vtkRenderer;
 
-class VTK_GEOVIS_EXPORT vtkGeoAdaptiveArcs : public vtkPolyDataAlgorithm 
+class VTKGEOVISCORE_EXPORT vtkGeoAdaptiveArcs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoAdaptiveArcs *New();

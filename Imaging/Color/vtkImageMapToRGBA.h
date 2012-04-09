@@ -24,9 +24,10 @@
 #define __vtkImageMapToRGBA_h
 
 
+#include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageMapToColors.h"
 
-class VTK_IMAGING_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
+class VTKIMAGINGCOLOR_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToRGBA *New();

@@ -38,6 +38,7 @@
 #ifndef __vtkProp3DButtonRepresentation_h
 #define __vtkProp3DButtonRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
 
 class vtkPropPicker;
@@ -45,7 +46,7 @@ class vtkProp3D;
 class vtkProp3DFollower;
 class vtkPropArray; //PIMPLd
 
-class VTK_WIDGETS_EXPORT vtkProp3DButtonRepresentation : public vtkButtonRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkProp3DButtonRepresentation : public vtkButtonRepresentation
 {
 public:
   // Description:

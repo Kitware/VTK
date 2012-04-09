@@ -29,6 +29,7 @@
 #ifndef VTKDATASETGHOSTGENERATOR_H_
 #define VTKDATASETGHOSTGENERATOR_H_
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 // Forward Declarations
@@ -36,7 +37,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkMultiBlockDataSet;
 
-class VTK_FILTERING_EXPORT vtkDataSetGhostGenerator:
+class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator:
   public vtkMultiBlockDataSetAlgorithm
 {
   public:

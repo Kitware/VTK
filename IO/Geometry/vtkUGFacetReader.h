@@ -21,12 +21,13 @@
 #ifndef __vtkUGFacetReader_h
 #define __vtkUGFacetReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIncrementalPointLocator;
 class vtkShortArray;
 
-class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm 
+class VTKIOGEOMETRY_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkUGFacetReader,vtkPolyDataAlgorithm);

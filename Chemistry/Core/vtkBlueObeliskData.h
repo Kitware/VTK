@@ -33,6 +33,7 @@
 #ifndef __vtkBlueObeliskData_h
 #define __vtkBlueObeliskData_h
 
+#include "vtkChemistryCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkNew.h" // For vtkNew
 
@@ -45,7 +46,7 @@ class vtkUnsignedShortArray;
 // Hidden STL reference: vtkstd::vector<vtkAbstractArray*>
 class MyStdVectorOfVtkAbstractArrays;
 
-class VTK_CHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
+class VTKCHEMISTRYCORE_EXPORT vtkBlueObeliskData : public vtkObject
 {
  public:
   vtkTypeMacro(vtkBlueObeliskData,vtkObject);

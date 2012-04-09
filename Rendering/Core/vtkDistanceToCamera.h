@@ -29,11 +29,12 @@
 #ifndef __vtkDistanceToCamera_h
 #define __vtkDistanceToCamera_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm 
+class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDistanceToCamera *New();

@@ -28,12 +28,13 @@
 #ifndef __vtkImageSeedConnectivity_h
 #define __vtkImageSeedConnectivity_h
 
+#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkImageConnector;
 class vtkImageConnectorSeed;
 
-class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageAlgorithm
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageSeedConnectivity : public vtkImageAlgorithm
 {
 public:
   static vtkImageSeedConnectivity *New();

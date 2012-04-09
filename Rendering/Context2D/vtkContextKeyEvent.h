@@ -22,12 +22,13 @@
 #ifndef __vtkContextKeyEvent_h
 #define __vtkContextKeyEvent_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkWeakPointer.h" // For vtkWeakPointer
 #include "vtkVector.h" // For vtkVector2i
 
 class vtkRenderWindowInteractor;
 
-class VTK_CHARTS_EXPORT vtkContextKeyEvent
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextKeyEvent
 {
 public:
   vtkContextKeyEvent();

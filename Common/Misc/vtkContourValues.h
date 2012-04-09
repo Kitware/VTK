@@ -24,11 +24,12 @@
 #ifndef __vtkContourValues_h
 #define __vtkContourValues_h
 
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDoubleArray;
 
-class VTK_COMMON_EXPORT vtkContourValues : public vtkObject
+class VTKCOMMONMISC_EXPORT vtkContourValues : public vtkObject
 {
 public:
   // Description:

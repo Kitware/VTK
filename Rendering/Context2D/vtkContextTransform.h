@@ -23,12 +23,13 @@
 #ifndef __vtkContextTransform_h
 #define __vtkContextTransform_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
 #include "vtkSmartPointer.h" // Needed for SP ivars.
 
 class vtkTransform2D;
 
-class VTK_CHARTS_EXPORT vtkContextTransform : public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextTransform : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkContextTransform, vtkAbstractContextItem);

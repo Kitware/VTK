@@ -21,11 +21,12 @@
 #ifndef __vtkImageStencil_h
 #define __vtkImageStencil_h
 
+#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
 class vtkImageStencilData;
 
-class VTK_IMAGING_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
+class VTKIMAGINGSTENCIL_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageStencil *New();

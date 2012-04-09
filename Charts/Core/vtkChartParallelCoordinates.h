@@ -21,6 +21,7 @@
 #ifndef __vtkChartParallelCoordinates_h
 #define __vtkChartParallelCoordinates_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
 
 class vtkIdTypeArray;
@@ -28,7 +29,7 @@ class vtkStdString;
 class vtkStringArray;
 class vtkPlotParallelCoordinates;
 
-class VTK_CHARTS_EXPORT vtkChartParallelCoordinates : public vtkChart
+class VTKCHARTSCORE_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);

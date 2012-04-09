@@ -20,13 +20,14 @@
 #ifndef __vtkDatabaseToTableReader_h
 #define __vtkDatabaseToTableReader_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include <string> // STL Header
 #include "vtkTableReader.h"
 
 class vtkSQLDatabase;
 class vtkStringArray;
 
-class VTK_IO_EXPORT vtkDatabaseToTableReader : public vtkTableReader
+class VTKIOSQL_EXPORT vtkDatabaseToTableReader : public vtkTableReader
 {
 public:
   vtkTypeMacro(vtkDatabaseToTableReader,vtkTableReader);

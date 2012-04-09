@@ -53,6 +53,7 @@
 #ifndef __vtkQuadricDecimation_h
 #define __vtkQuadricDecimation_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkEdgeTable;
@@ -61,7 +62,7 @@ class vtkPointData;
 class vtkPriorityQueue;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);

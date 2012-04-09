@@ -32,12 +32,13 @@
 #ifndef __vtkCellArray_h
 #define __vtkCellArray_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkIdTypeArray.h" // Needed for inline methods
 #include "vtkCell.h" // Needed for inline methods
 
-class VTK_FILTERING_EXPORT vtkCellArray : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellArray,vtkObject);

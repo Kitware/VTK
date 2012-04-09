@@ -28,9 +28,10 @@
 #ifndef __vtkAssignCoordinates_h
 #define __vtkAssignCoordinates_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkAssignCoordinates : public vtkPassInputTypeAlgorithm 
+class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinates : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkAssignCoordinates *New();

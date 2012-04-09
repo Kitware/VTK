@@ -41,6 +41,7 @@
 #ifndef __vtkCellDerivatives_h
 #define __vtkCellDerivatives_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 #define VTK_VECTOR_MODE_PASS_VECTORS      0
@@ -51,7 +52,7 @@
 #define VTK_TENSOR_MODE_COMPUTE_GRADIENT 1
 #define VTK_TENSOR_MODE_COMPUTE_STRAIN   2
 
-class VTK_GRAPHICS_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm 
+class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkCellDerivatives,vtkDataSetAlgorithm);

@@ -69,6 +69,7 @@
 #ifndef __vtkLineWidget_h
 #define __vtkLineWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 #include "vtkLineSource.h" // For passing calls to it
 
@@ -85,7 +86,7 @@ class vtkPWCallback;
 class vtkPW1Callback;
 class vtkPW2Callback;
 
-class VTK_WIDGETS_EXPORT vtkLineWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkLineWidget : public vtk3DWidget
 {
 public:
   // Description:

@@ -25,9 +25,10 @@
 #ifndef __vtkGeoMath_h
 #define __vtkGeoMath_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_INFOVIS_EXPORT vtkGeoMath : public vtkObject
+class VTKINFOVISLAYOUT_EXPORT vtkGeoMath : public vtkObject
 {
 public:
   static vtkGeoMath *New();

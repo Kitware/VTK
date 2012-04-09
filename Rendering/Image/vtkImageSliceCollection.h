@@ -23,10 +23,11 @@
 #ifndef __vtkImageSliceCollection_h
 #define __vtkImageSliceCollection_h
 
+#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkPropCollection.h"
 #include "vtkImageSlice.h" // to allow inline static-cast
 
-class VTK_RENDERING_EXPORT vtkImageSliceCollection : public vtkPropCollection
+class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollection
 {
  public:
   static vtkImageSliceCollection *New();

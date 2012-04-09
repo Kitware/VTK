@@ -23,6 +23,7 @@
 #ifndef __vtkVolumeRayCastMapper_h
 #define __vtkVolumeRayCastMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo 
                                       // and vtkVolumeRayCastDynamicInfo
@@ -72,7 +73,7 @@ inline int vtkRoundFuncMacro(double x)
 // Forward declaration needed for use by friend declaration below.
 VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg );
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkVolumeRayCastMapper *New();

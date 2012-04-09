@@ -36,9 +36,10 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkFacetReader_h
 #define __vtkFacetReader_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkFacetReader *New();

@@ -28,13 +28,14 @@
 #ifndef __vtkPolyDataAlgorithm_h
 #define __vtkPolyDataAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkPolyData.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkPolyData;
 
-class VTK_FILTERING_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPolyDataAlgorithm *New();

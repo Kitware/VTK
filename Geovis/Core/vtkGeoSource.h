@@ -38,6 +38,7 @@
 #ifndef __vtkGeoSource_h
 #define __vtkGeoSource_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAbstractTransform;
@@ -47,7 +48,7 @@ class vtkGeoTreeNode;
 class vtkMultiThreader;
 class vtkMutexLock;
 
-class VTK_GEOVIS_EXPORT vtkGeoSource : public vtkObject
+class VTKGEOVISCORE_EXPORT vtkGeoSource : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGeoSource,vtkObject);

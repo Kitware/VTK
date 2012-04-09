@@ -30,12 +30,13 @@
 #ifndef __vtkCameraWidget_h
 #define __vtkCameraWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
 
 class vtkCameraRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkCameraWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkCameraWidget : public vtkBorderWidget
 {
 public:
   // Description:

@@ -1310,12 +1310,13 @@
 #define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP, FLIP )  mmvalid[COMP]
 //ETX
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkFixedPointVolumeRayCastMapper;
 class vtkVolume;
 
-class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastHelper : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastHelper : public vtkObject
 {
 public:
   static vtkFixedPointVolumeRayCastHelper *New();

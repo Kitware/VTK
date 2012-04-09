@@ -27,6 +27,7 @@
 #ifndef __vtkImageMapper3D_h
 #define __vtkImageMapper3D_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
 
 class vtkRenderer;
@@ -41,7 +42,7 @@ class vtkImageData;
 class vtkMultiThreader;
 class vtkImageToImageMapper3DFriendship;
 
-class VTK_RENDERING_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
+class VTKRENDERINGCORE_EXPORT vtkImageMapper3D : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkImageMapper3D,vtkAbstractMapper3D);

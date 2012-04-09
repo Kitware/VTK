@@ -23,13 +23,14 @@
 #ifndef VTKAMRDATASETCACHE_H_
 #define VTKAMRDATASETCACHE_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include <map> // For STL map used as the data-structure for the cache.
 
 class vtkUniformGrid;
 class vtkDataArray;
 
-class VTK_AMR_EXPORT vtkAMRDataSetCache : public vtkObject
+class VTKAMRCORE_EXPORT vtkAMRDataSetCache : public vtkObject
 {
   public:
     static vtkAMRDataSetCache* New();

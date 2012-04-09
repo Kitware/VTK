@@ -28,6 +28,7 @@
 #ifndef __vtkProjectedAAHexahedraMapper_h
 #define __vtkProjectedAAHexahedraMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
 
 class vtkFloatArray;
@@ -37,7 +38,7 @@ class vtkVisibilitySort;
 class vtkVolumeProperty;
 class vtkRenderWindow;
 
-class VTK_VOLUMERENDERING_EXPORT vtkProjectedAAHexahedraMapper : public vtkUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkProjectedAAHexahedraMapper : public vtkUnstructuredGridVolumeMapper
 {
 public:
   vtkTypeMacro(vtkProjectedAAHexahedraMapper,

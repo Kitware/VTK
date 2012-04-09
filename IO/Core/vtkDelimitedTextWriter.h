@@ -23,12 +23,13 @@
 #ifndef __vtkDelimitedTextWriter_h
 #define __vtkDelimitedTextWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
 class vtkStdString;
 class vtkTable;
 
-class VTK_IO_EXPORT vtkDelimitedTextWriter : public vtkWriter
+class VTKIOCORE_EXPORT vtkDelimitedTextWriter : public vtkWriter
 {
 public:
   static vtkDelimitedTextWriter* New();

@@ -24,6 +24,7 @@
 #ifndef __vtkExecutive_h
 #define __vtkExecutive_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAlgorithm;
@@ -39,7 +40,7 @@ class vtkInformationRequestKey;
 class vtkInformationKeyVectorKey;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkExecutive : public vtkObject
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutive : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutive,vtkObject);

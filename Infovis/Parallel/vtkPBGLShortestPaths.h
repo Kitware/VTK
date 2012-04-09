@@ -32,6 +32,7 @@
 #ifndef __vtkPBGLShortestPaths_h
 #define __vtkPBGLShortestPaths_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
@@ -39,7 +40,7 @@
 
 class vtkSelection;
 
-class VTK_PARALLEL_EXPORT vtkPBGLShortestPaths : public vtkGraphAlgorithm 
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLShortestPaths : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLShortestPaths *New();

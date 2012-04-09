@@ -37,6 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkPOrderStatistics_h
 #define __vtkPOrderStatistics_h
 
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkOrderStatistics.h"
 
 //BTX
@@ -47,7 +48,7 @@ class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTK_INFOVIS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
 {
  public:
   static vtkPOrderStatistics* New();

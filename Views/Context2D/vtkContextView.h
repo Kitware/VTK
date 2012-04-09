@@ -25,13 +25,14 @@
 #ifndef __vtkContextView_h
 #define __vtkContextView_h
 
+#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkRenderViewBase.h"
 #include "vtkSmartPointer.h" // Needed for SP ivars
 
 class vtkContext2D;
 class vtkContextScene;
 
-class VTK_CHARTS_EXPORT vtkContextView : public vtkRenderViewBase
+class VTKVIEWSCONTEXT2D_EXPORT vtkContextView : public vtkRenderViewBase
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

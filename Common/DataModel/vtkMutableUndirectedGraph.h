@@ -31,12 +31,13 @@
 #ifndef __vtkMutableUndirectedGraph_h
 #define __vtkMutableUndirectedGraph_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"
 
 class vtkEdgeListIterator;
 class vtkGraphEdge;
 
-class VTK_FILTERING_EXPORT vtkMutableUndirectedGraph : public vtkUndirectedGraph
+class VTKCOMMONDATAMODEL_EXPORT vtkMutableUndirectedGraph : public vtkUndirectedGraph
 {
 public:
   static vtkMutableUndirectedGraph *New();

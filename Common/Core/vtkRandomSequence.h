@@ -28,9 +28,10 @@
 #ifndef __vtkRandomSequence_h
 #define __vtkRandomSequence_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkRandomSequence : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRandomSequence,vtkObject);

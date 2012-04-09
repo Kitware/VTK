@@ -24,13 +24,14 @@
 #ifndef __vtkImageActorPointPlacer_h
 #define __vtkImageActorPointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkBoundedPlanePointPlacer;
 class vtkImageActor;
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkImageActorPointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkImageActorPointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

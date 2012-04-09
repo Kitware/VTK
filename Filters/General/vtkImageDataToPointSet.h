@@ -30,12 +30,13 @@
 #ifndef __vtkImageDataToPointSet_h
 #define __vtkImageDataToPointSet_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
 class vtkImageData;
 class vtkStructuredData;
 
-class VTK_GRAPHICS_EXPORT vtkImageDataToPointSet : public vtkStructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkImageDataToPointSet : public vtkStructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageDataToPointSet, vtkStructuredGridAlgorithm);

@@ -25,12 +25,13 @@
 #ifndef __vtkCenterOfMass_h
 #define __vtkCenterOfMass_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
 class vtkPoints;
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
 {
 public:
   static vtkCenterOfMass *New();

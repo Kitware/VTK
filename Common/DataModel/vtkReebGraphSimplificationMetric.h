@@ -43,13 +43,14 @@
 #ifndef __vtkReebGraphSimplificationMetric_h
 #define __vtkReebGraphSimplificationMetric_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataSet;
 class vtkDataArray;
 class vtkAbstractArray;
 
-class VTK_FILTERING_EXPORT vtkReebGraphSimplificationMetric : 
+class VTKCOMMONDATAMODEL_EXPORT vtkReebGraphSimplificationMetric :
   public vtkObject
 {
 public:

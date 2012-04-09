@@ -24,10 +24,11 @@
 #ifndef __vtkXMLStructuredDataReader_h
 #define __vtkXMLStructuredDataReader_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
 
-class VTK_IO_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);

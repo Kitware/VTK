@@ -22,9 +22,10 @@
 #ifndef __vtkCompositePolyDataMapper2_h
 #define __vtkCompositePolyDataMapper2_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPainterPolyDataMapper.h"
 
-class VTK_RENDERING_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
+class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
 {
 public:
   static vtkCompositePolyDataMapper2* New();

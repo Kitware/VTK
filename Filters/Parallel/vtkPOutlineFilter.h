@@ -21,11 +21,12 @@
 #ifndef __vtkPOutlineFilter_h
 #define __vtkPOutlineFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 class vtkOutlineSource;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPOutlineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPOutlineFilter *New();

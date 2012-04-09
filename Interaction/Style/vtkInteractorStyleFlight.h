@@ -33,6 +33,7 @@
 #ifndef __vtkInteractorStyleFlight_h
 #define __vtkInteractorStyleFlight_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 class vtkCamera;
 class vtkPerspectiveTransform;
@@ -40,7 +41,7 @@ class vtkPerspectiveTransform;
 class CPIDControl;
 //ETX
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleFlight *New();

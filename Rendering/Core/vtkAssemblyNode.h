@@ -42,12 +42,13 @@
 #ifndef __vtkAssemblyNode_h
 #define __vtkAssemblyNode_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkProp;
 class vtkMatrix4x4;
 
-class VTK_COMMON_EXPORT vtkAssemblyNode : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkAssemblyNode : public vtkObject
 {
 public:
   // Description:

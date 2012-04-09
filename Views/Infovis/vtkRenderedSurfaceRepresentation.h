@@ -28,6 +28,7 @@
 #ifndef __vtkRenderedSurfaceRepresentation_h
 #define __vtkRenderedSurfaceRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
 
 class vtkActor;
@@ -42,7 +43,7 @@ class vtkSelection;
 class vtkTransformFilter;
 class vtkView;
 
-class VTK_VIEWS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRenderedRepresentation
 {
 public:
   static vtkRenderedSurfaceRepresentation *New();

@@ -26,10 +26,11 @@
 #ifndef __vtkPen_h
 #define __vtkPen_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor4ub
 
-class VTK_CHARTS_EXPORT vtkPen : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkPen : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPen, vtkObject);

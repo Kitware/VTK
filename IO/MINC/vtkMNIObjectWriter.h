@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNIObjectWriter_h
 #define __vtkMNIObjectWriter_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataWriter.h"
 
 class vtkMapper;
@@ -72,7 +73,7 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkMNIObjectWriter : public vtkPolyDataWriter
+class VTKIOMINC_EXPORT vtkMNIObjectWriter : public vtkPolyDataWriter
 {
 public:
   vtkTypeMacro(vtkMNIObjectWriter,vtkPolyDataWriter);

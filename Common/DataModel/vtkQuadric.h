@@ -21,9 +21,10 @@
 #ifndef __vtkQuadric_h
 #define __vtkQuadric_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_COMMON_EXPORT vtkQuadric : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkQuadric,vtkImplicitFunction);

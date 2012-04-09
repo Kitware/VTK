@@ -27,6 +27,7 @@
 #ifndef __vtkGraphMapper_h
 #define __vtkGraphMapper_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
@@ -52,7 +53,7 @@ class vtkViewTheme;
 
 
 
-class VTK_RENDERING_EXPORT vtkGraphMapper : public vtkMapper 
+class VTKRENDERINGCORE_EXPORT vtkGraphMapper : public vtkMapper
 {
 public:
   static vtkGraphMapper *New();

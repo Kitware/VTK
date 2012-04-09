@@ -21,11 +21,12 @@
 #ifndef __vtkOverrideInformation_h
 #define __vtkOverrideInformation_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkObjectFactory;
 
-class VTK_COMMON_EXPORT vtkOverrideInformation : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
 {
 public: 
   static vtkOverrideInformation* New();

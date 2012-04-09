@@ -35,10 +35,11 @@
 #ifndef __vtkXMLFileOutputWindow_h
 #define __vtkXMLFileOutputWindow_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkFileOutputWindow.h"
 
 
-class VTK_COMMON_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
+class VTKCOMMONCORE_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
 {
 public:
   vtkTypeMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);

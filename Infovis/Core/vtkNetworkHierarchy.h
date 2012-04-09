@@ -28,11 +28,12 @@
 #ifndef __vtkNetworkHierarchy_h
 #define __vtkNetworkHierarchy_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
 class vtkStdString;
 
-class VTK_INFOVIS_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
+class VTKINFOVISCORE_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
 {
 public:
   static vtkNetworkHierarchy* New();

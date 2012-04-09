@@ -27,6 +27,7 @@
 #ifndef __vtkResliceImageViewer_h
 #define __vtkResliceImageViewer_h
 
+#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkImageViewer2.h"
 
 class vtkResliceCursorWidget;
@@ -37,7 +38,7 @@ class vtkResliceImageViewerMeasurements;
 class vtkResliceImageViewerScrollCallback;
 class vtkPlane;
 
-class VTK_WIDGETS_EXPORT vtkResliceImageViewer : public vtkImageViewer2
+class VTKRENDERINGIMAGE_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
 public:
 

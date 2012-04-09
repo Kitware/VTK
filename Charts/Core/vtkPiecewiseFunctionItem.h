@@ -16,13 +16,14 @@
 #ifndef __vtkPiecewiseFunctionItem_h
 #define __vtkPiecewiseFunctionItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
 
 class vtkPiecewiseFunction;
 class vtkImageData;
 
 /// vtkPiecewiseFunctionItem internall uses vtkPlot::Color, white by default
-class VTK_CHARTS_EXPORT vtkPiecewiseFunctionItem: public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT vtkPiecewiseFunctionItem: public vtkScalarsToColorsItem
 {
 public:
   static vtkPiecewiseFunctionItem* New();

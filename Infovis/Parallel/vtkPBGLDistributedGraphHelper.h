@@ -35,6 +35,7 @@
 #ifndef __vtkPBGLDistributedGraphHelper_h
 #define __vtkPBGLDistributedGraphHelper_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkDistributedGraphHelper.h"
 
 class vtkPBGLDistributedGraphHelperInternals;
@@ -45,7 +46,7 @@ namespace boost { namespace graph { namespace distributed {
 } } } /// end namespace boost::graph::distributed
 //ETX
 
-class VTK_PARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
 {
  public:
   vtkTypeMacro(vtkPBGLDistributedGraphHelper,vtkDistributedGraphHelper);

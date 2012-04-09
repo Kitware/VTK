@@ -25,9 +25,10 @@
 #ifndef __vtkDummyCommunicator_h
 #define __vtkDummyCommunicator_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
 
-class VTK_PARALLEL_EXPORT vtkDummyCommunicator : public vtkCommunicator
+class VTKPARALLELCORE_EXPORT vtkDummyCommunicator : public vtkCommunicator
 {
 public:
   vtkTypeMacro(vtkDummyCommunicator, vtkCommunicator);

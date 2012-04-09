@@ -24,6 +24,7 @@
 #ifndef VTKUNIFORMGRIDAMR_H_
 #define VTKUNIFORMGRIDAMR_H_
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
 
 class vtkUniformGrid;
@@ -34,7 +35,7 @@ class vtkUniformGridAMRDataIterator;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
 {
   public:
     vtkTypeMacro(vtkUniformGridAMR,vtkCompositeDataSet);

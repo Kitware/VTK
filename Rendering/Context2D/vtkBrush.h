@@ -25,12 +25,13 @@
 #ifndef __vtkBrush_h
 #define __vtkBrush_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkColor.h" // Needed for vtkColor4ub
 
 class vtkImageData;
 
-class VTK_CHARTS_EXPORT vtkBrush : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkBrush : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBrush, vtkObject);

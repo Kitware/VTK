@@ -42,12 +42,13 @@
 #ifndef __vtkImporter_h
 #define __vtkImporter_h
 
+#include "vtkIOImportModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderWindow;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkImporter : public vtkObject
+class VTKIOIMPORT_EXPORT vtkImporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImporter,vtkObject);

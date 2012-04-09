@@ -33,13 +33,14 @@
 #ifndef __vtkHexagonalPrism_h
 #define __vtkHexagonalPrism_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
 
 class vtkLine;
 class vtkPolygon;
 class vtkQuad;
 
-class VTK_FILTERING_EXPORT vtkHexagonalPrism : public vtkCell3D
+class VTKCOMMONDATAMODEL_EXPORT vtkHexagonalPrism : public vtkCell3D
 {
 public:
   static vtkHexagonalPrism *New();

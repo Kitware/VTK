@@ -28,12 +28,13 @@
 #ifndef __vtkExtractSelectedIds_h
 #define __vtkExtractSelectedIds_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
 class vtkSelection;
 class vtkSelectionNode;
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedIds : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedIds *New();

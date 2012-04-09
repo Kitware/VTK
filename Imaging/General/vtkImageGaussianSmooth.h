@@ -21,9 +21,10 @@
 #define __vtkImageGaussianSmooth_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGaussianSmooth : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageGaussianSmooth : public vtkThreadedImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageGaussianSmooth,vtkThreadedImageAlgorithm);

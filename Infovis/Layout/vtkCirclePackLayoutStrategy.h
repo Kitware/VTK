@@ -37,12 +37,13 @@
 #define __vtkCirclePackLayoutStrategy_h
 
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkTree;
 class vtkDataArray;
 
-class VTK_INFOVIS_EXPORT vtkCirclePackLayoutStrategy : public vtkObject
+class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayoutStrategy : public vtkObject
 {
 public:
     vtkTypeMacro(vtkCirclePackLayoutStrategy,vtkObject);

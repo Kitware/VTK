@@ -31,10 +31,11 @@
 #ifndef __vtkInteractorEventRecorder_h
 #define __vtkInteractorEventRecorder_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorObserver.h"
 
 // The superclass that all commands should be subclasses of
-class VTK_RENDERING_EXPORT vtkInteractorEventRecorder : public vtkInteractorObserver
+class VTKRENDERINGCORE_EXPORT vtkInteractorEventRecorder : public vtkInteractorObserver
 {
 public:
   static vtkInteractorEventRecorder *New();

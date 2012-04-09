@@ -26,11 +26,12 @@
 #ifndef __vtkOBJExporter_h
 #define __vtkOBJExporter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkActor;
 
-class VTK_RENDERING_EXPORT vtkOBJExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkOBJExporter : public vtkExporter
 {
 public:
   static vtkOBJExporter *New();

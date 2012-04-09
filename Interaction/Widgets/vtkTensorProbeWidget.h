@@ -28,12 +28,13 @@
 #ifndef __vtkTensorProbeWidget_h
 #define __vtkTensorProbeWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkTensorProbeRepresentation;
 class vtkPolyData;
 
-class VTK_WIDGETS_EXPORT vtkTensorProbeWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkTensorProbeWidget : public vtkAbstractWidget
 {
 public:
   // Description:

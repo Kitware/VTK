@@ -21,9 +21,10 @@
 #ifndef __vtkExtractLevel_h
 #define __vtkExtractLevel_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractLevel :
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractLevel :
   public vtkMultiBlockDataSetAlgorithm
 {
 public:

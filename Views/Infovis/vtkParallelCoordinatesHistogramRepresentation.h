@@ -52,6 +52,7 @@
 #ifndef __vtkParallelCoordinatesHistogramRepresentation_h
 #define __vtkParallelCoordinatesHistogramRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkParallelCoordinatesRepresentation.h"
 
 class vtkComputeHistogram2DOutliers;
@@ -60,7 +61,7 @@ class vtkExtractHistogram2D;
 class vtkInformationVector;
 class vtkLookupTable;
 
-class VTK_VIEWS_EXPORT vtkParallelCoordinatesHistogramRepresentation : public vtkParallelCoordinatesRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesHistogramRepresentation : public vtkParallelCoordinatesRepresentation
 {
 public:
   static vtkParallelCoordinatesHistogramRepresentation* New();

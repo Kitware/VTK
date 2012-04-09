@@ -24,6 +24,7 @@
 #ifndef __vtkPlot_h
 #define __vtkPlot_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
@@ -39,7 +40,7 @@ class vtkVector2f;
 class vtkRectf;
 class vtkStringArray;
 
-class VTK_CHARTS_EXPORT vtkPlot : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkPlot : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot, vtkContextItem);

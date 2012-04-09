@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkParallelCoordinatesView_h
 #define __vtkParallelCoordinatesView_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include <vtkRenderView.h>
 
 class vtkActor2D;
@@ -47,7 +48,7 @@ class vtkParallelCoordinatesRepresentation;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
 
-class VTK_VIEWS_EXPORT vtkParallelCoordinatesView : public vtkRenderView
+class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesView : public vtkRenderView
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesView, vtkRenderView);

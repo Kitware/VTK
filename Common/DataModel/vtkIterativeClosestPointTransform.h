@@ -37,6 +37,7 @@
 #ifndef __vtkIterativeClosestPointTransform_h
 #define __vtkIterativeClosestPointTransform_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
 #define VTK_ICP_MODE_RMS 0
@@ -46,7 +47,7 @@ class vtkCellLocator;
 class vtkLandmarkTransform;
 class vtkDataSet;
 
-class VTK_HYBRID_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTransform
+class VTKCOMMONDATAMODEL_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTransform
 {
 public:
   static vtkIterativeClosestPointTransform *New();

@@ -23,6 +23,7 @@
 #ifndef __vtkBoundedPlanePointPlacer_h
 #define __vtkBoundedPlanePointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkPlane;
@@ -31,7 +32,7 @@ class vtkPlanes;
 class vtkRenderer;
 
 
-class VTK_WIDGETS_EXPORT vtkBoundedPlanePointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkBoundedPlanePointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

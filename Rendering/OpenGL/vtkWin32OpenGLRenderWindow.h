@@ -21,11 +21,12 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkWin32OpenGLRenderWindow_h
 #define __vtkWin32OpenGLRenderWindow_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
 class vtkIdList;
 
-class VTK_RENDERING_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
+class VTKRENDERINGOPENGL_EXPORT vtkWin32OpenGLRenderWindow : public vtkOpenGLRenderWindow
 {
 public:
   static vtkWin32OpenGLRenderWindow *New();

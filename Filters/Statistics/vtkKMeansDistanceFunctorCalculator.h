@@ -18,12 +18,13 @@
 // which computes Euclidian distance in a plane defined by the first
 // 2 coordinates of the vectors specified.
 
+#include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkKMeansDistanceFunctor.h"
 
 class vtkFunctionParser;
 class vtkDoubleArray;
 
-class VTK_INFOVIS_EXPORT vtkKMeansDistanceFunctorCalculator : public vtkKMeansDistanceFunctor
+class VTKFILTERSSTATISTICS_EXPORT vtkKMeansDistanceFunctorCalculator : public vtkKMeansDistanceFunctor
 {
 public:
   static vtkKMeansDistanceFunctorCalculator* New();

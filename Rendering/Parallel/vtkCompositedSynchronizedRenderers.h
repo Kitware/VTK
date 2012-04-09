@@ -20,12 +20,13 @@
 #ifndef __vtkCompositedSynchronizedRenderers_h
 #define __vtkCompositedSynchronizedRenderers_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
 class vtkFloatArray;
 class vtkCompositer;
 
-class VTK_PARALLEL_EXPORT vtkCompositedSynchronizedRenderers : public vtkSynchronizedRenderers
+class VTKRENDERINGPARALLEL_EXPORT vtkCompositedSynchronizedRenderers : public vtkSynchronizedRenderers
 {
 public:
   static vtkCompositedSynchronizedRenderers* New();

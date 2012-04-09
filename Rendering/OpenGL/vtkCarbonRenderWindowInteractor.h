@@ -22,6 +22,7 @@
 #ifndef __vtkCarbonRenderWindowInteractor_h
 #define __vtkCarbonRenderWindowInteractor_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
@@ -31,7 +32,7 @@ class vtkTDxMacDevice;
 
 #include <Carbon/Carbon.h> // Carbon and Mac specific
 
-class VTK_RENDERING_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTKRENDERINGOPENGL_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   // Description:

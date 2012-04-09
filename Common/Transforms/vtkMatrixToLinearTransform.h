@@ -26,11 +26,12 @@
 #ifndef __vtkMatrixToLinearTransform_h
 #define __vtkMatrixToLinearTransform_h
 
+#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"
 
 class vtkMatrix4x4;
 
-class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
+class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 {
  public:
   static vtkMatrixToLinearTransform *New();

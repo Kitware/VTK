@@ -47,9 +47,10 @@
 #define VTK_COMPLEX_MULTIPLY  19
 #define VTK_REPLACECBYK       20
 
+#include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMATH_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMathematics *New();

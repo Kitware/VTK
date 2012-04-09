@@ -22,11 +22,12 @@
 #ifndef __vtkImageReader2Collection_h
 #define __vtkImageReader2Collection_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkCollection.h"
 
 class vtkImageReader2;
 
-class VTK_IO_EXPORT vtkImageReader2Collection : public vtkCollection
+class VTKIOIMAGE_EXPORT vtkImageReader2Collection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkImageReader2Collection,vtkCollection);

@@ -17,10 +17,11 @@
 //
 // Marching squares cases for generating isolines.
 //
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 typedef int EDGE_LIST;
-struct VTK_FILTERING_EXPORT vtkMarchingSquaresLineCases
+struct VTKCOMMONDATAMODEL_EXPORT vtkMarchingSquaresLineCases
 {
   EDGE_LIST edges[5];
   static vtkMarchingSquaresLineCases* GetCases();

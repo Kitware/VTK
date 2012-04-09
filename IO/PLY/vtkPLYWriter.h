@@ -32,6 +32,7 @@
 #ifndef __vtkPLYWriter_h
 #define __vtkPLYWriter_h
 
+#include "vtkIOPLYModule.h" // For export macro
 #include "vtkPolyDataWriter.h"
 
 class vtkScalarsToColors;
@@ -47,7 +48,7 @@ class vtkDataSetAttributes;
 #define VTK_COLOR_MODE_OFF 4
 
 
-class VTK_IO_EXPORT vtkPLYWriter : public vtkPolyDataWriter
+class VTKIOPLY_EXPORT vtkPLYWriter : public vtkPolyDataWriter
 {
 public:
   static vtkPLYWriter *New();

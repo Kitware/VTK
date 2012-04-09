@@ -46,6 +46,7 @@
 #ifndef __vtkQuadricLODActor_h
 #define __vtkQuadricLODActor_h
 
+#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
 
 class vtkQuadricClustering;
@@ -53,7 +54,7 @@ class vtkPolyDataMapper;
 class vtkCamera;
 class vtkPolyData;
 
-class VTK_RENDERING_EXPORT vtkQuadricLODActor : public vtkActor
+class VTKRENDERINGLOD_EXPORT vtkQuadricLODActor : public vtkActor
 {
 public:
   // Description:

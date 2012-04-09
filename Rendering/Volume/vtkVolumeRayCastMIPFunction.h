@@ -31,12 +31,13 @@
 #ifndef __vtkVolumeRayCastMIPFunction_h
 #define __vtkVolumeRayCastMIPFunction_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
 #define VTK_MAXIMIZE_SCALAR_VALUE 0
 #define VTK_MAXIMIZE_OPACITY      1
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
   static vtkVolumeRayCastMIPFunction *New();

@@ -30,6 +30,7 @@
 #ifndef __vtkGeoInteractorStyle_h
 #define __vtkGeoInteractorStyle_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkSmartPointer.h" // for SP
 
@@ -39,7 +40,7 @@ class vtkCompassWidget;
 class vtkGeoCamera;
 class vtkUnsignedCharArray;
 
-class VTK_GEOVIS_EXPORT vtkGeoInteractorStyle : 
+class VTKGEOVISCORE_EXPORT vtkGeoInteractorStyle :
   public vtkInteractorStyleTrackballCamera
 {
 public:

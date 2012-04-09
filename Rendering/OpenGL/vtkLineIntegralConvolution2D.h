@@ -76,12 +76,13 @@
 #ifndef __vtkLineIntegralConvolution2D_h
 #define __vtkLineIntegralConvolution2D_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderWindow;
 class vtkTextureObject;
 
-class VTK_RENDERING_EXPORT vtkLineIntegralConvolution2D : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkLineIntegralConvolution2D : public vtkObject
 {
 public:
 

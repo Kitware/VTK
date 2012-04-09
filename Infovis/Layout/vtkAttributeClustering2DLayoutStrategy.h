@@ -30,6 +30,7 @@
 #ifndef __vtkAttributeClustering2DLayoutStrategy_h
 #define __vtkAttributeClustering2DLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
@@ -39,7 +40,7 @@ class vtkImageData;
 class vtkIntArray;
 class vtkFloatArray;
 
-class VTK_INFOVIS_EXPORT vtkAttributeClustering2DLayoutStrategy : public vtkGraphLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkAttributeClustering2DLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
   static vtkAttributeClustering2DLayoutStrategy *New();

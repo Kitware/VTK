@@ -40,13 +40,14 @@
 
 
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkObjectFactoryCollection;
 class vtkOverrideInformationCollection;
 class vtkCollection;
 
-class VTK_COMMON_EXPORT vtkObjectFactory : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkObjectFactory : public vtkObject
 {
 public:  
   // Class Methods used to interface with the registered factories
@@ -254,7 +255,7 @@ static vtkObject* vtkObjectFactoryCreate##classname() \
 
 #endif
 
-#define VTK_FACTORY_INTERFACE_EXPORT VTK_ABI_EXPORT
+#define VTK_FACTORY_INTERFACE_EXPORT VTKCOMMONCORE_EXPORT
 
 // Macro to create the interface "C" functions used in
 // a dll or shared library that contains a VTK object factory.

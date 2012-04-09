@@ -78,6 +78,7 @@ version available from Los Alamos National Laboratory.
 #define MAX_VARS 100
 #define MAX_VAR_NAME 100
 
+#include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkCallbackCommand;
@@ -86,7 +87,7 @@ class vtkDoubleArray;
 class vtkStdString;
 class vtkStringArray;
 
-class VTK_IO_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
+class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
  public:
   static vtkMPASReader *New();

@@ -33,6 +33,7 @@
 #ifndef __vtkAppendCompositeDataLeaves_h
 #define __vtkAppendCompositeDataLeaves_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
 
 class vtkAppendFilter;
@@ -42,7 +43,7 @@ class vtkDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
-class VTK_GRAPHICS_EXPORT vtkAppendCompositeDataLeaves : public vtkCompositeDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkAppendCompositeDataLeaves : public vtkCompositeDataSetAlgorithm
 {
 public:
   static vtkAppendCompositeDataLeaves* New();

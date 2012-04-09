@@ -25,6 +25,7 @@
 #ifndef __vtkContextDevice3D_h
 #define __vtkContextDevice3D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h"       // For the vector coordinates.
 #include "vtkRect.h"         // For the rectangles..
@@ -34,7 +35,7 @@ class vtkViewport;
 class vtkPen;
 class vtkBrush;
 
-class VTK_CHARTS_EXPORT vtkContextDevice3D : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice3D, vtkObject);

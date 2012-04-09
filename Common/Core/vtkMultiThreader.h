@@ -22,6 +22,7 @@
 #ifndef __vtkMultiThreader_h
 #define __vtkMultiThreader_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 #ifdef VTK_USE_SPROC
@@ -84,7 +85,7 @@ typedef int vtkMultiThreaderIDType;
 
 class vtkMutexLock;
 
-class VTK_COMMON_EXPORT vtkMultiThreader : public vtkObject 
+class VTKCOMMONCORE_EXPORT vtkMultiThreader : public vtkObject
 {
 public:
   static vtkMultiThreader *New();

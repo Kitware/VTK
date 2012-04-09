@@ -20,11 +20,12 @@
 #ifndef __vtkDataArrayCollection_h
 #define __vtkDataArrayCollection_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
 
 #include "vtkDataArray.h" // Needed for inline methods
 
-class VTK_COMMON_EXPORT vtkDataArrayCollection : public vtkCollection
+class VTKCOMMONCORE_EXPORT vtkDataArrayCollection : public vtkCollection
 {
 public:
   static vtkDataArrayCollection *New();

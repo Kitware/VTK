@@ -26,6 +26,7 @@
 #ifndef __vtkStructuredData_h
 #define __vtkStructuredData_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkIdList;
@@ -41,7 +42,7 @@ class vtkIdList;
 #define VTK_XYZ_GRID 8
 #define VTK_EMPTY 9
 
-class VTK_COMMON_EXPORT vtkStructuredData : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkStructuredData : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStructuredData,vtkObject);

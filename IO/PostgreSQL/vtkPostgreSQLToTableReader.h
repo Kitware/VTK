@@ -20,11 +20,12 @@
 #ifndef __vtkPostgreSQLToTableReader_h
 #define __vtkPostgreSQLToTableReader_h
 
+#include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
 
 class vtkPostgreSQLDatabase;
 
-class VTK_IO_EXPORT vtkPostgreSQLToTableReader :
+class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLToTableReader :
   public vtkDatabaseToTableReader
 {
 public:

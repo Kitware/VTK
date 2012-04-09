@@ -31,6 +31,7 @@
 #ifndef __vtkYoungsMaterialInterface_h
 #define __vtkYoungsMaterialInterface_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 #include "vtkSmartPointer.h" // For SP ivars
@@ -40,7 +41,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkYoungsMaterialInterfaceInternals;
 
-class VTK_GRAPHICS_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkYoungsMaterialInterface : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkYoungsMaterialInterface* New();

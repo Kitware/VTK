@@ -39,11 +39,12 @@
 #ifndef __vtkTreeMapLayout_h
 #define __vtkTreeMapLayout_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
 class vtkTreeMapLayoutStrategy;
 
-class VTK_INFOVIS_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkTreeMapLayout : public vtkTreeAlgorithm
 {
 public:
   static vtkTreeMapLayout *New();

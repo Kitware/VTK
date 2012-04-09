@@ -63,6 +63,7 @@
 #ifndef __vtkGenericStreamTracer_h
 #define __vtkGenericStreamTracer_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
@@ -76,7 +77,7 @@ class vtkDataSet;
 class vtkGenericAttribute;
 class vtkGenericDataSet;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericStreamTracer : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericStreamTracer,vtkPolyDataAlgorithm);

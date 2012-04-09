@@ -25,9 +25,10 @@
 #ifndef __vtkTDxInteractorStyleSettings_h
 #define __vtkTDxInteractorStyleSettings_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_RENDERING_EXPORT vtkTDxInteractorStyleSettings : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleSettings : public vtkObject
 {
 public:
   static vtkTDxInteractorStyleSettings *New();

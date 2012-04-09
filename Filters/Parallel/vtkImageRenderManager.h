@@ -27,9 +27,10 @@
 #ifndef __vtkImageRenderManager_h
 #define __vtkImageRenderManager_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
 
-class VTK_PARALLEL_EXPORT vtkImageRenderManager : public vtkParallelRenderManager
+class VTKFILTERSPARALLEL_EXPORT vtkImageRenderManager : public vtkParallelRenderManager
 {
 public:
   vtkTypeMacro(vtkImageRenderManager, vtkParallelRenderManager);

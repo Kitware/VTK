@@ -34,6 +34,7 @@
 #ifndef __vtkCaptionRepresentation_h
 #define __vtkCaptionRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
 
 class vtkRenderer;
@@ -42,7 +43,7 @@ class vtkConeSource;
 class vtkPointHandleRepresentation3D;
 
 
-class VTK_WIDGETS_EXPORT vtkCaptionRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkCaptionRepresentation : public vtkBorderRepresentation
 {
 public:
   // Description:

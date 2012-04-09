@@ -47,6 +47,7 @@
 #ifndef __vtkFastNumericConversion_h
 #define __vtkFastNumericConversion_h
 
+#include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
 // Use the bit-representation trick only on X86, and only when producing
@@ -72,7 +73,7 @@
 #endif
 
 
-class VTK_COMMON_EXPORT vtkFastNumericConversion : public vtkObject
+class VTKCOMMONMATH_EXPORT vtkFastNumericConversion : public vtkObject
 {
 public:
   static vtkFastNumericConversion *New();

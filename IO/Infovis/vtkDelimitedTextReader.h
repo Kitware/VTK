@@ -62,11 +62,12 @@
 #ifndef __vtkDelimitedTextReader_h
 #define __vtkDelimitedTextReader_h
 
+#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 #include "vtkUnicodeString.h" // Needed for vtkUnicodeString
 #include "vtkStdString.h" // Needed for vtkStdString
 
-class VTK_INFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
+class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
   static vtkDelimitedTextReader* New();

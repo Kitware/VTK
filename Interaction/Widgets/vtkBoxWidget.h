@@ -76,6 +76,7 @@
 #ifndef __vtkBoxWidget_h
 #define __vtkBoxWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 
 class vtkActor;
@@ -89,7 +90,7 @@ class vtkProperty;
 class vtkSphereSource;
 class vtkTransform;
 
-class VTK_WIDGETS_EXPORT vtkBoxWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkBoxWidget : public vtk3DWidget
 {
 public:
   // Description:

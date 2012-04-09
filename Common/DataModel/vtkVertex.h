@@ -19,11 +19,12 @@
 #ifndef __vtkVertex_h
 #define __vtkVertex_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkVertex : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkVertex : public vtkCell
 {
 public:
   static vtkVertex *New();

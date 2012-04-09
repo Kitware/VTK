@@ -22,12 +22,13 @@
 #ifndef __vtkImageItem_h
 #define __vtkImageItem_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkSmartPointer.h" // For SP ivars.
 
 class vtkImageData;
 
-class VTK_CHARTS_EXPORT vtkImageItem : public vtkContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkImageItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkImageItem, vtkContextItem);

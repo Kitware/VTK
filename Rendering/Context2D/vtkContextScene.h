@@ -23,6 +23,7 @@
 #ifndef __vtkContextScene_h
 #define __vtkContextScene_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // Needed for weak pointer to the window.
 
@@ -39,7 +40,7 @@ class vtkAnnotationLink;
 class vtkRenderer;
 class vtkAbstractContextBufferId;
 
-class VTK_CHARTS_EXPORT vtkContextScene : public vtkObject
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextScene : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextScene, vtkObject);

@@ -16,6 +16,7 @@
 #ifndef __vtkLookupTableItem_h
 #define __vtkLookupTableItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"
 
 class vtkLookupTable;
@@ -23,7 +24,7 @@ class vtkLookupTable;
 // Description:
 // vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
 // vtkScalarsToColors::MaskAboveCurve have no effect here.
-class VTK_CHARTS_EXPORT vtkLookupTableItem: public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT vtkLookupTableItem: public vtkScalarsToColorsItem
 {
 public:
   static vtkLookupTableItem* New();

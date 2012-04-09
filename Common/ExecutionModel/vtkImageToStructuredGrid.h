@@ -22,6 +22,7 @@
 #ifndef VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
 #define VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 
 class vtkStructuredGrid;
@@ -29,7 +30,7 @@ class vtkImageData;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_FILTERING_EXPORT vtkImageToStructuredGrid:
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
   public vtkStructuredGridAlgorithm
 {
   public:

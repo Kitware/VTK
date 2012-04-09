@@ -24,6 +24,7 @@
 #ifndef __vtkTexturedActor2D_h
 #define __vtkTexturedActor2D_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkProp;
@@ -31,7 +32,7 @@ class vtkTexture;
 class vtkViewport;
 class vtkWindow;
 
-class VTK_RENDERING_EXPORT vtkTexturedActor2D : public vtkActor2D
+class VTKRENDERINGCORE_EXPORT vtkTexturedActor2D : public vtkActor2D
 {
 public:
   static vtkTexturedActor2D* New();

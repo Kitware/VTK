@@ -28,9 +28,10 @@
 #ifndef __vtkTranslucentPass_h
 #define __vtkTranslucentPass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkDefaultPass.h"
 
-class VTK_RENDERING_EXPORT vtkTranslucentPass : public vtkDefaultPass
+class VTKRENDERINGOPENGL_EXPORT vtkTranslucentPass : public vtkDefaultPass
 {
 public:
   static vtkTranslucentPass *New();

@@ -30,6 +30,7 @@
 #define VTKPSTRUCTUREDGRIDCONNECTIVITY_H_
 
 // VTK include directives
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkMPICommunicator.h" // Needed for vtkMPICommunicator::Request
 
@@ -42,7 +43,7 @@ class vtkMPIController;
 class vtkMultiProcessStream;
 //class vtkMPICommunicator::Request;
 
-class VTK_PARALLEL_EXPORT vtkPStructuredGridConnectivity :
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridConnectivity :
   public vtkStructuredGridConnectivity
 {
   public:

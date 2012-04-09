@@ -24,6 +24,7 @@
 #ifndef __vtkVolumeTextureMapper_h
 #define __vtkVolumeTextureMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
 class vtkEncodedGradientEstimator;
@@ -32,7 +33,7 @@ class vtkRenderWindow;
 class vtkRenderer;
 class vtkVolume;
 
-class VTK_VOLUMERENDERING_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);

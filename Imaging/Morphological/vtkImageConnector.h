@@ -27,6 +27,7 @@
 #ifndef __vtkImageConnector_h
 #define __vtkImageConnector_h
 
+#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
@@ -48,7 +49,7 @@ public:
 //
 
 
-class VTK_IMAGING_EXPORT vtkImageConnector : public vtkObject
+class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageConnector : public vtkObject
 {
 public:
   static vtkImageConnector *New();

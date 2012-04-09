@@ -44,9 +44,10 @@
 #ifndef __vtkStreamLine_h
 #define __vtkStreamLine_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkStreamer.h"
 
-class VTK_GRAPHICS_EXPORT vtkStreamLine : public vtkStreamer
+class VTKFILTERSCORE_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamLine,vtkStreamer);

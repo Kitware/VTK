@@ -65,6 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMINCImageWriter_h
 #define __vtkMINCImageWriter_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkImageWriter.h"
 
 class vtkStringArray;
@@ -75,7 +76,7 @@ class vtkMatrix4x4;
 // A special class that holds the attributes
 class vtkMINCImageAttributes;
 
-class VTK_IO_EXPORT vtkMINCImageWriter : public vtkImageWriter
+class VTKIOMINC_EXPORT vtkMINCImageWriter : public vtkImageWriter
 {
 public:
   vtkTypeMacro(vtkMINCImageWriter,vtkImageWriter);

@@ -25,9 +25,10 @@
 #ifndef __vtkXGPUInfoList_h
 #define __vtkXGPUInfoList_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkGPUInfoList.h"
 
-class VTK_RENDERING_EXPORT vtkXGPUInfoList : public vtkGPUInfoList
+class VTKRENDERINGOPENGL_EXPORT vtkXGPUInfoList : public vtkGPUInfoList
 {
 public:
   static vtkXGPUInfoList* New();

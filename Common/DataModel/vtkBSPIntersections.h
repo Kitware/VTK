@@ -31,6 +31,7 @@
 #ifndef __vtkBSPIntersections_h
 #define __vtkBSPIntersections_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkTimeStamp;
@@ -38,7 +39,7 @@ class vtkCell;
 class vtkKdNode;
 class vtkBSPCuts;
 
-class VTK_FILTERING_EXPORT vtkBSPIntersections : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkBSPIntersections : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBSPIntersections, vtkObject);

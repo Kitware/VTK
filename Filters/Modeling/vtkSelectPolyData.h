@@ -74,6 +74,7 @@
 #ifndef __vtkSelectPolyData_h
 #define __vtkSelectPolyData_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_INSIDE_SMALLEST_REGION 0
@@ -84,7 +85,7 @@ class vtkCharArray;
 class vtkPoints;
 class vtkIdList;
 
-class VTK_GRAPHICS_EXPORT vtkSelectPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkSelectPolyData : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

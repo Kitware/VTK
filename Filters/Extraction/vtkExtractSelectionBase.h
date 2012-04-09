@@ -21,9 +21,10 @@
 #ifndef __vtkExtractSelectionBase_h
 #define __vtkExtractSelectionBase_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectionBase : public vtkDataObjectAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectionBase : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkExtractSelectionBase, vtkDataObjectAlgorithm);

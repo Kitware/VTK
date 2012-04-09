@@ -21,10 +21,11 @@
 #ifndef __vtkMemoryLimitImageDataStreamer_h
 #define __vtkMemoryLimitImageDataStreamer_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkImageDataStreamer.h"
 
 
-class VTK_PARALLEL_EXPORT vtkMemoryLimitImageDataStreamer : public vtkImageDataStreamer
+class VTKFILTERSPARALLEL_EXPORT vtkMemoryLimitImageDataStreamer : public vtkImageDataStreamer
 {
 public:
   static vtkMemoryLimitImageDataStreamer *New();

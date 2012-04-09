@@ -23,13 +23,14 @@
 #ifndef __vtkTDxQtUnixDevices_h
 #define __vtkTDxQtUnixDevices_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QObject>
-#include "QVTKWin32Header.h" // for QVTK_EXPORT
+#include "QVTKWin32Header.h" // for VTKGUISUPPORTQT_EXPORT
 #include "vtkTDxUnixDevice.h" // required for vtkTDxUnixDeviceXEvent
 
 class vtkTDxQtUnixDevicesPrivate;
 
-class QVTK_EXPORT vtkTDxQtUnixDevices : public QObject
+class VTKGUISUPPORTQT_EXPORT vtkTDxQtUnixDevices : public QObject
 {
   Q_OBJECT
 public:

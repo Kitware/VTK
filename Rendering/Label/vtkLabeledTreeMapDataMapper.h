@@ -41,6 +41,7 @@
 #ifndef __vtkLabeledTreeMapDataMapper_h
 #define __vtkLabeledTreeMapDataMapper_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
 
 class vtkTree;
@@ -50,7 +51,7 @@ class vtkFloatArray;
 class vtkStringArray;
 class vtkIdList;
 
-class VTK_RENDERING_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
+class VTKRENDERINGLABEL_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDataMapper
 {
 public:
   static vtkLabeledTreeMapDataMapper *New();

@@ -35,6 +35,7 @@
 #ifndef __vtkLabelSizeCalculator_h
 #define __vtkLabelSizeCalculator_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkIntArray;
@@ -42,7 +43,7 @@ class vtkFreeTypeUtilities;
 class vtkStringArray;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeAlgorithm
+class VTKRENDERINGLABEL_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkLabelSizeCalculator* New();

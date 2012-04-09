@@ -26,13 +26,14 @@
 #ifndef __vtkTextMapper_h
 #define __vtkTextMapper_h
 
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkMapper2D.h"
 
 class vtkActor2D;
 class vtkTextProperty;
 class vtkViewport;
 
-class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
+class VTKRENDERINGFREETYPE_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkTextMapper,vtkMapper2D);

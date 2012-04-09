@@ -46,9 +46,10 @@
 #ifndef __vtkTableToSparseArray_h
 #define __vtkTableToSparseArray_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
+class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 {
 public:
   static vtkTableToSparseArray* New();

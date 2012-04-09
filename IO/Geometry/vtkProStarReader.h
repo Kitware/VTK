@@ -24,9 +24,10 @@
 #ifndef __vtkProStarReader_h
 #define __vtkProStarReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_IO_EXPORT vtkProStarReader : public vtkUnstructuredGridAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkProStarReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkProStarReader *New();

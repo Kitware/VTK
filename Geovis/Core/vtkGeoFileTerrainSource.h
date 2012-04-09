@@ -25,13 +25,14 @@
 // of the patch and the position within that level. Use vtkGeoTerrain's
 // SaveDatabase method to create a database of files in this format.
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 #include "vtkSmartPointer.h" // For smart pointer ivars
 
 class vtkGeoTerrainNode;
 class vtkGeoTreeNode;
 
-class VTK_GEOVIS_EXPORT vtkGeoFileTerrainSource : public vtkGeoSource
+class VTKGEOVISCORE_EXPORT vtkGeoFileTerrainSource : public vtkGeoSource
 {
 public:
   static vtkGeoFileTerrainSource *New();

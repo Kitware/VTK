@@ -30,12 +30,13 @@
 #ifndef __vtkEnSightWriter_h
 #define __vtkEnSightWriter_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkWriter.h"
 
 class vtkUnstructuredGrid;
 class vtkModelMetadata;
 
-class VTK_PARALLEL_EXPORT vtkEnSightWriter : public vtkWriter
+class VTKIOPARALLEL_EXPORT vtkEnSightWriter : public vtkWriter
 {
 
 public:

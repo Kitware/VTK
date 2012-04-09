@@ -22,9 +22,10 @@
 #ifndef __vtkOBJReader_h
 #define __vtkOBJReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_IO_EXPORT vtkOBJReader : public vtkPolyDataAlgorithm 
+class VTKIOGEOMETRY_EXPORT vtkOBJReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOBJReader *New();

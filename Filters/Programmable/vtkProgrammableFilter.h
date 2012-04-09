@@ -37,12 +37,13 @@
 #ifndef __vtkProgrammableFilter_h
 #define __vtkProgrammableFilter_h
 
+#include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkGraph;
 class vtkTable;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
+class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkProgrammableFilter *New();

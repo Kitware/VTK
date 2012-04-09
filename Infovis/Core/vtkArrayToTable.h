@@ -28,9 +28,10 @@
 #ifndef __vtkArrayToTable_h
 #define __vtkArrayToTable_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkArrayToTable : public vtkTableAlgorithm
+class VTKINFOVISCORE_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 {
 public:
   static vtkArrayToTable* New();

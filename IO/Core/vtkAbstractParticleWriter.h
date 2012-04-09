@@ -28,9 +28,10 @@
 #ifndef __vtkAbstractParticleWriter_h
 #define __vtkAbstractParticleWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 
-class VTK_IO_EXPORT vtkAbstractParticleWriter : public vtkWriter
+class VTKIOCORE_EXPORT vtkAbstractParticleWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkAbstractParticleWriter,vtkWriter);

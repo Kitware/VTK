@@ -26,12 +26,13 @@
 #ifndef __vtkGeoProjection_h
 #define __vtkGeoProjection_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 struct PROJconsts;
 typedef PROJconsts PROJ;
 
-class VTK_GEOVIS_EXPORT vtkGeoProjection : public vtkObject
+class VTKGEOVISCORE_EXPORT vtkGeoProjection : public vtkObject
 {
 public:
   static vtkGeoProjection* New();

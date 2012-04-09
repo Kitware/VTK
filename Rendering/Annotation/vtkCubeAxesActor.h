@@ -66,13 +66,14 @@ All rights reserve
 
 #define NUMBER_OF_ALIGNED_AXIS 4
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
 
 class vtkAxisActor;
 class vtkCamera;
 class vtkTextProperty;
 
-class VTK_HYBRID_EXPORT vtkCubeAxesActor : public vtkActor
+class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor,vtkActor);

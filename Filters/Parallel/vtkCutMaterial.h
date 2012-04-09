@@ -23,11 +23,12 @@
 #ifndef __vtkCutMaterial_h
 #define __vtkCutMaterial_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPlane;
 
-class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkCutMaterial : public vtkPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

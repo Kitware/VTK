@@ -52,9 +52,10 @@
 #ifndef __vtkGraphHierarchicalBundleEdges_h
 #define __vtkGraphHierarchicalBundleEdges_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkGraphHierarchicalBundleEdges : public vtkGraphAlgorithm 
+class VTKINFOVISCORE_EXPORT vtkGraphHierarchicalBundleEdges : public vtkGraphAlgorithm
 {
 public:
   static vtkGraphHierarchicalBundleEdges *New();

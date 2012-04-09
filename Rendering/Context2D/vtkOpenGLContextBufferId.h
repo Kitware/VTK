@@ -22,12 +22,13 @@
 #ifndef __vtkOpenGLContextBufferId_h
 #define __vtkOpenGLContextBufferId_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextBufferId.h"
 
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
 
-class VTK_CHARTS_EXPORT vtkOpenGLContextBufferId : public vtkAbstractContextBufferId
+class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGLContextBufferId : public vtkAbstractContextBufferId
 {
 public:
   vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);

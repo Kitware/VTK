@@ -19,10 +19,11 @@
 
 #ifndef __vtkErrorCode_h
 #define __vtkErrorCode_h
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 // The superclass that all commands should be subclasses of
-class VTK_COMMON_EXPORT vtkErrorCode
+class VTKCOMMONMISC_EXPORT vtkErrorCode
 {
 public:
   static const char *GetStringFromErrorCode(unsigned long event);

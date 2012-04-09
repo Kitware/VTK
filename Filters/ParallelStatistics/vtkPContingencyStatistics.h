@@ -37,6 +37,7 @@
 #ifndef __vtkPContingencyStatistics_h
 #define __vtkPContingencyStatistics_h
 
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"
 
 //BTX
@@ -46,7 +47,7 @@
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTK_INFOVIS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics : public vtkContingencyStatistics
 {
 public:
   static vtkPContingencyStatistics* New();

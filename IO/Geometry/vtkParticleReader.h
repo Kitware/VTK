@@ -31,13 +31,14 @@
 #ifndef __vtkParticleReader_h
 #define __vtkParticleReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
 
-class VTK_IO_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkParticleReader *New();

@@ -20,6 +20,7 @@
 #ifndef VTKAMRBASEREADER_H_
 #define VTKAMRBASEREADER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
 #include <vector>    // STL vector header
 #include <map>       // STL map header
@@ -35,7 +36,7 @@ class vtkAMRDataSetCache;
 class vtkUniformGrid;
 class vtkDataArray;
 
-class VTK_AMR_EXPORT vtkAMRBaseReader :
+class VTKAMRCORE_EXPORT vtkAMRBaseReader :
   public vtkOverlappingAMRAlgorithm
 {
   public:

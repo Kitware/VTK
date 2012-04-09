@@ -49,6 +49,7 @@
 #define VTK_VOXEL_TO_6_TET        6
 #define VTK_VOXEL_TO_5_AND_12_TET -1
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 class vtkRectilinearGrid;
 class vtkSignedCharArray;
@@ -56,7 +57,7 @@ class vtkIdList;
 class vtkCellArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkRectilinearGridToTetrahedra,vtkUnstructuredGridAlgorithm);

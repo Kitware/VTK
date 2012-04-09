@@ -40,6 +40,7 @@
 #ifndef __vtkGeoView_h
 #define __vtkGeoView_h
 
+#include "vtkViewsGeovisModule.h" // For export macro
 #include "vtkRenderView.h"
 
 class vtkActor;
@@ -52,7 +53,7 @@ class vtkImageData;
 class vtkPolyDataMapper;
 class vtkViewTheme;
 
-class VTK_GEOVIS_EXPORT vtkGeoView : public vtkRenderView
+class VTKVIEWSGEOVIS_EXPORT vtkGeoView : public vtkRenderView
 {
 public:
   static vtkGeoView *New();

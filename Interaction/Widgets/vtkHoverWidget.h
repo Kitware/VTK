@@ -66,10 +66,11 @@
 #ifndef __vtkHoverWidget_h
 #define __vtkHoverWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 
-class VTK_WIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget
 {
 public:
   // Description:

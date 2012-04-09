@@ -38,6 +38,7 @@
 #ifndef __vtkArcPlotter_h
 #define __vtkArcPlotter_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_PLOT_SCALARS    1
@@ -52,7 +53,7 @@ class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataAlgorithm 
+class VTKRENDERINGANNOTATION_EXPORT vtkArcPlotter : public vtkPolyDataAlgorithm
 {
 public:
   // Description:

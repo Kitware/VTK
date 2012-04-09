@@ -18,12 +18,13 @@
 #ifndef __vtkImageDataLIC2DExtentTranslator_h
 #define __vtkImageDataLIC2DExtentTranslator_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkExtentTranslator.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkImageDataLIC2D;
 
-class VTK_HYBRID_EXPORT vtkImageDataLIC2DExtentTranslator : public vtkExtentTranslator
+class VTKFILTERSHYBRID_EXPORT vtkImageDataLIC2DExtentTranslator : public vtkExtentTranslator
 {
 public:
   static vtkImageDataLIC2DExtentTranslator* New();

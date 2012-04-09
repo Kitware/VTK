@@ -28,13 +28,14 @@
 #ifndef __vtkUnstructuredGridVolumeRayIntegrator_h
 #define __vtkUnstructuredGridVolumeRayIntegrator_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkVolume;
 class vtkDoubleArray;
 class vtkDataArray;
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);

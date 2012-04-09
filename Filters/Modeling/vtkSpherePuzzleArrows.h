@@ -19,13 +19,14 @@
 #ifndef __vtkSpherePuzzleArrows_h
 #define __vtkSpherePuzzleArrows_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkPoints;
 class vtkSpherePuzzle;
 
-class VTK_GRAPHICS_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSpherePuzzleArrows,vtkPolyDataAlgorithm);

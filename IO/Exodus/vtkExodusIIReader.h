@@ -35,6 +35,7 @@
 #ifndef __vtkExodusIIReader_h
 #define __vtkExodusIIReader_h
 
+#include "vtkIOExodusModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkDataArray;
@@ -48,7 +49,7 @@ class vtkIntArray;
 class vtkPoints;
 class vtkUnstructuredGrid;
 
-class VTK_HYBRID_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorithm 
+class VTKIOEXODUS_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkExodusIIReader *New();

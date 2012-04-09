@@ -26,11 +26,12 @@
 #ifndef __vtkXRenderWindowTclInteractor_h
 #define __vtkXRenderWindowTclInteractor_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkXRenderWindowInteractor.h"
 
 class vtkXRenderWindowTclInteractorInternals;
 
-class VTK_RENDERING_EXPORT vtkXRenderWindowTclInteractor : public vtkXRenderWindowInteractor
+class VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowTclInteractor : public vtkXRenderWindowInteractor
 {
 public:
   static vtkXRenderWindowTclInteractor *New();

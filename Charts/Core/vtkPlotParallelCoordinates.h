@@ -22,6 +22,7 @@
 #ifndef __vtkPlotParallelCoordinates_h
 #define __vtkPlotParallelCoordinates_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For vtkStdString ivars
@@ -32,7 +33,7 @@ class vtkStdString;
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;
 
-class VTK_CHARTS_EXPORT vtkPlotParallelCoordinates : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkPlotParallelCoordinates : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotParallelCoordinates, vtkPlot);

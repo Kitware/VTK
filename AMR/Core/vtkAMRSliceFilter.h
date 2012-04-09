@@ -22,6 +22,7 @@
 #ifndef VTKAMRSLICEFILTER_H_
 #define VTKAMRSLICEFILTER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
 
 #include <vector> // For STL vector
@@ -34,7 +35,7 @@ class vtkPlane;
 class vtkAMRBox;
 class vtkUniformGrid;
 
-class VTK_AMR_EXPORT vtkAMRSliceFilter :
+class VTKAMRCORE_EXPORT vtkAMRSliceFilter :
   public vtkOverlappingAMRAlgorithm
 {
   public:

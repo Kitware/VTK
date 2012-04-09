@@ -44,6 +44,7 @@
 #ifndef __vtkUnicodeString_h
 #define __vtkUnicodeString_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include <vtkSystemIncludes.h>
 #include <string>
 #include <vector>
@@ -62,13 +63,13 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
   vtkExtraExtendedTemplateMacro(call);                                            \
   vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
 
-class VTK_COMMON_EXPORT vtkUnicodeString
+class VTKCOMMONCORE_EXPORT vtkUnicodeString
 {
 public:
   typedef vtkUnicodeStringValueType value_type;
   typedef std::string::size_type size_type;
 
-  class VTK_COMMON_EXPORT const_iterator
+  class VTKCOMMONCORE_EXPORT const_iterator
   {
   public:
     typedef std::bidirectional_iterator_tag iterator_category;
@@ -231,12 +232,12 @@ private:
   class back_insert_iterator;
 };
 
-VTK_COMMON_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
-VTK_COMMON_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator==(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator!=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator<(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator<=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator>=(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
+VTKCOMMONCORE_EXPORT bool operator>(const vtkUnicodeString& lhs, const vtkUnicodeString& rhs);
 
 #endif
 

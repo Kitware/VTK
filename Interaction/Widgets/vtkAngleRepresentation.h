@@ -28,12 +28,13 @@
 #ifndef __vtkAngleRepresentation_h
 #define __vtkAngleRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkAngleRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

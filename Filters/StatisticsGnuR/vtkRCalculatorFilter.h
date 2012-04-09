@@ -36,6 +36,7 @@
 #ifndef __vtkRCalculatorFilter_h
 #define __vtkRCalculatorFilter_h
 
+#include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
 class vtkRInterface;
@@ -43,7 +44,7 @@ class vtkRCalculatorFilterInternals;
 class vtkDataSet;
 class vtkDoubleArray;
 
-class VTK_GRAPHICS_EXPORT vtkRCalculatorFilter : public vtkDataObjectAlgorithm
+class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRCalculatorFilter : public vtkDataObjectAlgorithm
 {
 
 public:

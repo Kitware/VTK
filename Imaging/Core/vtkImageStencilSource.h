@@ -30,12 +30,13 @@
 #define __vtkImageStencilSource_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageStencilAlgorithm.h"
 
 class vtkImageStencilData;
 class vtkImageData;
 
-class VTK_IMAGING_EXPORT vtkImageStencilSource :
+class VTKIMAGINGCORE_EXPORT vtkImageStencilSource :
   public vtkImageStencilAlgorithm
 {
 public:

@@ -51,9 +51,10 @@
 #ifndef __vtkStripper_h
 #define __vtkStripper_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStripper : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkStripper : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStripper,vtkPolyDataAlgorithm);

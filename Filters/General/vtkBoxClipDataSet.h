@@ -45,6 +45,7 @@
 #ifndef __vtkBoxClipDataSet_h
 #define __vtkBoxClipDataSet_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkCell3D;
@@ -58,7 +59,7 @@ class vtkPointData;
 class vtkIncrementalPointLocator;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkBoxClipDataSet : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkBoxClipDataSet : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkBoxClipDataSet,vtkUnstructuredGridAlgorithm);

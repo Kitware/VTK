@@ -24,6 +24,7 @@
 #ifndef __vtkAMRVolumeMapper_h
 #define __vtkAMRVolumeMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 #include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
@@ -33,7 +34,7 @@ class vtkSmartVolumeMapper;
 class vtkUniformGrid;
 class vtkImageData;
 
-class VTK_VOLUMERENDERING_EXPORT vtkAMRVolumeMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkAMRVolumeMapper : public vtkVolumeMapper
 {
 public:
   static vtkAMRVolumeMapper *New();

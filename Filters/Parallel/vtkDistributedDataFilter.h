@@ -86,6 +86,7 @@
 #ifndef __vtkDistributedDataFilter_h
 #define __vtkDistributedDataFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
 class vtkBSPCuts;
@@ -100,7 +101,7 @@ class vtkMultiProcessController;
 class vtkPKdTree;
 class vtkUnstructuredGrid;
 
-class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataObjectAlgorithm
 {
   vtkTypeMacro(vtkDistributedDataFilter,
     vtkDataObjectAlgorithm);

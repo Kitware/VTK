@@ -67,11 +67,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPCosmoHaloFinder_h
 #define __vtkPCosmoHaloFinder_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGridAlgorithm
 {
  public:
   static vtkPCosmoHaloFinder *New();

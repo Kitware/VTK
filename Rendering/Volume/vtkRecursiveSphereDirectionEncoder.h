@@ -26,9 +26,10 @@
 #ifndef __vtkRecursiveSphereDirectionEncoder_h
 #define __vtkRecursiveSphereDirectionEncoder_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkDirectionEncoder.h"
 
-class VTK_VOLUMERENDERING_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
+class VTKRENDERINGVOLUME_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
   vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);

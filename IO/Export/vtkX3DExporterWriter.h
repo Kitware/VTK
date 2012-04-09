@@ -21,6 +21,7 @@
 #ifndef __vtkX3DExporterWriter_h
 #define __vtkX3DExporterWriter_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include <vtkObject.h>
 
 // Forward declarations
@@ -28,7 +29,7 @@ class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkCellArray;
 
-class VTK_HYBRID_EXPORT vtkX3DExporterWriter : public vtkObject
+class VTKIOEXPORT_EXPORT vtkX3DExporterWriter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkX3DExporterWriter, vtkObject);

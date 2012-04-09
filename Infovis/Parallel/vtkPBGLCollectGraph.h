@@ -42,6 +42,7 @@
 #ifndef __vtkPBGLCollectGraph_h
 #define __vtkPBGLCollectGraph_h
 
+#include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 
 #include <vtksys/stl/utility> // for pair
@@ -53,7 +54,7 @@
 class vtkSelection;
 class vtkDistributedGraphHelper;
 
-class VTK_PARALLEL_EXPORT vtkPBGLCollectGraph : public vtkGraphAlgorithm
+class VTKINFOVISPARALLEL_EXPORT vtkPBGLCollectGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkPBGLCollectGraph *New();

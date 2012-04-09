@@ -38,6 +38,7 @@
 #ifndef __vtkView_h
 #define __vtkView_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAlgorithmOutput;
@@ -47,7 +48,7 @@ class vtkDataRepresentation;
 class vtkSelection;
 class vtkViewTheme;
 
-class VTK_VIEWS_EXPORT vtkView : public vtkObject
+class VTKVIEWSCORE_EXPORT vtkView : public vtkObject
 {
 public:
   static vtkView *New();

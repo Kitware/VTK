@@ -33,6 +33,7 @@
 #ifndef __vtkCornerAnnotation_h
 #define __vtkCornerAnnotation_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkTextMapper;
@@ -40,7 +41,7 @@ class vtkImageMapToWindowLevelColors;
 class vtkImageActor;
 class vtkTextProperty;
 
-class VTK_HYBRID_EXPORT vtkCornerAnnotation : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkCornerAnnotation : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCornerAnnotation,vtkActor2D);

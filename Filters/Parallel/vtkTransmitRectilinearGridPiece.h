@@ -24,11 +24,12 @@
 #ifndef __vtkTransmitRectilinearGridPiece_h
 #define __vtkTransmitRectilinearGridPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkRectilinearGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkTransmitRectilinearGridPiece *New();

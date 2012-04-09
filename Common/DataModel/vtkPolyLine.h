@@ -20,6 +20,7 @@
 #ifndef __vtkPolyLine_h
 #define __vtkPolyLine_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
 
 class vtkPoints;
@@ -29,7 +30,7 @@ class vtkDataArray;
 class vtkIncrementalPointLocator;
 class vtkCellData;
 
-class VTK_FILTERING_EXPORT vtkPolyLine : public vtkCell
+class VTKCOMMONDATAMODEL_EXPORT vtkPolyLine : public vtkCell
 {
 public:
   static vtkPolyLine *New();

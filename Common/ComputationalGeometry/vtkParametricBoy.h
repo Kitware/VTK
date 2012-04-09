@@ -29,9 +29,10 @@
 #ifndef __vtkParametricBoy_h
 #define __vtkParametricBoy_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
-class VTK_COMMON_EXPORT vtkParametricBoy : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public vtkParametricFunction
 {
 public:
 

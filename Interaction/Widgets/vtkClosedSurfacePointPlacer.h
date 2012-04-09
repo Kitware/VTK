@@ -25,6 +25,7 @@
 #ifndef __vtkClosedSurfacePointPlacer_h
 #define __vtkClosedSurfacePointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
 class vtkPlane;
@@ -32,7 +33,7 @@ class vtkPlaneCollection;
 class vtkPlanes;
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkClosedSurfacePointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkClosedSurfacePointPlacer : public vtkPointPlacer
 {
 public:
   // Description:

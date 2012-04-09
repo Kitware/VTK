@@ -27,11 +27,12 @@
 #ifndef __vtkTextureUnitManager_h
 #define __vtkTextureUnitManager_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkOpenGLRenderWindow;
 
-class VTK_RENDERING_EXPORT vtkTextureUnitManager : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkTextureUnitManager : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextureUnitManager,vtkObject);

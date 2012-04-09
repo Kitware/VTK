@@ -18,9 +18,10 @@
 #ifndef __vtkLightingPainter_h
 #define __vtkLightingPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataPainter.h"
 
-class VTK_RENDERING_EXPORT vtkLightingPainter : public vtkPolyDataPainter
+class VTKRENDERINGCORE_EXPORT vtkLightingPainter : public vtkPolyDataPainter
 {
 public:
   static vtkLightingPainter* New();

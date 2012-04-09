@@ -52,6 +52,7 @@
 #ifndef __vtkBalloonRepresentation_h
 #define __vtkBalloonRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkTextMapper;
@@ -70,7 +71,7 @@ class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkActor2D;
 
-class VTK_WIDGETS_EXPORT vtkBalloonRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkBalloonRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

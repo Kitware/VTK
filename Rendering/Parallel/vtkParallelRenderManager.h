@@ -40,6 +40,7 @@
 #ifndef __vtkParallelRenderManager_h
 #define __vtkParallelRenderManager_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDoubleArray;
@@ -51,7 +52,7 @@ class vtkRenderWindow;
 class vtkTimerLog;
 class vtkUnsignedCharArray;
 
-class VTK_PARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
+class VTKRENDERINGPARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
 {
 public:
   vtkTypeMacro(vtkParallelRenderManager, vtkObject);

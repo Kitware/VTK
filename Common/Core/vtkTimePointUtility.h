@@ -25,9 +25,10 @@
 #ifndef __vtkTimePointUtility_h
 #define __vtkTimePointUtility_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkTimePointUtility : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkTimePointUtility : public vtkObject
 {
 public:
   static vtkTimePointUtility *New();

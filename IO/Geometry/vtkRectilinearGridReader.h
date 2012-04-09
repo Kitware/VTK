@@ -28,11 +28,12 @@
 #ifndef __vtkRectilinearGridReader_h
 #define __vtkRectilinearGridReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkRectilinearGrid;
 
-class VTK_IO_EXPORT vtkRectilinearGridReader : public vtkDataReader
+class VTKIOGEOMETRY_EXPORT vtkRectilinearGridReader : public vtkDataReader
 {
 public:
   static vtkRectilinearGridReader *New();

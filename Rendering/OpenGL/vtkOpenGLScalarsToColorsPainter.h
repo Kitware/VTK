@@ -21,11 +21,12 @@
 #ifndef __vtkOpenGLScalarsToColorsPainter_h
 #define __vtkOpenGLScalarsToColorsPainter_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkScalarsToColorsPainter.h"
 
 class vtkOpenGLTexture;
 
-class VTK_RENDERING_EXPORT vtkOpenGLScalarsToColorsPainter : 
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLScalarsToColorsPainter :
   public vtkScalarsToColorsPainter
 {
 public:

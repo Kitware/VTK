@@ -19,9 +19,10 @@
 #ifndef VTKLEVELIDSCALARS_H_
 #define VTKLEVELIDSCALARS_H_
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkOverlappingAMRLevelIdScalars.h"
 
-class VTK_GRAPHICS_EXPORT vtkLevelIdScalars :
+class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars :
   public vtkOverlappingAMRLevelIdScalars
 {
   public:

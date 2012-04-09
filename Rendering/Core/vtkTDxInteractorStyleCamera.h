@@ -25,11 +25,12 @@
 #ifndef __vtkTDxInteractorStyleCamera_h
 #define __vtkTDxInteractorStyleCamera_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTDxInteractorStyle.h"
 
 class vtkTransform;
 
-class VTK_RENDERING_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInteractorStyle
+class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInteractorStyle
 {
 public:
   static vtkTDxInteractorStyleCamera *New();

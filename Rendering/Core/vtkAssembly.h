@@ -52,6 +52,7 @@
 #ifndef __vtkAssembly_h
 #define __vtkAssembly_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkAssemblyPaths;
@@ -60,7 +61,7 @@ class vtkMapper;
 class vtkProperty;
 class vtkActor;
 
-class VTK_RENDERING_EXPORT vtkAssembly : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkAssembly : public vtkProp3D
 {
 public:
   static vtkAssembly *New();

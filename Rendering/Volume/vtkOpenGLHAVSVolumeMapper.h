@@ -105,6 +105,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkOpenGLHAVSVolumeMapper_h
 #define __vtkOpenGLHAVSVolumeMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkHAVSVolumeMapper.h"
 
 #include <vtkWeakPointer.h> // to cache the vtkRenderWindow
@@ -112,7 +113,7 @@ class vtkRenderer;
 class vtkRenderWindow;
 
 
-class VTK_VOLUMERENDERING_EXPORT vtkOpenGLHAVSVolumeMapper : public vtkHAVSVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkOpenGLHAVSVolumeMapper : public vtkHAVSVolumeMapper
 {
 public:
   static vtkOpenGLHAVSVolumeMapper *New();

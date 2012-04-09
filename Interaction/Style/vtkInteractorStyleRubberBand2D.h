@@ -37,11 +37,12 @@
 #ifndef __vtkInteractorStyleRubberBand2D_h
 #define __vtkInteractorStyleRubberBand2D_h
 
+#include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
 class vtkUnsignedCharArray;
 
-class VTK_RENDERING_EXPORT vtkInteractorStyleRubberBand2D : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand2D : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleRubberBand2D *New();

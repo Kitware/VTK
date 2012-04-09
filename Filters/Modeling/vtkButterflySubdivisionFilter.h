@@ -42,13 +42,14 @@
 #ifndef __vtkButterflySubdivisionFilter_h
 #define __vtkButterflySubdivisionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkInterpolatingSubdivisionFilter.h"
 
 class vtkCellArray;
 class vtkIdList;
 class vtkIntArray;
 
-class VTK_GRAPHICS_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
+class VTKFILTERSMODELING_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
 public:
   // Description:

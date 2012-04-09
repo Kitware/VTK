@@ -25,6 +25,7 @@
 #ifndef __vtkCompositePolyDataMapper_h
 #define __vtkCompositePolyDataMapper_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
 
 class vtkPolyDataMapper;
@@ -33,7 +34,7 @@ class vtkRenderer;
 class vtkActor;
 class vtkCompositePolyDataMapperInternals;
 
-class VTK_RENDERING_EXPORT vtkCompositePolyDataMapper : public vtkMapper 
+class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper : public vtkMapper
 {
 
 public:

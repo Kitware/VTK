@@ -26,6 +26,7 @@
 #ifndef __vtkWin32RenderWindowInteractor_h
 #define __vtkWin32RenderWindowInteractor_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
 #include "vtkWindows.h" // For windows API.
 
@@ -34,7 +35,7 @@
 class vtkTDxWinDevice;
 #endif
 
-class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor 
+class VTKRENDERINGOPENGL_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   // Description:
@@ -81,8 +82,8 @@ public:
   void TerminateApp(void);
 
   //BTX
-  friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
-  friend VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
+  friend VTKRENDERINGOPENGL_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
+  friend VTKRENDERINGOPENGL_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
 
   // Description:
   // Various methods that a Win32 window can redirect to this class to be 

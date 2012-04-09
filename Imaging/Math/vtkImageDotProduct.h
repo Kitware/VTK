@@ -22,9 +22,10 @@
 
 
 
+#include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMATH_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageDotProduct *New();

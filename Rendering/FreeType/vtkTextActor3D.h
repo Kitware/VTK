@@ -33,13 +33,14 @@
 #ifndef __vtkTextActor3D_h
 #define __vtkTextActor3D_h
 
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkImageActor;
 class vtkImageData;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkTextActor3D : public vtkProp3D
+class VTKRENDERINGFREETYPE_EXPORT vtkTextActor3D : public vtkProp3D
 {
 public:
   static vtkTextActor3D *New();

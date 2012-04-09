@@ -24,12 +24,13 @@
 #ifndef __vtkOutlineSource_h
 #define __vtkOutlineSource_h
 
+#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_BOX_TYPE_AXIS_ALIGNED 0
 #define VTK_BOX_TYPE_ORIENTED     1
 
-class VTK_GRAPHICS_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm 
+class VTKFILTERSSOURCES_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOutlineSource *New();

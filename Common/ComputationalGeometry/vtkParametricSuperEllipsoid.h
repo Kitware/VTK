@@ -36,9 +36,10 @@
 #ifndef __vtkParametricSuperEllipsoid_h
 #define __vtkParametricSuperEllipsoid_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
 
-class VTK_COMMON_EXPORT vtkParametricSuperEllipsoid : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperEllipsoid : public vtkParametricFunction
 {
 public:
   vtkTypeMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);

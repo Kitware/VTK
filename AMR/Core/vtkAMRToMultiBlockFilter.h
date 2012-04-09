@@ -24,6 +24,7 @@
 #ifndef VTKAMRTOMULTIBLOCKFILTER_H_
 #define VTKAMRTOMULTIBLOCKFILTER_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
@@ -33,7 +34,7 @@ class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkMultiBlockDataSet;
 
-class VTK_AMR_EXPORT vtkAMRToMultiBlockFilter :
+class VTKAMRCORE_EXPORT vtkAMRToMultiBlockFilter :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:

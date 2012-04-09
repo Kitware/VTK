@@ -36,6 +36,7 @@
 #ifndef __vtkDepthPeelingPass_h
 #define __vtkDepthPeelingPass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 class vtkOpenGLRenderWindow;
@@ -43,7 +44,7 @@ class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkShaderProgram2;
 class vtkShader2;
 
-class VTK_RENDERING_EXPORT vtkDepthPeelingPass : public vtkRenderPass
+class VTKRENDERINGOPENGL_EXPORT vtkDepthPeelingPass : public vtkRenderPass
 {
 public:
   static vtkDepthPeelingPass *New();

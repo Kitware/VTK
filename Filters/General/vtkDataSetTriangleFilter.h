@@ -31,11 +31,12 @@
 #ifndef __vtkDataSetTriangleFilter_h
 #define __vtkDataSetTriangleFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkOrderedTriangulator;
 
-class VTK_GRAPHICS_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkDataSetTriangleFilter *New();

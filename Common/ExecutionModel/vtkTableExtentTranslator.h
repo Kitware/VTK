@@ -23,9 +23,10 @@
 #ifndef __vtkTableExtentTranslator_h
 #define __vtkTableExtentTranslator_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExtentTranslator.h"
 
-class VTK_COMMON_EXPORT vtkTableExtentTranslator : public vtkExtentTranslator
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTableExtentTranslator : public vtkExtentTranslator
 {
 public:
   vtkTypeMacro(vtkTableExtentTranslator,vtkExtentTranslator);

@@ -22,11 +22,12 @@
 #ifndef __vtkTemporalDataSet_h
 #define __vtkTemporalDataSet_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
 
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkTemporalDataSet : public vtkCompositeDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkTemporalDataSet : public vtkCompositeDataSet
 {
 public:
   static vtkTemporalDataSet *New();

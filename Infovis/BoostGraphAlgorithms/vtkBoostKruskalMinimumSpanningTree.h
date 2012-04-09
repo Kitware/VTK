@@ -32,12 +32,13 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkBoostKruskalMinimumSpanningTree_h
 #define __vtkBoostKruskalMinimumSpanningTree_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
 #include "vtkSelectionAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostKruskalMinimumSpanningTree : public vtkSelectionAlgorithm 
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostKruskalMinimumSpanningTree : public vtkSelectionAlgorithm
 {
 public:
   static vtkBoostKruskalMinimumSpanningTree *New();

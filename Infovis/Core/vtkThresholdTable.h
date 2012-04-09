@@ -27,10 +27,11 @@
 #ifndef __vtkThresholdTable_h
 #define __vtkThresholdTable_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 #include "vtkVariant.h" // For vtkVariant arguments
 
-class VTK_INFOVIS_EXPORT vtkThresholdTable : public vtkTableAlgorithm
+class VTKINFOVISCORE_EXPORT vtkThresholdTable : public vtkTableAlgorithm
 {
 public:
   static vtkThresholdTable* New();

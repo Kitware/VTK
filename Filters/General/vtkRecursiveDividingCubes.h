@@ -34,11 +34,12 @@
 #ifndef __vtkRecursiveDividingCubes_h
 #define __vtkRecursiveDividingCubes_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkVoxel;
 
-class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRecursiveDividingCubes *New();

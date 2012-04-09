@@ -25,13 +25,14 @@
 #ifndef __vtkActor2DCollection_h
 #define __vtkActor2DCollection_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"
 
 #include "vtkActor2D.h" // Needed for inline methods
 
 class vtkViewport;
 
-class VTK_FILTERING_EXPORT vtkActor2DCollection : public vtkPropCollection
+class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
 {
  public:
   // Description:

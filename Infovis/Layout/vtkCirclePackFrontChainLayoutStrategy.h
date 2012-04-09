@@ -42,11 +42,12 @@
 #ifndef __vtkCirclePackFrontChainLayoutStrategy_h
 #define __vtkCirclePackFrontChainLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkCirclePackLayoutStrategy.h"
 
 class vtkCirclePackFrontChainLayoutStrategyImplementation;
 
-class VTK_INFOVIS_EXPORT vtkCirclePackFrontChainLayoutStrategy : public vtkCirclePackLayoutStrategy
+class VTKINFOVISLAYOUT_EXPORT vtkCirclePackFrontChainLayoutStrategy : public vtkCirclePackLayoutStrategy
 {
 public:
   static vtkCirclePackFrontChainLayoutStrategy *New();

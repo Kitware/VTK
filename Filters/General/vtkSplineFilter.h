@@ -34,6 +34,7 @@
 #ifndef __vtkSplineFilter_h
 #define __vtkSplineFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SUBDIVIDE_SPECIFIED 0
@@ -51,7 +52,7 @@ class vtkPointData;
 class vtkPoints;
 class vtkSpline;
 
-class VTK_GRAPHICS_EXPORT vtkSplineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkSplineFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplineFilter,vtkPolyDataAlgorithm);

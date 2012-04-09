@@ -32,6 +32,7 @@
 #ifndef __vtkDataObject_h
 #define __vtkDataObject_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAbstractArray;
@@ -52,7 +53,7 @@ class vtkInformationInformationVectorKey;
 #define VTK_3D_EXTENT       1
 #define VTK_TIME_EXTENT     2
 
-class VTK_FILTERING_EXPORT vtkDataObject : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkDataObject : public vtkObject
 {
 public:
   static vtkDataObject *New();

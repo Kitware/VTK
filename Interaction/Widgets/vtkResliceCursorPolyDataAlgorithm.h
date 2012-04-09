@@ -29,6 +29,7 @@
 #ifndef __vtkResliceCursorPolyDataAlgorithm_h
 #define __vtkResliceCursorPolyDataAlgorithm_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCutter;
@@ -38,7 +39,7 @@ class vtkBox;
 class vtkClipPolyData;
 class vtkLinearExtrusionFilter;
 
-class VTK_GRAPHICS_EXPORT vtkResliceCursorPolyDataAlgorithm : public vtkPolyDataAlgorithm
+class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPolyDataAlgorithm : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkResliceCursorPolyDataAlgorithm,vtkPolyDataAlgorithm);

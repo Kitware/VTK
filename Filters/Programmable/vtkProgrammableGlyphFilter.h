@@ -60,11 +60,12 @@
 #define VTK_COLOR_BY_INPUT  0
 #define VTK_COLOR_BY_SOURCE 1
 
+#include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPointData;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableGlyphFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkProgrammableGlyphFilter,vtkPolyDataAlgorithm);

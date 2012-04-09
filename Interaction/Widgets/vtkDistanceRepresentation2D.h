@@ -29,13 +29,14 @@
 #ifndef __vtkDistanceRepresentation2D_h
 #define __vtkDistanceRepresentation2D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkDistanceRepresentation.h"
 
 class vtkAxisActor2D;
 class vtkProperty2D;
 
 
-class VTK_WIDGETS_EXPORT vtkDistanceRepresentation2D : public vtkDistanceRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation2D : public vtkDistanceRepresentation
 {
 public:
   // Description:

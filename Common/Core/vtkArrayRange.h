@@ -35,10 +35,11 @@
 #ifndef __vtkArrayRange_h
 #define __vtkArrayRange_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 #include "vtkArrayCoordinates.h"
 
-class VTK_COMMON_EXPORT vtkArrayRange
+class VTKCOMMONCORE_EXPORT vtkArrayRange
 {
 public:
   typedef vtkArrayCoordinates::CoordinateT CoordinateT;
@@ -76,12 +77,12 @@ public:
 
   // Description:
   // Equality comparisons.
-  VTK_COMMON_EXPORT friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
-  VTK_COMMON_EXPORT friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  VTKCOMMONCORE_EXPORT friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
+  VTKCOMMONCORE_EXPORT friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
 
   // Description:
   // Serialization.
-  VTK_COMMON_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayRange& rhs);
 
 private:
   // Description:

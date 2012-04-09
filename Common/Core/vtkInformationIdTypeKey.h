@@ -20,11 +20,12 @@
 #ifndef __vtkInformationIdTypeKey_h
 #define __vtkInformationIdTypeKey_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
-class VTK_COMMON_EXPORT vtkInformationIdTypeKey : public vtkInformationKey
+class VTKCOMMONCORE_EXPORT vtkInformationIdTypeKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationIdTypeKey,vtkInformationKey);

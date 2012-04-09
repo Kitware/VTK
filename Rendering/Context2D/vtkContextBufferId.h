@@ -22,11 +22,12 @@
 #ifndef __vtkContextBufferId_h
 #define __vtkContextBufferId_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextBufferId.h"
 
 class vtkIntArray;
 
-class VTK_CHARTS_EXPORT vtkContextBufferId : public vtkAbstractContextBufferId
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextBufferId : public vtkAbstractContextBufferId
 {
 public:
   vtkTypeMacro(vtkContextBufferId, vtkAbstractContextBufferId);

@@ -18,9 +18,10 @@
 #ifndef __vtkExtractSelectedBlock_h
 #define __vtkExtractSelectedBlock_h
 
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedBlock* New();

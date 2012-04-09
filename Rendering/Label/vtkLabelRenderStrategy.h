@@ -20,6 +20,7 @@
 #ifndef __vtkLabelRenderStrategy_h
 #define __vtkLabelRenderStrategy_h
 
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkStdString.h" // For string support
@@ -29,7 +30,7 @@ class vtkRenderer;
 class vtkWindow;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkLabelRenderStrategy : public vtkObject
+class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);

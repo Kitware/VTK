@@ -19,6 +19,7 @@
 #ifndef VTKAMRGAUSSIANPULSESOURCE_H_
 #define VTKAMRGAUSSIANPULSESOURCE_H_
 
+#include "vtkAMRCoreModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
 
 #include <cmath> // For std::exp
@@ -28,7 +29,7 @@ class vtkUniformGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_AMR_EXPORT vtkAMRGaussianPulseSource :
+class VTKAMRCORE_EXPORT vtkAMRGaussianPulseSource :
   public vtkOverlappingAMRAlgorithm
 {
   public:

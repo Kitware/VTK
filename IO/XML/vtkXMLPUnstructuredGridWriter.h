@@ -27,11 +27,12 @@
 #ifndef __vtkXMLPUnstructuredGridWriter_h
 #define __vtkXMLPUnstructuredGridWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataWriter.h"
 
 class vtkUnstructuredGrid;
 
-class VTK_IO_EXPORT vtkXMLPUnstructuredGridWriter : public vtkXMLPUnstructuredDataWriter
+class VTKIOXML_EXPORT vtkXMLPUnstructuredGridWriter : public vtkXMLPUnstructuredDataWriter
 {
 public:
   static vtkXMLPUnstructuredGridWriter* New();

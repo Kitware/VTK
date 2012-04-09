@@ -47,6 +47,7 @@
 #ifndef __vtkParallelCoordinatesRepresentation_h
 #define __vtkParallelCoordinatesRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
 
 class vtkActor;
@@ -78,7 +79,7 @@ class vtkUnsignedIntArray;
 class vtkViewport;
 class vtkWindow;
 
-class VTK_VIEWS_EXPORT vtkParallelCoordinatesRepresentation : public vtkRenderedRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesRepresentation : public vtkRenderedRepresentation
 {
 public:
   static vtkParallelCoordinatesRepresentation* New();

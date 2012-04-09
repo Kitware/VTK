@@ -51,9 +51,10 @@
 #ifndef __vtkKCoreLayout_h
 #define __vtkKCoreLayout_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkKCoreLayout : public vtkGraphAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkKCoreLayout : public vtkGraphAlgorithm
 {
 public:
   static vtkKCoreLayout* New();

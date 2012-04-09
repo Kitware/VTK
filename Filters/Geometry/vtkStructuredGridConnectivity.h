@@ -28,6 +28,7 @@
 #define vtkStructuredGridConnectivity_H_
 
 // VTK include directives
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkAbstractGridConnectivity.h"
 #include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
 #include "vtkStructuredData.h" // For data description definitions
@@ -46,7 +47,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkStructuredGridConnectivity :
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridConnectivity :
   public vtkAbstractGridConnectivity
 {
   public:

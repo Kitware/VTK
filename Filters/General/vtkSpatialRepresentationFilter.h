@@ -44,13 +44,14 @@
 #ifndef __vtkSpatialRepresentationFilter_h
 #define __vtkSpatialRepresentationFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkLocator;
 class vtkDataSet;
 class vtkSpatialRepresentationFilterInternal;
 
-class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkSpatialRepresentationFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkSpatialRepresentationFilter *New();

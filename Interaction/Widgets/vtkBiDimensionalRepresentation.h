@@ -41,12 +41,13 @@
 #ifndef __vtkBiDimensionalRepresentation_h
 #define __vtkBiDimensionalRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkBiDimensionalRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkBiDimensionalRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

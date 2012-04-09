@@ -27,12 +27,13 @@
 #ifndef __vtkLogoWidget_h
 #define __vtkLogoWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
 
 class vtkLogoRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkLogoWidget : public vtkBorderWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkLogoWidget : public vtkBorderWidget
 {
 public:
   // Description:

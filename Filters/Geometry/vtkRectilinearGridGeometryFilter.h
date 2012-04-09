@@ -35,9 +35,10 @@
 #ifndef __vtkRectilinearGridGeometryFilter_h
 #define __vtkRectilinearGridGeometryFilter_h
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridGeometryFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkRectilinearGridGeometryFilter,vtkPolyDataAlgorithm);

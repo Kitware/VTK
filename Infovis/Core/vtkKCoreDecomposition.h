@@ -38,11 +38,12 @@
 #ifndef __vtkKCoreDecomposition_h
 #define __vtkKCoreDecomposition_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkIntArray;
 
-class VTK_INFOVIS_EXPORT vtkKCoreDecomposition : public vtkGraphAlgorithm
+class VTKINFOVISCORE_EXPORT vtkKCoreDecomposition : public vtkGraphAlgorithm
 {
 public:
   static vtkKCoreDecomposition *New();

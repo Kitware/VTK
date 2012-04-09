@@ -25,11 +25,12 @@
 #ifndef __vtkSESAMEReader_h
 #define __vtkSESAMEReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include <vtkRectilinearGridAlgorithm.h>
 
 class vtkIntArray;
 
-class VTK_IO_EXPORT vtkSESAMEReader : public vtkRectilinearGridAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkSESAMEReader : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkSESAMEReader *New();

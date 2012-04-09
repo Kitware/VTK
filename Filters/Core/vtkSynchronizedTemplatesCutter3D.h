@@ -25,11 +25,12 @@
 #ifndef __vtkSynchronizedTemplatesCutter3D_h
 #define __vtkSynchronizedTemplatesCutter3D_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSynchronizedTemplates3D.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkSynchronizedTemplatesCutter3D : public vtkSynchronizedTemplates3D
+class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplatesCutter3D : public vtkSynchronizedTemplates3D
 {
 public:
   static vtkSynchronizedTemplatesCutter3D *New();

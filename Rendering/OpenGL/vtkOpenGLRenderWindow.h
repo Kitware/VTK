@@ -22,6 +22,7 @@
 #ifndef __vtkOpenGLRenderWindow_h
 #define __vtkOpenGLRenderWindow_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindow.h"
 
 #include "vtkOpenGL.h" // Needed for GLuint.
@@ -31,7 +32,7 @@ class vtkOpenGLExtensionManager;
 class vtkOpenGLHardwareSupport;
 class vtkTextureUnitManager;
 
-class VTK_RENDERING_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
+class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
 protected:
   long OldMonitorSetting;

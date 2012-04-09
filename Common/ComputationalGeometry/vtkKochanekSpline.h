@@ -43,9 +43,10 @@
 #ifndef __vtkKochanekSpline_h
 #define __vtkKochanekSpline_h
 
+#include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkSpline.h"
 
-class VTK_FILTERING_EXPORT vtkKochanekSpline : public vtkSpline
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
   vtkTypeMacro(vtkKochanekSpline,vtkSpline);

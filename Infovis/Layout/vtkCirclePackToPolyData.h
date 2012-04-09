@@ -28,9 +28,10 @@
 #ifndef __vtkCirclePackToPolyData_h
 #define __vtkCirclePackToPolyData_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkCirclePackToPolyData : public vtkPolyDataAlgorithm
+class VTKINFOVISLAYOUT_EXPORT vtkCirclePackToPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCirclePackToPolyData *New();

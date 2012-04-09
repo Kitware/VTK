@@ -23,9 +23,10 @@
 #ifndef __vtkImageGradient_h
 #define __vtkImageGradient_h
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageGradient : public vtkThreadedImageAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageGradient : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageGradient *New();

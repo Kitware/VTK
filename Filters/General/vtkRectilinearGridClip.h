@@ -27,9 +27,10 @@
 // I did not make this a subclass of in place filter because
 // the references on the data do not matter. I make no modifications
 // to the data.
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkRectilinearGridClip *New();

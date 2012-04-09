@@ -51,6 +51,7 @@
 #ifndef __vtkRuledSurfaceFilter_h
 #define __vtkRuledSurfaceFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIdList;
@@ -60,7 +61,7 @@ class vtkPolyData;
 #define VTK_RULED_MODE_RESAMPLE 0
 #define VTK_RULED_MODE_POINT_WALK 1
 
-class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkRuledSurfaceFilter,vtkPolyDataAlgorithm);

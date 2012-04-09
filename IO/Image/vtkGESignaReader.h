@@ -29,9 +29,10 @@
 #ifndef __vtkGESignaReader_h
 #define __vtkGESignaReader_h
 
+#include "vtkIOImageModule.h" // For export macro
 #include "vtkMedicalImageReader2.h"
 
-class VTK_IO_EXPORT vtkGESignaReader : public vtkMedicalImageReader2
+class VTKIOIMAGE_EXPORT vtkGESignaReader : public vtkMedicalImageReader2
 {
 public:
   static vtkGESignaReader *New();

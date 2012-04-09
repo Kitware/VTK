@@ -39,6 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkMeanValueCoordinatesInterpolator_h
 #define __vtkMeanValueCoordinatesInterpolator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkPoints;
@@ -51,7 +52,7 @@ class vtkMVCTriIterator;
 class vtkMVCPolyIterator;
 
 
-class VTK_FILTERING_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
 {
 public:
   // Description

@@ -66,6 +66,7 @@
 #ifndef __vtkODBCDatabase_h
 #define __vtkODBCDatabase_h
 
+#include "vtkIOODBCModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
 class vtkSQLQuery;
@@ -73,7 +74,7 @@ class vtkODBCQuery;
 class vtkStringArray;
 class vtkODBCInternals;
 
-class VTK_IO_EXPORT vtkODBCDatabase : public vtkSQLDatabase
+class VTKIOODBC_EXPORT vtkODBCDatabase : public vtkSQLDatabase
 {
 //BTX
   friend class vtkODBCQuery;

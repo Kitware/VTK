@@ -25,12 +25,13 @@
 #ifndef __vtkImageAlgorithm_h
 #define __vtkImageAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataSet;
 class vtkImageData;
 
-class VTK_FILTERING_EXPORT vtkImageAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageAlgorithm : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageAlgorithm,vtkAlgorithm);

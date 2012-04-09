@@ -27,12 +27,13 @@
 #ifndef __vtkPOpenFOAMReader_h
 #define __vtkPOpenFOAMReader_h
 
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkOpenFOAMReader.h"
 
 class vtkDataArraySelection;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
+class VTKIOPARALLEL_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
 {
 public:
   //BTX

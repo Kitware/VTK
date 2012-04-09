@@ -31,9 +31,10 @@
 #ifndef _vtkStreamerBase_h
 #define _vtkStreamerBase_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStreamerBase : public vtkAlgorithm
+class VTKFILTERSCORE_EXPORT vtkStreamerBase : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamerBase, vtkAlgorithm);

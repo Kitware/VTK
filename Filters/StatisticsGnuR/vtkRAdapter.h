@@ -46,6 +46,7 @@
 #ifndef __vtkRAdapter
 #define __vtkRAdapter
 
+#include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkObject.h"
 #include "Rinternals.h" // Needed for Rinternals.h SEXP data structure
 
@@ -58,7 +59,7 @@ class vtkDataArrayCollection;
 class vtkArrayData;
 class vtkDataObjectCollection;
 
-class VTK_GRAPHICS_EXPORT vtkRAdapter : public vtkObject
+class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRAdapter : public vtkObject
 {
 
 public:

@@ -40,6 +40,7 @@
 #ifndef VTK_EVENT_QT_SLOT_CONNECT
 #define VTK_EVENT_QT_SLOT_CONNECT
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
 #include "QVTKWin32Header.h"  // for export define
@@ -50,7 +51,7 @@ class vtkQtConnections;
 class vtkQtConnection;
 
 // manage connections between VTK object events and Qt slots
-class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
+class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
     static vtkEventQtSlotConnect* New();

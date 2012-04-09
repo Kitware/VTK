@@ -59,12 +59,13 @@
 #ifndef __vtkHandleWidget_h
 #define __vtkHandleWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkHandleWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkHandleWidget : public vtkAbstractWidget
 {
 public:
   // Description:

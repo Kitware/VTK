@@ -24,9 +24,10 @@
 #define __vtkImageResample_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageReslice.h"
 
-class VTK_IMAGING_EXPORT vtkImageResample : public vtkImageReslice
+class VTKIMAGINGCORE_EXPORT vtkImageResample : public vtkImageReslice
 {
 public:
   static vtkImageResample *New();

@@ -31,9 +31,10 @@
 #ifndef _vtkVertexGlyphFilter_h
 #define _vtkVertexGlyphFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkVertexGlyphFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkVertexGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkVertexGlyphFilter, vtkPolyDataAlgorithm);

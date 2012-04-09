@@ -33,12 +33,13 @@
 #ifndef __vtkGenericDataSetTessellator_h
 #define __vtkGenericDataSetTessellator_h
 
+#include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkPointData;
 class vtkIncrementalPointLocator;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericDataSetTessellator : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGENERIC_EXPORT vtkGenericDataSetTessellator : public vtkUnstructuredGridAlgorithm
 {
 public:
   // Description:

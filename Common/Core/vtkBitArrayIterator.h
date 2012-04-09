@@ -19,10 +19,11 @@
 #ifndef __vtkBitArrayIterator_h
 #define __vtkBitArrayIterator_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
 
 class vtkBitArray;
-class VTK_COMMON_EXPORT vtkBitArrayIterator : public vtkArrayIterator
+class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
 {
 public:
   static vtkBitArrayIterator* New();

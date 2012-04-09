@@ -31,9 +31,10 @@
 #ifndef __vtkOpenGL2ContextDevice2D_h
 #define __vtkOpenGL2ContextDevice2D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkOpenGLContextDevice2D.h"
 
-class VTK_CHARTS_EXPORT vtkOpenGL2ContextDevice2D :
+class VTKRENDERINGCONTEXT2D_EXPORT vtkOpenGL2ContextDevice2D :
     public vtkOpenGLContextDevice2D
 {
 public:

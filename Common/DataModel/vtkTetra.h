@@ -27,6 +27,7 @@
 #ifndef __vtkTetra_h
 #define __vtkTetra_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
 
 class vtkLine;
@@ -34,7 +35,7 @@ class vtkTriangle;
 class vtkUnstructuredGrid;
 class vtkIncrementalPointLocator;
 
-class VTK_FILTERING_EXPORT vtkTetra : public vtkCell3D
+class VTKCOMMONDATAMODEL_EXPORT vtkTetra : public vtkCell3D
 {
 public:
   static vtkTetra *New();

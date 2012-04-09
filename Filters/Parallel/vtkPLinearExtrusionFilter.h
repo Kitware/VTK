@@ -22,9 +22,10 @@
 #ifndef __vtkPLinearExtrusionFilter_h
 #define __vtkPLinearExtrusionFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkLinearExtrusionFilter.h"
 
-class VTK_PARALLEL_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter 
+class VTKFILTERSPARALLEL_EXPORT vtkPLinearExtrusionFilter : public vtkLinearExtrusionFilter
 {
 public:
   vtkTypeMacro(vtkPLinearExtrusionFilter,vtkLinearExtrusionFilter);

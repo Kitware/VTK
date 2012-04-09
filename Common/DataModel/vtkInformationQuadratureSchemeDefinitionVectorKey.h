@@ -22,6 +22,7 @@
 #ifndef __vtkInformationQuadratureSchemeDefinitionVectorKey_h
 #define __vtkInformationQuadratureSchemeDefinitionVectorKey_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkInformationKey.h"
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
@@ -29,7 +30,7 @@ class vtkInformationQuadratureSchemeDefinitionVectorValue;
 class vtkXMLDataElement;
 class vtkQuadratureSchemeDefinition;
 
-class VTK_COMMON_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKey : public vtkInformationKey
+class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey,vtkInformationKey);

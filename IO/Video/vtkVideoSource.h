@@ -29,6 +29,7 @@
 #ifndef __vtkVideoSource_h
 #define __vtkVideoSource_h
 
+#include "vtkIOVideoModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkTimerLog;
@@ -36,7 +37,7 @@ class vtkCriticalSection;
 class vtkMultiThreader;
 class vtkScalarsToColors;
 
-class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageAlgorithm
+class VTKIOVIDEO_EXPORT vtkVideoSource : public vtkImageAlgorithm
 {
 public:
   static vtkVideoSource *New();

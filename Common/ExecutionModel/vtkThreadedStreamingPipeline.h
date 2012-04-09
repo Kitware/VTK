@@ -39,13 +39,14 @@
 #ifndef __vtkThreadedStreamingPipeline_h
 #define __vtkThreadedStreamingPipeline_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkCompositeDataPipeline.h"
 
 class vtkComputingResources;
 class vtkExecutionScheduler;
 class vtkExecutiveCollection;
 
-class VTK_FILTERING_EXPORT vtkThreadedStreamingPipeline : public vtkCompositeDataPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedStreamingPipeline : public vtkCompositeDataPipeline
 {
 public:
   static vtkThreadedStreamingPipeline* New();

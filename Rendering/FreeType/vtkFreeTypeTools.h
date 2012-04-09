@@ -23,6 +23,7 @@
 #ifndef __vtkFreeTypeTools_h
 #define __vtkFreeTypeTools_h
 
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
@@ -40,7 +41,7 @@ class FTFont;
 
 //----------------------------------------------------------------------------
 // Singleton cleanup
-class VTK_RENDERING_EXPORT vtkFreeTypeToolsCleanup
+class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeToolsCleanup
 {
 public:
   vtkFreeTypeToolsCleanup();
@@ -49,7 +50,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Singleton font cache
-class VTK_RENDERING_EXPORT vtkFreeTypeTools : public vtkObject
+class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeTools : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFreeTypeTools, vtkObject);

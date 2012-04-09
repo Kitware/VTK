@@ -45,6 +45,7 @@
 #ifndef __vtkLinkEdgels_h
 #define __vtkLinkEdgels_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -52,7 +53,7 @@ class vtkDataArray;
 class vtkDoubleArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkLinkEdgels : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkLinkEdgels,vtkPolyDataAlgorithm);

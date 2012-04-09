@@ -32,6 +32,7 @@
 #ifndef __vtkPassInputTypeAlgorithm_h
 #define __vtkPassInputTypeAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkDataObject;
@@ -44,7 +45,7 @@ class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 class vtkTable;
 
-class VTK_FILTERING_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPassInputTypeAlgorithm *New();

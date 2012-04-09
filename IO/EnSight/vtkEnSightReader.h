@@ -17,6 +17,7 @@
 #ifndef __vtkEnSightReader_h
 #define __vtkEnSightReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkGenericEnSightReader.h"
 
 
@@ -26,7 +27,7 @@ class vtkEnSightReaderCellIdsType;
 class vtkIdList;
 class vtkMultiBlockDataSet;
 
-class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
+class VTKIOENSIGHT_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
   vtkTypeMacro(vtkEnSightReader, vtkGenericEnSightReader);

@@ -54,9 +54,10 @@
 #ifndef __vtkRotationalExtrusionFilter_h
 #define __vtkRotationalExtrusionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkRotationalExtrusionFilter,vtkPolyDataAlgorithm);

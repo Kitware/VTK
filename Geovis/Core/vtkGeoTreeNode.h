@@ -34,12 +34,13 @@
 #ifndef __vtkGeoTreeNode_h
 #define __vtkGeoTreeNode_h
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for SP
 
 class vtkPolyData;
 
-class VTK_GEOVIS_EXPORT vtkGeoTreeNode : public vtkObject
+class VTKGEOVISCORE_EXPORT vtkGeoTreeNode : public vtkObject
 {
 public:
   static vtkGeoTreeNode *New();

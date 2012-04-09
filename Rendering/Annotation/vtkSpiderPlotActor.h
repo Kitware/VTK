@@ -45,6 +45,7 @@
 #ifndef __vtkSpiderPlotActor_h
 #define __vtkSpiderPlotActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkAlgorithmOutput;
@@ -64,7 +65,7 @@ class vtkSpiderPlotActorConnection;
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW    1
 
-class VTK_HYBRID_EXPORT vtkSpiderPlotActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkSpiderPlotActor : public vtkActor2D
 {
 public:
   // Description:

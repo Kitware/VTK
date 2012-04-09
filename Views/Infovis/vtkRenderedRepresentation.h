@@ -24,6 +24,7 @@
 #ifndef __vtkRenderedRepresentation_h
 #define __vtkRenderedRepresentation_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h" // for SP ivars
 #include "vtkUnicodeString.h" // for string
@@ -36,7 +37,7 @@ class vtkTextProperty;
 class vtkTexture;
 class vtkView;
 
-class VTK_VIEWS_EXPORT vtkRenderedRepresentation : public vtkDataRepresentation
+class VTKVIEWSINFOVIS_EXPORT vtkRenderedRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkRenderedRepresentation* New();

@@ -62,6 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef __vtkMNIObjectReader_h
 #define __vtkMNIObjectReader_h
 
+#include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkProperty;
@@ -71,7 +72,7 @@ class vtkIntArray;
 class vtkPoints;
 class vtkCellArray;
 
-class VTK_HYBRID_EXPORT vtkMNIObjectReader : public vtkPolyDataAlgorithm
+class VTKIOMINC_EXPORT vtkMNIObjectReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMNIObjectReader,vtkPolyDataAlgorithm);

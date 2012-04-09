@@ -21,11 +21,12 @@
 #ifndef __vtkClientServerCompositePass_h
 #define __vtkClientServerCompositePass_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkClientServerCompositePass : public vtkRenderPass
+class VTKRENDERINGPARALLEL_EXPORT vtkClientServerCompositePass : public vtkRenderPass
 {
 public:
   static vtkClientServerCompositePass* New();

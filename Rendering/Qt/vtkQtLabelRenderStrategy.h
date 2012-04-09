@@ -22,6 +22,7 @@
 #ifndef __vtkQtLabelRenderStrategy_h
 #define __vtkQtLabelRenderStrategy_h
 
+#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
 
 class vtkLabelSizeCalculator;
@@ -33,7 +34,7 @@ class vtkTexture;
 class vtkTexturedActor2D;
 class vtkTextureMapToPlane;
 
-class VTK_RENDERING_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
+class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);

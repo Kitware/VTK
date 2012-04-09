@@ -22,10 +22,11 @@
 #ifndef __vtkTableWriter_h
 #define __vtkTableWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataWriter.h"
 class vtkTable;
 
-class VTK_IO_EXPORT vtkTableWriter : public vtkDataWriter
+class VTKIOCORE_EXPORT vtkTableWriter : public vtkDataWriter
 {
 public:
   static vtkTableWriter *New();

@@ -58,13 +58,14 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkQuadRotationalExtrusionFilter_h
 #define __vtkQuadRotationalExtrusionFilter_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include <vtksys/stl/map> // STL vector need for per block angles
 
 class vtkPoints;
 class vtkPointData;
 
-class VTK_GRAPHICS_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBlockDataSetAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMultiBlockDataSetAlgorithm
 {
  public:
   vtkTypeMacro(vtkQuadRotationalExtrusionFilter,vtkMultiBlockDataSetAlgorithm);

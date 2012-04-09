@@ -32,6 +32,7 @@
 #ifndef __vtkPointSetAlgorithm_h
 #define __vtkPointSetAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkPointSet;
@@ -39,7 +40,7 @@ class vtkPolyData;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTK_FILTERING_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPointSetAlgorithm *New();

@@ -10,13 +10,14 @@
 // k-mediods, or trying distance metrics in norms other than L2), you
 // should subclass vtkKMeansDistanceFunctor.
 
+#include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkVariantArray;
 class vtkAbstractArray;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkKMeansDistanceFunctor : public vtkObject
+class VTKFILTERSSTATISTICS_EXPORT vtkKMeansDistanceFunctor : public vtkObject
 {
 public:
   static vtkKMeansDistanceFunctor* New();

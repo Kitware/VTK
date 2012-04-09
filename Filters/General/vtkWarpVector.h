@@ -23,9 +23,10 @@
 #ifndef __vtkWarpVector_h
 #define __vtkWarpVector_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpVector *New();

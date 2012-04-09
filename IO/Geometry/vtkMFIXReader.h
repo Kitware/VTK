@@ -32,6 +32,7 @@
 #ifndef __vtkMFIXReader_h
 #define __vtkMFIXReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkDataArraySelection;
@@ -46,7 +47,7 @@ class vtkHexahedron;
 class vtkPoints;
 class vtkStdString;
 
-class VTK_IO_EXPORT vtkMFIXReader : public vtkUnstructuredGridAlgorithm
+class VTKIOGEOMETRY_EXPORT vtkMFIXReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkMFIXReader *New();

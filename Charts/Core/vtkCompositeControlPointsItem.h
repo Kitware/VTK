@@ -27,12 +27,13 @@
 #ifndef __vtkCompositeControlPointsItem_h
 #define __vtkCompositeControlPointsItem_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferControlPointsItem.h"
 
 class vtkPiecewiseFunction;
 class vtkPiecewisePointHandleItem;
 
-class VTK_CHARTS_EXPORT vtkCompositeControlPointsItem:
+class VTKCHARTSCORE_EXPORT vtkCompositeControlPointsItem:
   public vtkColorTransferControlPointsItem
 {
 public:

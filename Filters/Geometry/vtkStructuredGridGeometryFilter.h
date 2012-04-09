@@ -41,9 +41,10 @@
 #ifndef __vtkStructuredGridGeometryFilter_h
 #define __vtkStructuredGridGeometryFilter_h
 
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkStructuredGridGeometryFilter *New();

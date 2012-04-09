@@ -59,6 +59,7 @@
 #ifndef __vtkTesting_h
 #define __vtkTesting_h
 
+#include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkObject.h"
 #include <vector> // STL Header used for argv
 #include <string> // STL Header used for argv
@@ -70,7 +71,7 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkRenderWindowInteractor;
 
-class VTK_RENDERING_EXPORT vtkTesting : public vtkObject
+class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 {
 public:
   static vtkTesting *New();

@@ -34,6 +34,7 @@
 #ifndef __vtkLightActor_h
 #define __vtkLightActor_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
 
 class vtkLight;
@@ -44,7 +45,7 @@ class vtkCamera;
 class vtkCameraActor;
 class vtkBoundingBox;
 
-class VTK_RENDERING_EXPORT vtkLightActor : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkLightActor : public vtkProp3D
 {
 public:
   static vtkLightActor *New();

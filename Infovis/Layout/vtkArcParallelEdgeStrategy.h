@@ -25,11 +25,12 @@
 #ifndef __vtkArcParallelEdgeStrategy_h
 #define __vtkArcParallelEdgeStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
 
 class vtkGraph;
 
-class VTK_INFOVIS_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutStrategy 
+class VTKINFOVISLAYOUT_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
   static vtkArcParallelEdgeStrategy* New();

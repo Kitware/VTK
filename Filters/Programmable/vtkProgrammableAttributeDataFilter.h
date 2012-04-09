@@ -71,11 +71,12 @@
 #ifndef __vtkProgrammableAttributeDataFilter_h
 #define __vtkProgrammableAttributeDataFilter_h
 
+#include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetAlgorithm 
+class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkProgrammableAttributeDataFilter *New();

@@ -43,12 +43,13 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkBoostPrimMinimumSpanningTree_h
 #define __vtkBoostPrimMinimumSpanningTree_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 #include "vtkVariant.h" // For variant type
 
 #include "vtkTreeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostPrimMinimumSpanningTree : public vtkTreeAlgorithm 
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree : public vtkTreeAlgorithm
 {
 public:
   static vtkBoostPrimMinimumSpanningTree *New();

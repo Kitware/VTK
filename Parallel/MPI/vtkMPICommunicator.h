@@ -33,6 +33,7 @@
 #ifndef __vtkMPICommunicator_h
 #define __vtkMPICommunicator_h
 
+#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkCommunicator.h"
 
 class vtkMPIController;
@@ -42,12 +43,12 @@ class vtkMPICommunicatorOpaqueComm;
 class vtkMPICommunicatorOpaqueRequest;
 class vtkMPICommunicatorReceiveDataInfo;
 
-class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
+class VTKPARALLELMPI_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 public:
 //BTX
 
-  class VTK_PARALLEL_EXPORT Request
+  class VTKPARALLELMPI_EXPORT Request
   {
   public:
     Request();

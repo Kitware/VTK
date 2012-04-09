@@ -61,6 +61,7 @@
 #ifndef __vtkDataObjectToDataSetFilter_h
 #define __vtkDataObjectToDataSetFilter_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkCellArray;
@@ -73,7 +74,7 @@ class vtkStructuredGrid;
 class vtkStructuredPoints;
 class vtkUnstructuredGrid;
 
-class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkDataObjectToDataSetFilter *New();

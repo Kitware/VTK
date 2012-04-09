@@ -41,13 +41,14 @@
 #ifndef __vtkDicer_h
 #define __vtkDicer_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 #define VTK_DICE_MODE_NUMBER_OF_POINTS 0
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1
 #define VTK_DICE_MODE_MEMORY_LIMIT 2
 
-class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetAlgorithm 
+class VTKFILTERSGENERAL_EXPORT vtkDicer : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkDicer,vtkDataSetAlgorithm);

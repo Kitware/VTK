@@ -22,11 +22,12 @@
 #ifndef __vtkDataCompressor_h
 #define __vtkDataCompressor_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkUnsignedCharArray;
 
-class VTK_IO_EXPORT vtkDataCompressor : public vtkObject
+class VTKIOCORE_EXPORT vtkDataCompressor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDataCompressor,vtkObject);

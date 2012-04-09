@@ -32,6 +32,7 @@
 #ifndef __vtkColorTransferFunction_h
 #define __vtkColorTransferFunction_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"
 
 class vtkColorTransferFunctionInternals;
@@ -44,7 +45,7 @@ class vtkColorTransferFunctionInternals;
 #define VTK_CTF_LINEAR        0
 #define VTK_CTF_LOG10         1
 
-class VTK_FILTERING_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
+class VTKRENDERINGCORE_EXPORT vtkColorTransferFunction : public vtkScalarsToColors
 {
 public:
   static vtkColorTransferFunction *New();

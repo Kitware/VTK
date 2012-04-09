@@ -31,6 +31,7 @@
 #ifndef __vtkPolygonalSurfacePointPlacer_h
 #define __vtkPolygonalSurfacePointPlacer_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataPointPlacer.h"
 
 class  vtkPolyDataCollection;
@@ -53,7 +54,7 @@ struct vtkPolygonalSurfacePointPlacerNode
 };
 //ETX
 
-class VTK_WIDGETS_EXPORT vtkPolygonalSurfacePointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT vtkPolygonalSurfacePointPlacer
                                   : public vtkPolyDataPointPlacer
 {
 public:

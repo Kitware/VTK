@@ -20,6 +20,7 @@
 #ifndef __vtkChartXYZ_h
 #define __vtkChartXYZ_h
 
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkRect.h"        // For vtkRectf ivars
 #include "vtkNew.h"         // For ivars
@@ -31,7 +32,7 @@ class vtkTable;
 class vtkTransform;
 class vtkPen;
 
-class VTK_CHARTS_EXPORT vtkChartXYZ : public vtkContextItem
+class VTKCHARTSCORE_EXPORT vtkChartXYZ : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartXYZ, vtkContextItem);

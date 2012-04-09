@@ -24,12 +24,13 @@
 #define __vtkImageWrapPad_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImagePadFilter.h"
 
 class vtkInformation;
 class vtkInformationVector;
 
-class VTK_IMAGING_EXPORT vtkImageWrapPad : public vtkImagePadFilter
+class VTKIMAGINGCORE_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
   static vtkImageWrapPad *New();

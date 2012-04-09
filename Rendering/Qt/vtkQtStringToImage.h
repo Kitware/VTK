@@ -21,12 +21,13 @@
 #ifndef __vtkQtStringToImage_h
 #define __vtkQtStringToImage_h
 
+#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkStringToImage.h"
 #include "vtkSmartPointer.h" // For SP ivars
 
 class vtkQImageToImageSource;
 
-class VTK_RENDERING_EXPORT vtkQtStringToImage : public vtkStringToImage
+class VTKRENDERINGQT_EXPORT vtkQtStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkQtStringToImage, vtkStringToImage);

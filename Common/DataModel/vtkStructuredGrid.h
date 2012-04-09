@@ -39,6 +39,7 @@
 #ifndef __vtkStructuredGrid_h
 #define __vtkStructuredGrid_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
 #include "vtkStructuredData.h" // Needed for inline methods
@@ -51,7 +52,7 @@ class vtkStructuredVisibilityConstraint;
 class vtkUnsignedCharArray;
 class vtkVertex;
 
-class VTK_FILTERING_EXPORT vtkStructuredGrid : public vtkPointSet 
+class VTKCOMMONDATAMODEL_EXPORT vtkStructuredGrid : public vtkPointSet
 {
 public:
   static vtkStructuredGrid *New();

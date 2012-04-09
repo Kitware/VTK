@@ -20,11 +20,12 @@
 #ifndef __vtkTableToSQLiteWriter_h
 #define __vtkTableToSQLiteWriter_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"
 
 class vtkSQLiteDatabase;
 
-class VTK_IO_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
+class VTKIOSQL_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
 {
 public:
   static vtkTableToSQLiteWriter *New();

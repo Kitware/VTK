@@ -44,6 +44,7 @@
 #ifndef __vtkMergeGraphs_h
 #define __vtkMergeGraphs_h
 
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
 class vtkBitArray;
@@ -51,7 +52,7 @@ class vtkMutableGraphHelper;
 class vtkStringArray;
 class vtkTable;
 
-class VTK_INFOVIS_EXPORT vtkMergeGraphs : public vtkGraphAlgorithm
+class VTKINFOVISCORE_EXPORT vtkMergeGraphs : public vtkGraphAlgorithm
 {
 public:
   static vtkMergeGraphs* New();

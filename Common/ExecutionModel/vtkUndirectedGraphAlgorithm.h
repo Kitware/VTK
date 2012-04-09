@@ -37,12 +37,13 @@
 #ifndef __vtkUndirectedGraphAlgorithm_h
 #define __vtkUndirectedGraphAlgorithm_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkUndirectedGraph.h" // makes things a bit easier
 
 class vtkDataSet;
 
-class VTK_FILTERING_EXPORT vtkUndirectedGraphAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUndirectedGraphAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkUndirectedGraphAlgorithm *New();

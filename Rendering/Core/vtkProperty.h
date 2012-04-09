@@ -28,6 +28,7 @@
 #ifndef __vtkProperty_h
 #define __vtkProperty_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 // shading models
@@ -51,7 +52,7 @@ class vtkXMLMaterial;
 
 class vtkPropertyInternals;
 
-class VTK_RENDERING_EXPORT vtkProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty,vtkObject);

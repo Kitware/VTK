@@ -20,6 +20,7 @@
 #ifndef __vtkRenderLargeImage_h
 #define __vtkRenderLargeImage_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h" // makes things a bit easier
 
@@ -28,7 +29,7 @@ class vtkActor2DCollection;
 class vtkCollection;
 class vtkRenderLargeImage2DHelperClass;
 
-class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
 {
 public:
   static vtkRenderLargeImage *New();

@@ -41,6 +41,7 @@
 #ifndef __vtkPairwiseExtractHistogram2D_h
 #define __vtkPairwiseExtractHistogram2D_h
 
+#include "vtkFiltersImagingModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkSmartPointer.h"  //needed for smart pointer ivars
 class vtkCollection;
@@ -49,7 +50,7 @@ class vtkImageData;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
 
-class VTK_INFOVIS_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatisticsAlgorithm
+class VTKFILTERSIMAGING_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatisticsAlgorithm
 {
 public:
   static vtkPairwiseExtractHistogram2D* New();

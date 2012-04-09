@@ -38,13 +38,14 @@
 #ifndef __vtkComputingResources_h
 #define __vtkComputingResources_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkInformation;
 class vtkProcessingUnitResource;
 class vtkThreadedStreamingPipeline;
 
-class VTK_FILTERING_EXPORT vtkComputingResources : public vtkObject 
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkComputingResources : public vtkObject
 {
 public:
   static vtkComputingResources* New();

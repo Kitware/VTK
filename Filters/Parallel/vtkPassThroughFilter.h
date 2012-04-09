@@ -21,11 +21,12 @@
 #ifndef __vtkPassThroughFilter_h
 #define __vtkPassThroughFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkFieldData;
 
-class VTK_PARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkPassThroughFilter,vtkDataSetAlgorithm);

@@ -27,12 +27,13 @@
 #ifndef __vtkPropPicker_h
 #define __vtkPropPicker_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
 
 class vtkProp;
 class vtkWorldPointPicker;
 
-class VTK_RENDERING_EXPORT vtkPropPicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT vtkPropPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPropPicker *New();

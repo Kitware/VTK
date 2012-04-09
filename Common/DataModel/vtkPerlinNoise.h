@@ -29,9 +29,10 @@
 #ifndef __vtkPerlinNoise_h
 #define __vtkPerlinNoise_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
-class VTK_FILTERING_EXPORT vtkPerlinNoise : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkPerlinNoise,vtkImplicitFunction);

@@ -31,13 +31,14 @@
 #ifndef __vtkUnstructuredGridVolumeRayCastIterator_h
 #define __vtkUnstructuredGridVolumeRayCastIterator_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkIdList;
 class vtkDoubleArray;
 class vtkDataArray;
 
-class VTK_VOLUMERENDERING_EXPORT vtkUnstructuredGridVolumeRayCastIterator : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastIterator, vtkObject);

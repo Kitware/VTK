@@ -53,6 +53,7 @@
 #ifndef __vtkFixedPointVolumeRayCastMapper_h
 #define __vtkFixedPointVolumeRayCastMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
 #define VTKKW_FP_SHIFT       15
@@ -89,7 +90,7 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
 VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
 //ETX
 
-class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkFixedPointVolumeRayCastMapper *New();

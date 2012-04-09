@@ -42,9 +42,10 @@
 #ifndef __vtkBoostBiconnectedComponents_h
 #define __vtkBoostBiconnectedComponents_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostBiconnectedComponents : public vtkUndirectedGraphAlgorithm 
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBiconnectedComponents : public vtkUndirectedGraphAlgorithm
 {
 public:
   static vtkBoostBiconnectedComponents *New();

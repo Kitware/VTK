@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkSQLDatabase_h
 #define __vtkSQLDatabase_h
 
+#include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkStdString.h" // Because at least one method returns a vtkStdString
@@ -77,7 +78,7 @@ class vtkStringArray;
 // (i.e., VARCHAR), when no size has been specified
 #define VTK_SQL_DEFAULT_COLUMN_SIZE 32
 
-class VTK_IO_EXPORT vtkSQLDatabase : public vtkObject
+class VTKIOSQL_EXPORT vtkSQLDatabase : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSQLDatabase, vtkObject);

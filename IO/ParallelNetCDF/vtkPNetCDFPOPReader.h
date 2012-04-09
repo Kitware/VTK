@@ -28,6 +28,7 @@
 #ifndef __vtkPNetCDFPOPReader_h
 #define __vtkPNetCDFPOPReader_h
 
+#include "vtkIOParallelNetCDFModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
 class vtkDataArraySelection;
@@ -35,7 +36,7 @@ class vtkCallbackCommand;
 class vtkMPIController;
 class vtkPNetCDFPOPReaderInternal;
 
-class VTK_PARALLEL_EXPORT vtkPNetCDFPOPReader : public vtkRectilinearGridAlgorithm
+class VTKIOPARALLELNETCDF_EXPORT vtkPNetCDFPOPReader : public vtkRectilinearGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkPNetCDFPOPReader,vtkRectilinearGridAlgorithm);

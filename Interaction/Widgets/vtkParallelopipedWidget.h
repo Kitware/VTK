@@ -40,13 +40,14 @@
 #ifndef __vtkParallelopipedWidget_h
 #define __vtkParallelopipedWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkParallelopipedRepresentation;
 class vtkHandleWidget;
 class vtkWidgetSet;
 
-class VTK_WIDGETS_EXPORT vtkParallelopipedWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedWidget : public vtkAbstractWidget
 {
   //BTX
   friend class vtkWidgetSet;

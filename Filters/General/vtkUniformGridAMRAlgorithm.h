@@ -22,6 +22,7 @@
 #ifndef VTKUNIFORMGRIDAMRALGORITHM_H_
 #define VTKUNIFORMGRIDAMRALGORITHM_H_
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkUniformGridAMR;
@@ -29,7 +30,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkExecutive;
 
-class VTK_FILTERING_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgorithm
 {
   public:
     static vtkUniformGridAMRAlgorithm* New();

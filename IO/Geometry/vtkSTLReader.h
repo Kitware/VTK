@@ -32,6 +32,7 @@
 #ifndef __vtkSTLReader_h
 #define __vtkSTLReader_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
@@ -39,7 +40,7 @@ class vtkFloatArray;
 class vtkIncrementalPointLocator;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataAlgorithm 
+class VTKIOGEOMETRY_EXPORT vtkSTLReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSTLReader,vtkPolyDataAlgorithm);

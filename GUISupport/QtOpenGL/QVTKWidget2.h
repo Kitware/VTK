@@ -19,6 +19,7 @@
 #ifndef Q_VTK_WIDGET2_H
 #define Q_VTK_WIDGET2_H
 
+#include "vtkGUISupportQtOpenGLModule.h" // For export macro
 #include <QtOpenGL/QGLWidget>
 #include "vtkSmartPointer.h"
 #include "QVTKWin32Header.h"
@@ -35,7 +36,7 @@ class vtkTDxDevice;
 #endif
 
 //! QVTKWidget2 displays a VTK window in a Qt window.
-class QVTK_EXPORT QVTKWidget2 : public QGLWidget
+class VTKGUISUPPORTQTOPENGL_EXPORT QVTKWidget2 : public QGLWidget
 {
   Q_OBJECT
 public:

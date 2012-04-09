@@ -137,9 +137,10 @@
 #define __vtkWindowedSincPolyDataFilter_h
 
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm 
+class VTKFILTERSCORE_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);

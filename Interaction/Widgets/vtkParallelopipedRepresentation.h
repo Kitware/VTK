@@ -28,6 +28,7 @@
 #ifndef __vtkParallelopipedRepresentation_h
 #define __vtkParallelopipedRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -43,7 +44,7 @@ class vtkClosedSurfacePointPlacer;
 class vtkPlaneCollection;
 class vtkParallelopipedTopology;
 
-class VTK_WIDGETS_EXPORT vtkParallelopipedRepresentation 
+class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedRepresentation
                               : public vtkWidgetRepresentation
 {
 public:

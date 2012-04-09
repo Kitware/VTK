@@ -86,9 +86,10 @@
 #ifndef __vtkXMLTreeReader_h
 #define __vtkXMLTreeReader_h
 
+#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkXMLTreeReader : public vtkTreeAlgorithm
+class VTKIOINFOVIS_EXPORT vtkXMLTreeReader : public vtkTreeAlgorithm
 {
 public:
   static vtkXMLTreeReader* New();

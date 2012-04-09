@@ -42,9 +42,10 @@
 #ifndef __vtkFastSplatter_h
 #define __vtkFastSplatter_h
 
+#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkFastSplatter : public vtkImageAlgorithm
+class VTKIMAGINGHYBRID_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkFastSplatter, vtkImageAlgorithm);

@@ -76,6 +76,7 @@
 #ifndef __vtkDecimatePro_h
 #define __vtkDecimatePro_h
 
+#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
@@ -83,7 +84,7 @@
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
-class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDecimatePro,vtkPolyDataAlgorithm);

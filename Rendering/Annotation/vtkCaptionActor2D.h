@@ -52,6 +52,7 @@
 #ifndef __vtkCaptionActor2D_h
 #define __vtkCaptionActor2D_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkActor;
@@ -67,7 +68,7 @@ class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTK_HYBRID_EXPORT vtkCaptionActor2D : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);

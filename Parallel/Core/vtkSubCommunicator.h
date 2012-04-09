@@ -43,11 +43,12 @@
 #ifndef __vtkSubCommunicator_h
 #define __vtkSubCommunicator_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
 
 class vtkProcessGroup;
 
-class VTK_PARALLEL_EXPORT vtkSubCommunicator : public vtkCommunicator
+class VTKPARALLELCORE_EXPORT vtkSubCommunicator : public vtkCommunicator
 {
 public:
   vtkTypeMacro(vtkSubCommunicator, vtkCommunicator);

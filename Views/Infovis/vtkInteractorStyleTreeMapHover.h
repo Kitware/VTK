@@ -31,6 +31,7 @@
 #ifndef __vtkInteractorStyleTreeMapHover_h
 #define __vtkInteractorStyleTreeMapHover_h
 
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleImage.h"
 
 class vtkBalloonRepresentation;
@@ -41,7 +42,7 @@ class vtkTreeMapLayout;
 class vtkTreeMapToPolyData;
 class vtkWorldPointPicker;
 
-class VTK_VIEWS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyleImage
+class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteractorStyleImage
 {
 public:
   static vtkInteractorStyleTreeMapHover* New();

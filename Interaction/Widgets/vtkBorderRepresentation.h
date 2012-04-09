@@ -37,6 +37,7 @@
 #ifndef __vtkBorderRepresentation_h
 #define __vtkBorderRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 #include "vtkCoordinate.h" //Because of the viewport coordinate macro
 
@@ -49,7 +50,7 @@ class vtkActor2D;
 class vtkProperty2D;
 
 
-class VTK_WIDGETS_EXPORT vtkBorderRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkBorderRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

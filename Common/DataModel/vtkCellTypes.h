@@ -33,13 +33,14 @@
 #ifndef __vtkCellTypes_h
 #define __vtkCellTypes_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkIntArray.h" // Needed for inline methods
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
 #include "vtkCellType.h" // Needed for VTK_EMPTY_CELL
 
-class VTK_FILTERING_EXPORT vtkCellTypes : public vtkObject 
+class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 {
 public:
   static vtkCellTypes *New();

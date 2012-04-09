@@ -29,12 +29,13 @@
 #ifndef __vtkPCorrelativeStatistics_h
 #define __vtkPCorrelativeStatistics_h
 
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkCorrelativeStatistics.h"
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTK_INFOVIS_EXPORT vtkPCorrelativeStatistics : public vtkCorrelativeStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPCorrelativeStatistics : public vtkCorrelativeStatistics
 {
 public:
   static vtkPCorrelativeStatistics* New();

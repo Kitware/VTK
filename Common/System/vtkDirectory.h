@@ -23,11 +23,12 @@
 #ifndef __vtkDirectory_h
 #define __vtkDirectory_h
 
+#include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkStringArray;
 
-class VTK_COMMON_EXPORT vtkDirectory : public vtkObject
+class VTKCOMMONSYSTEM_EXPORT vtkDirectory : public vtkObject
 {
 public:
   // Description:

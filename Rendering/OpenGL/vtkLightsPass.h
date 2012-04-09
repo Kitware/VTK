@@ -26,11 +26,12 @@
 #ifndef __vtkLightsPass_h
 #define __vtkLightsPass_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"
 
 class vtkOpenGLRenderWindow;
 
-class VTK_RENDERING_EXPORT vtkLightsPass : public vtkRenderPass
+class VTKRENDERINGOPENGL_EXPORT vtkLightsPass : public vtkRenderPass
 {
 public:
   static vtkLightsPass *New();

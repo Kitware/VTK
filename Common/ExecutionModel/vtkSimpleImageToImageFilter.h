@@ -37,9 +37,10 @@
 #ifndef __vtkSimpleImageToImageFilter_h
 #define __vtkSimpleImageToImageFilter_h
 
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);

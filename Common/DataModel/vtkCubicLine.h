@@ -31,12 +31,13 @@
 #ifndef __vtkCubicLine_h
 #define __vtkCubicLine_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
 class vtkLine;
 class vtkDoubleArray;
 
-class VTK_FILTERING_EXPORT vtkCubicLine : public vtkNonLinearCell
+class VTKCOMMONDATAMODEL_EXPORT vtkCubicLine : public vtkNonLinearCell
 {
 public:
   static vtkCubicLine *New();

@@ -18,11 +18,12 @@
 #ifndef __vtkDisplayListPainter_h
 #define __vtkDisplayListPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPainter.h"
 
 class vtkInformationIntegerKey;
 
-class VTK_RENDERING_EXPORT vtkDisplayListPainter : public vtkPainter
+class VTKRENDERINGCORE_EXPORT vtkDisplayListPainter : public vtkPainter
 {
 public:
   static vtkDisplayListPainter* New();

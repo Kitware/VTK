@@ -27,6 +27,7 @@
 #ifndef __vtkImageCroppingRegionsWidget_h
 #define __vtkImageCroppingRegionsWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
 
 class vtkActor2D;
@@ -35,7 +36,7 @@ class vtkLineSource;
 class vtkVolumeMapper;
 class vtkPolyData;
 
-class VTK_WIDGETS_EXPORT vtkImageCroppingRegionsWidget : public vtk3DWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkImageCroppingRegionsWidget : public vtk3DWidget
 {
 public:
 

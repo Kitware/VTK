@@ -31,6 +31,7 @@
 #ifndef __vtkBarChartActor_h
 #define __vtkBarChartActor_h
 
+#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
 class vtkAxisActor2D;
@@ -43,7 +44,7 @@ class vtkLegendBoxActor;
 class vtkGlyphSource2D;
 class vtkBarLabelArray;
 
-class VTK_HYBRID_EXPORT vtkBarChartActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT vtkBarChartActor : public vtkActor2D
 {
 public:
   // Description:

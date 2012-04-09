@@ -27,10 +27,11 @@
 #ifndef __vtkBoostRandomSparseArraySource_h
 #define __vtkBoostRandomSparseArraySource_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkArrayExtents.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostRandomSparseArraySource : public vtkArrayDataAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource : public vtkArrayDataAlgorithm
 {
 public:
   static vtkBoostRandomSparseArraySource* New();

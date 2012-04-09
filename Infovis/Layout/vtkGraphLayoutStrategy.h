@@ -34,11 +34,12 @@
 #ifndef __vtkGraphLayoutStrategy_h
 #define __vtkGraphLayoutStrategy_h
 
+#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkGraph;
 
-class VTK_INFOVIS_EXPORT vtkGraphLayoutStrategy : public vtkObject 
+class VTKINFOVISLAYOUT_EXPORT vtkGraphLayoutStrategy : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGraphLayoutStrategy,vtkObject);

@@ -27,6 +27,7 @@
 #ifndef __vtkSliderRepresentation3D_h
 #define __vtkSliderRepresentation3D_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
@@ -43,7 +44,7 @@ class vtkTransformPolyDataFilter;
 class vtkMatrix4x4;
 
 
-class VTK_WIDGETS_EXPORT vtkSliderRepresentation3D : public vtkSliderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation3D : public vtkSliderRepresentation
 {
 public:
   // Description:

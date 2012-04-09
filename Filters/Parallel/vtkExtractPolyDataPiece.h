@@ -18,12 +18,13 @@
 #ifndef __vtkExtractPolyDataPiece_h
 #define __vtkExtractPolyDataPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkIdList;
 class vtkIntArray;
 
-class VTK_PARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
   static vtkExtractPolyDataPiece *New();

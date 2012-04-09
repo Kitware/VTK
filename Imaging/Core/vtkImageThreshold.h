@@ -23,9 +23,10 @@
 #define __vtkImageThreshold_h
 
 
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageThreshold *New();

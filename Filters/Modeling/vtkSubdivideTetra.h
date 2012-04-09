@@ -20,9 +20,10 @@
 #ifndef __vtkSubdivideTetra_h
 #define __vtkSubdivideTetra_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSMODELING_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkSubdivideTetra *New();

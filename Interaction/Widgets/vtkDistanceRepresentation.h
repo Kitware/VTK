@@ -25,12 +25,13 @@
 #ifndef __vtkDistanceRepresentation_h
 #define __vtkDistanceRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkHandleRepresentation;
 
 
-class VTK_WIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

@@ -30,6 +30,7 @@
 #ifndef __vtkEncodedGradientShader_h
 #define __vtkEncodedGradientShader_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkVolume;
@@ -38,7 +39,7 @@ class vtkEncodedGradientEstimator;
 
 #define VTK_MAX_SHADING_TABLES   100
 
-class VTK_VOLUMERENDERING_EXPORT vtkEncodedGradientShader : public vtkObject
+class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
   static vtkEncodedGradientShader *New();

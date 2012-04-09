@@ -39,9 +39,10 @@
 #define __vtkImageAnisotropicDiffusion3D_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageAnisotropicDiffusion3D *New();

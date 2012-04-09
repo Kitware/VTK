@@ -23,6 +23,7 @@
 #ifndef __vtkExtractPiece_h
 #define __vtkExtractPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
 
 class vtkImageData;
@@ -32,7 +33,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkCompositeDataIterator;
 
-class VTK_PARALLEL_EXPORT vtkExtractPiece : public vtkCompositeDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkExtractPiece : public vtkCompositeDataSetAlgorithm
 {
 public:
   static vtkExtractPiece* New();

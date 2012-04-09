@@ -24,10 +24,11 @@
 #ifndef __vtkCullerCollection_h
 #define __vtkCullerCollection_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
 #include "vtkCuller.h" // for inline functions
 
-class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 {
  public:
   static vtkCullerCollection *New();

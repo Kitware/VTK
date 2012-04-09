@@ -38,6 +38,7 @@
 #ifndef __vtkLight_h
 #define __vtkLight_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 /* need for virtual function */
@@ -48,7 +49,7 @@ class vtkMatrix4x4;
 #define VTK_LIGHT_TYPE_CAMERA_LIGHT 2
 #define VTK_LIGHT_TYPE_SCENE_LIGHT  3
 
-class VTK_RENDERING_EXPORT vtkLight : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLight,vtkObject);

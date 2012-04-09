@@ -38,6 +38,7 @@
 #ifndef __vtkStandardPolyDataPainter_h
 #define __vtkStandardPolyDataPainter_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataPainter.h"
 
 class vtkCellArray;
@@ -47,7 +48,7 @@ class vtkPoints;
 class vtkShaderDeviceAdapter;
 class vtkShaderDeviceAdapter2;
 
-class VTK_RENDERING_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataPainter
+class VTKRENDERINGCORE_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataPainter
 {
 public:
   vtkTypeMacro(vtkStandardPolyDataPainter, vtkPolyDataPainter);

@@ -66,6 +66,7 @@
 #ifndef __vtkMolecule_h
 #define __vtkMolecule_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"
 
 //BTX
@@ -79,7 +80,7 @@ class vtkAbstractElectronicData;
 class vtkPoints;
 class vtkUnsignedShortArray;
 
-class VTK_FILTERING_EXPORT vtkMolecule : public vtkUndirectedGraph
+class VTKCOMMONDATAMODEL_EXPORT vtkMolecule : public vtkUndirectedGraph
 {
 public:
   static vtkMolecule *New();

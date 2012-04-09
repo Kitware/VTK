@@ -36,6 +36,7 @@
 #ifndef __vtkAbstractCellLocator_h
 #define __vtkAbstractCellLocator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
 class vtkCellArray;
@@ -43,7 +44,7 @@ class vtkGenericCell;
 class vtkIdList;
 class vtkPoints;
 
-class VTK_FILTERING_EXPORT vtkAbstractCellLocator : public vtkLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLocator : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkAbstractCellLocator,vtkLocator);

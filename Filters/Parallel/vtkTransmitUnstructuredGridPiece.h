@@ -23,11 +23,12 @@
 #ifndef __vtkTransmitUnstructuredGridPiece_h
 #define __vtkTransmitUnstructuredGridPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkTransmitUnstructuredGridPiece *New();

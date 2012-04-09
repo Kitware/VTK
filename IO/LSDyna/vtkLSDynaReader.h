@@ -145,6 +145,7 @@
 #ifndef __vtkLSDynaReader_h
 #define __vtkLSDynaReader_h
 
+#include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class LSDynaMetaData;
@@ -154,7 +155,7 @@ class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 
-class VTK_IO_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOLSDYNA_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);

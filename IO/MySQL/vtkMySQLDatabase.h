@@ -33,6 +33,7 @@
 #ifndef __vtkMySQLDatabase_h
 #define __vtkMySQLDatabase_h
 
+#include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
 class vtkSQLQuery;
@@ -40,7 +41,7 @@ class vtkMySQLQuery;
 class vtkStringArray;
 class vtkMySQLDatabasePrivate;
 
-class VTK_IO_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
+class VTKIOMYSQL_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
 {
 //BTX
   friend class vtkMySQLQuery;

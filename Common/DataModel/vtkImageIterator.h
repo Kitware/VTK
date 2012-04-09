@@ -23,11 +23,12 @@
 #ifndef __vtkImageIterator_h
 #define __vtkImageIterator_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 class vtkImageData;
 
 template<class DType>
-class VTK_FILTERING_EXPORT vtkImageIterator
+class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator
 {
 public:
   typedef DType *SpanIterator;

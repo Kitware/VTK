@@ -19,13 +19,14 @@
 #ifndef __vtkSpherePuzzle_h
 #define __vtkSpherePuzzle_h
 
+#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
 class vtkTransform;
 
-class VTK_GRAPHICS_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm 
+class VTKFILTERSMODELING_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);

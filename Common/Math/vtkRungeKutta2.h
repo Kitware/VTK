@@ -26,9 +26,10 @@
 #ifndef __vtkRungeKutta2_h
 #define __vtkRungeKutta2_h
 
+#include "vtkCommonMathModule.h" // For export macro
 #include "vtkInitialValueProblemSolver.h"
 
-class VTK_COMMON_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
+class VTKCOMMONMATH_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeMacro(vtkRungeKutta2,vtkInitialValueProblemSolver);

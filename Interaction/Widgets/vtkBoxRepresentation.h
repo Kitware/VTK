@@ -34,6 +34,7 @@
 #ifndef __vtkBoxRepresentation_h
 #define __vtkBoxRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -53,7 +54,7 @@ class vtkDoubleArray;
 class vtkMatrix4x4;
 
 
-class VTK_WIDGETS_EXPORT vtkBoxRepresentation : public vtkWidgetRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkBoxRepresentation : public vtkWidgetRepresentation
 {
 public:
   // Description:

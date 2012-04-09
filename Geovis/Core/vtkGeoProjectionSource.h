@@ -25,13 +25,14 @@
 // multiple resolutions. Each patch covers a specific region in projected
 // space.
 
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 
 class vtkAbstractTransform;
 class vtkGeoTerrainNode;
 class vtkMutexLock;
 
-class VTK_GEOVIS_EXPORT vtkGeoProjectionSource : public vtkGeoSource
+class VTKGEOVISCORE_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 {
 public:
   static vtkGeoProjectionSource *New();

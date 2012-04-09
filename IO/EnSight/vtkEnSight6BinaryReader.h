@@ -35,13 +35,14 @@
 #ifndef __vtkEnSight6BinaryReader_h
 #define __vtkEnSight6BinaryReader_h
 
+#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
 
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkEnSight6BinaryReader : public vtkEnSightReader
+class VTKIOENSIGHT_EXPORT vtkEnSight6BinaryReader : public vtkEnSightReader
 {
 public:
   static vtkEnSight6BinaryReader *New();

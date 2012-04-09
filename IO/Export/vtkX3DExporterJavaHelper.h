@@ -18,11 +18,12 @@
 #ifndef __vtkX3DExporterJavaHelper_h
 #define __vtkX3DExporterJavaHelper_h
 
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkX3DExporterJavaHelperInternal;
 
-class VTK_HYBRID_EXPORT vtkX3DExporterJavaHelper : public vtkObject
+class VTKIOEXPORT_EXPORT vtkX3DExporterJavaHelper : public vtkObject
 {
 public:
   static vtkX3DExporterJavaHelper *New();

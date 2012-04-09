@@ -33,9 +33,10 @@
 #ifndef __vtkExtractUserDefinedPiece_h
 #define __vtkExtractUserDefinedPiece_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkExtractUnstructuredGridPiece.h"
 
-class VTK_PARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
+class VTKFILTERSPARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUnstructuredGridPiece
 {
 public:
   vtkTypeMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);

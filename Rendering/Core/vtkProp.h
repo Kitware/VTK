@@ -25,6 +25,7 @@
 #ifndef __vtkProp_h
 #define __vtkProp_h
 
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAssemblyPath;
@@ -35,7 +36,7 @@ class vtkViewport;
 class vtkWindow;
 class vtkInformation;
 
-class VTK_COMMON_EXPORT vtkProp : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp,vtkObject);

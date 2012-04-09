@@ -23,6 +23,7 @@
 #ifndef __vtkContextMapper2D_h
 #define __vtkContextMapper2D_h
 
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
 class vtkContext2D;
@@ -30,7 +31,7 @@ class vtkTable;
 class vtkDataArray;
 class vtkAbstractArray;
 
-class VTK_CHARTS_EXPORT vtkContextMapper2D : public vtkAlgorithm
+class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMapper2D : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkContextMapper2D, vtkAlgorithm);

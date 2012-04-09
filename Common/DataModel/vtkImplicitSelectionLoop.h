@@ -45,12 +45,13 @@
 #ifndef __vtkImplicitSelectionLoop_h
 #define __vtkImplicitSelectionLoop_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
 class vtkPoints;
 class vtkPolygon;
 
-class VTK_FILTERING_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
   // Description:

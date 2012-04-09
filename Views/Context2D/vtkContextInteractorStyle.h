@@ -22,13 +22,14 @@
 #ifndef __vtkContextInteractorStyle_h
 #define __vtkContextInteractorStyle_h
 
+#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 #include "vtkNew.h" // For ivars
 
 class vtkContextMouseEvent;
 class vtkContextScene;
 
-class VTK_CHARTS_EXPORT vtkContextInteractorStyle : public vtkInteractorStyle
+class VTKVIEWSCONTEXT2D_EXPORT vtkContextInteractorStyle : public vtkInteractorStyle
 {
 public:
   static vtkContextInteractorStyle *New();

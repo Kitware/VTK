@@ -24,12 +24,13 @@
 #ifndef __vtkTransformToGrid_h
 #define __vtkTransformToGrid_h
 
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h" // makes things a bit easier
 
 class vtkAbstractTransform;
 
-class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
 {
 public:
   static vtkTransformToGrid *New();

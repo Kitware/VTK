@@ -75,13 +75,14 @@
 #ifndef __vtkAxesTransformWidget_h
 #define __vtkAxesTransformWidget_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
 class vtkAxesTransformRepresentation;
 class vtkHandleWidget;
 
 
-class VTK_WIDGETS_EXPORT vtkAxesTransformWidget : public vtkAbstractWidget
+class VTKINTERACTIONWIDGETS_EXPORT vtkAxesTransformWidget : public vtkAbstractWidget
 {
 public:
   // Description:

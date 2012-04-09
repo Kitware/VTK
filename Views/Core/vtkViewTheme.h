@@ -30,12 +30,13 @@
 #ifndef __vtkViewTheme_h
 #define __vtkViewTheme_h
 
+#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkScalarsToColors;
 class vtkTextProperty;
 
-class VTK_RENDERING_EXPORT vtkViewTheme : public vtkObject
+class VTKVIEWSCORE_EXPORT vtkViewTheme : public vtkObject
 {
 public:
   static vtkViewTheme* New();

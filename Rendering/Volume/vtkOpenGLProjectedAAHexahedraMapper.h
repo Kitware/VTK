@@ -28,6 +28,7 @@
 #ifndef __vtkOpenGLProjectedAAHexahedraMapper_h
 #define __vtkOpenGLProjectedAAHexahedraMapper_h
 
+#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkProjectedAAHexahedraMapper.h"
 
 class vtkFloatArray;
@@ -38,7 +39,7 @@ class vtkVolumeProperty;
 class vtkRenderWindow;
 class vtkShaderProgram2;
 
-class VTK_VOLUMERENDERING_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkProjectedAAHexahedraMapper
+class VTKRENDERINGVOLUME_EXPORT vtkOpenGLProjectedAAHexahedraMapper : public vtkProjectedAAHexahedraMapper
 {
 public:
   vtkTypeMacro(vtkOpenGLProjectedAAHexahedraMapper,

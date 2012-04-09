@@ -35,6 +35,7 @@
 #ifndef __vtkConstrainedPointHandleRepresentation_h
 #define __vtkConstrainedPointHandleRepresentation_h
 
+#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
 
 class vtkProperty;
@@ -49,7 +50,7 @@ class vtkPlaneCollection;
 class vtkPlanes;
 class vtkRenderer;
 
-class VTK_WIDGETS_EXPORT vtkConstrainedPointHandleRepresentation : public vtkHandleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT vtkConstrainedPointHandleRepresentation : public vtkHandleRepresentation
 {
 public:
   // Description:

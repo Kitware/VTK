@@ -28,9 +28,10 @@
 #ifndef __vtkBoostBetweennessClustering_h
 #define __vtkBoostBetweennessClustering_h
 
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkBoostBetweennessClustering :
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBetweennessClustering :
   public vtkGraphAlgorithm
 {
 public:

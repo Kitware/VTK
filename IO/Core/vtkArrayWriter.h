@@ -50,12 +50,13 @@
 #ifndef __vtkArrayWriter_h
 #define __vtkArrayWriter_h
 
+#include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"
 #include "vtkStdString.h" // For string API
 
 class vtkArray;
 
-class VTK_IO_EXPORT vtkArrayWriter :
+class VTKIOCORE_EXPORT vtkArrayWriter :
   public vtkWriter
 {
 public:

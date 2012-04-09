@@ -29,9 +29,10 @@
 #ifndef __vtkPointsProjectedHull_h
 #define __vtkPointsProjectedHull_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPoints.h"
 
-class VTK_FILTERING_EXPORT vtkPointsProjectedHull : public vtkPoints
+class VTKCOMMONDATAMODEL_EXPORT vtkPointsProjectedHull : public vtkPoints
 {
     vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
 

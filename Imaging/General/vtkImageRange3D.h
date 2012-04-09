@@ -23,11 +23,12 @@
 #define __vtkImageRange3D_h
 
 
+#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageRange3D : public vtkImageSpatialAlgorithm
+class VTKIMAGINGGENERAL_EXPORT vtkImageRange3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageRange3D *New();

@@ -22,11 +22,12 @@
 #ifndef __vtkStructuredPointsWriter_h
 #define __vtkStructuredPointsWriter_h
 
+#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkDataWriter.h"
 
 class vtkImageData;
 
-class VTK_IO_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
+class VTKIOGEOMETRY_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
   static vtkStructuredPointsWriter *New();

@@ -27,9 +27,10 @@
 #ifndef __vtkPHardwareSelector_h
 #define __vtkPHardwareSelector_h
 
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkHardwareSelector.h"
 
-class VTK_PARALLEL_EXPORT vtkPHardwareSelector : public vtkHardwareSelector
+class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkHardwareSelector
 {
 public:
   static vtkPHardwareSelector* New();

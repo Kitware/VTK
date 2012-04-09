@@ -20,6 +20,7 @@
 #ifndef __vtkXMLUnstructuredDataWriter_h
 #define __vtkXMLUnstructuredDataWriter_h
 
+#include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
 class vtkPointSet;
@@ -28,7 +29,7 @@ class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnstructuredGrid;
 
-class VTK_IO_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);

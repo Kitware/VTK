@@ -41,12 +41,13 @@
 #ifndef __vtkVolumeContourSpectrumFilter_h
 #define __vtkVolumeContourSpectrumFilter_h
 
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include  "vtkDataObjectAlgorithm.h"
 
 class vtkReebGraph;
 class vtkTable;
 
-class VTK_GRAPHICS_EXPORT vtkVolumeContourSpectrumFilter :
+class VTKFILTERSGENERAL_EXPORT vtkVolumeContourSpectrumFilter :
   public vtkDataObjectAlgorithm
 {
 public:

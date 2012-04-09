@@ -31,6 +31,7 @@
 #ifndef __vtkSocketCommunicator_h
 #define __vtkSocketCommunicator_h
 
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
 
 #include "vtkByteSwap.h" // Needed for vtkSwap macros
@@ -50,7 +51,7 @@
 class vtkClientSocket;
 class vtkServerSocket;
 
-class VTK_PARALLEL_EXPORT vtkSocketCommunicator : public vtkCommunicator
+class VTKPARALLELCORE_EXPORT vtkSocketCommunicator : public vtkCommunicator
 {
 public:
   static vtkSocketCommunicator *New();

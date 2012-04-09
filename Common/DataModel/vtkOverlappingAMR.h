@@ -27,6 +27,7 @@
 #ifndef __vtkOverlappingAmr_h
 #define __vtkOverlappingAmr_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMR.h"
 #include <vector>    // For STL vector
 #include <map>       // For STL map
@@ -43,7 +44,7 @@ class vtkUnsignedIntArray;
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
-class VTK_FILTERING_EXPORT vtkOverlappingAMR: public vtkUniformGridAMR
+class VTKCOMMONDATAMODEL_EXPORT vtkOverlappingAMR: public vtkUniformGridAMR
 {
 public:
   static vtkOverlappingAMR *New();

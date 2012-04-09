@@ -29,6 +29,7 @@
 #ifndef __vtkQtTreeModelAdapter_h
 #define __vtkQtTreeModelAdapter_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkType.h"
 #include "vtkSelection.h"
@@ -41,7 +42,7 @@
 class vtkTree;
 class vtkAdjacentVertexIterator;
 
-class QVTK_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAdapter
+class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
 

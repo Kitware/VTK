@@ -22,9 +22,10 @@
 #ifndef __vtkRectilinearGridOutlineFilter_h
 #define __vtkRectilinearGridOutlineFilter_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_PARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRectilinearGridOutlineFilter *New();

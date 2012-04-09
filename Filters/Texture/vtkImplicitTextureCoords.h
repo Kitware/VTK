@@ -46,11 +46,12 @@
 #ifndef __vtkImplicitTextureCoords_h
 #define __vtkImplicitTextureCoords_h
 
+#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkImplicitFunction;
 
-class VTK_GRAPHICS_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgorithm 
+class VTKFILTERSTEXTURE_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkImplicitTextureCoords,vtkDataSetAlgorithm);

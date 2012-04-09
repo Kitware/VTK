@@ -25,12 +25,13 @@
 #ifndef __vtkCollectTable_h
 #define __vtkCollectTable_h
 
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
 class vtkMultiProcessController;
 class vtkSocketController;
 
-class VTK_PARALLEL_EXPORT vtkCollectTable : public vtkTableAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkCollectTable : public vtkTableAlgorithm
 {
 public:
   static vtkCollectTable *New();
