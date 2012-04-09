@@ -90,10 +90,6 @@ set(Module_SRCS
 
   vtkMarchingContourFilter.cxx
 
-  # Depend upon FiltersSources
-  #vtkStreamTracer.cxx # Needs vtkModifiedBSPTree
-  #vtkModifiedBSPTree.cxx # Needs vtkCubeSource.h
-  #vtkCellLocatorInterpolatedVelocityField.cxx # Needs vtkModifiedBSPTree
   #vtkOutlineCornerFilter.cxx # Needs vtkOutlineCornerSource
 
   # Depend upon IO/Image

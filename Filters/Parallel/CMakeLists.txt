@@ -8,10 +8,8 @@ set(Module_SRCS
   vtkCachingInterpolatedVelocityField.cxx
   vtkCutMaterial.cxx
   vtkDistributedDataFilter.cxx
-  # vtkDistributedStreamTracer.cxx # needs vtkStreamTracer
   vtkDuplicatePolyData.cxx
   vtkExtractCTHPart.cxx
-  # vtkExtractPiece.cxx # needs vtkImageClip
   vtkExtractPolyDataPiece.cxx
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
@@ -33,12 +31,10 @@ set(Module_SRCS
   vtkPReflectionFilter.cxx
   vtkProcessIdScalars.cxx
   vtkPSphereSource.cxx
-  # vtkPStreamTracer.cxx # needs vtkStreamTracer
   vtkPTableToStructuredGrid.cxx
   vtkRectilinearGridOutlineFilter.cxx
   # vtkTemporalFractal.cxx # needs vtkImageMandelbrotSource
   vtkTemporalInterpolatedVelocityField.cxx
-  # vtkTemporalStreamTracer.cxx # needs vtkStreamTracer
   # vtkTransmitImageDataPiece.cxx # needs vtkImageClip
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx

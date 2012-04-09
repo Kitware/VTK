@@ -1,0 +1,10 @@
+vtk_module(vtkFiltersTracers
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkFiltersGeneral
+    vtkFiltersSources
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingOpenGL
+  )
