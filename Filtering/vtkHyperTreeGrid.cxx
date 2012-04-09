@@ -36,7 +36,6 @@
 #include "vtkVoxel.h"
 
 #include <vtkstd/deque>
-//#include <vtkstd/set>
 #include <vtkstd/vector>
 
 #include <assert.h>
