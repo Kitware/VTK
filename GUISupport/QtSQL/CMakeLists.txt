@@ -12,6 +12,7 @@ set(QT_USE_QTSQL 1)
 find_package(Qt4 REQUIRED QUIET)
 include(${QT_USE_FILE})
 
+set(${vtk-module}_NO_HeaderTest 1)
 vtk_module_library(${vtk-module} ${LibSrcs})
 
 # Apply user-defined properties to the library target.

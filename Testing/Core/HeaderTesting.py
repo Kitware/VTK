@@ -120,7 +120,21 @@ class TestVTKFiles:
         except:
             self.Print( "Problem reading file: %s" % filename )
             sys.exit(1)
-        pass
+        return not self.CheckExclude()
+
+    def CheckExclude(self):
+        prefix = '// VTK-HeaderTest-Exclude:'
+        exclude = 0
+        for l in self.FileLines:
+            if l.startswith(prefix):
+                e = l[len(prefix):].strip()
+                if e == os.path.basename(self.FileName):
+                    exclude += 1
+                else:
+                    self.Error("Wrong exclusion: "+l.rstrip())
+        if exclude > 1:
+            self.Error("Multiple VTK-HeaderTest-Exclude lines")
+        return exclude > 0
 
     def CheckIncludes(self):
         count = 0
@@ -436,9 +450,8 @@ for a in os.listdir(dirname):
     ## Skip directories
     if stat.S_ISDIR(mode):
         continue
-    elif stat.S_ISREG(mode):
+    elif stat.S_ISREG(mode) and test.TestFile(pathname):
         ## Do all the tests
-        test.TestFile(pathname)
         test.CheckParent()
         test.CheckIncludes()
         test.CheckTypeMacro()
